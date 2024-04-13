@@ -9,6 +9,13 @@ const authProvider: AuthBindings = {
       if (providerName) {
         const { data, error } = await supabaseClient.auth.signInWithOAuth({
           provider: providerName,
+          options: {
+            queryParams: {
+              acces_type: "offline",
+              prompt: "consent",
+            },
+            scopes: "https://www.googleapis.com/auth/documents",
+          },
         });
 
         if (error) {
@@ -19,6 +26,7 @@ const authProvider: AuthBindings = {
         }
 
         if (data?.url) {
+      
           return {
             success: true,
             redirectTo: "/",
@@ -189,11 +197,12 @@ const authProvider: AuthBindings = {
       const { session } = data;
 
       if (!session) {
+        console.log("Session not found eee")
         return {
           authenticated: false,
           error: {
             message: "Check failed",
-            name: "Session not found",
+            name: "Session not found oo",
           },
           logout: true,
           redirectTo: "/login",

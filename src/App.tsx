@@ -5,6 +5,8 @@ import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 import { useNotificationProvider } from "@refinedev/antd";
 import "@refinedev/antd/dist/reset.css";
 
+import {Home, Register, Login} from "./pages"; 
+
 import routerBindings, {
   DocumentTitleHandler,
   UnsavedChangesNotifier,
@@ -13,7 +15,6 @@ import { dataProvider, liveProvider } from "@refinedev/supabase";
 import { App as AntdApp } from "antd";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import authProvider from "./authProvider";
-import { ColorModeContextProvider } from "./contexts/color-mode";
 import { supabaseClient } from "./utility";
 
 function App() {
@@ -21,7 +22,6 @@ function App() {
     <BrowserRouter>
       <GitHubBanner />
       <RefineKbarProvider>
-        <ColorModeContextProvider>
           <AntdApp>
             <DevtoolsProvider>
               <Refine
@@ -34,11 +34,14 @@ function App() {
                   syncWithLocation: true,
                   warnWhenUnsavedChanges: true,
                   useNewQueryKeys: true,
-                  projectId: "uKlDzh-KIKsfB-SdW0qa",
+                  projectId: "x7QNKo-4WBp1Q-oEVe6k",
                 }}
               >
                 <Routes>
                   <Route index element={<WelcomePage />} />
+                  <Route index element={<Home />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/login" element={<Login />} />
                 </Routes>
                 <RefineKbar />
                 <UnsavedChangesNotifier />
@@ -47,7 +50,6 @@ function App() {
               <DevtoolsPanel />
             </DevtoolsProvider>
           </AntdApp>
-        </ColorModeContextProvider>
       </RefineKbarProvider>
     </BrowserRouter>
   );
