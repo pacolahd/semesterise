@@ -239,7 +239,8 @@ const authProvider: AuthBindings = {
     if (data?.user) {
       return {
         ...data.user,
-        name: data.user.email,
+        name: data.user.user_metadata.name,
+        avatar: data.user.user_metadata.avatar_url,
       };
     }
 
