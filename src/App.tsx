@@ -5,7 +5,7 @@ import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 import { useNotificationProvider } from "@refinedev/antd";
 import "@refinedev/antd/dist/reset.css";
 
-import {Home, Register, Login} from "./pages"; 
+import {Home, Register, Login, Courses} from "./pages"; 
 
 import routerBindings, {
   CatchAllNavigate,
@@ -18,21 +18,25 @@ import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
 import authProvider from "./authProvider";
 import { supabaseClient } from "./utility";
 import Layout from "./components/layout";
+import { resources } from "./config/resources";
 
 function App() {
   return (
     <BrowserRouter>
-      <GitHubBanner />
+      {/* <GitHubBanner /> */}
       <RefineKbarProvider>
         <AntdApp>
           <DevtoolsProvider>
             <Refine
               dataProvider={dataProvider(supabaseClient)}
               liveProvider={liveProvider(supabaseClient)}
+              
               authProvider={authProvider}
               routerProvider={routerBindings}
               notificationProvider={useNotificationProvider}
+              resources={resources}
               options={{
+                liveMode: "auto",
                 syncWithLocation: true,
                 warnWhenUnsavedChanges: true,
                 useNewQueryKeys: true,
@@ -56,6 +60,7 @@ function App() {
                   }
                 >
                   <Route index element={<Home />} />
+                  <Route path="/courses" element={<Courses />} />
                 </Route>
               </Routes>
 

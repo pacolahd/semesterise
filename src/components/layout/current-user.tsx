@@ -3,8 +3,9 @@ import { Popover, Button} from "antd"
 import CustomAvatar from "../custom-avatar"
 import { RefineThemedLayoutV2HeaderProps } from "@refinedev/antd"
 import { Text } from "../text";
-import { SettingOutlined } from "@ant-design/icons";
+import { SettingOutlined, LogoutOutlined } from "@ant-design/icons";
 import { useState } from "react";
+import { AccountSettings } from "./accoount-settings";
 
 
 export const CurrentUser: React.FC<RefineThemedLayoutV2HeaderProps> = () => {
@@ -23,14 +24,7 @@ export const CurrentUser: React.FC<RefineThemedLayoutV2HeaderProps> = () => {
             {/* <Button type="link">Profile</Button>
             <Button type="link">Settings</Button>
             <Button type="link">Logout</Button> */}
-            
-            <Text
-                strong
-                style={{padding: "12px 20px", cursor: "pointer"}}
-            >
-            {user?.name}
-            </Text>     
-            
+      
             <div
                 style={{borderTop: "1px solid #d9d9d9", padding: "4px", display: "flex", flexDirection: "column", gap: "4px"}}
             >
@@ -41,14 +35,30 @@ export const CurrentUser: React.FC<RefineThemedLayoutV2HeaderProps> = () => {
                     block
                     onClick={() => setIsOpen(true)}
                 >
-                    Account Settings
+                    Account Details
                 </Button>
+                  {/* <Button
+                    style={{textAlign: "left"}}    
+                    icon={<LogoutOutlined />}
+                    type="text"
+                    block
+                    onClick={() => setIsOpen(true)}
+                >
+                    Logout
+                </Button> */}
             </div> 
         </div>
     )
 
 
   return (
+    <div style={{display: "flex", flexDirection: "row", gap: "0px"}}>
+    <Text
+        strong
+        style={{padding: "12px 20px", cursor: "pointer"}}
+        >
+        {user?.name}
+    </Text>  
     <Popover
         placement="bottomRight"
         trigger={["click", "hover", "focus"]}
@@ -61,6 +71,9 @@ export const CurrentUser: React.FC<RefineThemedLayoutV2HeaderProps> = () => {
             src={user?.avatar}
         />     
     </Popover>
+    {user && <AccountSettings opened={isOpen} setOpened={setIsOpen} />}
+
+    </div>
   );
 
 };
