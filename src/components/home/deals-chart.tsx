@@ -1,73 +1,85 @@
 import React from "react";
-import { useList } from "@refinedev/core";
-import { DollarOutlined } from "@ant-design/icons";
-import { Bar, BarConfig } from "@ant-design/plots";
-import { Card } from "antd";
-import { Text } from "../text";
-import { Line, LineConfig } from "@ant-design/plots";
 
+import { useList } from "@refinedev/core";
+import { IAssignment } from "@/interfaces";
+
+import { BookFilled, BookOutlined, DollarOutlined } from "@ant-design/icons";
+import { Area, AreaConfig, Bar, BarConfig} from "@ant-design/plots";
+import { Card } from "antd";
+
+
+
+import { Text } from "../text";
 
 export const DashboardDealsChart = () => {
-  const { data } = useList({
+  const { data, isLoading } = useList<IAssignment>({
     resource: "assignments",
-    // filters: [{ field: "submitted", operator: "in", value: ["Yes"] }],
+    // filters: [
+    //   { field: "late", operator: "eq", value: "True" },
+    //   { field: "submitted", operator: "eq", value: "False" },
+    // ],
+
     meta: {
-      select:
-        "assignment_name, grade, points_possible, submitted, late, course_name",
+      select: "canvas_course_id, course_name, late, submitted",
     },
   });
-  // Calculate the completion rate for each submission status
-  const completionData = React.useMemo(() => {
-    if (!data?.data) return [];
 
-    const submittedAssignments = data.data.filter(
-      (assignment) => assignment.submitted
-    );
-    const notSubmittedAssignments = data.data.filter(
-      (assignment) => !assignment.submitted
-    );
+  const courseNeglectData = React.useMemo(() => {
+    if (!data) return [];
 
-    const submittedCount = submittedAssignments.length;
-    const notSubmittedCount = notSubmittedAssignments.length;
-    const totalCount = submittedCount + notSubmittedCount;
+    const courseMap: Record<string, { total: number; neglected: number }> = {};
 
-    const submittedCompletionRate = (submittedCount / totalCount) * 100;
-    const notSubmittedCompletionRate = (notSubmittedCount / totalCount) * 100;
+    data?.data.forEach((assignment: IAssignment) => {
+    console.log("Assignment data:", data.data);
 
-    return [
-      { status: "Submitted", completionRate: submittedCompletionRate },
-      { status: "Not Submitted", completionRate: notSubmittedCompletionRate },
-    ];
-  }, [data?.data]);
+      if (!courseMap[assignment.course_name]) {
+        courseMap[assignment.course_name] = { total: 0, neglected: 0 };
+      }
 
-  // Configuration for the bar chart
-  const config = {
-    data: completionData,
-    xField: "status",
-    yField: "completionRate",
-    seriesField: "status",
+      courseMap[assignment.course_name].total++;
+
+      if (assignment.late && !assignment.submitted) {
+        courseMap[assignment.course_name].neglected++;
+      }
+    });
+
+    const result: { course: string; neglectPercentage: number }[] = [];
+
+    for (const course in courseMap) {
+      const { total, neglected } = courseMap[course];
+      console.log("Total:", total);
+      console.log("Neglected:", neglected);
+      const neglectPercentage = (neglected / total) * 100;
+      result.push({ course, neglectPercentage });
+    }
+
+    return result;
+  }, [data]);
+
+  const config: AreaConfig = {
+    data: courseNeglectData,
+    xField: "course",
+    yField: "neglectPercentage",
+    seriesField: "course",
     xAxis: {
       label: {
-        autoRotate: false,
+        autoRotate: true,
       },
     },
     yAxis: {
-      min: 0,
-      max: 100,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
       label: {
-        formatter: (v) => `${v}%`,
+        formatter: (v: String) => `${Number(v).toFixed(2)}%`,
       },
     },
     meta: {
-      status: {
-        alias: "Submission Status",
+      course: {
+        alias: "Course",
       },
-      completionRate: {
-        alias: "Completion Rate",
-        formatter: (v) => `${v.toFixed(2)}%`,
+      neglectPercentage: {
+        alias: "Neglect Percentage",
+        formatter: (v: number) => `${v.toFixed(2)}%`,
       },
     },
-    color: ({ status }) => (status === "Submitted" ? "#1890ff" : "#f5222d"),
   };
 
   return (
@@ -77,13 +89,14 @@ export const DashboardDealsChart = () => {
       bodyStyle={{ padding: "24px 24px 0px 24px" }}
       title={
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <BookOutlined />
           <Text size="sm" style={{ marginLeft: ".5rem" }}>
-            Assignment Submission Analysis
+            Assignment Neglect Analysis
           </Text>
         </div>
       }
     >
-      <Bar {...config} />
+      {isLoading ? <div>Loading...</div> : <Area {...config} height={325} />}
     </Card>
   );
 };

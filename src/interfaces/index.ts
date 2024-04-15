@@ -14,10 +14,10 @@ export interface IAssignment {
   course_name: string;
   canvas_assignment_id: string;
   assignment_name: string;
-  grade: number | null;
+  grade: number;
   points_possible: number;
   submitted: boolean;
-  late: boolean | null;
+  late: boolean;
 }
 
 export interface IEngagement {
