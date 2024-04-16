@@ -25,12 +25,14 @@ export const AccountSettings: React.FC<Props> = ({ opened, setOpened }) => {
       console.log("Courses:", courses);
       console.log("Assignments:", assignments);
 
+      setError("Your data has been Sucessfully Fetched From Canvas. You can now close this.");
+
       console.log("Data received successfully");
     } catch (error) {
       setError("Failed to fetch data. Please check your Canvas API key.");
     }
 
-    setOpened(false);
+    // setOpened(false);
     setIsLoading(false);
   };
 

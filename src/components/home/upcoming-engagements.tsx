@@ -13,7 +13,7 @@ export const UpcomingEngagements = () => {
     // filters: [{ field: "location", operator: "ne", value: "room"}], //Where location is not room
     meta: {
       select:
-        "id, course_id, title, description, location, time, link, courses(name)",
+        "id, title, description, location, time, link",
     },
   });
 
@@ -26,8 +26,8 @@ export const UpcomingEngagements = () => {
       title={
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <CalendarOutlined />
-          <Text size="sm" style={{ marginLeft: ".7rem" }}>
-            Upcoming events
+          <Text size="xl" style={{ marginLeft: ".7rem" }}>
+            Engagements
           </Text>
         </div>
       }

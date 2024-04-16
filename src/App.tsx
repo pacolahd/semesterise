@@ -5,7 +5,8 @@ import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 import { useNotificationProvider } from "@refinedev/antd";
 import "@refinedev/antd/dist/reset.css";
 
-import {Home, Register, Login, Courses} from "./pages"; 
+import {Home, Register, Login, Engagements} from "./pages"; 
+import { EngagementsCreate, EngagementsEdit,EngagementsShow } from "./pages/engagements";
 
 import routerBindings, {
   CatchAllNavigate,
@@ -30,7 +31,6 @@ function App() {
             <Refine
               dataProvider={dataProvider(supabaseClient)}
               liveProvider={liveProvider(supabaseClient)}
-              
               authProvider={authProvider}
               routerProvider={routerBindings}
               notificationProvider={useNotificationProvider}
@@ -60,7 +60,12 @@ function App() {
                   }
                 >
                   <Route index element={<Home />} />
-                  <Route path="/courses" element={<Courses />} />
+                  <Route path="/engagements">
+                    <Route index element={<Engagements />} />
+                    <Route path="create" element={<EngagementsCreate />} />
+                    <Route path="edit/:id" element={<EngagementsEdit />} />
+                    <Route path="show/:id" element={<EngagementsShow />} />
+                  </Route>
                 </Route>
               </Routes>
 

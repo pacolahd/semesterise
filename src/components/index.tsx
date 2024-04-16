@@ -1,5 +1,12 @@
 import {UpcomingEngagements} from "./home/upcoming-engagements";
-import { DashboardDealsChart } from "./home/deals-chart";
+import { AssignmentGradesChart } from "./home/assignent-grades-analysis";
+import { AllAssignments } from "./home/all-assignments";
+import { CurrentCourses } from "./home/current-courses";
 
 
-export {UpcomingEngagements, DashboardDealsChart}
+export {
+  UpcomingEngagements,
+  AssignmentGradesChart,
+  AllAssignments,
+  CurrentCourses,
+};
