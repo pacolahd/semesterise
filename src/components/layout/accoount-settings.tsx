@@ -19,10 +19,12 @@ export const AccountSettings: React.FC<Props> = ({ opened, setOpened }) => {
 
     try {
       // Fetch data from Canvas LMS API
-      const response = await axios.post("http://127.0.0.1:5000/canvas-data", {
-        canvas_api_key:
-          "15363~1h4AeMbJDlE0fIkN5m79dZX70MySVSXPOjDBF2Rby23tAM20v39BqyDwHpE0uXxK",
-      });
+      const response = await axios.post(
+        "https://semesterise-api-836116110f61.herokuapp.com/canvas-data",
+        {
+          canvas_api_key: canvasApiKey,
+        }
+      );
 
       const { courses, assignments } = response.data;
 
@@ -50,7 +52,6 @@ export const AccountSettings: React.FC<Props> = ({ opened, setOpened }) => {
       setTimeout(() => {
         setOpened(false); // Close the modal
       }, 4000);
-      
     } catch (error) {
       console.error("Failed to fetch and insert data:");
     }
