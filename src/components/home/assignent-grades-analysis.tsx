@@ -30,7 +30,7 @@ const mapAssignmentData = (
   assignments.forEach((assignment) => {
     count++;
     mappedData.push({
-      assignment_name: assignment.assignment_name ||'',
+      assignment_name: assignment.assignment_name || "",
       timeText: dayjs(assignment.graded_at).format("DD MMM"),
       grade: assignment.grade,
       points_possible: assignment.points_possible,
@@ -41,8 +41,6 @@ const mapAssignmentData = (
   console.log(count);
   return mappedData;
 };
-
-   
 
 export const AssignmentGradesChart = () => {
   const { data, isLoading } = useList<IAssignment>({
@@ -82,7 +80,7 @@ export const AssignmentGradesChart = () => {
       label: {
         formatter: (v) => {
           // Adjusted to display grade to points possible ratio instead of percentage
-          return `${Math.round(v * 100)}%`;
+          return `${Math.round(Number(v) * 100)}%`;
         },
       },
     },
@@ -94,10 +92,7 @@ export const AssignmentGradesChart = () => {
             assignment.timeText === data.timeText &&
             assignment.gradeToPointsPossible === data.gradeToPointsPossible &&
             assignment.course === data.course
-            
         );
-
-      
 
         function formattedAssignmentName(
           firstString: string,
@@ -108,8 +103,10 @@ export const AssignmentGradesChart = () => {
         }
 
         // If the index is found, extract the assignment name
-        return formattedAssignmentName(data.course,assignmentData[dataIndex].assignment_name);
-
+        return formattedAssignmentName(
+          data.course,
+          assignmentData[dataIndex].assignment_name
+        );
       },
     },
     isStack: false,
