@@ -1,7 +1,7 @@
 # semesterise
 
 
-This [Refine](https://github.com/refinedev/refine) project was created with [create refine-app](https://github.com/refinedev/refine/tree/master/packages/create-refine-app).
+This project was created with [create refine-app](https://github.com/refinedev/refine/tree/master/packages/create-refine-app).
 
 ## Getting Started
 
