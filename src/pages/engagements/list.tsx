@@ -38,7 +38,7 @@ const DateField: React.FC<DateFieldProps> = ({ value }) => {
   return (
     <>
       <List title="Engagements">
-        <h4>Here can add school engagements for and delete them when done</h4>
+        <h4>Here can add school engagements then and delete them when done</h4>
         <Table {...tableProps} rowKey="id">
           <Table.Column dataIndex="title" title={"Title"} />
 

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Button, Input } from "antd";
 import axios from "axios";
+import { supabaseClient } from "@/utility";
 
 type Props = {
   opened: boolean;
@@ -17,21 +18,42 @@ export const AccountSettings: React.FC<Props> = ({ opened, setOpened }) => {
     setError(null);
 
     try {
+      // Fetch data from Canvas LMS API
       const response = await axios.post("http://127.0.0.1:5000/canvas-data", {
-        canvas_api_key: canvasApiKey,
+        canvas_api_key:
+          "15363~1h4AeMbJDlE0fIkN5m79dZX70MySVSXPOjDBF2Rby23tAM20v39BqyDwHpE0uXxK",
       });
+
       const { courses, assignments } = response.data;
 
-      console.log("Courses:", courses);
-      console.log("Assignments:", assignments);
+      // Insert courses into the 'courses' table in Supabase
+      const { error: coursesError } = await supabaseClient
+        .from("courses")
+        .upsert(courses);
 
-      setError("Your data has been Sucessfully Fetched From Canvas. You can now close this.");
+      if (coursesError) {
+        throw coursesError;
+      }
 
-      console.log("Data received successfully");
+      setError("Courses fetched sucessfuly.");
+      // Insert assignments into the 'assignments' table in Supabase
+      const { error: assignmentsError } = await supabaseClient
+        .from("assignments")
+        .upsert(assignments);
+
+      if (assignmentsError) {
+        throw assignmentsError;
+      }
+
+      setError("Assignments fetched sucessfuly.");
+      // Close the modal after 2 seconds
+      setTimeout(() => {
+        setOpened(false); // Close the modal
+      }, 4000);
+      
     } catch (error) {
-      setError("Failed to fetch data. Please check your Canvas API key.");
+      console.error("Failed to fetch and insert data:");
     }
-
     // setOpened(false);
     setIsLoading(false);
   };

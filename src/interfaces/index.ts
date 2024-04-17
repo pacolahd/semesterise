@@ -1,4 +1,7 @@
+import exp from "constants";
+
 export interface ICourse {
+  user_id: string;
  canvas_user_id: string;
   name: string;
   canvas_course_id: string;
@@ -10,6 +13,7 @@ export interface ICourse {
 }
 
 export interface IAssignment {
+  user_id: string;
   canvas_user_id: string;
   created_at: Date;
   canvas_course_id: string;
@@ -24,6 +28,7 @@ export interface IAssignment {
 }
 
 export interface IEngagement {
+    user_id: string;
     id: string;
     title: string;
     description: string | null;
@@ -33,3 +38,9 @@ export interface IEngagement {
    
 }
 
+export interface IUser {
+        id: string
+        name: string
+        avatar: string
+        email: string
+    }

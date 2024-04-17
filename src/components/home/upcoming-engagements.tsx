@@ -27,7 +27,7 @@ export const UpcomingEngagements = () => {
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <CalendarOutlined />
           <Text size="xl" style={{ marginLeft: ".7rem" }}>
-            Engagements
+            Upcoming Engagements
           </Text>
         </div>
       }

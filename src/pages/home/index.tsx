@@ -45,8 +45,15 @@ export const Home = () => {
           </p>
           <h3 style={{ color: "   #922334   " }}>
             Go to your profile picture, then account settings and enter your
-            Canvas API key.
+            Canvas Access Token.
           </h3>
+          <p>
+            How to generate Access Token:{" "}
+            <a href="https://community.canvaslms.com/t5/image/serverpage/image-id/78858i4C3F4EBCB7B5BF22/image-dimensions/689x377?v=v2" target="_blank" rel="noopener noreferrer">
+              Instuctions
+            </a>
+            .
+          </p>
         </div>
       </Modal>
 
@@ -54,7 +61,7 @@ export const Home = () => {
         <Col xs={24} sm={24} xl={6} style={{ height: "200px" }}>
           <UpcomingEngagements />
         </Col>
-        <Col xs={24} sm={24} xl={10} style={{ height: "460px" }}>
+        <Col xs={24} sm={24} xl={15} style={{ height: "460px" }}>
           <CurrentCourses />
         </Col>
       </Row>
@@ -66,7 +73,7 @@ export const Home = () => {
       </Row>
 
       <Row gutter={[32, 32]} style={{ marginTop: "32px" }}>
-        <Col xs={24} sm={24} xl={10} style={{ height: "460px" }}>
+        <Col xs={24} sm={24} xl={15} style={{ height: "460px" }}>
           <AllAssignments />
         </Col>
       </Row>

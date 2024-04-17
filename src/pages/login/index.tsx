@@ -1,12 +1,17 @@
-import { GoogleOutlined } from "@ant-design/icons"
-import { AuthPage } from "@refinedev/antd"
+import { GoogleOutlined } from "@ant-design/icons";
+import { AuthPage } from "@refinedev/antd";
 
 export const Login = () => {
   return (
-<AuthPage
+    <AuthPage
       type="login"
       hideForm={true}
-      // title="Join Semesterise"
+      title={
+        <div style={{ textAlign: "center" }}>
+          <h3 style={{ fontWeight: "bold" }}>Welcome back to Semesterise</h3>
+          <p style={{ fontSize: "1rem" }}>Keep your semester smiling.</p>
+        </div>
+      }
       // wrapperProps={{
       //   style: {
       //     background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
@@ -32,6 +37,5 @@ export const Login = () => {
         },
       ]}
     />
-  )
-}
-
+  );
+};

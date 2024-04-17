@@ -7,6 +7,13 @@ export const Register = () => {
     <AuthPage
       type="register"
       hideForm={true}
+      title={
+        <div style={{ textAlign: "center" }}>
+          {" "}
+          <h3 style={{ fontWeight: "bold" }}>Join Semesterise</h3>
+          <p style={{ fontSize: "1rem" }}>Make your semester smile.</p>
+        </div>
+      }
       // title="Join Semesterise"
       providers={[
         {
@@ -16,7 +23,7 @@ export const Register = () => {
         },
       ]}
     />
-  )
+  );
 }
 
 

@@ -26,7 +26,9 @@ const mapAssignmentData = (
   if (!assignments) return mappedData;
 
   // Map each assignment individually
+  let count = 0;
   assignments.forEach((assignment) => {
+    count++;
     mappedData.push({
       assignment_name: assignment.assignment_name ||'',
       timeText: dayjs(assignment.graded_at).format("DD MMM"),
@@ -36,16 +38,18 @@ const mapAssignmentData = (
       course: assignment.course_name,
     });
   });
-
+  console.log(count);
   return mappedData;
 };
+
+   
 
 export const AssignmentGradesChart = () => {
   const { data, isLoading } = useList<IAssignment>({
     resource: "assignments",
-    // pagination: {
-    //   pageSize: 100,
-    // },
+    pagination: {
+      pageSize: 500,
+    },
     sorters: [
       {
         field: "graded_at",
@@ -62,6 +66,8 @@ export const AssignmentGradesChart = () => {
     return mapAssignmentData(data?.data);
   }, [data?.data]);
 
+  console.log(mapAssignmentData(data?.data));
+
   const config: AreaConfig = {
     xAxis: {
       title: {
@@ -72,7 +78,7 @@ export const AssignmentGradesChart = () => {
       title: {
         text: "Grade Percentage",
       },
-      tickCount: 4,
+      tickCount: 5,
       label: {
         formatter: (v) => {
           // Adjusted to display grade to points possible ratio instead of percentage
@@ -88,8 +94,10 @@ export const AssignmentGradesChart = () => {
             assignment.timeText === data.timeText &&
             assignment.gradeToPointsPossible === data.gradeToPointsPossible &&
             assignment.course === data.course
+            
         );
 
+      
 
         function formattedAssignmentName(
           firstString: string,
@@ -187,7 +195,7 @@ export const AssignmentGradesChart = () => {
         >
           <LineChartOutlined />
           <Text size="xl" style={{ marginLeft: ".5rem" }}>
-            Assignment Grades Over Time
+            Graded Work Over Time
           </Text>
         </div>
       }
