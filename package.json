@@ -17,7 +17,8 @@
     "antd": "^5.0.5",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "react-router-dom": "^6.8.1"
+    "react-router-dom": "^6.8.1",
+    "serve": "^14.2.1"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.2",
@@ -39,6 +40,7 @@
     "vite-tsconfig-paths": "^4.3.2"
   },
   "scripts": {
+    "start": "serve -s build",
     "dev": "refine dev",
     "build": "tsc && refine build",
     "preview": "refine start",
