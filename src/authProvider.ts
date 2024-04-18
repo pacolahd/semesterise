@@ -14,7 +14,7 @@ const authProvider: AuthBindings = {
               acces_type: "offline",
               prompt: "consent",
             },
-            scopes: "https://www.googleapis.com/auth/documents",
+            // scopes: "https://www.googleapis.com/auth/documents",
           },
         });
 

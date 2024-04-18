@@ -21,6 +21,7 @@ import { supabaseClient } from "./utility";
 import Layout from "./components/layout";
 import { resources } from "./config/resources";
 
+
 function App() {
   return (
     <BrowserRouter>
@@ -44,7 +45,7 @@ function App() {
               }}
             >
               <Routes>
-                <Route path="/register" element={<Register />} />
+                <Route path="/register" element={<Login />} />
                 <Route path="/login" element={<Login />} />
 
                 <Route

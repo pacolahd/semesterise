@@ -5,7 +5,9 @@ import {
   AssignmentGradesChart,
   AllAssignments,
   CurrentCourses,
-} from "@/components"; 
+} from "@/components";
+
+import { useDocumentTitle } from "@refinedev/react-router-v6";
 
 export const Home = () => {
   // State to control the visibility of the modal
@@ -20,6 +22,7 @@ export const Home = () => {
   const handleOk = () => {
     setModalVisible(false);
   };
+
 
   return (
     <div>
@@ -49,7 +52,11 @@ export const Home = () => {
           </h3>
           <p>
             How to generate Access Token:{" "}
-            <a href="https://community.canvaslms.com/t5/image/serverpage/image-id/78858i4C3F4EBCB7B5BF22/image-dimensions/689x377?v=v2" target="_blank" rel="noopener noreferrer">
+            <a
+              href="https://community.canvaslms.com/t5/image/serverpage/image-id/78858i4C3F4EBCB7B5BF22/image-dimensions/689x377?v=v2"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Instuctions
             </a>
             .
@@ -58,10 +65,10 @@ export const Home = () => {
       </Modal>
 
       <Row gutter={[32, 32]} style={{ marginTop: "32px" }}>
-        <Col xs={24} sm={24} xl={6} style={{ height: "200px" }}>
+        <Col xs={24} sm={24} xl={8} style={{ height: "200px" }}>
           <UpcomingEngagements />
         </Col>
-        <Col xs={24} sm={24} xl={15} style={{ height: "460px" }}>
+        <Col xs={24} sm={24} xl={13} style={{ height: "460px" }}>
           <CurrentCourses />
         </Col>
       </Row>

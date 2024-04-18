@@ -48,7 +48,7 @@ const DateField: React.FC<DateFieldProps> = ({ value }) => {
             render={(value: string) => {
               return (
                 <MarkdownField
-                  value={value ? `${value.slice(0, 5)}...` : value}
+                  value={value ? `${value.slice(0, 10)}...` : value}
                 />
               );
             }}
@@ -62,7 +62,7 @@ const DateField: React.FC<DateFieldProps> = ({ value }) => {
             render={(value: string) => {
               return (
                 <MarkdownField
-                  value={value ? `${value.slice(0, 5)}...` : value}
+                  value={value ? `${value.slice(0, 10)}...` : value}
                 />
               );
             }}

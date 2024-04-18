@@ -1,7 +1,11 @@
 import { GoogleOutlined } from "@ant-design/icons";
 import { AuthPage } from "@refinedev/antd";
+import { useDocumentTitle } from "@refinedev/react-router-v6";
+
 
 export const Login = () => {
+      useDocumentTitle("Login | Semesterise");
+
   return (
     <AuthPage
       type="login"
@@ -12,6 +16,7 @@ export const Login = () => {
           <p style={{ fontSize: "1rem" }}>Keep your semester smiling.</p>
         </div>
       }
+      registerLink
       // wrapperProps={{
       //   style: {
       //     background: "linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)",
