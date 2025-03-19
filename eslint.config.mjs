@@ -71,8 +71,8 @@ const config = [
       "check-file/folder-naming-convention": [
         "error",
         {
-          // Apply kebab-case to all folders except __tests__
-          "src/**/!(__tests__)": "KEBAB_CASE",
+          // Apply kebab-case to all folders except those in brackets and __tests__
+          "src/**/!(__tests__|\\[*\\])": "KEBAB_CASE",
         },
       ],
     },
