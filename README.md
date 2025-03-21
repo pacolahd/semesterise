@@ -1,36 +1,231 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Semesterise
 
-## Getting Started
+Semesterise is an integrated academic management platform that streamlines degree audits, petition processes, and learning analytics for Ashesi University.
 
-First, run the development server:
+## Project Overview
 
+Semesterise addresses key challenges in academic management at Ashesi University:
+
+- **Degree Auditing**: Automatically tracks student progress toward graduation requirements
+- **Petition Processing**: Streamlines submission, tracking, and approval of academic petitions
+- **Learning Analytics**: Integrates with Canvas LMS to provide insights into student performance
+
+## Features
+
+### For Students
+- **Dual-View Academic Planning**
+  - Semester timeline view for chronological planning
+  - Degree requirements view for category-based tracking
+  - Synchronized data between both views
+- **Transcript Import**
+  - One-click import from CAMU transcript PDFs
+  - Automatic course categorization
+  - Verified academic history
+- **Smart Course Planning**
+  - Drag-and-drop course rescheduling
+  - Prerequisite enforcement
+  - Workload balancing recommendations
+  - Automatic retake scheduling
+- **Petition Management**
+  - Streamlined submission for seven petition types
+  - Real-time status tracking
+  - Integrated messaging with administrators
+  - Academic plan integration
+- **Learning Analytics** (Future)
+  - Canvas LMS integration
+  - Performance tracking and visualization
+  - Personalized recommendations
+
+### For Administrators
+- **Automated Degree Auditing**
+  - Cohort-specific requirement verification
+  - Grade requirement validation
+  - Comprehensive progress reporting
+- **Efficient Petition Processing**
+  - Hierarchical approval workflow
+  - Role-based access control
+  - Internal discussion capability
+  - Document management
+- **Reporting & Analytics**
+  - Batch export of petition records
+  - Academic progress statistics
+  - Comprehensive audit trails
+
+## Tech Stack
+
+- **Frontend**: Next.js 15, TypeScript, Tailwind CSS, shadcn/ui
+- **Backend**: Next.js API routes, TypeScript
+- **Database**: PostgreSQL with Drizzle ORM
+- **Authentication**: BetterAuth
+- **API Integrations**: Canvas LMS, Custom APIs for PDF, HTML and MHTML Data Extraction
+
+## Prerequisites
+
+- Node.js 18.x or later
+- PostgreSQL 15.x or later
+- npm 9.x or later
+
+## Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/semesterise.git
+cd semesterise
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Set up environment variables:
+```bash
+cp .env.example .env.local
+```
+Edit `.env.local` with your configuration values.
+
+4. Set up the database:
+```bash
+# Generate schema
+npx @better-auth/cli generate
+
+# Run migrations
+npx @better-auth/cli migrate
+```
+
+5. Start the development server:
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environmental Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+# Database
+DATABASE_URL=postgresql://<username>:<password>@<host>:<port>/<database>
 
-## Learn More
+# BetterAuth
+BETTER_AUTH_SECRET=<your-secret-key>
+BETTER_AUTH_URL=http://localhost:3000
 
-To learn more about Next.js, take a look at the following resources:
+# Canvas API (optional)
+CANVAS_API_URL=https://<your-canvas-instance>.instructure.com/api/v1
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Development
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Database Schema
 
-## Deploy on Vercel
+Semesterise uses a PostgreSQL database with the following core tables:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Academic Structure**: departments, majors, courses, etc.
+- **Degree Requirements**: categories, requirements, grade requirements
+- **Student Records**: profiles, courses, semester mappings
+- **Petition System**: petitions, workflow steps, messages
+- **Auth**: BetterAuth tables (user, session, account, verification)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+### Project Structure (for now)
+
+```
+semesterise/
+├── src/
+│   ├── app/            # Application routes
+│   ├── components/     # Reusable UI components
+│   ├── env/            # .env configuration with t3 env
+│   ├── fonts/          # Custom fonts (Satoshi)
+│   ├── hooks/          # Hooks
+│   ├── lib/            # Utility functions
+├── public/             # Static assets
+```
+
+### Core Modules
+
+1. **Degree Auditing**
+  - Transcript import and processing
+  - Requirement verification
+  - Progress tracking
+  - Academic warning generation
+
+2. **Petition Processing**
+  - Form generation from JSON configuration
+  - Workflow management
+  - Notification system
+  - Document handling
+
+3. **Authentication & Authorization**
+  - Role-based access control
+  - Student and staff profiles
+  - Session management
+
+4. **Learning Analytics** (Future)
+  - Canvas data synchronization
+  - Performance visualization
+  - Recommendation engine
+
+### Design System
+
+Semesterise has a comprehensive design system with:
+
+**Color Palettes**
+- Primary: Used for main actions and branding
+- Surface: Background and container colors
+- Text: Various text colors for proper hierarchy
+- Feedback: Success, warning, danger, and info colors
+
+**Typography**
+- Satoshi as primary font family
+- Consistent text styles with 6 heading levels
+- Body text in 3 sizes (large, base, small)
+
+**Components**
+- Built on shadcn/ui primitives
+- Custom components for academic-specific features
+- Responsive design for all screen sizes
+
+## Deployment
+
+### Production Build
+
+```bash
+npm run build
+npm run start
+```
+
+### Database Migrations
+
+```bash
+# Generate migration files
+npx drizzle-kit generate
+
+# Apply migrations
+npx drizzle-kit migrate
+```
+
+
+### Coding Standards
+
+- Follow TypeScript best practices
+- Use ESLint and Prettier for code formatting
+
+## License
+
+This project is licensed under the MIT License.
+
+## Acknowledgments
+
+- [Ashesi University](https://www.ashesi.edu.gh/) for collaboration and support
+- [Next.js](https://nextjs.org/) for the application framework
+- [shadcn/ui](https://ui.shadcn.com/) for the component foundation
+- [Drizzle ORM](https://orm.drizzle.team/) for database access
+- [BetterAuth](https://betterauth.io/) for authentication
+
+## Team
+
+- Ryan Tangu Mbun Tangwe - Everything from Ideation to Production😊
+
+## Contact
+
+For questions or support, please contact [mbuntangwe@gmail.com](mailto:mbuntangwe@gmail.com).
