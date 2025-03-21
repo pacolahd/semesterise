@@ -10,7 +10,9 @@ jiti("./src/env/server.ts");
 
 const nextConfig: NextConfig = {
   /* config options here */
-  experimental: {},
+  experimental: {
+    authInterrupts: true,
+  },
 };
 
 export default nextConfig;

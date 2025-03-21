@@ -7,6 +7,7 @@ import { satoshi } from "@/lib/fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://semesterise.pacolahd.com/"),
   title: "Semesterise | Ashesi Academic Management",
   description:
     "An integrated platform for degree auditing, petition processing, and learning analytics at Ashesi University",
