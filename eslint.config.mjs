@@ -32,6 +32,7 @@ const config = [
     "next/core-web-vitals", // Next.js recommended rules
     "next/typescript", // TypeScript rules for Next.js
     "standard", // JavaScript Standard Style
+    "plugin:drizzle/all", // Drizzle plugin rules
     "plugin:tailwindcss/recommended", // Tailwind CSS rules
     "prettier" // Prettier compatibility - must be last
   ),
