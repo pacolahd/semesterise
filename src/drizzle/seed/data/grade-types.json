@@ -1,0 +1,18 @@
+[
+  { "grade": "A+", "numericValue": 4.00, "description": "Outstanding", "isPassing": true },
+  { "grade": "A", "numericValue": 4.00, "description": "Excellent", "isPassing": true },
+  { "grade": "B+", "numericValue": 3.50, "description": "Very Good", "isPassing": true },
+  { "grade": "B", "numericValue": 3.00, "description": "Good", "isPassing": true },
+  { "grade": "C+", "numericValue": 2.50, "description": "Average", "isPassing": true },
+  { "grade": "C", "numericValue": 2.00, "description": "Fair", "isPassing": true },
+  { "grade": "D+", "numericValue": 1.50, "description": "Barely Satisfactory", "isPassing": true },
+  { "grade": "D", "numericValue": 1.00, "description": "Weak Pass", "isPassing": true },
+  { "grade": "E", "numericValue": 0.00, "description": "Fail", "isPassing": false },
+  { "grade": "P", "numericValue": 0.00, "description": "Pass (not counted in GPA)", "isPassing": true },
+  {
+    "grade": "I",
+    "numericValue": 0.00,
+    "description": "Incomplete",
+    "isPassing": false
+  }
+]

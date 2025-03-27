@@ -1,10 +1,10 @@
-// drizzle/migrate.ts
+// drizzle/migrate-custom.ts
 import config from "$/drizzle.config";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Pool } from "pg";
 
-import * as schema from "@/drizzle/schema";
+import * as schema from "@/drizzle/schema/institution";
 import { env } from "@/env/server";
 
 // Validate migration folder is configured

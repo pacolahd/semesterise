@@ -1,0 +1,16 @@
+[
+  {
+    "code": "CS",
+    "name": "Computer Science",
+    "description": "Bachelor of Science in Computer Science",
+    "departmentCode": "CSIS",
+    "degree": "B.Sc - Computer Science"
+  },
+  {
+    "code": "MIS",
+    "name": "Management Information Systems",
+    "description": "Bachelor of Science in Management Information Systems",
+    "departmentCode": "CSIS",
+    "degree": "B.Sc - Management Information Systems"
+  }
+]

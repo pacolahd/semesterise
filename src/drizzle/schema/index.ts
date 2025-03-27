@@ -1,3 +1,3 @@
-export * from "./departments";
-export * from "./majors";
-// Add other tables as I create them
+export * from "./institution";
+export * from "./academic-structure";
+export * from "./curriculum";

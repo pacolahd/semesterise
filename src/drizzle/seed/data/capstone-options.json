@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Undergraduate Thesis",
+    "description": "Two-course sequence (Thesis 1 and 2) focused on research"
+  },
+  {
+    "name": "Entrepreneurship",
+    "description": "Two-course sequence (Entrepreneurship 1 and 2) focused on business creation"
+  },
+  {
+    "name": "Applied Project",
+    "description": "Applied project plus an extra major elective"
+  }
+]

@@ -1,0 +1,12 @@
+[
+  {
+    "name": "Calculus",
+    "description": "Track for students starting with Calculus 1 and Calculus 2",
+    "requiredCoursesCount": 4
+  },
+  {
+    "name": "Pre-Calculus",
+    "description": "Track for students starting with Pre-Calculus courses",
+    "requiredCoursesCount": 5
+  }
+]
