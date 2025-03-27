@@ -1,0 +1,19 @@
+[
+  {
+    "code": "CSIS",
+    "name": "Computer Science and Information Systems",
+    "description": "Department offering CS and MIS degrees"
+  },{
+    "code": "HSS",
+    "name": "Humanities and Social Sciences",
+    "description": "Department offering CS and MIS degrees"
+  },{
+    "code": "ENG",
+    "name": "Engineering",
+    "description": "Department offering CS and MIS degrees"
+  },{
+    "code": "BA",
+    "name": "Business Administration",
+    "description": "Department offering CS and MIS degrees"
+  }
+]

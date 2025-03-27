@@ -1,0 +1,389 @@
+[
+  {
+    "code": "ENGR111",
+    "title": "Giving Voice to Values",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This course provides students with the tools to identify ethical issues and the skills to effectively voice and act on their values in the workplace. Through case studies and practical scenarios specific to engineering contexts, students develop frameworks for ethical decision-making.",
+    "prerequisites": "None",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "ENGR112",
+    "title": "Introduction to Engineering",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This course will introduce students to engineering by using practical problems and products from their surroundings. The course will challenge students to analyze the design and function of systems by using principles from different engineering fields including computer, electrical and electronic, and mechanical engineering.",
+    "prerequisites": "Foundations of Design & Entrepreneurship 1 & 2",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "ENGR113",
+    "title": "Engineering Mechanics",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This course introduces the basic principles of statics and dynamics. Topics include force systems, equilibrium of particles and rigid bodies, structural analysis, kinematics and kinetics of particles and rigid bodies.",
+    "prerequisites": "Physics I: Mechanics (concurrent)",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "ENGR212",
+    "title": "Instrumentation for Engineering",
+    "department": "Engineering",
+    "credits": 0.5,
+    "description": "This course continues the concept of measurement and measurement error that is introduced in the Physics sequence. Students study measurement systems, instruments, and measurement errors, and the use of probability and statistical analysis to design and execute experiments in the presence of measurement errors.",
+    "prerequisites": "Statistics for Engineering and Economics, Physics I: Mechanics, and Physics II: Electromagnetism",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "ENGR213",
+    "title": "Materials Science & Chemistry",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This course introduces the fundamental concepts of materials science and chemistry relevant to engineering. Topics include atomic structure, bonding, crystal structure, mechanical properties, phase diagrams, and material selection for engineering applications.",
+    "prerequisites": "Physics I: Mechanics",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "ENGR221",
+    "title": "CAD/CAM",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This course introduces computer-aided design and computer-aided manufacturing technologies used in modern product development and manufacturing. Students learn 2D and 3D modeling, drafting, assembly modeling, and manufacturing process planning.",
+    "prerequisites": "Engineering Mechanics",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "ENGR300",
+    "title": "Third Year Group Project and Seminar",
+    "department": "Engineering",
+    "credits": 0.5,
+    "description": "In their third year, engineering students will participate in a one-year group project that ideally cuts across multiple engineering fields (electrical and electronic, mechanical and computer), to revisit the design process at a higher level, to deepen teamwork skills, and to reinforce system level thinking.",
+    "prerequisites": "Leadership Seminar 4 for Engineers and System Dynamics, concurrent enrollment in Control Systems",
+    "semestersOffered": ["FALL", "SPRING"]
+  },
+  {
+    "code": "ENGR310",
+    "title": "Leadership 4 for Engineers",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This course combines leadership development with the Third Year Group Project. Students explore ethical dimensions of engineering practice while working on multidisciplinary engineering projects with a service-learning component.",
+    "prerequisites": "Leadership Seminar 3",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "ENGR311",
+    "title": "System Dynamics",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "Students will apply a broad range of mathematical tools to systems represented by linear, lumped-parameter models. Many physical domains are considered, including translating and/or rotating mechanical, electrical, thermal and fluid systems. Planar motion of rigid bodies will also be studied.",
+    "prerequisites": "Multivariable Calculus & Linear Algebra, Circuits & Electronics, Applied Programming for Engineers",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "ENGR312",
+    "title": "Control Systems",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "Students will model dynamic mechanical systems in planar motion and use computer simulations to study them. Students build on the modeling and analysis techniques from System Dynamics to analyze and design controllers for linear systems. Practical examples from different engineering fields will be discussed.",
+    "prerequisites": "System Dynamics",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "ENGR400",
+    "title": "Senior Project 1",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "In their final year, engineering students will undertake an individual or small group project (no more than 3 students) as a capstone experience to further their expertise in system level design, application, and the practice of the profession.",
+    "prerequisites": "Third Year Project and concurrent enrollment in Project Management and Professional Practice",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "ENGR401",
+    "title": "Senior Project and Seminar 2",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This is a continuation of Senior Project 1. In Senior Project & Seminar 2, a one hour per week seminar provides a discussion forum for technical writing, ethics and social responsibility, and other topics, and will also serve to guide the project management timeline of the project.",
+    "prerequisites": "Senior Project 1",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "ENGR413",
+    "title": "Project Management and Professional Practice",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "In this course students will learn to plan, strategize and execute an engineering project. The course will develop students' skills to manage projects and build on leadership skills and ethical reasoning they have acquired in core courses.",
+    "prerequisites": "Microeconomics or Principles of Economics, Leadership Seminar 4 for Engineers, and at least 6 Engineering courses",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "ENGR414",
+    "title": "Introduction to Environmental Science and Engineering",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This course begins with a discussion of the local and global environment, environmental compartments and their relationship, pollution in these compartments, and basic descriptors. Systems analysis for environmental problems in areas such as water pollution, air pollution, solid and hazardous wastes, water and energy supply, and resource depletion are discussed, with an emphasis on the design of technological solutions.",
+    "prerequisites": "Concurrent enrollment in Thermodynamics",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "ENGR442",
+    "title": "Mechatronics Systems Design",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "Mechatronics is the synergistic integration of mechanical disciplines, controls, electronics and computers in the design of high-performance machines, devices and processes. This course reviews principles in software programming, machine design, modelling of multi-domain dynamic systems, controls theory, electronics circuits, real-time controls implementation, and system-level integration.",
+    "prerequisites": "Mechanics, Sensors, Control theory, Microcontrollers, Electronics, and Electrical Motors",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "ENGR443",
+    "title": "Industrial Engineering",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "A central idea behind this course, as well as in the whole engineering education programme, is that the student should be trained in solving engineering problems for organisational development in technology-based companies and organisations. The major aim of the course is to give a general orientation about and a perspective on the subject of Industrial Engineering and maintenance operations, as well as to create interest in and understanding of the continued studies in the subject area.",
+    "prerequisites": "Students should have completed Algebra, Statistics and Engineering Design",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "CE122",
+    "title": "Applied Programming for Engineers",
+    "department": "Engineering",
+    "credits": 0.5,
+    "description": "This course will build on students' existing computer programming experience and teach students how to use computers to solve engineering problems. Students will use the modeling skills they have gained from their mathematics courses and apply it to develop engineering simulations.",
+    "prerequisites": "Calculus 2 and Computer Programming (for Engineering or Computer Science)",
+    "semestersOffered": ["SPRING", "SUMMER"]
+  },
+  {
+    "code": "CE212",
+    "title": "Discrete Mathematics",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This course covers the mathematical foundations needed for computer engineering. Topics include logic, set theory, relations, functions, induction, recursion, counting principles, graphs, trees, and Boolean algebra with applications to digital circuit design and computer algorithms.",
+    "prerequisites": "Calculus 1",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "CE322",
+    "title": "Digital Systems Design",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "In this course students will study the principles of digital systems and computers. They will learn digital system theory and design techniques, including Boolean algebra, binary arithmetic, digital representation of data, truth tables, gates, flip-flops, finite state machines, memory, and timing issues.",
+    "prerequisites": "Circuits and Electronics",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "CE451",
+    "title": "Embedded Systems",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This course will cover the design and implementation of embedded systems from a hardware and software perspective. Students will go through the design process of embedded systems for specific applications and analyze the tradeoff between a hardware and software implementation.",
+    "prerequisites": "Computer Programming (for Engineering or Computer Science) and Digital Systems Design (or Computer Organization for non-Engineering students)",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "CHEM211",
+    "title": "Material Science & Chemistry",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This course covers the fundamental principles of materials science and chemistry relevant to engineering applications. Topics include atomic structure, bonding, crystal structures, defects, phase diagrams, mechanical properties, and material selection for engineering design.",
+    "prerequisites": "Physics I: Mechanics",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "EE222",
+    "title": "Circuits and Electronics",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "In this course students will study the principles and workings of electronic components and design circuits common in electronic systems like amplifiers and filters. Students will learn how to develop mathematical models for electronic circuits and find solutions in time and frequency domain.",
+    "prerequisites": "Physics II: Electromagnetism and Multivariable Calculus & Linear Algebra",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "EE242",
+    "title": "Introduction to Electrical Machines and Power Electronics",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This is a hands-on course that introduces students to the fundamental principles underlying electro-mechanical machines and devices, their design, and their maintenance. It provides a treatment of transformers, synchronous generators and motors, induction motors, DC motors, speed and torque control, protective devices, an introduction to power electronics, electrical (regenerative) braking.",
+    "prerequisites": "Physics I: Mechanics, Physics II: Electromagnetism, and previous or concurrent enrollment in Circuits & Electronics",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "EE321",
+    "title": "Communication Systems",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "Students will learn the working principle and design of modern wired and wireless electronic communication systems. The course focuses on basic principles in the analysis and design of modern communication systems, the workhorses behind the information age.",
+    "prerequisites": "Physics II: Electromagnetism, Circuits and Electronics",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "EE331",
+    "title": "Signals & Systems",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This course introduces the basic concepts of signals and systems, focusing on their mathematical representation and analysis in both continuous and discrete time domains. Topics include signal representations, system properties, convolution, Fourier series and transform, Laplace transform, and Z-transform.",
+    "prerequisites": "Physics II: Electromagnetism, Multivariable Calculus & Linear Algebra",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "EE342",
+    "title": "Electrical Machines II",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This is an advanced class that provides students further principles governing the operation of electro-mechanical machines and devices, their design, and their maintenance. There is also a treatment of special purpose motors such as variable reluctance machines and stepping motors.",
+    "prerequisites": "Introduction to Electrical Machines and Power Electronics",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "EE421",
+    "title": "Digital and Analog Signal Processing in Telecommunications",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This course includes the study of signal processing and technology used in the telecommunication industry. Students will study various digital and analog signal processing techniques. Starting from the basic definitions of a discrete-time signal, through Fourier analysis, filter design, sampling, interpolation and quantization, more advanced tools are studied to aid the study and design of digital communications systems.",
+    "prerequisites": "Communication Systems",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "EE422",
+    "title": "Advanced Communication Systems",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "The course describes the protocols used in current networks. It provides skills needed in designing and deploying efficient and effective data communications and network technologies. Key topics include wireless and mobile communication, digital TV broadcasting, telecommunication networks, and advanced topics in IP networks.",
+    "prerequisites": "Communication Systems",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "EE442",
+    "title": "Power Electronics",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "In Power Electronics students will study various static methods to control the power flow between source and load. Due to the high level of power, the main solution for these methods is either forced switching for transistors or naturally for diodes; the thyristors present a forced switching ON and naturally switching OFF.",
+    "prerequisites": "Circuits and Electronics, Introduction to Electrical Machines and Power Electronics",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "EE451",
+    "title": "Power Engineering",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This course is the study of electrical energy generation and use in various industries. The course will look at how electrical energy is generated from and converted to other forms of energy. Students will study power generation systems, transmission, distribution systems, electrical components, electric power utilization and power quality.",
+    "prerequisites": "Circuits and Electronics, Introduction to Electrical Machines and Power Electronics",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "EE453",
+    "title": "Power Systems Analysis",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This course is a study of advanced topics in electric power distribution systems planning and operation. In this course, students will learn how to analyze flows on power networks and their applications to real systems. It provides students with a working knowledge of power system problems and computer techniques used to solve some of these problems.",
+    "prerequisites": "Power Engineering",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "EE454",
+    "title": "Renewable Energy and Smart Power Grid",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "A Smart Grid is the integration of numerous technologies, systems and processes with the aim to modernize and fully automate the entire electricity grid covering generation, transmission, distribution, utilization plus conservation of energy. This course introduces students to smart grids and intelligent distribution networks.",
+    "prerequisites": "Power System Engineering and Power Electronics",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "ME301",
+    "title": "Mechanical Machine Design",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This class will introduce students to the common components of machine design. Topics include principles of machine design, materials, stress and deformation analysis, combined stresses and Mohr's Circle, design for different types of loading, fabrication methods, safety and tolerance in design and fits, design for maintainability.",
+    "prerequisites": "Physics I: Mechanics, Mechanics of Materials",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "ME311",
+    "title": "Mechanics of Materials",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This course is the study of static mechanics of deformable bodies and introduces the design of engineering structures. Students will study the concept of stress and strain at a point, stress-temperature relationships, force and deformation analyses of bodies under axial, shearing, flexural, torsional and combined loadings, shear and bending moment diagrams, and Euler Columns.",
+    "prerequisites": "Physics I: Mechanics, Materials Science & Chemistry, and Dynamic Systems",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "ME401",
+    "title": "Mechanics of Machines",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This course focuses on the theory and application of mechanisms and machine components. Topics include kinematic analysis of mechanisms, cams, gears, and gear trains, velocity and acceleration analysis, forces analysis, balancing of rotating and reciprocating machinery, and vibration analysis.",
+    "prerequisites": "Mechanics of Materials, System Dynamics",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "ME411",
+    "title": "Thermodynamics",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This is an integrated course of thermodynamics and fluid dynamics theories and their application to engineering systems, and the study of heat transfer by conduction, convection, and radiation. The course will look at the application of thermodynamics and fluid dynamics principles in systems like engines, refrigeration cycles and pumps.",
+    "prerequisites": "Physics I: Mechanics, Dynamic Systems",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "ME412",
+    "title": "Fluid Dynamics & Applications",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This course covers the fundamentals of fluid dynamics and their applications in engineering systems. Topics include conservation laws, Navier-Stokes equations, potential flow, boundary layer theory, dimensional analysis, and applications to aerodynamics and hydrodynamics.",
+    "prerequisites": "Thermodynamics",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "ME413",
+    "title": "Thermal Systems & Applications",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This course focuses on the analysis, design, and optimization of thermal systems. Topics include thermodynamic cycles, heat exchangers, refrigeration systems, air conditioning, thermal energy storage, and the integration of renewable energy sources in thermal systems.",
+    "prerequisites": "Thermodynamics, Heat Transfer",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "ME421",
+    "title": "Heat Transfer",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This course teaches students about design and analysis of thermal systems. Students will study the operation of different kinds of thermal engines, heating and cooling systems. They will apply thermodynamic and heat transfer principles to study thermal systems in different applications including power generation.",
+    "prerequisites": "Thermodynamics",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "ME431",
+    "title": "Fluid Mechanics and Applications",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This course is the application of fluid mechanics in engineering and industrial processes. The course will discuss theories and principles of fluid dynamics and statics using engineering applications as examples. They will learn how to design and analyze fluid systems like hydraulics, pneumatics, pipes, and pump systems.",
+    "prerequisites": "Thermodynamics",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "ME441",
+    "title": "Manufacturing Processes",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "Manufacturing industries are a vital component of all modern economies and all of them require employees who are skilled in, and knowledgeable about, manufacturing processes. This course is designed to provide students with an overview of a wide variety of manufacturing processes.",
+    "prerequisites": "None",
+    "semestersOffered": ["FALL", "SPRING"]
+  },
+  {
+    "code": "SC112",
+    "title": "Physics I: Mechanics",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This course is an introduction to classical mechanics and fundamental physics theories. The course will focus on motion of objects using basic kinematic and kinetic principles. At the end of the course, students will have a firm understanding and practical experience with the fundamental mechanics theories.",
+    "prerequisites": "Calculus I (or Applied Calculus for non-Engineering majors)",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "SC113",
+    "title": "Physics II: Electromagnetism",
+    "department": "Engineering",
+    "credits": 1.0,
+    "description": "This course is an introduction to electrostatics, electrodynamics and electromagnetism. The basic principles behind electrical engineering and electronic communication will be discussed. At the end of the course students will understand simple electronic circuits and the fundamental theories and principles needed to continue their study of electronics and electrical systems.",
+    "prerequisites": "Physics I: Mechanics",
+    "semestersOffered": ["FALL"]
+  }
+]

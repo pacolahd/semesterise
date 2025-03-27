@@ -3,11 +3,10 @@ import { pgTable, text, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-import { createdAt, id, updatedAt } from "@/drizzle/schema/helpers";
+import { createdAt, updatedAt } from "@/drizzle/schema/helpers";
 
 export const departments = pgTable("departments", {
-  id,
-  code: varchar("code", { length: 10 }).notNull().unique(),
+  code: varchar("code", { length: 10 }).notNull().primaryKey(),
   name: varchar("name", { length: 100 }).notNull(),
   description: text("description"),
   createdAt,

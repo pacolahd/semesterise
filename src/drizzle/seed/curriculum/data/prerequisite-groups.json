@@ -1,0 +1,1707 @@
+[
+  {
+  "groupKey": "ENGL215-WRITING-1",
+  "courseCode": "ENGL215",
+  "groupName": "Writing Foundation",
+  "externalLogicOperator": "AND",
+  "internalLogicOperator": "AND",
+  "sortOrder": 1,
+  "description": "Written communication foundation"
+  },
+
+  {
+  "groupKey": "POLS221-WRITING-1",
+  "courseCode": "POLS221",
+  "groupName": "Writing Foundation",
+  "externalLogicOperator": "AND",
+  "internalLogicOperator": "AND",
+  "sortOrder": 1,
+  "description": "Written communication foundation"
+  },
+
+  {
+  "groupKey": "POLS231-WRITING-1",
+  "courseCode": "POLS231",
+  "groupName": "Writing Foundation",
+  "externalLogicOperator": "AND",
+  "internalLogicOperator": "AND",
+  "sortOrder": 1,
+  "description": "Written communication foundation"
+  },
+
+  {
+  "groupKey": "POLS332-WRITING-1",
+  "courseCode": "POLS332",
+  "groupName": "Writing Foundation",
+  "externalLogicOperator": "AND",
+  "internalLogicOperator": "AND",
+  "sortOrder": 1,
+  "description": "Written communication foundation"
+  },
+
+  {
+  "groupKey": "SOAN111-SUCCESS-1",
+  "courseCode": "SOAN111",
+  "groupName": "Ashesi Success",
+  "externalLogicOperator": "AND",
+  "internalLogicOperator": "AND",
+  "sortOrder": 1,
+  "description": "Ashesi Success requirement"
+  },
+  {
+  "groupKey": "SOAN111-WRITING-2",
+  "courseCode": "SOAN111",
+  "groupName": "Writing Foundation",
+  "externalLogicOperator": "AND",
+  "internalLogicOperator": "AND",
+  "sortOrder": 2,
+  "description": "Written communication foundation"
+  },
+
+  {
+  "groupKey": "SOAN112-LEADERSHIP-1",
+  "courseCode": "SOAN112",
+  "groupName": "Leadership Foundation",
+  "externalLogicOperator": "AND",
+  "internalLogicOperator": "AND",
+  "sortOrder": 1,
+  "description": "Leadership Seminar foundation"
+  },
+
+  {
+  "groupKey": "SOAN220-WRITING-1",
+  "courseCode": "SOAN220",
+  "groupName": "Writing Foundation",
+  "externalLogicOperator": "AND",
+  "internalLogicOperator": "AND",
+  "sortOrder": 1,
+  "description": "Written communication foundation"
+  },
+
+  {
+  "groupKey": "SOAN225-WRITING-1",
+  "courseCode": "SOAN225",
+  "groupName": "Writing Foundation",
+  "externalLogicOperator": "AND",
+  "internalLogicOperator": "AND",
+  "sortOrder": 1,
+  "description": "Written communication foundation"
+  },
+
+  {
+  "groupKey": "SOAN325-STATS-1",
+  "courseCode": "SOAN325",
+  "groupName": "Statistics Foundation",
+  "externalLogicOperator": "AND",
+  "internalLogicOperator": "AND",
+  "sortOrder": 1,
+  "description": "Statistics background"
+  },
+
+  
+  {
+    "groupKey": "CS112-FAMILIARITY-1",
+    "courseCode": "CS112",
+    "groupName": "Computing Familiarity",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "nonCourseRequirement": "Familiarity with computers",
+    "sortOrder": 1,
+    "description": "Basic computer knowledge required"
+  },
+  
+  {
+    "groupKey": "CS215-PROGRAMMING-1",
+    "courseCode": "CS215",
+    "groupName": "Programming Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Programming foundation"
+  },
+  
+  {
+    "groupKey": "CS221-MATH-1",
+    "courseCode": "CS221",
+    "groupName": "Math Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Mathematics requirement"
+  },
+  {
+    "groupKey": "CS221-COMPUTING-2",
+    "courseCode": "CS221",
+    "groupName": "Computing Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 2,
+    "description": "Computing requirement"
+  },
+  
+  {
+    "groupKey": "CS222-PROGRAMMING-1",
+    "courseCode": "CS222",
+    "groupName": "Programming Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "groupMinimumGrade": "C",
+    "sortOrder": 1,
+    "description": "Programming with minimum C grade"
+  },
+  {
+    "groupKey": "CS222-THEORY-2",
+    "courseCode": "CS222",
+    "groupName": "Theory Background",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "isConcurrent": true,
+    "isRecommended": true,
+    "sortOrder": 2,
+    "description": "Recommended concurrent theory course"
+  },
+
+  
+  {
+    "groupKey": "CS313-PROGRAMMING-1",
+    "courseCode": "CS313",
+    "groupName": "Programming Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Programming background"
+  },
+
+  
+  {
+    "groupKey": "CS314-COMPUTING-1",
+    "courseCode": "CS314",
+    "groupName": "Computing Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Computing background"
+  },
+
+  
+  {
+    "groupKey": "CS323-PROGRAMMING-1",
+    "courseCode": "CS323",
+    "groupName": "Programming Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Programming background"
+  },
+  {
+    "groupKey": "CS323-SYSTEMS-2",
+    "courseCode": "CS323",
+    "groupName": "Systems or Theory",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 2,
+    "description": "Systems or theory background"
+  },
+
+  
+  {
+    "groupKey": "CS331-PROGRAMMING-1",
+    "courseCode": "CS331",
+    "groupName": "Programming Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Programming background"
+  },
+  {
+    "groupKey": "CS331-THEORY-2",
+    "courseCode": "CS331",
+    "groupName": "Theory Background",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "isConcurrent": true,
+    "sortOrder": 2,
+    "description": "Concurrent theory course"
+  },
+
+  
+  {
+    "groupKey": "CS341-PROGRAMMING-1",
+    "courseCode": "CS341",
+    "groupName": "Programming Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Programming background"
+  },
+  {
+    "groupKey": "CS341-DATABASE-2",
+    "courseCode": "CS341",
+    "groupName": "Database Background",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "isConcurrent": true,
+    "sortOrder": 2,
+    "description": "Concurrent database course"
+  },
+
+  
+  {
+    "groupKey": "CS345-ALGORITHMS-1",
+    "courseCode": "CS345",
+    "groupName": "Algorithms Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Algorithms background"
+  },
+
+  
+  {
+    "groupKey": "CS415-PROGRAMMING-1",
+    "courseCode": "CS415",
+    "groupName": "Programming Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Programming background"
+  },
+  {
+    "groupKey": "CS415-DEVELOPMENT-2",
+    "courseCode": "CS415",
+    "groupName": "Development Background",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 2,
+    "description": "Advanced development background"
+  },
+
+  
+  {
+    "groupKey": "CS424-DATABASE-1",
+    "courseCode": "CS424",
+    "groupName": "Database Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Database background"
+  },
+  {
+    "groupKey": "CS424-THEORY-2",
+    "courseCode": "CS424",
+    "groupName": "Theory Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 2,
+    "description": "Theory background"
+  },
+
+  
+  {
+    "groupKey": "CS432-PROGRAMMING-1",
+    "courseCode": "CS432",
+    "groupName": "Programming Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Programming background"
+  },
+
+  
+  {
+    "groupKey": "CS435-PROGRAMMING-1",
+    "courseCode": "CS435",
+    "groupName": "Programming Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Programming background"
+  },
+  {
+    "groupKey": "CS435-THEORY-2",
+    "courseCode": "CS435",
+    "groupName": "Theory Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 2,
+    "description": "Theory background"
+  },
+
+  
+  {
+    "groupKey": "CS442-DATABASE-1",
+    "courseCode": "CS442",
+    "groupName": "Database Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Database background"
+  },
+  {
+    "groupKey": "CS442-WEB-2",
+    "courseCode": "CS442",
+    "groupName": "Web Development",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Web development background"
+  },
+
+  
+  {
+    "groupKey": "CS452-PROGRAMMING-1",
+    "courseCode": "CS452",
+    "groupName": "Programming Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Programming background"
+  },
+  {
+    "groupKey": "CS452-MATH-2",
+    "courseCode": "CS452",
+    "groupName": "Advanced Mathematics",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Advanced math background"
+  },
+
+  
+  {
+    "groupKey": "CS453-PROGRAMMING-1",
+    "courseCode": "CS453",
+    "groupName": "Programming Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Programming background"
+  },
+  {
+    "groupKey": "CS453-MATH-2",
+    "courseCode": "CS453",
+    "groupName": "Calculus Background",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 2,
+    "description": "Calculus background"
+  },
+
+  
+  {
+    "groupKey": "CS458-PROGRAMMING-1",
+    "courseCode": "CS458",
+    "groupName": "Programming Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Programming background"
+  },
+
+  
+  {
+    "groupKey": "CS459-PROGRAMMING-1",
+    "courseCode": "CS459",
+    "groupName": "Programming Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Programming background"
+  },
+
+  
+  {
+    "groupKey": "IS331-PROGRAMMING-1",
+    "courseCode": "IS331",
+    "groupName": "Programming Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Programming background"
+  },
+
+  
+  {
+    "groupKey": "IS332-PROGRAMMING-1",
+    "courseCode": "IS332",
+    "groupName": "Programming Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Programming background"
+  },
+  {
+    "groupKey": "IS332-SYSTEMS-2",
+    "courseCode": "IS332",
+    "groupName": "Systems Background",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "isConcurrent": true,
+    "isRecommended": true,
+    "sortOrder": 2,
+    "description": "Recommended concurrent systems courses"
+  },
+
+  
+  {
+    "groupKey": "IS335-COMPUTING-1",
+    "courseCode": "IS335",
+    "groupName": "Computing Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Computing background"
+  },
+
+  
+  {
+    "groupKey": "IS361-STANDING-1",
+    "courseCode": "IS361",
+    "groupName": "Academic Standing",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "nonCourseRequirement": "Junior standing in MIS or CS",
+    "sortOrder": 1,
+    "description": "Academic level requirement"
+  },
+
+  
+  {
+    "groupKey": "IS451-THEORY-1",
+    "courseCode": "IS451",
+    "groupName": "Theory Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Discrete math background"
+  },
+  {
+    "groupKey": "IS451-PROGRAMMING-2",
+    "courseCode": "IS451",
+    "groupName": "Programming Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 2,
+    "description": "Programming background"
+  },
+
+  
+  {
+    "groupKey": "MATH122-MATH-1",
+    "courseCode": "MATH122",
+    "groupName": "Mathematics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Math background"
+  },
+
+  
+  {
+    "groupKey": "MATH151-MATH-1",
+    "courseCode": "MATH151",
+    "groupName": "Mathematics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Math background"
+  },
+
+  
+  {
+    "groupKey": "MATH152-MATH-1",
+    "courseCode": "MATH152",
+    "groupName": "Mathematics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Math background"
+  },
+
+  
+  {
+    "groupKey": "MATH211-MATH-1",
+    "courseCode": "MATH211",
+    "groupName": "Mathematics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Calculus background"
+  },
+
+  
+  {
+    "groupKey": "MATH221-MATH-1",
+    "courseCode": "MATH221",
+    "groupName": "Mathematics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Math background"
+  },
+
+  
+  {
+    "groupKey": "MATH233-MATH-1",
+    "courseCode": "MATH233",
+    "groupName": "Calculus Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Calculus background"
+  },
+  {
+    "groupKey": "MATH233-STATS-2",
+    "courseCode": "MATH233",
+    "groupName": "Statistics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 2,
+    "description": "Statistics background"
+  },
+
+  
+  {
+    "groupKey": "MATH251-MATH-1",
+    "courseCode": "MATH251",
+    "groupName": "Mathematics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Math background"
+  },
+  {
+    "groupKey": "MATH251-PROGRAMMING-2",
+    "courseCode": "MATH251",
+    "groupName": "Programming Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 2,
+    "description": "Programming background"
+  },
+
+  
+  {
+    "groupKey": "SYS101-PROGRAMMING-1",
+    "courseCode": "SYS101",
+    "groupName": "Programming Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Programming background"
+  },
+
+  
+  {
+    "groupKey": "AI301-ALGORITHMS-1",
+    "courseCode": "AI301",
+    "groupName": "Algorithms Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Algorithms background"
+  },
+  {
+    "groupKey": "AI301-STATS-2",
+    "courseCode": "AI301",
+    "groupName": "Statistics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Statistics background"
+  },
+
+  
+  {
+    "groupKey": "MS301-STATS-1",
+    "courseCode": "MS301",
+    "groupName": "Statistics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Statistics background"
+  },
+  {
+    "groupKey": "MS301-MATH-2",
+    "courseCode": "MS301",
+    "groupName": "Linear Algebra",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Linear algebra background"
+  },
+
+  
+  {
+    "groupKey": "BUSA100-MATH-1",
+    "courseCode": "BUSA100",
+    "groupName": "Math Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Mathematics background"
+  },
+
+  
+  {
+    "groupKey": "BUSA162-FDE-1",
+    "courseCode": "BUSA162",
+    "groupName": "FDE Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "FDE I requirement"
+  },
+
+  
+  {
+    "groupKey": "BUSA220-ACCOUNTING-1",
+    "courseCode": "BUSA220",
+    "groupName": "Accounting Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Accounting background"
+  },
+
+  
+  {
+    "groupKey": "BUSA224-MATH-1",
+    "courseCode": "BUSA224",
+    "groupName": "Math Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Mathematics requirement"
+  },
+  {
+    "groupKey": "BUSA224-PRECALC-2",
+    "courseCode": "BUSA224",
+    "groupName": "Pre-Calculus Sequence",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Both Pre-Calculus courses"
+  },
+  {
+    "groupKey": "BUSA224-ECON-3",
+    "courseCode": "BUSA224",
+    "groupName": "Economics Requirement",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "isConcurrent": true,
+    "sortOrder": 3,
+    "description": "Concurrent economics"
+  },
+
+  
+  {
+    "groupKey": "BUSA304-QUANT-1",
+    "courseCode": "BUSA304",
+    "groupName": "Quantitative Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Quantitative methods background"
+  },
+
+  
+  {
+    "groupKey": "BUSA311-FINANCE-1",
+    "courseCode": "BUSA311",
+    "groupName": "Finance Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Finance background"
+  },
+
+  
+  {
+    "groupKey": "BUSA321-FINANCE-1",
+    "courseCode": "BUSA321",
+    "groupName": "Finance Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Finance background"
+  },
+
+  
+  {
+    "groupKey": "BUSA341-ECON-1",
+    "courseCode": "BUSA341",
+    "groupName": "Economics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Economics background"
+  },
+
+  
+  {
+    "groupKey": "BUSA350-MATH-1",
+    "courseCode": "BUSA350",
+    "groupName": "Math Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Mathematics background"
+  },
+  {
+    "groupKey": "BUSA350-MICRO-2",
+    "courseCode": "BUSA350",
+    "groupName": "Microeconomics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Microeconomics background"
+  },
+  {
+    "groupKey": "BUSA350-MACRO-3",
+    "courseCode": "BUSA350",
+    "groupName": "Macroeconomics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 3,
+    "description": "Macroeconomics background"
+  },
+  {
+    "groupKey": "BUSA350-STATS-4",
+    "courseCode": "BUSA350",
+    "groupName": "Statistics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 4,
+    "description": "Statistics background"
+  },
+
+  
+  {
+    "groupKey": "BUSA400A-MAJOR-1",
+    "courseCode": "BUSA400A",
+    "groupName": "Major Credits",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "nonCourseRequirement": "8 Credits in Major Area of Study",
+    "sortOrder": 1,
+    "description": "Major credits requirement"
+  },
+
+  
+  {
+    "groupKey": "BUSA400B-THESIS-1",
+    "courseCode": "BUSA400B",
+    "groupName": "Thesis Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Thesis 1 requirement"
+  },
+
+  
+  {
+    "groupKey": "BUSA401A-MAJOR-1",
+    "courseCode": "BUSA401A",
+    "groupName": "Major Credits",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "nonCourseRequirement": "8 Credits in Major Area of Study",
+    "sortOrder": 1,
+    "description": "Major credits requirement"
+  },
+
+  
+  {
+    "groupKey": "BUSA401B-ENTRE-1",
+    "courseCode": "BUSA401B",
+    "groupName": "Entrepreneurship Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Entrepreneurship 1 requirement"
+  },
+
+  
+  {
+    "groupKey": "BUSA405-FINANCE-1",
+    "courseCode": "BUSA405",
+    "groupName": "Finance Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Finance background"
+  },
+  {
+    "groupKey": "BUSA405-MACRO-2",
+    "courseCode": "BUSA405",
+    "groupName": "Macroeconomics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Macroeconomics background"
+  },
+  {
+    "groupKey": "BUSA405-MARKETING-3",
+    "courseCode": "BUSA405",
+    "groupName": "Marketing Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "isConcurrent": true,
+    "isRecommended": true,
+    "sortOrder": 3,
+    "description": "Recommended marketing background"
+  },
+
+  
+  {
+    "groupKey": "BUSA410-MAJOR-1",
+    "courseCode": "BUSA410",
+    "groupName": "Major Credits",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "nonCourseRequirement": "8 Credits in Major Area of Study",
+    "sortOrder": 1,
+    "description": "Major credits requirement"
+  },
+
+  
+  {
+    "groupKey": "BUSA422-INVESTMENTS-1",
+    "courseCode": "BUSA422",
+    "groupName": "Investments Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Investments background"
+  },
+
+  
+  {
+    "groupKey": "BUSA423-FINANCE-1",
+    "courseCode": "BUSA423",
+    "groupName": "Finance Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Finance background"
+  },
+
+  
+  {
+    "groupKey": "BUSA430-ORG-1",
+    "courseCode": "BUSA430",
+    "groupName": "Organizational Behavior Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Organizational behavior background"
+  },
+
+  
+  {
+    "groupKey": "BUSA431-QUANT-1",
+    "courseCode": "BUSA431",
+    "groupName": "Quantitative Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Quantitative methods background"
+  },
+
+  
+  {
+    "groupKey": "BUSA442-OPTION1-1",
+    "courseCode": "BUSA442",
+    "groupName": "Marketing & Text Foundation",
+    "externalLogicOperator": "OR",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Marketing and text background"
+  },
+  {
+    "groupKey": "BUSA442-OPTION2-2",
+    "courseCode": "BUSA442",
+    "groupName": "FDE Foundation",
+    "externalLogicOperator": "OR",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "FDE background"
+  },
+
+  
+  {
+    "groupKey": "BUSA444-OPTION1-1",
+    "courseCode": "BUSA444",
+    "groupName": "Quantitative Methods",
+    "externalLogicOperator": "OR",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Quantitative methods background"
+  },
+  {
+    "groupKey": "BUSA444-OPTION2-2",
+    "courseCode": "BUSA444",
+    "groupName": "Statistics & Economics Foundation",
+    "externalLogicOperator": "OR",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Statistics and economics background"
+  },
+
+  
+  {
+    "groupKey": "BUSA451-ECON-1",
+    "courseCode": "BUSA451",
+    "groupName": "Economics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Economics background"
+  },
+  {
+    "groupKey": "BUSA451-STATS-2",
+    "courseCode": "BUSA451",
+    "groupName": "Statistics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Statistics background"
+  },
+
+  
+  {
+    "groupKey": "BUSA471-FDE-1",
+    "courseCode": "BUSA471",
+    "groupName": "FDE Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "FDE background"
+  },
+  {
+    "groupKey": "BUSA471-MICRO-2",
+    "courseCode": "BUSA471",
+    "groupName": "Microeconomics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Microeconomics background"
+  },
+
+  
+  {
+    "groupKey": "ECON101-MATH-1",
+    "courseCode": "ECON101",
+    "groupName": "Math Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Mathematics background"
+  },
+
+  
+  {
+    "groupKey": "ECON102-MATH-1",
+    "courseCode": "ECON102",
+    "groupName": "Math Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Mathematics background"
+  },
+
+  
+  {
+    "groupKey": "ECON452-ECON-1",
+    "courseCode": "ECON452",
+    "groupName": "Economics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Economics background"
+  },
+  {
+    "groupKey": "ECON452-STATS-2",
+    "courseCode": "ECON452",
+    "groupName": "Statistics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Statistics background"
+  },
+  {
+    "groupKey": "ECON452-METHODS-3",
+    "courseCode": "ECON452",
+    "groupName": "Quantitative Methods",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 3,
+    "description": "Methods requirement"
+  },
+
+  
+  {
+    "groupKey": "ECON455-MATH-1",
+    "courseCode": "ECON455",
+    "groupName": "Math Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Mathematics background"
+  },
+  {
+    "groupKey": "ECON455-MICRO-2",
+    "courseCode": "ECON455",
+    "groupName": "Microeconomics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Microeconomics background"
+  },
+  {
+    "groupKey": "ECON455-MACRO-3",
+    "courseCode": "ECON455",
+    "groupName": "Macroeconomics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 3,
+    "description": "Macroeconomics background"
+  },
+  {
+    "groupKey": "ECON455-STATS-4",
+    "courseCode": "ECON455",
+    "groupName": "Statistics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 4,
+    "description": "Statistics or econometrics"
+  },
+
+    {
+    "groupKey": "ENGR112-FDE-1",
+    "courseCode": "ENGR112",
+    "groupName": "FDE Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "FDE sequence requirement"
+  },
+
+    {
+    "groupKey": "ENGR113-PHYSICS-1",
+    "courseCode": "ENGR113",
+    "groupName": "Physics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "isConcurrent": true,
+    "sortOrder": 1,
+    "description": "Concurrent physics foundation"
+  },
+
+    {
+    "groupKey": "ENGR212-STATS-1",
+    "courseCode": "ENGR212",
+    "groupName": "Statistical Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Statistics knowledge"
+  },
+  {
+    "groupKey": "ENGR212-PHYSICS-2",
+    "courseCode": "ENGR212",
+    "groupName": "Physics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Physics background"
+  },
+
+    {
+    "groupKey": "ENGR213-PHYSICS-1",
+    "courseCode": "ENGR213",
+    "groupName": "Physics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Physics foundation"
+  },
+
+    {
+    "groupKey": "ENGR221-MECHANICS-1",
+    "courseCode": "ENGR221",
+    "groupName": "Mechanics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Mechanics background"
+  },
+
+    {
+    "groupKey": "ENGR300-LEADERSHIP-1",
+    "courseCode": "ENGR300",
+    "groupName": "Leadership Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Leadership foundation"
+  },
+  {
+    "groupKey": "ENGR300-SYSTEMS-2",
+    "courseCode": "ENGR300",
+    "groupName": "Systems Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Systems dynamics"
+  },
+  {
+    "groupKey": "ENGR300-CONTROL-3",
+    "courseCode": "ENGR300",
+    "groupName": "Control Systems",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "isConcurrent": true,
+    "sortOrder": 3,
+    "description": "Concurrent enrollment"
+  },
+
+    {
+    "groupKey": "ENGR310-LEADERSHIP-1",
+    "courseCode": "ENGR310",
+    "groupName": "Leadership Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Leadership foundation"
+  },
+
+    {
+    "groupKey": "ENGR311-MATH-1",
+    "courseCode": "ENGR311",
+    "groupName": "Mathematics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Advanced mathematics"
+  },
+  {
+    "groupKey": "ENGR311-ELECTRONICS-2",
+    "courseCode": "ENGR311",
+    "groupName": "Electronics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Electronics background"
+  },
+  {
+    "groupKey": "ENGR311-PROGRAMMING-3",
+    "courseCode": "ENGR311",
+    "groupName": "Programming Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 3,
+    "description": "Programming for engineering"
+  },
+
+    {
+    "groupKey": "ENGR312-SYSTEMS-1",
+    "courseCode": "ENGR312",
+    "groupName": "Systems Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "System dynamics"
+  },
+
+    {
+    "groupKey": "ENGR400-PROJECT-1",
+    "courseCode": "ENGR400",
+    "groupName": "Project Experience",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Third year project"
+  },
+  {
+    "groupKey": "ENGR400-MANAGEMENT-2",
+    "courseCode": "ENGR400",
+    "groupName": "Project Management",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "isConcurrent": true,
+    "sortOrder": 2,
+    "description": "Concurrent enrollment"
+  },
+
+    {
+    "groupKey": "ENGR401-PROJECT-1",
+    "courseCode": "ENGR401",
+    "groupName": "Senior Project",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "First part of senior project"
+  },
+
+    {
+    "groupKey": "ENGR413-ECONOMICS-1",
+    "courseCode": "ENGR413",
+    "groupName": "Economics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Economics background"
+  },
+  {
+    "groupKey": "ENGR413-LEADERSHIP-2",
+    "courseCode": "ENGR413",
+    "groupName": "Leadership Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Leadership for engineers"
+  },
+  {
+    "groupKey": "ENGR413-ENGINEERING-3",
+    "courseCode": "ENGR413",
+    "groupName": "Engineering Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "nonCourseRequirement": "at least 6 Engineering courses",
+    "sortOrder": 3,
+    "description": "Advanced standing in engineering"
+  },
+
+    {
+    "groupKey": "ENGR414-THERMO-1",
+    "courseCode": "ENGR414",
+    "groupName": "Thermodynamics",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "isConcurrent": true,
+    "sortOrder": 1,
+    "description": "Concurrent thermodynamics"
+  },
+
+    {
+    "groupKey": "ENGR442-ENGINEERING-1",
+    "courseCode": "ENGR442",
+    "groupName": "Engineering Foundations",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "nonCourseRequirement": "Mechanics, Sensors, Control theory, Microcontrollers, Electronics, and Electrical Motors",
+    "sortOrder": 1,
+    "description": "Multiple engineering foundations"
+  },
+
+    {
+    "groupKey": "ENGR443-ENGINEERING-1",
+    "courseCode": "ENGR443",
+    "groupName": "Engineering Foundations",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "nonCourseRequirement": "Algebra, Statistics and Engineering Design",
+    "sortOrder": 1,
+    "description": "Multiple engineering foundations"
+  },
+
+    {
+    "groupKey": "CE122-MATH-1",
+    "courseCode": "CE122",
+    "groupName": "Mathematics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Calculus background"
+  },
+  {
+    "groupKey": "CE122-PROGRAMMING-2",
+    "courseCode": "CE122",
+    "groupName": "Programming Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 2,
+    "description": "Programming background"
+  },
+
+    {
+    "groupKey": "CE212-MATH-1",
+    "courseCode": "CE212",
+    "groupName": "Mathematics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Calculus background"
+  },
+
+    {
+    "groupKey": "CE322-ELECTRONICS-1",
+    "courseCode": "CE322",
+    "groupName": "Electronics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Electronics background"
+  },
+
+    {
+    "groupKey": "CE451-PROGRAMMING-1",
+    "courseCode": "CE451",
+    "groupName": "Programming Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Programming background"
+  },
+  {
+    "groupKey": "CE451-DIGITAL-2",
+    "courseCode": "CE451",
+    "groupName": "Digital Systems",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 2,
+    "description": "Digital systems background"
+  },
+
+    {
+    "groupKey": "CHEM211-PHYSICS-1",
+    "courseCode": "CHEM211",
+    "groupName": "Physics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Physics background"
+  },
+
+    {
+    "groupKey": "EE222-PHYSICS-1",
+    "courseCode": "EE222",
+    "groupName": "Physics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Physics background"
+  },
+  {
+    "groupKey": "EE222-MATH-2",
+    "courseCode": "EE222",
+    "groupName": "Mathematics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Advanced mathematics"
+  },
+
+    {
+    "groupKey": "EE242-PHYSICS-1",
+    "courseCode": "EE242",
+    "groupName": "Physics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Physics background"
+  },
+  {
+    "groupKey": "EE242-ELECTRONICS-2",
+    "courseCode": "EE242",
+    "groupName": "Electronics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "isConcurrent": true,
+    "sortOrder": 2,
+    "description": "Previous or concurrent enrollment"
+  },
+
+    {
+    "groupKey": "EE321-PHYSICS-1",
+    "courseCode": "EE321",
+    "groupName": "Physics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Physics background"
+  },
+  {
+    "groupKey": "EE321-ELECTRONICS-2",
+    "courseCode": "EE321",
+    "groupName": "Electronics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Electronics background"
+  },
+
+    {
+    "groupKey": "EE331-PHYSICS-1",
+    "courseCode": "EE331",
+    "groupName": "Physics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Physics background"
+  },
+  {
+    "groupKey": "EE331-MATH-2",
+    "courseCode": "EE331",
+    "groupName": "Mathematics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Advanced mathematics"
+  },
+
+    {
+    "groupKey": "EE342-MACHINES-1",
+    "courseCode": "EE342",
+    "groupName": "Electrical Machines",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Electrical machines foundation"
+  },
+
+    {
+    "groupKey": "EE421-COMMUNICATIONS-1",
+    "courseCode": "EE421",
+    "groupName": "Communications",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Communications background"
+  },
+
+    {
+    "groupKey": "EE422-COMMUNICATIONS-1",
+    "courseCode": "EE422",
+    "groupName": "Communications",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Communications background"
+  },
+
+    {
+    "groupKey": "EE442-ELECTRONICS-1",
+    "courseCode": "EE442",
+    "groupName": "Electronics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Electronics background"
+  },
+  {
+    "groupKey": "EE442-MACHINES-2",
+    "courseCode": "EE442",
+    "groupName": "Electrical Machines",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Electrical machines foundation"
+  },
+
+    {
+    "groupKey": "EE451-ELECTRONICS-1",
+    "courseCode": "EE451",
+    "groupName": "Electronics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Electronics background"
+  },
+  {
+    "groupKey": "EE451-MACHINES-2",
+    "courseCode": "EE451",
+    "groupName": "Electrical Machines",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Electrical machines foundation"
+  },
+
+    {
+    "groupKey": "EE453-POWER-1",
+    "courseCode": "EE453",
+    "groupName": "Power Engineering",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Power engineering background"
+  },
+
+    {
+    "groupKey": "EE454-POWER-1",
+    "courseCode": "EE454",
+    "groupName": "Power Systems",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Power systems background"
+  },
+  {
+    "groupKey": "EE454-ELECTRONICS-2",
+    "courseCode": "EE454",
+    "groupName": "Electronics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Power electronics background"
+  },
+
+    {
+    "groupKey": "ME301-PHYSICS-1",
+    "courseCode": "ME301",
+    "groupName": "Physics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Physics background"
+  },
+  {
+    "groupKey": "ME301-MATERIALS-2",
+    "courseCode": "ME301",
+    "groupName": "Materials Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Mechanics of materials"
+  },
+
+    {
+    "groupKey": "ME311-PHYSICS-1",
+    "courseCode": "ME311",
+    "groupName": "Physics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Physics background"
+  },
+  {
+    "groupKey": "ME311-MATERIALS-2",
+    "courseCode": "ME311",
+    "groupName": "Materials Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Materials science"
+  },
+  {
+    "groupKey": "ME311-SYSTEMS-3",
+    "courseCode": "ME311",
+    "groupName": "Systems Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 3,
+    "description": "System dynamics"
+  },
+
+    {
+    "groupKey": "ME401-MATERIALS-1",
+    "courseCode": "ME401",
+    "groupName": "Materials Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Mechanics of materials"
+  },
+  {
+    "groupKey": "ME401-SYSTEMS-2",
+    "courseCode": "ME401",
+    "groupName": "Systems Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "System dynamics"
+  },
+
+    {
+    "groupKey": "ME411-PHYSICS-1",
+    "courseCode": "ME411",
+    "groupName": "Physics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Physics background"
+  },
+  {
+    "groupKey": "ME411-SYSTEMS-2",
+    "courseCode": "ME411",
+    "groupName": "Systems Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "System dynamics"
+  },
+
+    {
+    "groupKey": "ME412-THERMO-1",
+    "courseCode": "ME412",
+    "groupName": "Thermodynamics",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Thermodynamics background"
+  },
+
+    {
+    "groupKey": "ME413-THERMO-1",
+    "courseCode": "ME413",
+    "groupName": "Thermodynamics",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Thermodynamics background"
+  },
+  {
+    "groupKey": "ME413-HEAT-2",
+    "courseCode": "ME413",
+    "groupName": "Heat Transfer",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Heat transfer background"
+  },
+
+    {
+    "groupKey": "ME421-THERMO-1",
+    "courseCode": "ME421",
+    "groupName": "Thermodynamics",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Thermodynamics background"
+  },
+
+    {
+    "groupKey": "ME431-THERMO-1",
+    "courseCode": "ME431",
+    "groupName": "Thermodynamics",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Thermodynamics background"
+  },
+
+    {
+    "groupKey": "SC112-MATH-1",
+    "courseCode": "SC112",
+    "groupName": "Mathematics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Calculus background"
+  },
+
+    {
+    "groupKey": "SC113-PHYSICS-1",
+    "courseCode": "SC113",
+    "groupName": "Physics Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Physics background"
+  }
+
+
+]

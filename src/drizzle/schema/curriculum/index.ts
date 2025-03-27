@@ -7,7 +7,7 @@ export {
   prerequisiteCourses,
   prerequisiteCourseSchema,
 } from "./prerequisite-courses";
-export { courseOfferings, courseOfferingSchema } from "./course-offerings";
+
 export { courseCategories, courseCategorySchema } from "./course-categories";
 export {
   courseCategorization,

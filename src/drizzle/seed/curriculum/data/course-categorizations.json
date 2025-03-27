@@ -1,0 +1,1591 @@
+[
+  {
+    "courseCode": "ENGL112",
+    "categoryName": "Humanities & Social Sciences",
+    "majorGroup": "ALL",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 1,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "ENGL113",
+    "categoryName": "Humanities & Social Sciences",
+    "majorGroup": "ALL",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 1,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "SOAN111",
+    "categoryName": "Humanities & Social Sciences",
+    "majorGroup": "ALL",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 1,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "SOAN221",
+    "categoryName": "Humanities & Social Sciences",
+    "majorGroup": "ALL",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "SOAN311",
+    "categoryName": "Humanities & Social Sciences",
+    "majorGroup": "ALL",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "SOAN411",
+    "categoryName": "Humanities & Social Sciences",
+    "majorGroup": "ALL",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": null
+  },
+  {
+    "courseCode": "BUSA100",
+    "categoryName": "Humanities & Social Sciences",
+    "majorGroup": "CS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 1,
+    "applicableFromCohortYear": 2024
+  },
+  {
+    "courseCode": "BUSA161",
+    "categoryName": "Business",
+    "majorGroup": "ALL",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 1,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "BUSA162",
+    "categoryName": "Business",
+    "majorGroup": "ALL",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 1,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "BUSA224",
+    "categoryName": "Business",
+    "majorGroup": "CS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "MATH121",
+    "categoryName": "Mathematics & Quantitative",
+    "majorGroup": "NON-ENG",
+    "isRequired": false,
+    "isFlexible": true,
+    "mathTrackName": "Pre-Calculus",
+    "recommendedYear": 1,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "MATH122",
+    "categoryName": "Mathematics & Quantitative",
+    "majorGroup": "NON-ENG",
+    "isRequired": false,
+    "isFlexible": true,
+    "mathTrackName": "Pre-Calculus",
+    "recommendedYear": 1,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "MATH141",
+    "categoryName": "Mathematics & Quantitative",
+    "majorGroup": "NON-ENG",
+    "isRequired": false,
+    "isFlexible": true,
+    "mathTrackName": "Calculus",
+    "recommendedYear": 1,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "MATH151",
+    "categoryName": "Mathematics & Quantitative",
+    "majorGroup": "NON-ENG",
+    "isRequired": false,
+    "isFlexible": true,
+    "mathTrackName": "Pre-Calculus",
+    "recommendedYear": 1,
+    "recommendedSemester": 3
+  },
+  {
+    "courseCode": "MATH221",
+    "categoryName": "Mathematics & Quantitative",
+    "majorGroup": "NON-ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "MATH211",
+    "categoryName": "Mathematics & Quantitative",
+    "majorGroup": "CS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "CSIS111",
+    "categoryName": "Computing",
+    "majorGroup": "ALL",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 1,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "SOAN325",
+    "categoryName": "Research / Project Prep.",
+    "majorGroup": "NON-ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "CS115",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "CS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 1,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "CS215",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "CS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 1,
+    "applicableFromCohortYear": 2025
+  },
+  {
+    "courseCode": "CS221",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "CS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "CS222",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "CS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "CS323",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "CS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "AI301",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "CS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 2,
+    "applicableFromCohortYear": 2024
+  },
+  {
+    "courseCode": "CS313",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "CS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "SYS101",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "CS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 1,
+    "applicableFromCohortYear": 2025
+  },
+  {
+    "courseCode": "CS331",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "CS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "CS345",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "CS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "CS341",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "CS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "CS415",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "CS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "MS301",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "CS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 2,
+    "applicableFromCohortYear": 2024
+  },
+  {
+    "courseCode": "CS432",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "CS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 4,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "CS435",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "CS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 4,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "CS314",
+    "categoryName": "Major Electives",
+    "majorGroup": "CS",
+    "isRequired": false,
+    "isFlexible": true,
+    "applicableFromCohortYear": 2024
+  },
+  {
+    "courseCode": "CS452",
+    "categoryName": "Major Electives",
+    "majorGroup": "CS",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "CS453",
+    "categoryName": "Major Electives",
+    "majorGroup": "CS",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "CS458",
+    "categoryName": "Major Electives",
+    "majorGroup": "CS",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "CS459",
+    "categoryName": "Major Electives",
+    "majorGroup": "CS",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "CS424",
+    "categoryName": "Major Electives",
+    "majorGroup": "CS",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "CE451",
+    "categoryName": "Major Electives",
+    "majorGroup": "CS",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "IS451",
+    "categoryName": "Major Electives",
+    "majorGroup": "CS",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "IS361",
+    "categoryName": "Major Electives",
+    "majorGroup": "CS",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "BUSA400A",
+    "categoryName": "Capstone",
+    "majorGroup": "CS",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "BUSA400B",
+    "categoryName": "Capstone",
+    "majorGroup": "CS",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "BUSA401A",
+    "categoryName": "Capstone",
+    "majorGroup": "CS",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "BUSA401B",
+    "categoryName": "Capstone",
+    "majorGroup": "CS",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "BUSA410",
+    "categoryName": "Capstone",
+    "majorGroup": "CS",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "ECON101",
+    "categoryName": "Humanities & Social Sciences",
+    "majorGroup": "MIS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 1,
+    "applicableUntilCohortYear": 2024
+  },
+  {
+    "courseCode": "ECON102",
+    "categoryName": "Humanities & Social Sciences",
+    "majorGroup": "MIS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 2,
+    "applicableUntilCohortYear": 2024
+  },
+  {
+    "courseCode": "BUSA100",
+    "categoryName": "Humanities & Social Sciences",
+    "majorGroup": "MIS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 1,
+    "applicableFromCohortYear": 2025
+  },
+  {
+    "courseCode": "MATH233",
+    "categoryName": "Mathematics & Quantitative",
+    "majorGroup": "MIS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "BUSA224",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "MIS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "BUSA405",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "MIS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 4,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "CS115",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "MIS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 1,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "CS215",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "MIS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 1,
+    "applicableFromCohortYear": 2025
+  },
+  {
+    "courseCode": "CS221",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "MIS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "AI301",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "MIS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 2,
+    "applicableFromCohortYear": 2024
+  },
+  {
+    "courseCode": "CS323",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "MIS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "CS341",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "MIS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "IS335",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "MIS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "IS451",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "MIS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 4,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "CS442",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "MIS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 4,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "IS331",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "MIS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "IS332",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "MIS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 2,
+    "applicableUntilCohortYear": 2023
+  },
+  {
+    "courseCode": "IS361",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "MIS",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "CS222",
+    "categoryName": "Major Electives",
+    "majorGroup": "MIS",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "BUSA132",
+    "categoryName": "Major Electives",
+    "majorGroup": "MIS",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "BUSA311",
+    "categoryName": "Major Electives",
+    "majorGroup": "MIS",
+    "isRequired": false,
+    "isFlexible": true,
+    "applicableFromCohortYear": 2025
+  },
+  {
+    "courseCode": "CS313",
+    "categoryName": "Major Electives",
+    "majorGroup": "MIS",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "CS314",
+    "categoryName": "Major Electives",
+    "majorGroup": "MIS",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "CS331",
+    "categoryName": "Major Electives",
+    "majorGroup": "MIS",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "CS415",
+    "categoryName": "Major Electives",
+    "majorGroup": "MIS",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "CS424",
+    "categoryName": "Major Electives",
+    "majorGroup": "MIS",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "CS432",
+    "categoryName": "Major Electives",
+    "majorGroup": "MIS",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "CS435",
+    "categoryName": "Major Electives",
+    "majorGroup": "MIS",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "CS452",
+    "categoryName": "Major Electives",
+    "majorGroup": "MIS",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "CS453",
+    "categoryName": "Major Electives",
+    "majorGroup": "MIS",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "CS458",
+    "categoryName": "Major Electives",
+    "majorGroup": "MIS",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "CS459",
+    "categoryName": "Major Electives",
+    "majorGroup": "MIS",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "BUSA400A",
+    "categoryName": "Capstone",
+    "majorGroup": "MIS",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "BUSA400B",
+    "categoryName": "Capstone",
+    "majorGroup": "MIS",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "BUSA401A",
+    "categoryName": "Capstone",
+    "majorGroup": "MIS",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "BUSA401B",
+    "categoryName": "Capstone",
+    "majorGroup": "MIS",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "BUSA410",
+    "categoryName": "Capstone",
+    "majorGroup": "MIS",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "ECON101",
+    "categoryName": "Humanities & Social Sciences",
+    "majorGroup": "BA",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "ECON102",
+    "categoryName": "Humanities & Social Sciences",
+    "majorGroup": "BA",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "MATH233",
+    "categoryName": "Mathematics & Quantitative",
+    "majorGroup": "BA",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "BUSA132",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "BA",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 1,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "BUSA210",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "BA",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "BUSA220",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "BA",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "BUSA341",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "BA",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "BUSA304",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "BA",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "BUSA311",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "BA",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "BUSA321",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "BA",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "BUSA350",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "BA",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "BUSA402",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "BA",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 4,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "BUSA405",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "BA",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 4,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "BUSA422",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "BA",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 4,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "BUSA423",
+    "categoryName": "Major Electives",
+    "majorGroup": "BA",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "BUSA430",
+    "categoryName": "Major Electives",
+    "majorGroup": "BA",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "BUSA431",
+    "categoryName": "Major Electives",
+    "majorGroup": "BA",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "BUSA442",
+    "categoryName": "Major Electives",
+    "majorGroup": "BA",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "BUSA444",
+    "categoryName": "Major Electives",
+    "majorGroup": "BA",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "BUSA451",
+    "categoryName": "Major Electives",
+    "majorGroup": "BA",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "BUSA471",
+    "categoryName": "Major Electives",
+    "majorGroup": "BA",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "ECON452",
+    "categoryName": "Major Electives",
+    "majorGroup": "BA",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "ECON455",
+    "categoryName": "Major Electives",
+    "majorGroup": "BA",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "ENGR413",
+    "categoryName": "Major Electives",
+    "majorGroup": "BA",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
+    "courseCode": "BUSA400A",
+    "categoryName": "Capstone",
+    "majorGroup": "BA",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "BUSA400B",
+    "categoryName": "Capstone",
+    "majorGroup": "BA",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "BUSA401A",
+    "categoryName": "Capstone",
+    "majorGroup": "BA",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "BUSA401B",
+    "categoryName": "Capstone",
+    "majorGroup": "BA",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": 2
+  },
+  {
+    "courseCode": "BUSA410",
+    "categoryName": "Capstone",
+    "majorGroup": "BA",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "ENGL112",
+    "categoryName": "Humanities & Social Sciences",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 1,
+    "recommendedSemester": 1,
+    "notes": "Written and Oral Communication - core requirement for all engineering majors"
+  },
+  {
+    "courseCode": "ENGL113",
+    "categoryName": "Humanities & Social Sciences",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 1,
+    "recommendedSemester": 2,
+    "notes": "Text and Meaning - core requirement for all engineering majors"
+  },
+  {
+    "courseCode": "SOAN111",
+    "categoryName": "Humanities & Social Sciences",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 1,
+    "recommendedSemester": 2,
+    "notes": "Leadership Seminar 1 - core requirement for all engineering majors"
+  },
+  {
+    "courseCode": "SOAN221",
+    "categoryName": "Humanities & Social Sciences",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 1,
+    "notes": "Leadership Seminar 2 - core requirement for all engineering majors"
+  },
+  {
+    "courseCode": "SOAN311",
+    "categoryName": "Humanities & Social Sciences",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 2,
+    "notes": "Leadership Seminar 3 - core requirement for all engineering majors"
+  },
+  {
+    "courseCode": "ENGR310",
+    "categoryName": "Humanities & Social Sciences",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 1,
+    "notes": "Leadership 4 for Engineers - specialized leadership sequence for engineering majors"
+  },
+  {
+    "courseCode": "BUSA100",
+    "categoryName": "Humanities & Social Sciences",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 2,
+    "notes": "Principles of Economics - core requirement for all engineering majors"
+  },
+  {
+    "courseCode": "BUSA161",
+    "categoryName": "Business",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 1,
+    "recommendedSemester": 1,
+    "notes": "Foundations of Design & Entrepreneurship I - core requirement for all engineering majors"
+  },
+  {
+    "courseCode": "BUSA162",
+    "categoryName": "Business",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 1,
+    "recommendedSemester": 2,
+    "notes": "Foundations of Design & Entrepreneurship II - core requirement for all engineering majors"
+  },
+  {
+    "courseCode": "MATH161",
+    "categoryName": "Mathematics & Quantitative",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 1,
+    "recommendedSemester": 1,
+    "notes": "Engineering Calculus - primary calculus track for engineering students"
+  },
+
+  {
+    "courseCode": "MATH211",
+    "categoryName": "Mathematics & Quantitative",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 1,
+    "recommendedSemester": 2,
+    "notes": "Multivariable Calculus & Linear Algebra - required for all engineering majors"
+  },
+  {
+    "courseCode": "MATH152",
+    "categoryName": "Mathematics & Quantitative",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 1,
+    "notes": "Statistics for Engineering - required for all engineering majors"
+  },
+  {
+    "courseCode": "MATH251",
+    "categoryName": "Mathematics & Quantitative",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 2,
+    "notes": "Differential Equations & Numerical Methods - required for all engineering majors"
+  },
+  {
+    "courseCode": "CS112",
+    "categoryName": "Computing",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 1,
+    "recommendedSemester": 2,
+    "notes": "Computer Programming for Engineering - required for all engineering majors"
+  },
+  {
+    "courseCode": "SC112",
+    "categoryName": "Science",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 1,
+    "recommendedSemester": 2,
+    "notes": "Physics I: Mechanics - required for all engineering majors"
+  },
+  {
+    "courseCode": "SC113",
+    "categoryName": "Science",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 1,
+    "notes": "Physics II: Electromagnetism - required for all engineering majors"
+  },
+  {
+    "courseCode": "ENGR213",
+    "categoryName": "Science",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 2,
+    "notes": "Materials Science & Chemistry - required for all engineering majors"
+  },
+  {
+    "courseCode": "ENGR300",
+    "categoryName": "Research / Project Prep.",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 2,
+    "notes": "Third Year Group Project & Seminar - required for all engineering majors"
+  },
+  {
+    "courseCode": "ENGR112",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 1,
+    "recommendedSemester": 1,
+    "notes": "Introduction to Engineering - required for all engineering majors"
+  },
+  {
+    "courseCode": "ENGR212",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 1,
+    "notes": "Instrumentation for Engineering - required for all engineering majors"
+  },
+  {
+    "courseCode": "CE122",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 1,
+    "recommendedSemester": 3,
+    "notes": "Applied Programming for Engineers - required for all engineering majors"
+  },
+  {
+    "courseCode": "ENGR311",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 1,
+    "notes": "System Dynamics - required for all engineering majors"
+  },
+  {
+    "courseCode": "ENGR312",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 2,
+    "notes": "Control Systems - required for all engineering majors"
+  },
+  {
+    "courseCode": "CE322",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 2,
+    "notes": "Digital Systems Design - required for all engineering majors"
+  },
+  {
+    "courseCode": "EE222",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 2,
+    "notes": "Circuits & Electronics - required for all engineering majors"
+  },
+  {
+    "courseCode": "ENGR413",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 4,
+    "recommendedSemester": 2,
+    "notes": "Project Management and Professional Practice - required for all engineering majors"
+  },
+  {
+    "courseCode": "CS222",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "CE",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 1,
+    "notes": "Data Structures & Algorithms - required for Computer Engineering majors"
+  },
+  {
+    "courseCode": "CS331",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "CE",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 1,
+    "notes": "Computer Organization & Architecture - required for Computer Engineering majors"
+  },
+  {
+    "courseCode": "CS435",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "CE",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 4,
+    "recommendedSemester": 1,
+    "notes": "Operating Systems - required for Computer Engineering majors"
+  },
+  {
+    "courseCode": "CS432",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "CE",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 2,
+    "notes": "Networks & Data Communications - required for Computer Engineering majors"
+  },
+  {
+    "courseCode": "CE451",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "CE",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 4,
+    "recommendedSemester": 1,
+    "notes": "Embedded Systems - required for Computer Engineering majors"
+  },
+  {
+    "courseCode": "EE242",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "EE",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 1,
+    "notes": "Intro to Electrical Machines & Power Electronics - required for EE majors"
+  },
+  {
+    "courseCode": "EE342",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "EE",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 2,
+    "notes": "Advanced Electrical Machines & Power Electronics - required for EE majors"
+  },
+  {
+    "courseCode": "EE321",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "EE",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 2,
+    "notes": "Communication Systems - required for EE majors"
+  },
+  {
+    "courseCode": "EE451",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "EE",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 4,
+    "recommendedSemester": 1,
+    "notes": "Power Engineering - required for EE majors"
+  },
+  {
+    "courseCode": "CE451",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "EE",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 4,
+    "recommendedSemester": 1,
+    "notes": "Embedded Systems - required for EE majors"
+  },
+  {
+    "courseCode": "ME311",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "ME",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 1,
+    "notes": "Mechanics of Materials - required for ME majors"
+  },
+  {
+    "courseCode": "ME301",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "ME",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 2,
+    "notes": "Mechanical Machine Design - required for ME majors"
+  },
+  {
+    "courseCode": "ME401",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "ME",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 4,
+    "recommendedSemester": 1,
+    "notes": "Mechanics of Machines - required for ME majors"
+  },
+  {
+    "courseCode": "ME411",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "ME",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 1,
+    "notes": "Thermodynamics - required for ME majors"
+  },
+  {
+    "courseCode": "ME421",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "ME",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 4,
+    "recommendedSemester": 1,
+    "notes": "Heat Transfer - required for ME majors"
+  },
+  {
+    "courseCode": "ME412",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "ME",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 2,
+    "notes": "Fluid Dynamics & Applications - required for ME majors"
+  },
+  {
+    "courseCode": "ME441",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "ME",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 4,
+    "recommendedSemester": 2,
+    "notes": "Manufacturing Processes - required for ME majors"
+  },
+  {
+    "courseCode": "ENGR400",
+    "categoryName": "Capstone",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 4,
+    "recommendedSemester": 1,
+    "notes": "Senior Project 1 - required for all engineering majors"
+  },
+  {
+    "courseCode": "ENGR401",
+    "categoryName": "Capstone",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 4,
+    "recommendedSemester": 2,
+    "notes": "Senior Project and Seminar 2 - required for all engineering majors"
+  },
+  {
+    "courseCode": "EE321",
+    "categoryName": "Major Electives",
+    "majorGroup": "CE",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": null,
+    "notes": "Communication Systems - available as CE elective"
+  },
+  {
+    "courseCode": "CS415",
+    "categoryName": "Major Electives",
+    "majorGroup": "CE",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": null,
+    "notes": "Software Engineering - available as CE elective"
+  },
+  {
+    "courseCode": "CS452",
+    "categoryName": "Major Electives",
+    "majorGroup": "CE",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": null,
+    "notes": "Machine Learning - available as CE elective"
+  },
+  {
+    "courseCode": "CS453",
+    "categoryName": "Major Electives",
+    "majorGroup": "CE",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": null,
+    "notes": "Robotics - available as CE elective"
+  },
+  {
+    "courseCode": "CS458",
+    "categoryName": "Major Electives",
+    "majorGroup": "CE",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": null,
+    "notes": "Internet of Things - available as CE elective"
+  },
+  {
+    "courseCode": "EE421",
+    "categoryName": "Major Electives",
+    "majorGroup": "EE",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": null,
+    "notes": "Digital and Analog Signal Processing in Telecommunications - available as EE elective"
+  },
+  {
+    "courseCode": "EE422",
+    "categoryName": "Major Electives",
+    "majorGroup": "EE",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": null,
+    "notes": "Advanced Communication Systems - available as EE elective"
+  },
+  {
+    "courseCode": "EE442",
+    "categoryName": "Major Electives",
+    "majorGroup": "EE",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": null,
+    "notes": "Power Electronics - available as EE elective"
+  },
+  {
+    "courseCode": "EE453",
+    "categoryName": "Major Electives",
+    "majorGroup": "EE",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": null,
+    "notes": "Power Systems Analysis - available as EE elective"
+  },
+  {
+    "courseCode": "EE454",
+    "categoryName": "Major Electives",
+    "majorGroup": "EE",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": null,
+    "notes": "Renewable Energy and Smart Power Grid - available as EE elective"
+  },
+  {
+    "courseCode": "CS432",
+    "categoryName": "Major Electives",
+    "majorGroup": "EE",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": null,
+    "notes": "Networks and Data Communications - available as EE elective"
+  },
+  {
+    "courseCode": "ME413",
+    "categoryName": "Major Electives",
+    "majorGroup": "ME",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": null,
+    "notes": "Thermal Systems & Applications - available as ME elective"
+  },
+  {
+    "courseCode": "ME431",
+    "categoryName": "Major Electives",
+    "majorGroup": "ME",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": null,
+    "notes": "Fluid Mechanics and Applications - available as ME elective"
+  },
+  {
+    "courseCode": "ENGR442",
+    "categoryName": "Major Electives",
+    "majorGroup": "ME",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": null,
+    "notes": "Mechatronics Systems Design - available as ME elective"
+  },
+  {
+    "courseCode": "ENGR443",
+    "categoryName": "Major Electives",
+    "majorGroup": "ME",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": null,
+    "notes": "Industrial Engineering - available as ME elective"
+  },
+  {
+    "courseCode": "ENGR414",
+    "categoryName": "Major Electives",
+    "majorGroup": "ME",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": null,
+    "notes": "Introduction to Environmental Science and Engineering - available as ME elective"
+  },
+  {
+    "courseCode": "CS453",
+    "categoryName": "Major Electives",
+    "majorGroup": "ME",
+    "isRequired": false,
+    "isFlexible": true,
+    "recommendedYear": 4,
+    "recommendedSemester": null,
+    "notes": "Robotics - available as ME elective"
+  }
+]

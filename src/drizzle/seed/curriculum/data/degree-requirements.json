@@ -1,0 +1,640 @@
+[
+  
+  {
+    "majorCode": "CS",
+    "categoryName": "Humanities & Social Sciences",
+    "minCredits": 5.5,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Includes Written and Oral Comm, Text & Meaning, Ashesi Seminar & Leadership 1-4, Principles of Economics"
+  },
+  {
+    "majorCode": "CS",
+    "categoryName": "Business",
+    "minCredits": 3,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Includes Foundations of Design & Entrepreneurship I & II, Finance for Non-Finance Mgrs"
+  },
+  {
+    "majorCode": "CS",
+    "categoryName": "Mathematics & Quantitative",
+    "minCredits": 4,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Pre-Calculus or Calculus track (5 credits if Pre-Calc track), Statistics with Probability, Linear Algebra"
+  },
+  {
+    "majorCode": "CS",
+    "categoryName": "Computing",
+    "minCredits": 1,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Intro to Computing & IS"
+  },
+  {
+    "majorCode": "CS",
+    "categoryName": "Research / Project Prep.",
+    "minCredits": 1,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Research Methods"
+  },
+  {
+    "majorCode": "CS",
+    "categoryName": "Non-Major Electives",
+    "minCredits": 2,
+    "maxCredits": null,
+    "minCourses": 2,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Including at least 1 African studies"
+  },
+  {
+    "majorCode": "CS",
+    "categoryName": "Required Major Classes",
+    "minCredits": 14,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Computer Programming for CS, Object Oriented Programming, Discrete Structures and Theory, Data Structures and Algorithms, Database Systems, Intermediate Comp. Prog., Introduction to AI, Systems Fundamentals, Computer Org. & Arch., Algorithm Design & Analysis, Software Engineering, Web Technologies, Intro to Modelling & Simulation, Networks & Data Comm., Operating Systems"
+  },
+  {
+    "majorCode": "CS",
+    "categoryName": "Major Electives",
+    "minCredits": 2,
+    "maxCredits": null,
+    "minCourses": 2,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "CS Electives"
+  },
+  {
+    "majorCode": "CS",
+    "categoryName": "Capstone",
+    "minCredits": 2,
+    "maxCredits": null,
+    "minCourses": 2,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Capstone 1 & 2 (Thesis, Entrepreneurship, or Applied Project + elective)"
+  },
+
+  
+  {
+    "majorCode": "MIS",
+    "categoryName": "Humanities & Social Sciences",
+    "minCredits": 5.5,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Includes Written and Oral Comm, Text & Meaning, Ashesi Seminar & Leadership 1-4, Principles of Economics"
+  },
+  {
+    "majorCode": "MIS",
+    "categoryName": "Business",
+    "minCredits": 2,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Foundations of Design & Entrepreneurship I & II"
+  },
+  {
+    "majorCode": "MIS",
+    "categoryName": "Mathematics & Quantitative",
+    "minCredits": 4,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Pre-Calculus or Calculus track (5 credits if Pre-Calc track), Statistics with Probability, Quant Methods or Linear Algebra"
+  },
+  {
+    "majorCode": "MIS",
+    "categoryName": "Computing",
+    "minCredits": 1,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Intro to Computing & IS"
+  },
+  {
+    "majorCode": "MIS",
+    "categoryName": "Research / Project Prep.",
+    "minCredits": 1,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Research Methods"
+  },
+  {
+    "majorCode": "MIS",
+    "categoryName": "Non-Major Electives",
+    "minCredits": 3,
+    "maxCredits": null,
+    "minCourses": 3,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "2 Non-Major Electives including at least 1 African studies, 1 Free Elective (major or non-major)"
+  },
+  {
+    "majorCode": "MIS",
+    "categoryName": "Required Major Classes",
+    "minCredits": 13,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Finance for Non-Finance Mgrs, Competitive Strategy, Computer Programming for CS, Object Oriented Programming, Discrete Structures & Theory, Introduction to AI, Database Systems, Web Technologies, Systems Analysis & Design, Information & Systems Security, E-Commerce, IT Infrastructure & Systems Admin, IS Project Management"
+  },
+  {
+    "majorCode": "MIS",
+    "categoryName": "Major Electives",
+    "minCredits": 2,
+    "maxCredits": null,
+    "minCourses": 2,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "MIS Electives"
+  },
+  {
+    "majorCode": "MIS",
+    "categoryName": "Capstone",
+    "minCredits": 2,
+    "maxCredits": null,
+    "minCourses": 2,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Capstone 1 & 2 (Thesis, Entrepreneurship, or Applied Project + elective)"
+  },
+
+  
+  {
+    "majorCode": "BA",
+    "categoryName": "Humanities & Social Sciences",
+    "minCredits": 6.5,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Written and Oral Comm, Text & Meaning, Ashesi Seminar & Leadership 1-4, Microeconomics, Macroeconomics"
+  },
+  {
+    "majorCode": "BA",
+    "categoryName": "Business",
+    "minCredits": 2,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Found. Of Design & Entre. I & II"
+  },
+  {
+    "majorCode": "BA",
+    "categoryName": "Mathematics & Quantitative",
+    "minCredits": 4,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Pre-Calculus or Calculus track (5 credits if Pre-Calc track), Statistics, Quantitative Methods"
+  },
+  {
+    "majorCode": "BA",
+    "categoryName": "Computing",
+    "minCredits": 1,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Intro to Computing & IS"
+  },
+  {
+    "majorCode": "BA",
+    "categoryName": "Research / Project Prep.",
+    "minCredits": 1,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Research Methods"
+  },
+  {
+    "majorCode": "BA",
+    "categoryName": "Non-Major Electives",
+    "minCredits": 3,
+    "maxCredits": null,
+    "minCourses": 3,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Including at least 1 African studies"
+  },
+  {
+    "majorCode": "BA",
+    "categoryName": "Required Major Classes",
+    "minCredits": 11,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Introduction to Finance, Financial Accounting, Marketing, Managerial Accounting, Corporate Finance, Organizational Behavior, International Trade & Policy, Operations Management, Business Law, Competitive Strategy, Investments"
+  },
+  {
+    "majorCode": "BA",
+    "categoryName": "Major Electives",
+    "minCredits": 3,
+    "maxCredits": null,
+    "minCourses": 3,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "BA Electives"
+  },
+  {
+    "majorCode": "BA",
+    "categoryName": "Capstone",
+    "minCredits": 2,
+    "maxCredits": null,
+    "minCourses": 2,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Capstone 1 & 2"
+  },
+
+  
+  {
+    "majorCode": "CE",
+    "categoryName": "Humanities & Social Sciences",
+    "minCredits": 5.5,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Written and Oral Comm, Text & Meaning, Ashesi Seminar & Leadership 1-4, Principles of Economics"
+  },
+  {
+    "majorCode": "CE",
+    "categoryName": "Business",
+    "minCredits": 2,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Found. Of Design & Entre. I & II"
+  },
+  {
+    "majorCode": "CE",
+    "categoryName": "Mathematics & Quantitative",
+    "minCredits": 4,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Calculus for Engineering (or Calculus 1 & 2), Multivariable Calc. & Linear Alg, Diff. Eqs. & Numerical Methods, Statistics for Engineering"
+  },
+  {
+    "majorCode": "CE",
+    "categoryName": "Computing",
+    "minCredits": 1,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Computer Programming for Eng."
+  },
+  {
+    "majorCode": "CE",
+    "categoryName": "Science",
+    "minCredits": 3,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Physics I: Mechanics, Physics II: Electromagnetism, Material Science & Chemistry"
+  },
+  {
+    "majorCode": "CE",
+    "categoryName": "Research / Project Prep.",
+    "minCredits": 0.5,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "3rd Yr. Grp. Project & Seminar"
+  },
+  {
+    "majorCode": "CE",
+    "categoryName": "Non-Major Electives",
+    "minCredits": 2,
+    "maxCredits": null,
+    "minCourses": 2,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Including at least 1 African studies"
+  },
+  {
+    "majorCode": "CE",
+    "categoryName": "Required Major Classes",
+    "minCredits": 13,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Introduction to Engineering, Instrumentation for Engineering, Applied Programming for Eng., System Dynamics, Control Systems, Digital Systems Design, Circuits & Electronics, Project Mgmt. & Prof. Practice, Embedded Systems, Data Structures & Algorithms, Operating Systems, Networks & Distr. Computing, Computer Org. & Arch."
+  },
+  {
+    "majorCode": "CE",
+    "categoryName": "Major Electives",
+    "minCredits": 2,
+    "maxCredits": null,
+    "minCourses": 2,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "CE Electives"
+  },
+  {
+    "majorCode": "CE",
+    "categoryName": "Capstone",
+    "minCredits": 2,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Capstone"
+  },
+
+  
+  {
+    "majorCode": "EE",
+    "categoryName": "Humanities & Social Sciences",
+    "minCredits": 5.5,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Written and Oral Comm, Text & Meaning, Ashesi Seminar & Leadership 1-4, Principles of Economics"
+  },
+  {
+    "majorCode": "EE",
+    "categoryName": "Business",
+    "minCredits": 2,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Found. Of Design & Entre. I & II"
+  },
+  {
+    "majorCode": "EE",
+    "categoryName": "Mathematics & Quantitative",
+    "minCredits": 4,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Calculus for Engineering (or Calculus 1 & 2), Multivariable Calc. & Linear Alg, Diff. Eqs. & Numerical Methods, Statistics for Engineering"
+  },
+  {
+    "majorCode": "EE",
+    "categoryName": "Computing",
+    "minCredits": 1,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Computer Programming for Eng."
+  },
+  {
+    "majorCode": "EE",
+    "categoryName": "Science",
+    "minCredits": 3,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Physics I: Mechanics, Physics II: Electromagnetism, Material Science & Chemistry"
+  },
+  {
+    "majorCode": "EE",
+    "categoryName": "Research / Project Prep.",
+    "minCredits": 0.5,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "3rd Yr. Grp. Project & Seminar"
+  },
+  {
+    "majorCode": "EE",
+    "categoryName": "Non-Major Electives",
+    "minCredits": 2,
+    "maxCredits": null,
+    "minCourses": 2,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Including at least 1 African studies"
+  },
+  {
+    "majorCode": "EE",
+    "categoryName": "Required Major Classes",
+    "minCredits": 13,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Introduction to Engineering, Instrumentation for Engineering, Applied Programming for Eng., System Dynamics, Control Systems, Digital Systems Design, Circuits & Electronics, Project Mgmt. & Prof. Practice, Embedded Systems, Intro to Electrical Machines & Power Electronics, Advanced Electrical machines & Power Electronics, Communication Systems, Power Engineering"
+  },
+  {
+    "majorCode": "EE",
+    "categoryName": "Major Electives",
+    "minCredits": 2,
+    "maxCredits": null,
+    "minCourses": 2,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "EE Electives"
+  },
+  {
+    "majorCode": "EE",
+    "categoryName": "Capstone",
+    "minCredits": 2,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Capstone"
+  },
+
+  
+  {
+    "majorCode": "ME",
+    "categoryName": "Humanities & Social Sciences",
+    "minCredits": 5.5,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Written and Oral Comm, Text & Meaning, Ashesi Seminar & Leadership 1-4, Principles of Economics"
+  },
+  {
+    "majorCode": "ME",
+    "categoryName": "Business",
+    "minCredits": 2,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Found. Of Design & Entre. I & II"
+  },
+  {
+    "majorCode": "ME",
+    "categoryName": "Mathematics & Quantitative",
+    "minCredits": 4,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Calculus for Engineering (or Calculus 1 & 2), Multivariable Calc. & Linear Alg, Diff. Eqs. & Numerical Methods, Statistics for Engineering"
+  },
+  {
+    "majorCode": "ME",
+    "categoryName": "Computing",
+    "minCredits": 1,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Computer Programming for Eng."
+  },
+  {
+    "majorCode": "ME",
+    "categoryName": "Science",
+    "minCredits": 3,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Physics I: Mechanics, Physics II: Electromagnetism, Material Science & Chemistry"
+  },
+  {
+    "majorCode": "ME",
+    "categoryName": "Research / Project Prep.",
+    "minCredits": 0.5,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "3rd Yr. Grp. Project & Seminar"
+  },
+  {
+    "majorCode": "ME",
+    "categoryName": "Non-Major Electives",
+    "minCredits": 2,
+    "maxCredits": null,
+    "minCourses": 2,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Including at least 1 African studies"
+  },
+  {
+    "majorCode": "ME",
+    "categoryName": "Required Major Classes",
+    "minCredits": 13,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Introduction to Engineering, Instrumentation for Engineering, Applied Programming for Eng., System Dynamics, Control Systems, Digital Systems Design, Circuits & Electronics, Project Mgmt. & Prof. Practice, Mechanical machine Design, Intro to Electrical Machines & Power Electronics, Fluid Dynamics & Applications, Fundamentals of Thermal Fluid Science & Heat Transfer, Mechanics of Materials / Structural Engineering"
+  },
+  {
+    "majorCode": "ME",
+    "categoryName": "Major Electives",
+    "minCredits": 2,
+    "maxCredits": null,
+    "minCourses": 2,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "ME Electives"
+  },
+  {
+    "majorCode": "ME",
+    "categoryName": "Capstone",
+    "minCredits": 2,
+    "maxCredits": null,
+    "minCourses": null,
+    "maxCourses": null,
+    "applicableFromCohortYear": 2025,
+    "applicableUntilCohortYear": null,
+    "notes": "Capstone"
+  }
+]

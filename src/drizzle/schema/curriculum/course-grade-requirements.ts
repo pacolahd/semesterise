@@ -10,12 +10,12 @@ import { courses } from "./courses";
 
 export const courseGradeRequirements = pgTable("course_grade_requirements", {
   id,
-  majorId: uuid("major_id")
+  majorCode: varchar("major_code")
     .notNull()
-    .references(() => majors.id, { onDelete: "cascade" }),
-  courseId: uuid("course_id")
+    .references(() => majors.code, { onDelete: "cascade" }),
+  courseCode: varchar("course_code")
     .notNull()
-    .references(() => courses.id, { onDelete: "cascade" }),
+    .references(() => courses.code, { onDelete: "cascade" }),
   minimumGrade: varchar("minimum_grade", { length: 2 }).notNull(),
   applicableFromCohortYear: integer("applicable_from_cohort_year"),
   applicableUntilCohortYear: integer("applicable_until_cohort_year"),
@@ -27,8 +27,8 @@ export const courseGradeRequirements = pgTable("course_grade_requirements", {
 export const courseGradeRequirementSchema = createInsertSchema(
   courseGradeRequirements
 ).extend({
-  majorId: z.string().uuid(),
-  courseId: z.string().uuid(),
+  majorCode: z.string(),
+  courseCode: z.string(),
   minimumGrade: z.string().min(1).max(2),
   applicableFromCohortYear: z.number().int().optional().nullable(),
   applicableUntilCohortYear: z.number().int().optional().nullable(),

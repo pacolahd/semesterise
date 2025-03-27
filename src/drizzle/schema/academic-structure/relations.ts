@@ -11,8 +11,8 @@ export const academicSemestersRelations = relations(
   academicSemesters,
   ({ one }) => ({
     academicYear: one(academicYears, {
-      fields: [academicSemesters.academicYearId],
-      references: [academicYears.id],
+      fields: [academicSemesters.academicYearName],
+      references: [academicYears.yearName],
     }),
   })
 );

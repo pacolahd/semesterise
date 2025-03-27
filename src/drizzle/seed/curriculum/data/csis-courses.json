@@ -1,0 +1,364 @@
+[
+  {
+    "code": "CS112",
+    "title": "Computer Programming for Engineering",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This is a first course in computer programming, primarily intended for students pursuing a major in computer science or engineering, and/or who have had some previous programming practice. Topics include computer representation of data, object-oriented programming, variables and assignments, primitive types and operations, conditional execution, iteration, arrays, classes, methods, recursion, object types, encapsulation, inheritance and reasoning about programs.",
+    "prerequisites": "Familiarity with computers",
+    "semestersOffered": ["FALL", "SPRING"]
+  },
+  {
+    "code": "CS115",
+    "title": "Computer Programming for CS",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course is an introduction to computer programming using the Java programming language. It covers fundamental programming constructs, objects, classes, methods, arrays, strings, file input/output, and graphical user interfaces.",
+    "prerequisites": "None",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "CS215",
+    "title": "Object Oriented Programming",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course introduces students to the fundamentals of object-oriented programming using Java. Topics include classes, objects, inheritance, polymorphism, encapsulation, interfaces, and exception handling.",
+    "prerequisites": "Computer Programming for CS",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "CS221",
+    "title": "Discrete Structures and Theory",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course is designed to give students in Computer Science the mathematical foundations they need for their future studies. Specifically, you will learn mathematical reasoning, combinatorial analysis, discrete structures, algorithmic thinking, and applications and modeling.",
+    "prerequisites": "Pre-Calculus 2 or Calculus 1, Introduction to Computing & Information Systems OR Computer Programming for CS OR Computer Programming for Engineering",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "CS222",
+    "title": "Data Structures & Algorithms",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course covers fundamental abstract data types and their implementations as data structures. It also introduces asymptotic analyses of algorithms involving these data structures. Students will learn about recursion, searching (sequential and binary), and sorting (selection sort, insertion sort, merge sort, and heap sort).",
+    "prerequisites": "C or better in EITHER Computer Programming for CS OR Computer Programming for Engineering; Concurrent enrollment in Discrete Structures and Theory recommended but not required",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "CS313",
+    "title": "Intermediate Computer Programming",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course is a continuation of Computer Programming for CS. It introduces students to more details of object definition and construction and event-driven programming. It also introduces additional standard Java packages, including the file system and graphical user interface elements.",
+    "prerequisites": "EITHER Computer Programming for CS OR Computer Programming for Engineering",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "CS314",
+    "title": "Human Computer Interaction",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course is an introduction to Human Computer Interaction (HCI), a discipline concerned with the design, evaluation, and implementation of interactive computing systems for human use and with the study of major phenomena surrounding them.",
+    "prerequisites": "Introduction to Computing & Information Systems OR Computer Programming for CS OR Computer Programming for Engineering",
+    "semestersOffered": ["FALL"],
+    "notes": "Changed from required to major elective for CS majors (Class of 2024 and later)"
+  },
+  {
+    "code": "CS323",
+    "title": "Database Systems / Database Management",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course provides a comprehensive overview of database systems. Students will learn the fundamentals of data access and file systems, including hierarchical, network, relational and object-oriented data models. The course will cover the elements of relational database design, data query languages, services such as data protection and integrity control, and database management.",
+    "prerequisites": "Computer Programming (for Engineering or Computer Science) and Digital Systems Design (or Discrete Mathematics or Data Structures & Algorithms)",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "CS331",
+    "title": "Computer Organization and Architecture",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course presents the fundamental concepts of computer organization and instruction set architectures. Assembly language programming is used to present and illustrate the concepts of instruction set design. The basics of Central Processor Unit (CPU) design and implementation are covered, including some performance enhancing methods like pipelining and memory caches.",
+    "prerequisites": "EITHER Computer Programming for CS OR Computer Programming for Engineering. Completion or concurrent enrollment in Discrete Structures and Theory.",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "CS341",
+    "title": "Web Technologies",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course introduces the World Wide Web Consortium (W3C) standard markup language and services of the Internet. Topics covered will include basic and advanced HTML, scripting and active pages, design and active pages, design and developing Web-based applications, principles and tools for Web content creation, database fundamentals for the Web, Web management, and Web service delivery.",
+    "prerequisites": "Computer Programming for CS OR Computer Programming for Engineering, Completion or concurrent enrollment in Database Systems",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "CS345",
+    "title": "Algorithm Design & Analysis",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course covers the design and analysis of computer algorithms. Topics include asymptotic analysis, divide-and-conquer algorithms, greedy algorithms, dynamic programming, and NP-completeness.",
+    "prerequisites": "Data Structures & Algorithms",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "CS415",
+    "title": "Software Engineering",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course covers the fundamentals of software engineering with a focus on the software lifecycle and developing quality software as a team. Topics covered include requirements, specification, design, quality assurance and testing, process, as well as tools and environments.",
+    "prerequisites": "EITHER Computer Programming for CS OR Computer Programming for Engineering, EITHER Web Technologies OR Intermediate Computer Programming OR Data Structures",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "CS424",
+    "title": "Advanced Database Systems",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "Advanced Database Management Systems course deals with the usage as well as concepts of design and architecture of databases. In covering the concepts, theorems and algorithms, proofs relevant to different aspects (design, architecture, and implementation) are covered.",
+    "prerequisites": "Database Systems, EITHER Discrete Structures and Theory OR Data Structures and Algorithms",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "CS432",
+    "title": "Networks and Data Communications",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course introduces the underlying principles of computer network design, from the physical layer up through data transport protocols. Physical layer interface alternatives and mechanisms employed by common protocols at layers 2 to 4 are discussed.",
+    "prerequisites": "Computer Programming",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "CS435",
+    "title": "Operating Systems",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This is a course on theory and practices of operating system design and implementation. Operating Systems are found in most computing devices we use. All operating systems deal in some way or another with users, security, resources, storage and memory, threads and processes, scheduling, as well as policies associated with or built on these.",
+    "prerequisites": "EITHER Computer Programming for CS OR Computer Programming for Engineering, EITHER Discrete Structures and Theory OR Data Structures and Algorithms",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "CS442",
+    "title": "E-Commerce",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This is an introduction to e-Commerce principles, technologies, and applications. This course also develops understanding of the problems and requirements of Internet business, and the corresponding solutions. Protocols to ensure secure transactions and e-commerce protocols based on encryption techniques will also be studied.",
+    "prerequisites": "Database Management Systems and Web Technologies",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "CS452",
+    "title": "Machine Learning",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course introduces machine learning. Topics include supervised and unsupervised machine learning, statistical inference and prediction. A wide variety of algorithms will be presented, including logistic regression, K-nearest neighbors, naïve Bayes, decision trees, neural networks, K-means, mixtures of Gaussians, principal components analysis, Expectation Maximization.",
+    "prerequisites": "Computer Programming for CS OR Computer Programming for Engineering, Multivariable Calculus & Linear Algebra",
+    "semestersOffered": ["FALL", "SPRING"]
+  },
+  {
+    "code": "CS453",
+    "title": "Robotics",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course gives a practical hands-on as well as theoretical introduction to robotics as a field that integrates expertise in Computer Science, Engineering, Design and Mathematics to create innovative systems that interact with and can operate autonomously or semi-autonomously in the physical world.",
+    "prerequisites": "EITHER Computer Programming for CS OR Computer Programming for Engineering; EITHER Calculus II OR Applied Calculus",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "CS458",
+    "title": "Internet of Things",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "The Internet of Things (IoT) course takes an end-to-end view of IoT including the devices, networks, data analytics, programming, security, and business. It exposes the student to all aspects of a functional IoT system and how to design a secure, robust and scalable IoT network, taking on a hands-on approach.",
+    "prerequisites": "Computer Programming for CS OR Computer Programming for Engineering",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "CS459",
+    "title": "Natural Language Processing",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course seeks to introduce students to basic and foundational concepts in natural language processing. The course will use three NLP tasks – sentiment analysis, machine translation and conversational systems – to concretize these concepts.",
+    "prerequisites": "Computer Programming for CS OR Computer Programming for Engineering",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "CSIS111",
+    "title": "Introduction to Computing and Information Systems",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "An introductory course that provides a broad foundation of computing concepts and information systems, suitable for non-majors and serving as a foundation for CS and MIS students.",
+    "prerequisites": "None",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "IS331",
+    "title": "IT Infrastructure",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course introduces IT Infrastructure as a shared technology resource for students majoring in Management Information Systems. It covers topics related to both computer and systems architecture and communication networks, with an overall focus on the services and capabilities that IT Infrastructure solutions enable in an organizational context.",
+    "prerequisites": "Computer Programming for CS OR Computer Programming for Engineering",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "IS332",
+    "title": "System Administration Lab",
+    "department": "CSIS",
+    "credits": 0.5,
+    "description": "This course builds on the theory and practice developed in the IT Infrastructure course, with in-depth experience in configuring and administering IT infrastructure, particularly operating systems, networks, network devices, and security solutions. It provides both conceptual knowledge and practical experience.",
+    "prerequisites": "Computer Programming for CS OR Computer Programming for Engineering; Prior or concurrent enrollment in IT Infrastructure, Operating Systems or Networks and Data Communications is recommended",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "IS335",
+    "title": "Systems Analysis & Design",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course introduces students to the processes, methods, techniques and tools that organizations use to determine how they should conduct their business with a particular focus on how computer-based technologies can most effectively contribute to the way business is organized.",
+    "prerequisites": "Introduction to Computing and Information Systems",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "IS361",
+    "title": "IS Project Management",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course covers project management for information systems projects, including planning, scheduling, budgeting, and control. The course prepares students to manage the technical and business aspects of information system projects.",
+    "prerequisites": "Junior standing in MIS or CS",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "IS451",
+    "title": "Information and Systems Security",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "Information security mechanism is one of the most crucial factors for any organization. Important assets of organization demand a proper risk management and threat model for security hence, information and systems security concepts are gaining a lot of traction.",
+    "prerequisites": "Discrete Structures; Computer Programming for CS OR Computer Programming for Engineering",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "MATH101",
+    "title": "College Algebra",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "The goal of this course is to help freshmen develop a good knowledge of basic mathematical principles. Because the best way to learn mathematics is to do mathematics, classes will include a lot of meaningful activities through which students will build mathematical intuition.",
+    "prerequisites": "None",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "MATH121",
+    "title": "Pre-Calculus 1",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "One definition of mathematics is the science of patterns. Patterns are all around us and the human brain is wired to recognize them. Pre-calculus uses the formal concept of functions to identify and describe patterns found in data, patterns expressed as a formula, and patterns identified visually in a graph.",
+    "prerequisites": "None",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "MATH122",
+    "title": "Pre-Calculus 2",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "One definition of mathematics is the science of patterns. Patterns are all around us and the human brain is wired to recognize them. Pre-calculus uses the formal concept of function to identify and describe patterns found in data, patterns expressed as a formula, and patterns identified visually in a graph.",
+    "prerequisites": "Pre-Calculus 1",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "MATH141",
+    "title": "Calculus 1",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course seeks to equip students with an intuitive idea of limits. We will discuss continuity and the derivative of a function. Rules of differentiation would be examined and applied. The derivative of the elementary and transcendental functions would be discussed. We would apply the taught theoretical concepts to solve real-life problems.",
+    "prerequisites": "None",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "MATH151",
+    "title": "Applied Calculus",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course introduces calculus principles with emphasis on applications in business, economics, and life sciences. It covers differentiation, integration, and their applications, focusing on real-world problem solving.",
+    "prerequisites": "Pre-Calculus 2",
+    "semestersOffered": ["SUMMER"]
+  },
+  {
+    "code": "MATH152",
+    "title": "Statistics for Engineers",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course is a calculus-based, mathematical introduction to the fundamental principles of probability theory, statistics, and applications. Topics include descriptive measures, the axioms and properties of probability, combinatorial analysis used in computing probabilities, conditional probability, independence of events, sampling theory, discrete and continuous random variables, the standard distributions, estimation and hypothesis testing, analysis of variance, regression and correlation, expected value and variance, joint distributions, distributions of a function of a random variable, and sampling distributions.",
+    "prerequisites": "Engineering Calculus",
+    "semestersOffered": ["FALL", "SPRING"]
+  },
+  {
+    "code": "MATH161",
+    "title": "Engineering Calculus",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course equips students with knowledge of differential and Integral Calculus which is fundamental to the field of Engineering. The focus is three dimensional: Concepts, Methods and Applications. Technology such as graphing utility and GeoGebra will be used to aid concept building and solution process.",
+    "prerequisites": "None",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "MATH211",
+    "title": "Multivariable Calculus & Linear Algebra",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "Physical problems require problem solving approaches which combine mathematical thinking and technology to develop modern solutions. Linear algebra and multivariable calculus is a course which provides the essential and foundational toolkit needed to approach such real-life problems. In this course, you will build on your existing differentiation and integration of single variable studied in prerequisite courses and expand into multivariable calculus and linear algebra.",
+    "prerequisites": "Calculus 2 or Applied Calculus",
+    "semestersOffered": ["FALL", "SPRING"]
+  },
+  {
+    "code": "MATH221",
+    "title": "Statistics with Probability",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "What influences consumer choices? Why are some people healthier, academically more successful, or more athletic than others? Are you interested in understanding how climate change is impacting communities in your home country? How can the vast amount of data collected and stored online be used to improve our quality of life? The discipline of statistics seeks to turn data into useful information that can help answer these and many other questions that may pique your interest.",
+    "prerequisites": "Pre-Calculus 2 or Calculus 1",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "MATH233",
+    "title": "Quantitative Methods",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course will survey quantitative approaches to work in the business world. The course introduces students to concepts, techniques and software with which all successful managers should be familiar. The course has three main components: operation research/management science, project management, and statistics.",
+    "prerequisites": "Pre-Calculus 2 or Calculus 2 AND Statistics or Statistics for Engineering & Economics",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "MATH251",
+    "title": "Differential Equations & Numerical Methods",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course will introduce students to the topics associated with differential equations and applied numerical methods in solving engineering problems. Students will learn how to translate engineering problems into differential equations, develop MATLAB models and investigate different numerical methods to find solutions.",
+    "prerequisites": "Multivariable Calculus & Linear Algebra, Applied Programming for Engineering or Computer Programming for CS",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "SYS101",
+    "title": "Systems Fundamentals",
+    "department": "CSIS",
+    "credits": 0.5,
+    "description": "A foundational course covering core principles of computer systems, architecture, and low-level operation. Serves as a prerequisite for several advanced CS courses.",
+    "prerequisites": "Computer Programming for CS",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "AI301",
+    "title": "Introduction to Artificial Intelligence",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course introduces the fundamental concepts and techniques of artificial intelligence, including problem solving, knowledge representation, reasoning, planning, and machine learning.",
+    "prerequisites": "Data Structures & Algorithms, Statistics with Probability",
+    "semestersOffered": ["FALL", "SPRING"]
+  },
+  {
+    "code": "MS301",
+    "title": "Introduction to Modelling & Simulation",
+    "department": "CSIS",
+    "credits": 0.5,
+    "description": "This course introduces students to the concepts and methods of modeling and simulation, with applications to computer science, engineering, and business problems.",
+    "prerequisites": "Statistics with Probability, Linear Algebra",
+    "semestersOffered": ["SPRING"]
+  }
+]
+

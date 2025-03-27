@@ -1,12 +1,11 @@
 import { relations } from "drizzle-orm";
 
-import { departments } from "@/drizzle/schema";
+import { departments, mathTracks } from "@/drizzle/schema";
 import { majors } from "@/drizzle/schema/institution/majors";
 
 import { courseCategories } from "./course-categories";
 import { courseCategorization } from "./course-categorization";
 import { courseGradeRequirements } from "./course-grade-requirements";
-import { courseOfferings } from "./course-offerings";
 import { courses } from "./courses";
 import { degreeRequirements } from "./degree-requirements";
 import { prerequisiteCourses } from "./prerequisite-courses";
@@ -14,14 +13,14 @@ import { prerequisiteGroups } from "./prerequisite-groups";
 
 export const coursesRelations = relations(courses, ({ many, one }) => ({
   department: one(departments, {
-    fields: [courses.departmentId],
-    references: [departments.id],
+    fields: [courses.departmentCode],
+    references: [departments.code],
   }),
   prerequisiteGroups: many(prerequisiteGroups, {
     relationName: "course_prerequisite_groups",
   }),
-  offerings: many(courseOfferings),
   categorizations: many(courseCategorization),
+
   gradeRequirements: many(courseGradeRequirements),
 }));
 
@@ -51,22 +50,12 @@ export const prerequisiteCoursesRelations = relations(
   })
 );
 
-export const courseOfferingsRelations = relations(
-  courseOfferings,
-  ({ one }) => ({
-    course: one(courses, {
-      fields: [courseOfferings.courseId],
-      references: [courses.id],
-    }),
-  })
-);
-
 export const courseCategoriesRelations = relations(
   courseCategories,
   ({ one, many }) => ({
     parent: one(courseCategories, {
-      fields: [courseCategories.parentCategoryId],
-      references: [courseCategories.id],
+      fields: [courseCategories.parentCategoryName],
+      references: [courseCategories.name],
       relationName: "subcategories",
     }),
     subcategories: many(courseCategories, { relationName: "subcategories" }),
@@ -75,20 +64,21 @@ export const courseCategoriesRelations = relations(
   })
 );
 
+// Course Categorization Relations
 export const courseCategorizationRelations = relations(
   courseCategorization,
   ({ one }) => ({
     course: one(courses, {
-      fields: [courseCategorization.courseId],
-      references: [courses.id],
+      fields: [courseCategorization.courseCode],
+      references: [courses.code],
     }),
     category: one(courseCategories, {
-      fields: [courseCategorization.categoryId],
-      references: [courseCategories.id],
+      fields: [courseCategorization.categoryName],
+      references: [courseCategories.name],
     }),
-    major: one(majors, {
-      fields: [courseCategorization.majorId],
-      references: [majors.id],
+    mathTrack: one(mathTracks, {
+      fields: [courseCategorization.mathTrackId],
+      references: [mathTracks.name],
     }),
   })
 );
@@ -97,12 +87,12 @@ export const courseGradeRequirementsRelations = relations(
   courseGradeRequirements,
   ({ one }) => ({
     major: one(majors, {
-      fields: [courseGradeRequirements.majorId],
-      references: [majors.id],
+      fields: [courseGradeRequirements.majorCode],
+      references: [majors.code],
     }),
     course: one(courses, {
-      fields: [courseGradeRequirements.courseId],
-      references: [courses.id],
+      fields: [courseGradeRequirements.courseCode],
+      references: [courses.code],
     }),
   })
 );
@@ -111,12 +101,12 @@ export const degreeRequirementsRelations = relations(
   degreeRequirements,
   ({ one }) => ({
     major: one(majors, {
-      fields: [degreeRequirements.majorId],
-      references: [majors.id],
+      fields: [degreeRequirements.majorCode],
+      references: [majors.code],
     }),
     category: one(courseCategories, {
-      fields: [degreeRequirements.categoryId],
-      references: [courseCategories.id],
+      fields: [degreeRequirements.categoryName],
+      references: [courseCategories.name],
     }),
   })
 );

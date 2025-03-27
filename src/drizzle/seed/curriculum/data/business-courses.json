@@ -1,0 +1,281 @@
+[
+  {
+    "code": "BUSA100",
+    "title": "Principles of Economics",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "The aim of the course is to introduce students to the fundamental principles, ideas, concepts, and tools of microeconomic and macroeconomic theories. Also, the course focuses on equipping students with economic knowledge relevant in helping them make informed economic decisions and inferences.",
+    "prerequisites": "Pre-Calculus 2 or Calculus 1",
+    "semestersOffered": ["FALL", "SPRING"]
+  },
+  {
+    "code": "BUSA132",
+    "title": "Organizational Behavior",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "How can managers motivate employees to go above the call of duty to get the job done? How can managers be sure their decisions are not biased? What influence tactics can managers use when they do not have formal authority to tell someone what to do?",
+    "prerequisites": "None",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "BUSA161",
+    "title": "Foundation of Design & Entrepreneurship I",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "This is the first part of a yearlong course on design and entrepreneurship. The goal of the course is to immerse all first-year students of the University, irrespective of major, into the world of design thinking, entrepreneurship and business management.",
+    "prerequisites": "None",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "BUSA162",
+    "title": "Foundation of Design & Entrepreneurship II",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "This course is a continuation of Foundations of Design and Entrepreneurship (FDE) I and aims to build on the work done through business simulations on the solution concepts developed. The venture teams will start the semester with continued prototyping, developing, and testing their Minimum Viable Products (MVP), launching their venture concept, and running post-launch promotions.",
+    "prerequisites": "FDE 1",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "BUSA210",
+    "title": "Financial Accounting",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "This is an introductory accounting course that exposes students to fundamental accounting principles, the regulatory framework of accounting practice, elements of financial statements, the mechanics of data entry, preparation of financial statements, financial statement analysis, control accounts and reconciliations, and ethics in the accounting profession.",
+    "prerequisites": "none",
+    "semestersOffered": ["FALL", "SUMMER"]
+  },
+  {
+    "code": "BUSA220",
+    "title": "Introduction to Finance",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "This is an introductory course aimed at equipping students with the basic skills of corporate finance. In this course, students will be introduced to some fundamental principles of corporate finance such as time value of money and risk.",
+    "prerequisites": "Financial Accounting",
+    "semestersOffered": ["SPRING", "SUMMER"]
+  },
+  {
+    "code": "BUSA224",
+    "title": "Finance for non-Finance",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "This course is designed to equip students with the necessary tools, skills and competencies required of contemporary managers of top-notch organizations to properly handle financial management and planning issues.",
+    "prerequisites": "Pre-calculus 1 & 2 or Calculus 1; Prior or concurrent enrollment in Microeconomics",
+    "semestersOffered": ["SPRING", "SUMMER"]
+  },
+  {
+    "code": "BUSA304",
+    "title": "Operations Management",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "The study of Operations Management this spring semester will take you on a journey of the principles, strategies and tools required to manage any part of an organization that is involved in the provision of goods and or services.",
+    "prerequisites": "Quantitative Methods or Statistics for Engineering & Economics",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "BUSA311",
+    "title": "Managerial Accounting",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "Students will learn how to use financial information to identify and analyze alternative projects to be undertaken by the entity to optimize profitability. They will develop the critical analytical skills necessary for identifying and using relevant costs and related issues, which form the bedrock for cost-effective managerial decision making.",
+    "prerequisites": "Financial Accounting or Finance for non-Finance Managers",
+    "semestersOffered": ["SPRING", "SUMMER"]
+  },
+  {
+    "code": "BUSA321",
+    "title": "Investments",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "This course surveys the investment media, concepts, and techniques to provide an understanding of the investment process in the economic and financial environment. The course covers the elements of investments, portfolio theory and management, security analysis, valuation of stocks and bonds, and risk-return trade-off.",
+    "prerequisites": "Introduction to Finance or Finance for non-Finance Managers",
+    "semestersOffered": ["FALL", "SUMMER"]
+  },
+  {
+    "code": "BUSA341",
+    "title": "Marketing",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "Marketing is a key driver of success in today's dynamic organizations. This course will give you an insight into marketing concepts and tools and how these are applied to deliver results. The essential or big question this course seeks to answer is 'How do organizations, especially private, for-profit enterprises, create value for customers, clients or stakeholders while achieving the objectives of the organizations in a dynamic, digitized business environment?'",
+    "prerequisites": "Micro-economics",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "BUSA350",
+    "title": "International Trade & Policy",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "The course is designed to introduce students to the main concepts and methods of international trade using applications drawn from the real world. Throughout the course, we would convey the major ideas that have emerged from recent research while emphasizing the continued importance of the old theories.",
+    "prerequisites": "Pre-calculus 1; Micro-economics; Macro-economics; Statistics",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "BUSA400A",
+    "title": "Thesis 1",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "First part of a two-semester thesis sequence. Students develop a research proposal, conduct literature review, and begin data collection for an independent research project.",
+    "prerequisites": "8 Credits in Major Area of Study",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "BUSA400B",
+    "title": "Thesis 2",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "Second part of a two-semester thesis sequence. Students complete data collection, analyze findings, and prepare a final thesis document.",
+    "prerequisites": "Thesis 1",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "BUSA401A",
+    "title": "Entrepreneurship 1",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "Entrepreneurship has been held by many as the key to development in the underdeveloped world. This is because it holds the potential of aiding problem solving through the development of innovative products and services. These will also help in reducing unemployment by serving as income generation avenues for the youth.",
+    "prerequisites": "8 Credits in Major Area of Study",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "BUSA401B",
+    "title": "Entrepreneurship 2",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "Capstone Entrepreneurship II will aim to aid venture teams validate their business models by undertaking further customer and stakeholder engagements, as well as MVP tests. This will help the teams further validate their product-market fit and gain some early adopters/ earlyvangelists to patronize their products/ services and pay for them.",
+    "prerequisites": "Entrepreneurship 1",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "BUSA402",
+    "title": "Business Law",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "The goal of the course is to familiarize students with the legal environment within which business is conducted in Ghana and Internationally. It is recognized that students undertaking this course are not being trained to be lawyers. However, the basis of all business activity is underlined by rules and regulations and for that matter, laws.",
+    "prerequisites": "none",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "BUSA405",
+    "title": "Competitive Strategy",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "Organizations have always had to find ways of staying in business and more importantly thriving in their chosen markets. This requires the development, implementation and evaluation of business strategy. Competitive Strategy also known as business strategy is designed to establish a profitable and sustainable advantage and position for a business in a preferred marketplace.",
+    "prerequisites": "Introduction to Finance or Finance for non-Finance Managers; Macroeconomics; Prior or concurrent enrollment in Marketing recommended but not required.",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "BUSA410",
+    "title": "Applied Project",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "The Applied Project is characterized by its engagement with a real-life organization. Ultimately, students are expected to integrate foundational knowledge and skills gained over time and use them to solve real-life challenges for existing organizations.",
+    "prerequisites": "8 Credits in Major Area of Study",
+    "semestersOffered": ["FALL", "SPRING"]
+  },
+  {
+    "code": "BUSA422",
+    "title": "Corporate Finance",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "This course covers numerous issues of practical relevance to the contemporary corporate finance manager. Although the central focus will be on how corporations make investment and financing decisions, the introductory classes will discuss households' saving and investment decision-making and how securities markets and financial intermediaries complement such efforts.",
+    "prerequisites": "Investments",
+    "semestersOffered": ["SPRING", "SUMMER"]
+  },
+  {
+    "code": "BUSA423",
+    "title": "International Finance",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "This is an introductory course aimed at equipping students with the basic skills of corporate finance. In this course, students will be introduced to some fundamental principles of corporate finance such as time value of money and risk.",
+    "prerequisites": "Introduction to Finance",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "BUSA430",
+    "title": "Human Resource Management",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "The purpose of this course is to familiarize you with the basic principles and techniques of human resource management. The course takes a practical view that incorporates the contributions of the behavioral sciences with the technical aspects of implementing the HR function in the 'real world.'",
+    "prerequisites": "Organizational behavior",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "BUSA431",
+    "title": "Real Estate Development",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "The real estate development course aims to introduce students to what real estate development (RED) is and what the development process entails. It seeks to provide students with a good overview of what goes into the various stages of the development process with emphasis on feasibility studies, financing and management.",
+    "prerequisites": "Quantitative Methods or Statistics for Engineering & Economics",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "BUSA442",
+    "title": "Strategic Brand Management",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "The course is designed to develop students' marketing skills and understanding of brand management. In this course, you will learn how to make branding decisions, develop a strategic brand plan & manage brands by learning & applying relevant concepts, principles, & theories.",
+    "prerequisites": "Marketing and Text & Meaning; or Foundations of Design & Entrepreneurship II",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "BUSA444",
+    "title": "Supply Chain Management",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "This course presents the fundamental concepts and tools needed to understand how Supply Chains work. The content spans the typical scope of supply chains: Plan, Source, Make, Deliver and Sell set in today's global market in which there is fierce competition, more frequent innovation and more sophisticated and demanding customers/consumers.",
+    "prerequisites": "Quantitative Methods; or Statistics for Engineering & Principles of Economics",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "BUSA451",
+    "title": "Development Economics",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "This course discusses the problems of Least Developed Countries (LDCs) and Middle-Income countries (especially in Africa, Asia and Latin America) and their efforts to improve the lives and well-being of their people.",
+    "prerequisites": "Micro-economics or Macro-Economics or Principles of Economics; and Statistics",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "BUSA471",
+    "title": "Social Enterprise",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "Social Enterprise is an exploratory business elective offered by the business administration department that challenges the student to think in ways that produce sustainable and profitable outcomes that lead to social or environmental impact.",
+    "prerequisites": "FDE, Micro-Economics",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "ECON101",
+    "title": "Micro-Economics",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "The aim of the course is to introduce students to the fundamental principles, ideas, theories and tools of microeconomic theory. At the end of the course students should have achieved some understanding of and gained competence in using economic ideas, tools and procedures.",
+    "prerequisites": "Pre-Calculus 2 or Calculus 1",
+    "semestersOffered": ["FALL", "SUMMER"]
+  },
+  {
+    "code": "ECON102",
+    "title": "Macro-Economics",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "This course is an introduction to macroeconomics, with a strong emphasis on policy implications. The course has two objectives. Firstly, it will develop simple models of goods and services, assets, capital and money markets which can be usefully applied to generate realistic predictions regarding the behavior of macroeconomic variables.",
+    "prerequisites": "Pre-Calculus 2 or Calculus 1",
+    "semestersOffered": ["SPRING", "SUMMER"]
+  },
+  {
+    "code": "ECON452",
+    "title": "Econometrics",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "The objectives of the course are the following: Introduce students to techniques for performing statistical analysis on quantitative data focusing on the estimation of the regression model. Help students solve problems commonly encountered in estimating statistical models like the regression model.",
+    "prerequisites": "Micro-economics or Macro-Economics or Principles of Economics; and Statistics and Quantitative Methods (Multi Variable Calculus can replace Quant Methods as a prerequisite for this class)",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "ECON455",
+    "title": "Managerial Economics",
+    "department": "Business Administration",
+    "credits": 1.0,
+    "description": "Managerial Economics is the study of the different ways in which economic principles and quantitative tools can be employed to assist managers to make effective decisions. It provides principles to foster the goals of the organization, as well as a better understanding of the external business environment in which an organization operates.",
+    "prerequisites": "Calculus 2 or Applied Calculus; Micro-economics; Macro-economics; Statistics or Econometrics",
+    "semestersOffered": ["SPRING"]
+  }
+]

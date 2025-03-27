@@ -1,0 +1,634 @@
+[
+  {
+    "courseCode": "MATH121",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "MATH122",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "MATH141",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "MATH151",
+    "offeredInSemester": "summer"
+  },
+  {
+    "courseCode": "MATH152",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "MATH161",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "MATH211",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "MATH211",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "MATH221",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "MATH233",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "MATH251",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "ENGL112",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "ENGL113",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "ENGL215",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "ENGL231",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "ENGL231",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "FRENC111",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "FRENC123",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "FRENC122",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "FRENC214",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "BUSA100",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "BUSA132",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "BUSA161",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "BUSA162",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "BUSA210",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "BUSA210",
+    "offeredInSemester": "summer"
+  },
+  {
+    "courseCode": "BUSA220",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "BUSA220",
+    "offeredInSemester": "summer"
+  },
+  {
+    "courseCode": "BUSA224",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "BUSA224",
+    "offeredInSemester": "summer"
+  },
+  {
+    "courseCode": "BUSA304",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "BUSA311",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "BUSA311",
+    "offeredInSemester": "summer"
+  },
+  {
+    "courseCode": "BUSA321",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "BUSA321",
+    "offeredInSemester": "summer"
+  },
+  {
+    "courseCode": "BUSA341",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "BUSA350",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "BUSA400A",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "BUSA400B",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "BUSA401A",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "BUSA401B",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "BUSA402",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "BUSA405",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "BUSA410",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "BUSA410",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "BUSA422",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "BUSA422",
+    "offeredInSemester": "summer"
+  },
+  {
+    "courseCode": "BUSA423",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "BUSA430",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "BUSA431",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "BUSA442",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "BUSA444",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "BUSA451",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "BUSA471",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "ECON101",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "ECON101",
+    "offeredInSemester": "summer"
+  },
+  {
+    "courseCode": "ECON102",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "ECON102",
+    "offeredInSemester": "summer"
+  },
+  {
+    "courseCode": "ECON452",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "ECON455",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "CS112",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "CS112",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "CS115",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "CS215",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "CS221",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "CS222",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "CS313",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "CS314",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "CS323",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "CS331",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "CS341",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "CS345",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "CS415",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "CS424",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "CS432",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "CS435",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "CS442",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "CS452",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "CS452",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "CS453",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "CS458",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "CS459",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "CSIS111",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "IS331",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "IS332",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "IS335",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "IS361",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "IS451",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "SYS101",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "AI301",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "AI301",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "MS301",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "ENGR111",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "ENGR112",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "ENGR113",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "ENGR212",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "ENGR213",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "ENGR221",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "ENGR300",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "ENGR300",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "ENGR310",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "ENGR311",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "ENGR312",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "ENGR400",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "ENGR401",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "ENGR413",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "ENGR414",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "ENGR442",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "ENGR443",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "CE122",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "CE122",
+    "offeredInSemester": "summer"
+  },
+  {
+    "courseCode": "CE212",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "CE322",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "CE451",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "CHEM211",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "EE222",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "EE242",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "EE321",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "EE331",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "EE342",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "EE421",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "EE422",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "EE442",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "EE451",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "EE453",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "EE454",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "ME301",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "ME311",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "ME401",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "ME411",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "ME412",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "ME413",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "ME421",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "ME431",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "ME441",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "ME441",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "SC112",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "SC113",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "SOAN111",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "SOAN112",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "SOAN220",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "SOAN221",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "SOAN225",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "SOAN227",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "SOAN233",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "SOAN235",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "SOAN301",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "SOAN301",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "SOAN311",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "SOAN325",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "SOAN411",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "SOAN411",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "POLS221",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "POLS231",
+    "offeredInSemester": "fall"
+  },
+  {
+    "courseCode": "POLS231",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "POLS322",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "POLS332",
+    "offeredInSemester": "spring"
+  },
+  {
+    "courseCode": "AS111",
+    "offeredInSemester": "spring"
+  }
+]

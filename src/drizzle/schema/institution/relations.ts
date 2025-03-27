@@ -9,7 +9,7 @@ export const departmentsRelations = relations(departments, ({ many }) => ({
 
 export const majorsRelations = relations(majors, ({ one }) => ({
   department: one(departments, {
-    fields: [majors.departmentId],
-    references: [departments.id],
+    fields: [majors.departmentCode],
+    references: [departments.code],
   }),
 }));

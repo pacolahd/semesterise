@@ -13,7 +13,7 @@ export type CourseStatus = (typeof courseStatusValues)[number];
 // Define the actual Drizzle enum
 export const courseStatusEnum = pgEnum("course_status", courseStatusValues);
 
-export const semesterOfferingValues = ["fall", "sprint", "summer"] as const;
+export const semesterOfferingValues = ["fall", "spring", "summer"] as const;
 export type SemesterOffering = (typeof semesterOfferingValues)[number];
 export const semesterOfferingEnum = pgEnum(
   "semester_offering",

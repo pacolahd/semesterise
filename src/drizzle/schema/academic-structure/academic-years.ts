@@ -6,8 +6,7 @@ import { z } from "zod";
 import { createdAt, id, updatedAt } from "@/drizzle/schema/helpers";
 
 export const academicYears = pgTable("academic_years", {
-  id,
-  yearName: varchar("year_name", { length: 20 }).notNull().unique(),
+  yearName: varchar("year_name", { length: 20 }).notNull().primaryKey(),
   startDate: date("start_date").notNull(),
   endDate: date("end_date").notNull(),
   isCurrent: boolean("is_current").notNull().default(false),

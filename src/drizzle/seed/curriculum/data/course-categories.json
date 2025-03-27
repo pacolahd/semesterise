@@ -1,0 +1,74 @@
+[
+  {
+    "name": "LIBERAL ARTS & SCIENCES CORE",
+    "parentCategoryName": null,
+    "description": "General education requirements common across all majors",
+    "displayOrder": 1
+  },
+  {
+    "name": "Humanities & Social Sciences",
+    "parentCategoryName": "LIBERAL ARTS & SCIENCES CORE",
+    "description": "Courses in humanities and social sciences to develop critical thinking and communication skills",
+    "displayOrder": 1
+  },
+  {
+    "name": "Business",
+    "parentCategoryName": "LIBERAL ARTS & SCIENCES CORE",
+    "description": "Business courses required for all majors",
+    "displayOrder": 2
+  },
+  {
+    "name": "Mathematics & Quantitative",
+    "parentCategoryName": "LIBERAL ARTS & SCIENCES CORE",
+    "description": "Mathematics and quantitative reasoning courses",
+    "displayOrder": 3
+  },
+  {
+    "name": "Computing",
+    "parentCategoryName": "LIBERAL ARTS & SCIENCES CORE",
+    "description": "Computing courses required for all majors",
+    "displayOrder": 4
+  },
+  {
+    "name": "Science",
+    "parentCategoryName": "LIBERAL ARTS & SCIENCES CORE",
+    "description": "Science courses required for Engineering majors",
+    "displayOrder": 5
+  },
+  {
+    "name": "Research / Project Prep.",
+    "parentCategoryName": "LIBERAL ARTS & SCIENCES CORE",
+    "description": "Research methodology courses",
+    "displayOrder": 6
+  },
+  {
+    "name": "Non-Major Electives",
+    "parentCategoryName": "LIBERAL ARTS & SCIENCES CORE",
+    "description": "Elective courses outside the student's major",
+    "displayOrder": 7
+  },
+  {
+    "name": "MAJOR",
+    "parentCategoryName": null,
+    "description": "Major-specific requirements",
+    "displayOrder": 2
+  },
+  {
+    "name": "Required Major Classes",
+    "parentCategoryName": "MAJOR",
+    "description": "Core courses required for the major",
+    "displayOrder": 1
+  },
+  {
+    "name": "Major Electives",
+    "parentCategoryName": "MAJOR",
+    "description": "Elective courses within the major",
+    "displayOrder": 2
+  },
+  {
+    "name": "Capstone",
+    "parentCategoryName": "MAJOR",
+    "description": "Final year capstone project or thesis",
+    "displayOrder": 3
+  }
+]

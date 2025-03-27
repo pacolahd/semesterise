@@ -1,5 +1,5 @@
 import { InferSelectModel } from "drizzle-orm";
-import { pgTable, uuid } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -9,12 +9,12 @@ import { courses } from "./courses";
 
 export const coursePrerequisites = pgTable("course_prerequisites", {
   id,
-  courseId: uuid("course_id")
+  courseCode: varchar("course_code")
     .notNull()
-    .references(() => courses.id, { onDelete: "cascade" }),
-  prerequisiteCourseId: uuid("prerequisite_course_id")
+    .references(() => courses.code, { onDelete: "cascade" }),
+  prerequisitecourseCode: varchar("prerequisite_course_code")
     .notNull()
-    .references(() => courses.id, { onDelete: "restrict" }),
+    .references(() => courses.code, { onDelete: "restrict" }),
   createdAt,
   updatedAt,
 });
@@ -22,8 +22,8 @@ export const coursePrerequisites = pgTable("course_prerequisites", {
 export const coursePrerequisiteSchema = createInsertSchema(
   coursePrerequisites
 ).extend({
-  courseId: z.string().uuid(),
-  prerequisiteCourseId: z.string().uuid(),
+  courseCode: z.string(),
+  prerequisitecourseCode: z.string(),
 });
 
 export type CoursePrerequisiteInput = z.infer<typeof coursePrerequisiteSchema>;

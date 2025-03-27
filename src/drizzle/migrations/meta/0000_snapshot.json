@@ -1,5 +1,5 @@
 {
-  "id": "e5f1eba7-415a-4b76-bfe5-84412df599d1",
+  "id": "3660cea3-48d1-4a7d-b165-f8864628da48",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -8,17 +8,10 @@
       "name": "departments",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
         "code": {
           "name": "code",
           "type": "varchar(10)",
-          "primaryKey": false,
+          "primaryKey": true,
           "notNull": true
         },
         "name": {
@@ -51,15 +44,7 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "departments_code_unique": {
-          "name": "departments_code_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "code"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -68,23 +53,16 @@
       "name": "majors",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "department_id": {
-          "name": "department_id",
-          "type": "uuid",
+        "department_code": {
+          "name": "department_code",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },
         "code": {
           "name": "code",
           "type": "varchar(10)",
-          "primaryKey": false,
+          "primaryKey": true,
           "notNull": true
         },
         "degree": {
@@ -122,30 +100,22 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "majors_department_id_departments_id_fk": {
-          "name": "majors_department_id_departments_id_fk",
+        "majors_department_code_departments_code_fk": {
+          "name": "majors_department_code_departments_code_fk",
           "tableFrom": "majors",
           "tableTo": "departments",
           "columnsFrom": [
-            "department_id"
+            "department_code"
           ],
           "columnsTo": [
-            "id"
+            "code"
           ],
           "onDelete": "restrict",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "majors_code_unique": {
-          "name": "majors_code_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "code"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -161,9 +131,9 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "academic_year_id": {
-          "name": "academic_year_id",
-          "type": "uuid",
+        "academic_year_name": {
+          "name": "academic_year_name",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },
@@ -208,15 +178,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "academic_semesters_academic_year_id_academic_years_id_fk": {
-          "name": "academic_semesters_academic_year_id_academic_years_id_fk",
+        "academic_semesters_academic_year_name_academic_years_year_name_fk": {
+          "name": "academic_semesters_academic_year_name_academic_years_year_name_fk",
           "tableFrom": "academic_semesters",
           "tableTo": "academic_years",
           "columnsFrom": [
-            "academic_year_id"
+            "academic_year_name"
           ],
           "columnsTo": [
-            "id"
+            "year_name"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -240,17 +210,10 @@
       "name": "academic_years",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
         "year_name": {
           "name": "year_name",
           "type": "varchar(20)",
-          "primaryKey": false,
+          "primaryKey": true,
           "notNull": true
         },
         "start_date": {
@@ -290,15 +253,7 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "academic_years_year_name_unique": {
-          "name": "academic_years_year_name_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "year_name"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -361,17 +316,10 @@
       "name": "grade_types",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
         "grade": {
           "name": "grade",
           "type": "varchar(5)",
-          "primaryKey": false,
+          "primaryKey": true,
           "notNull": true
         },
         "numeric_value": {
@@ -411,15 +359,7 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "grade_types_grade_unique": {
-          "name": "grade_types_grade_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "grade"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -428,17 +368,10 @@
       "name": "math_tracks",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
         "name": {
           "name": "name",
           "type": "varchar(50)",
-          "primaryKey": false,
+          "primaryKey": true,
           "notNull": true
         },
         "description": {
@@ -471,15 +404,7 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "math_tracks_name_unique": {
-          "name": "math_tracks_name_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -488,22 +413,15 @@
       "name": "course_categories",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
         "name": {
           "name": "name",
           "type": "varchar(100)",
-          "primaryKey": false,
+          "primaryKey": true,
           "notNull": true
         },
-        "parent_category_id": {
-          "name": "parent_category_id",
-          "type": "uuid",
+        "parent_category_name": {
+          "name": "parent_category_name",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
@@ -538,22 +456,7 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "course_categories_name_unique": {
-          "name": "course_categories_name_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
-        },
-        "course_categories_parent_category_id_unique": {
-          "name": "course_categories_parent_category_id_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "parent_category_id"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -569,21 +472,27 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "course_id": {
-          "name": "course_id",
-          "type": "uuid",
+        "course_code": {
+          "name": "course_code",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },
-        "category_id": {
-          "name": "category_id",
-          "type": "uuid",
+        "category_name": {
+          "name": "category_name",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },
-        "major_id": {
-          "name": "major_id",
-          "type": "uuid",
+        "major_group": {
+          "name": "major_group",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "math_track_id": {
+          "name": "math_track_id",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
@@ -642,43 +551,43 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "course_categorization_course_id_courses_id_fk": {
-          "name": "course_categorization_course_id_courses_id_fk",
+        "course_categorization_course_code_courses_code_fk": {
+          "name": "course_categorization_course_code_courses_code_fk",
           "tableFrom": "course_categorization",
           "tableTo": "courses",
           "columnsFrom": [
-            "course_id"
+            "course_code"
           ],
           "columnsTo": [
-            "id"
+            "code"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "course_categorization_category_id_course_categories_id_fk": {
-          "name": "course_categorization_category_id_course_categories_id_fk",
+        "course_categorization_category_name_course_categories_name_fk": {
+          "name": "course_categorization_category_name_course_categories_name_fk",
           "tableFrom": "course_categorization",
           "tableTo": "course_categories",
           "columnsFrom": [
-            "category_id"
+            "category_name"
           ],
           "columnsTo": [
-            "id"
+            "name"
           ],
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
-        "course_categorization_major_id_majors_id_fk": {
-          "name": "course_categorization_major_id_majors_id_fk",
+        "course_categorization_math_track_id_math_tracks_name_fk": {
+          "name": "course_categorization_math_track_id_math_tracks_name_fk",
           "tableFrom": "course_categorization",
-          "tableTo": "majors",
+          "tableTo": "math_tracks",
           "columnsFrom": [
-            "major_id"
+            "math_track_id"
           ],
           "columnsTo": [
-            "id"
+            "name"
           ],
-          "onDelete": "restrict",
+          "onDelete": "set null",
           "onUpdate": "no action"
         }
       },
@@ -699,15 +608,15 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "major_id": {
-          "name": "major_id",
-          "type": "uuid",
+        "major_code": {
+          "name": "major_code",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },
-        "course_id": {
-          "name": "course_id",
-          "type": "uuid",
+        "course_code": {
+          "name": "course_code",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },
@@ -729,6 +638,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "description": {
+          "name": "description",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -746,164 +661,30 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "course_grade_requirements_major_id_majors_id_fk": {
-          "name": "course_grade_requirements_major_id_majors_id_fk",
+        "course_grade_requirements_major_code_majors_code_fk": {
+          "name": "course_grade_requirements_major_code_majors_code_fk",
           "tableFrom": "course_grade_requirements",
           "tableTo": "majors",
           "columnsFrom": [
-            "major_id"
+            "major_code"
           ],
           "columnsTo": [
-            "id"
+            "code"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "course_grade_requirements_course_id_courses_id_fk": {
-          "name": "course_grade_requirements_course_id_courses_id_fk",
+        "course_grade_requirements_course_code_courses_code_fk": {
+          "name": "course_grade_requirements_course_code_courses_code_fk",
           "tableFrom": "course_grade_requirements",
           "tableTo": "courses",
           "columnsFrom": [
-            "course_id"
+            "course_code"
           ],
           "columnsTo": [
-            "id"
+            "code"
           ],
           "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.course_offerings": {
-      "name": "course_offerings",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "course_id": {
-          "name": "course_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "offered_in_semester": {
-          "name": "offered_in_semester",
-          "type": "semester_offering",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "course_offerings_course_id_courses_id_fk": {
-          "name": "course_offerings_course_id_courses_id_fk",
-          "tableFrom": "course_offerings",
-          "tableTo": "courses",
-          "columnsFrom": [
-            "course_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.course_prerequisites": {
-      "name": "course_prerequisites",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "course_id": {
-          "name": "course_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "prerequisite_course_id": {
-          "name": "prerequisite_course_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "course_prerequisites_course_id_courses_id_fk": {
-          "name": "course_prerequisites_course_id_courses_id_fk",
-          "tableFrom": "course_prerequisites",
-          "tableTo": "courses",
-          "columnsFrom": [
-            "course_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "course_prerequisites_prerequisite_course_id_courses_id_fk": {
-          "name": "course_prerequisites_prerequisite_course_id_courses_id_fk",
-          "tableFrom": "course_prerequisites",
-          "tableTo": "courses",
-          "columnsFrom": [
-            "prerequisite_course_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "restrict",
           "onUpdate": "no action"
         }
       },
@@ -917,23 +698,16 @@
       "name": "courses",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "department_id": {
-          "name": "department_id",
-          "type": "uuid",
+        "department_code": {
+          "name": "department_code",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },
         "code": {
           "name": "code",
           "type": "varchar(20)",
-          "primaryKey": false,
+          "primaryKey": true,
           "notNull": true
         },
         "title": {
@@ -954,6 +728,18 @@
           "primaryKey": false,
           "notNull": true
         },
+        "level": {
+          "name": "level",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "prerequisite_text": {
+          "name": "prerequisite_text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "status": {
           "name": "status",
           "type": "course_status",
@@ -968,6 +754,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": true
+        },
+        "offered_in_semesters": {
+          "name": "offered_in_semesters",
+          "type": "semester_offering[]",
+          "primaryKey": false,
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
@@ -986,15 +778,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "courses_department_id_departments_id_fk": {
-          "name": "courses_department_id_departments_id_fk",
+        "courses_department_code_departments_code_fk": {
+          "name": "courses_department_code_departments_code_fk",
           "tableFrom": "courses",
           "tableTo": "departments",
           "columnsFrom": [
-            "department_id"
+            "department_code"
           ],
           "columnsTo": [
-            "id"
+            "code"
           ],
           "onDelete": "restrict",
           "onUpdate": "no action"
@@ -1032,15 +824,15 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "major_id": {
-          "name": "major_id",
-          "type": "uuid",
+        "major_code": {
+          "name": "major_code",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },
-        "category_id": {
-          "name": "category_id",
-          "type": "uuid",
+        "category_name": {
+          "name": "category_name",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },
@@ -1103,30 +895,233 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "degree_requirements_major_id_majors_id_fk": {
-          "name": "degree_requirements_major_id_majors_id_fk",
+        "degree_requirements_major_code_majors_code_fk": {
+          "name": "degree_requirements_major_code_majors_code_fk",
           "tableFrom": "degree_requirements",
           "tableTo": "majors",
           "columnsFrom": [
-            "major_id"
+            "major_code"
           ],
           "columnsTo": [
-            "id"
+            "code"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "degree_requirements_category_id_course_categories_id_fk": {
-          "name": "degree_requirements_category_id_course_categories_id_fk",
+        "degree_requirements_category_name_course_categories_name_fk": {
+          "name": "degree_requirements_category_name_course_categories_name_fk",
           "tableFrom": "degree_requirements",
           "tableTo": "course_categories",
           "columnsFrom": [
-            "category_id"
+            "category_name"
           ],
           "columnsTo": [
-            "id"
+            "name"
           ],
           "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.prerequisite_courses": {
+      "name": "prerequisite_courses",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "group_key": {
+          "name": "group_key",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "prerequisite_course_code": {
+          "name": "prerequisite_course_code",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "prerequisite_courses_group_key_prerequisite_groups_group_key_fk": {
+          "name": "prerequisite_courses_group_key_prerequisite_groups_group_key_fk",
+          "tableFrom": "prerequisite_courses",
+          "tableTo": "prerequisite_groups",
+          "columnsFrom": [
+            "group_key"
+          ],
+          "columnsTo": [
+            "group_key"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "prerequisite_courses_prerequisite_course_code_courses_code_fk": {
+          "name": "prerequisite_courses_prerequisite_course_code_courses_code_fk",
+          "tableFrom": "prerequisite_courses",
+          "tableTo": "courses",
+          "columnsFrom": [
+            "prerequisite_course_code"
+          ],
+          "columnsTo": [
+            "code"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.prerequisite_groups": {
+      "name": "prerequisite_groups",
+      "schema": "",
+      "columns": {
+        "group_key": {
+          "name": "group_key",
+          "type": "varchar(100)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "course_code": {
+          "name": "course_code",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "group_name": {
+          "name": "group_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "external_logic_operator": {
+          "name": "external_logic_operator",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'AND'"
+        },
+        "internal_logic_operator": {
+          "name": "internal_logic_operator",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'OR'"
+        },
+        "is_concurrent": {
+          "name": "is_concurrent",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "is_recommended": {
+          "name": "is_recommended",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "group_minimum_grade": {
+          "name": "group_minimum_grade",
+          "type": "varchar(2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "non_course_requirement": {
+          "name": "non_course_requirement",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cohort_year_start": {
+          "name": "cohort_year_start",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cohort_year_end": {
+          "name": "cohort_year_end",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "prerequisite_groups_course_code_courses_code_fk": {
+          "name": "prerequisite_groups_course_code_courses_code_fk",
+          "tableFrom": "prerequisite_groups",
+          "tableTo": "courses",
+          "columnsFrom": [
+            "course_code"
+          ],
+          "columnsTo": [
+            "code"
+          ],
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -1152,7 +1147,7 @@
       "schema": "public",
       "values": [
         "fall",
-        "sprint",
+        "spring",
         "summer"
       ]
     }

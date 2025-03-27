@@ -9,9 +9,9 @@ import { academicYears } from "./academic-years";
 
 export const academicSemesters = pgTable("academic_semesters", {
   id,
-  academicYearId: uuid("academic_year_id")
+  academicYearName: varchar("academic_year_name")
     .notNull()
-    .references(() => academicYears.id, { onDelete: "cascade" }),
+    .references(() => academicYears.yearName, { onDelete: "cascade" }),
   name: varchar("name", { length: 50 }).notNull().unique(),
   sequenceNumber: integer("sequence_number").notNull(),
   startDate: date("start_date").notNull(),
@@ -23,7 +23,7 @@ export const academicSemesters = pgTable("academic_semesters", {
 export const academicSemesterSchema = createInsertSchema(academicSemesters)
   .extend({
     name: z.string().min(3).max(50),
-    academicYearId: z.string().uuid(),
+    academicYearName: z.string(),
     sequenceNumber: z.number().int().positive(),
     startDate: z.coerce.date(),
     endDate: z.coerce.date(),

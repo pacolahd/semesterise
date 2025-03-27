@@ -96,6 +96,10 @@ async function dropDatabaseSchema() {
     await db.execute(sql`DROP SCHEMA IF EXISTS "drizzle" CASCADE;`);
     console.log("✓ Dropped drizzle schema");
 
+    // 3. Drop Types
+    console.log("\nDropping types...");
+    console.log("\nType dropping Not implemented yet");
+
     // Re-enable foreign key checks
     await db.execute(sql`SET session_replication_role = 'origin';`);
 

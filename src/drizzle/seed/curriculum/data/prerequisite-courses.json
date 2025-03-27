@@ -1,0 +1,1298 @@
+[
+  {
+    "groupKey": "ENGL215-WRITING-1",
+    "prerequisiteCourseCode": "ENGL112",
+    "description": "Written and Oral Communication"
+  },
+
+  {
+    "groupKey": "POLS221-WRITING-1",
+    "prerequisiteCourseCode": "ENGL112",
+    "description": "Written and Oral Communication"
+  },
+
+  {
+    "groupKey": "POLS231-WRITING-1",
+    "prerequisiteCourseCode": "ENGL112",
+    "description": "Written and Oral Communication"
+  },
+
+  {
+    "groupKey": "POLS332-WRITING-1",
+    "prerequisiteCourseCode": "ENGL112",
+    "description": "Written and Oral Communication"
+  },
+
+  {
+    "groupKey": "SOAN111-SUCCESS-1",
+    "prerequisiteCourseCode": "AS111",
+    "description": "Ashesi Success"
+  },
+  {
+    "groupKey": "SOAN111-WRITING-2",
+    "prerequisiteCourseCode": "ENGL112",
+    "description": "Written and Oral Communication"
+  },
+
+  {
+    "groupKey": "SOAN112-LEADERSHIP-1",
+    "prerequisiteCourseCode": "SOAN311",
+    "description": "Leadership Seminar 3"
+  },
+
+  {
+    "groupKey": "SOAN220-WRITING-1",
+    "prerequisiteCourseCode": "ENGL112",
+    "description": "Written and Oral Communication"
+  },
+
+  {
+    "groupKey": "SOAN225-WRITING-1",
+    "prerequisiteCourseCode": "ENGL112",
+    "description": "Written and Oral Communication"
+  },
+
+  {
+    "groupKey": "SOAN325-STATS-1",
+    "prerequisiteCourseCode": "MATH221",
+    "description": "Statistics"
+  },
+
+  
+  {
+    "groupKey": "CS215-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS115",
+    "description": "Computer Programming for CS"
+  },
+
+  
+  {
+    "groupKey": "CS221-MATH-1",
+    "prerequisiteCourseCode": "MATH122",
+    "description": "Pre-Calculus 2"
+  },
+  {
+    "groupKey": "CS221-MATH-1",
+    "prerequisiteCourseCode": "MATH141",
+    "description": "Calculus 1"
+  },
+  {
+    "groupKey": "CS221-COMPUTING-2",
+    "prerequisiteCourseCode": "CSIS111",
+    "description": "Introduction to Computing & IS"
+  },
+  {
+    "groupKey": "CS221-COMPUTING-2",
+    "prerequisiteCourseCode": "CS115",
+    "description": "Computer Programming for CS"
+  },
+  {
+    "groupKey": "CS221-COMPUTING-2",
+    "prerequisiteCourseCode": "CS112",
+    "description": "Computer Programming for Engineering"
+  },
+
+  
+  {
+    "groupKey": "CS222-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS115",
+    "description": "Computer Programming for CS"
+  },
+  {
+    "groupKey": "CS222-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS112",
+    "description": "Computer Programming for Engineering"
+  },
+  {
+    "groupKey": "CS222-THEORY-2",
+    "prerequisiteCourseCode": "CS221",
+    "description": "Discrete Structures and Theory"
+  },
+
+  
+  {
+    "groupKey": "CS313-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS115",
+    "description": "Computer Programming for CS"
+  },
+  {
+    "groupKey": "CS313-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS112",
+    "description": "Computer Programming for Engineering"
+  },
+
+  
+  {
+    "groupKey": "CS314-COMPUTING-1",
+    "prerequisiteCourseCode": "CSIS111",
+    "description": "Introduction to Computing & IS"
+  },
+  {
+    "groupKey": "CS314-COMPUTING-1",
+    "prerequisiteCourseCode": "CS115",
+    "description": "Computer Programming for CS"
+  },
+  {
+    "groupKey": "CS314-COMPUTING-1",
+    "prerequisiteCourseCode": "CS112",
+    "description": "Computer Programming for Engineering"
+  },
+
+  
+  {
+    "groupKey": "CS323-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS115",
+    "description": "Computer Programming for CS"
+  },
+  {
+    "groupKey": "CS323-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS112",
+    "description": "Computer Programming for Engineering"
+  },
+  {
+    "groupKey": "CS323-SYSTEMS-2",
+    "prerequisiteCourseCode": "CE322",
+    "description": "Digital Systems Design"
+  },
+  {
+    "groupKey": "CS323-SYSTEMS-2",
+    "prerequisiteCourseCode": "CS221",
+    "description": "Discrete Structures and Theory"
+  },
+  {
+    "groupKey": "CS323-SYSTEMS-2",
+    "prerequisiteCourseCode": "CS222",
+    "description": "Data Structures & Algorithms"
+  },
+
+  
+  {
+    "groupKey": "CS331-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS115",
+    "description": "Computer Programming for CS"
+  },
+  {
+    "groupKey": "CS331-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS112",
+    "description": "Computer Programming for Engineering"
+  },
+  {
+    "groupKey": "CS331-THEORY-2",
+    "prerequisiteCourseCode": "CS221",
+    "description": "Discrete Structures and Theory"
+  },
+
+  
+  {
+    "groupKey": "CS341-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS115",
+    "description": "Computer Programming for CS"
+  },
+  {
+    "groupKey": "CS341-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS112",
+    "description": "Computer Programming for Engineering"
+  },
+  {
+    "groupKey": "CS341-DATABASE-2",
+    "prerequisiteCourseCode": "CS323",
+    "description": "Database Systems"
+  },
+
+  
+  {
+    "groupKey": "CS345-ALGORITHMS-1",
+    "prerequisiteCourseCode": "CS222",
+    "description": "Data Structures & Algorithms"
+  },
+
+  
+  {
+    "groupKey": "CS415-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS115",
+    "description": "Computer Programming for CS"
+  },
+  {
+    "groupKey": "CS415-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS112",
+    "description": "Computer Programming for Engineering"
+  },
+  {
+    "groupKey": "CS415-DEVELOPMENT-2",
+    "prerequisiteCourseCode": "CS341",
+    "description": "Web Technologies"
+  },
+  {
+    "groupKey": "CS415-DEVELOPMENT-2",
+    "prerequisiteCourseCode": "CS313",
+    "description": "Intermediate Computer Programming"
+  },
+  {
+    "groupKey": "CS415-DEVELOPMENT-2",
+    "prerequisiteCourseCode": "CS222",
+    "description": "Data Structures"
+  },
+
+  
+  {
+    "groupKey": "CS424-DATABASE-1",
+    "prerequisiteCourseCode": "CS323",
+    "description": "Database Systems"
+  },
+  {
+    "groupKey": "CS424-THEORY-2",
+    "prerequisiteCourseCode": "CS221",
+    "description": "Discrete Structures and Theory"
+  },
+  {
+    "groupKey": "CS424-THEORY-2",
+    "prerequisiteCourseCode": "CS222",
+    "description": "Data Structures and Algorithms"
+  },
+
+  
+  {
+    "groupKey": "CS432-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS115",
+    "description": "Computer Programming for CS"
+  },
+  {
+    "groupKey": "CS432-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS112",
+    "description": "Computer Programming for Engineering"
+  },
+
+  
+  {
+    "groupKey": "CS435-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS115",
+    "description": "Computer Programming for CS"
+  },
+  {
+    "groupKey": "CS435-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS112",
+    "description": "Computer Programming for Engineering"
+  },
+  {
+    "groupKey": "CS435-THEORY-2",
+    "prerequisiteCourseCode": "CS221",
+    "description": "Discrete Structures and Theory"
+  },
+  {
+    "groupKey": "CS435-THEORY-2",
+    "prerequisiteCourseCode": "CS222",
+    "description": "Data Structures and Algorithms"
+  },
+
+  
+  {
+    "groupKey": "CS442-DATABASE-1",
+    "prerequisiteCourseCode": "CS323",
+    "description": "Database Management Systems"
+  },
+  {
+    "groupKey": "CS442-WEB-2",
+    "prerequisiteCourseCode": "CS341",
+    "description": "Web Technologies"
+  },
+
+  
+  {
+    "groupKey": "CS452-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS115",
+    "description": "Computer Programming for CS"
+  },
+  {
+    "groupKey": "CS452-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS112",
+    "description": "Computer Programming for Engineering"
+  },
+  {
+    "groupKey": "CS452-MATH-2",
+    "prerequisiteCourseCode": "MATH211",
+    "description": "Multivariable Calculus & Linear Algebra"
+  },
+
+  
+  {
+    "groupKey": "CS453-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS115",
+    "description": "Computer Programming for CS"
+  },
+  {
+    "groupKey": "CS453-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS112",
+    "description": "Computer Programming for Engineering"
+  },
+  {
+    "groupKey": "CS453-MATH-2",
+    "prerequisiteCourseCode": "MATH141",
+    "description": "Calculus II"
+  },
+  {
+    "groupKey": "CS453-MATH-2",
+    "prerequisiteCourseCode": "MATH151",
+    "description": "Applied Calculus"
+  },
+
+  
+  {
+    "groupKey": "CS458-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS115",
+    "description": "Computer Programming for CS"
+  },
+  {
+    "groupKey": "CS458-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS112",
+    "description": "Computer Programming for Engineering"
+  },
+
+  
+  {
+    "groupKey": "CS459-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS115",
+    "description": "Computer Programming for CS"
+  },
+  {
+    "groupKey": "CS459-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS112",
+    "description": "Computer Programming for Engineering"
+  },
+
+  
+  {
+    "groupKey": "IS331-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS115",
+    "description": "Computer Programming for CS"
+  },
+  {
+    "groupKey": "IS331-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS112",
+    "description": "Computer Programming for Engineering"
+  },
+
+  
+  {
+    "groupKey": "IS332-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS115",
+    "description": "Computer Programming for CS"
+  },
+  {
+    "groupKey": "IS332-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS112",
+    "description": "Computer Programming for Engineering"
+  },
+  {
+    "groupKey": "IS332-SYSTEMS-2",
+    "prerequisiteCourseCode": "IS331",
+    "description": "IT Infrastructure"
+  },
+  {
+    "groupKey": "IS332-SYSTEMS-2",
+    "prerequisiteCourseCode": "CS435",
+    "description": "Operating Systems"
+  },
+  {
+    "groupKey": "IS332-SYSTEMS-2",
+    "prerequisiteCourseCode": "CS432",
+    "description": "Networks and Data Communications"
+  },
+
+  
+  {
+    "groupKey": "IS335-COMPUTING-1",
+    "prerequisiteCourseCode": "CSIS111",
+    "description": "Introduction to Computing and Information Systems"
+  },
+
+  
+  {
+    "groupKey": "IS451-THEORY-1",
+    "prerequisiteCourseCode": "CS221",
+    "description": "Discrete Structures"
+  },
+  {
+    "groupKey": "IS451-PROGRAMMING-2",
+    "prerequisiteCourseCode": "CS115",
+    "description": "Computer Programming for CS"
+  },
+  {
+    "groupKey": "IS451-PROGRAMMING-2",
+    "prerequisiteCourseCode": "CS112",
+    "description": "Computer Programming for Engineering"
+  },
+
+  
+  {
+    "groupKey": "MATH122-MATH-1",
+    "prerequisiteCourseCode": "MATH121",
+    "description": "Pre-Calculus 1"
+  },
+
+  
+  {
+    "groupKey": "MATH151-MATH-1",
+    "prerequisiteCourseCode": "MATH122",
+    "description": "Pre-Calculus 2"
+  },
+
+  
+  {
+    "groupKey": "MATH152-MATH-1",
+    "prerequisiteCourseCode": "MATH161",
+    "description": "Engineering Calculus"
+  },
+
+  
+  {
+    "groupKey": "MATH211-MATH-1",
+    "prerequisiteCourseCode": "MATH141",
+    "description": "Calculus 2"
+  },
+  {
+    "groupKey": "MATH211-MATH-1",
+    "prerequisiteCourseCode": "MATH151",
+    "description": "Applied Calculus"
+  },
+
+  
+  {
+    "groupKey": "MATH221-MATH-1",
+    "prerequisiteCourseCode": "MATH122",
+    "description": "Pre-Calculus 2"
+  },
+  {
+    "groupKey": "MATH221-MATH-1",
+    "prerequisiteCourseCode": "MATH141",
+    "description": "Calculus 1"
+  },
+
+  
+  {
+    "groupKey": "MATH233-MATH-1",
+    "prerequisiteCourseCode": "MATH122",
+    "description": "Pre-Calculus 2"
+  },
+  {
+    "groupKey": "MATH233-MATH-1",
+    "prerequisiteCourseCode": "MATH141",
+    "description": "Calculus 2"
+  },
+  {
+    "groupKey": "MATH233-STATS-2",
+    "prerequisiteCourseCode": "MATH221",
+    "description": "Statistics"
+  },
+  {
+    "groupKey": "MATH233-STATS-2",
+    "prerequisiteCourseCode": "MATH152",
+    "description": "Statistics for Engineering & Economics"
+  },
+
+  
+  {
+    "groupKey": "MATH251-MATH-1",
+    "prerequisiteCourseCode": "MATH211",
+    "description": "Multivariable Calculus & Linear Algebra"
+  },
+  {
+    "groupKey": "MATH251-PROGRAMMING-2",
+    "prerequisiteCourseCode": "CE122",
+    "description": "Applied Programming for Engineering"
+  },
+  {
+    "groupKey": "MATH251-PROGRAMMING-2",
+    "prerequisiteCourseCode": "CS115",
+    "description": "Computer Programming for CS"
+  },
+
+  
+  {
+    "groupKey": "SYS101-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS115",
+    "description": "Computer Programming for CS"
+  },
+  
+  {
+    "groupKey": "AI301-ALGORITHMS-1",
+    "prerequisiteCourseCode": "CS222",
+    "description": "Data Structures & Algorithms"
+  },
+  {
+    "groupKey": "AI301-STATS-2",
+    "prerequisiteCourseCode": "MATH221",
+    "description": "Statistics with Probability"
+  },
+
+  
+  {
+    "groupKey": "MS301-STATS-1",
+    "prerequisiteCourseCode": "MATH221",
+    "description": "Statistics with Probability"
+  },
+  {
+    "groupKey": "MS301-MATH-2",
+    "prerequisiteCourseCode": "MATH211",
+    "description": "Multivariable Calculus & Linear Algebra"
+  },
+
+  {
+    "groupKey": "BUSA100-MATH-1",
+    "prerequisiteCourseCode": "MATH122",
+    "description": "Pre-Calculus 2"
+  },
+  {
+    "groupKey": "BUSA100-MATH-1",
+    "prerequisiteCourseCode": "MATH141",
+    "description": "Calculus 1"
+  },
+
+  
+  {
+    "groupKey": "BUSA162-FDE-1",
+    "prerequisiteCourseCode": "BUSA161",
+    "description": "FDE 1"
+  },
+
+  
+  {
+    "groupKey": "BUSA220-ACCOUNTING-1",
+    "prerequisiteCourseCode": "BUSA210",
+    "description": "Financial Accounting"
+  },
+
+  
+  {
+    "groupKey": "BUSA224-MATH-1",
+    "prerequisiteCourseCode": "MATH141",
+    "description": "Calculus 1"
+  },
+  {
+    "groupKey": "BUSA224-PRECALC-2",
+    "prerequisiteCourseCode": "MATH121",
+    "description": "Pre-Calculus 1"
+  },
+  {
+    "groupKey": "BUSA224-PRECALC-2",
+    "prerequisiteCourseCode": "MATH122",
+    "description": "Pre-Calculus 2"
+  },
+  {
+    "groupKey": "BUSA224-ECON-3",
+    "prerequisiteCourseCode": "ECON101",
+    "description": "Microeconomics"
+  },
+
+  
+  {
+    "groupKey": "BUSA304-QUANT-1",
+    "prerequisiteCourseCode": "MATH233",
+    "description": "Quantitative Methods"
+  },
+  {
+    "groupKey": "BUSA304-QUANT-1",
+    "prerequisiteCourseCode": "MATH152",
+    "description": "Statistics for Engineering & Economics"
+  },
+
+  
+  {
+    "groupKey": "BUSA311-FINANCE-1",
+    "prerequisiteCourseCode": "BUSA210",
+    "description": "Financial Accounting"
+  },
+  {
+    "groupKey": "BUSA311-FINANCE-1",
+    "prerequisiteCourseCode": "BUSA224",
+    "description": "Finance for non-Finance Managers"
+  },
+
+  
+  {
+    "groupKey": "BUSA321-FINANCE-1",
+    "prerequisiteCourseCode": "BUSA220",
+    "description": "Introduction to Finance"
+  },
+  {
+    "groupKey": "BUSA321-FINANCE-1",
+    "prerequisiteCourseCode": "BUSA224",
+    "description": "Finance for non-Finance Managers"
+  },
+
+  
+  {
+    "groupKey": "BUSA341-ECON-1",
+    "prerequisiteCourseCode": "ECON101",
+    "description": "Micro-economics"
+  },
+
+  
+  {
+    "groupKey": "BUSA350-MATH-1",
+    "prerequisiteCourseCode": "MATH121",
+    "description": "Pre-calculus 1"
+  },
+  {
+    "groupKey": "BUSA350-MICRO-2",
+    "prerequisiteCourseCode": "ECON101",
+    "description": "Micro-economics"
+  },
+  {
+    "groupKey": "BUSA350-MACRO-3",
+    "prerequisiteCourseCode": "ECON102",
+    "description": "Macro-economics"
+  },
+  {
+    "groupKey": "BUSA350-STATS-4",
+    "prerequisiteCourseCode": "MATH221",
+    "description": "Statistics"
+  },
+
+  
+  {
+    "groupKey": "BUSA400B-THESIS-1",
+    "prerequisiteCourseCode": "BUSA400A",
+    "description": "Thesis 1"
+  },
+
+  
+  {
+    "groupKey": "BUSA401B-ENTRE-1",
+    "prerequisiteCourseCode": "BUSA401A",
+    "description": "Entrepreneurship 1"
+  },
+
+  
+  {
+    "groupKey": "BUSA405-FINANCE-1",
+    "prerequisiteCourseCode": "BUSA220",
+    "description": "Introduction to Finance"
+  },
+  {
+    "groupKey": "BUSA405-FINANCE-1",
+    "prerequisiteCourseCode": "BUSA224",
+    "description": "Finance for non-Finance Managers"
+  },
+  {
+    "groupKey": "BUSA405-MACRO-2",
+    "prerequisiteCourseCode": "ECON102",
+    "description": "Macroeconomics"
+  },
+  {
+    "groupKey": "BUSA405-MARKETING-3",
+    "prerequisiteCourseCode": "BUSA341",
+    "description": "Marketing"
+  },
+
+  
+  {
+    "groupKey": "BUSA422-INVESTMENTS-1",
+    "prerequisiteCourseCode": "BUSA321",
+    "description": "Investments"
+  },
+
+  
+  {
+    "groupKey": "BUSA423-FINANCE-1",
+    "prerequisiteCourseCode": "BUSA220",
+    "description": "Introduction to Finance"
+  },
+
+  
+  {
+    "groupKey": "BUSA430-ORG-1",
+    "prerequisiteCourseCode": "BUSA132",
+    "description": "Organizational behavior"
+  },
+
+  
+  {
+    "groupKey": "BUSA431-QUANT-1",
+    "prerequisiteCourseCode": "MATH233",
+    "description": "Quantitative Methods"
+  },
+  {
+    "groupKey": "BUSA431-QUANT-1",
+    "prerequisiteCourseCode": "MATH152",
+    "description": "Statistics for Engineering & Economics"
+  },
+
+  
+  {
+    "groupKey": "BUSA442-OPTION1-1",
+    "prerequisiteCourseCode": "BUSA341",
+    "description": "Marketing"
+  },
+  {
+    "groupKey": "BUSA442-OPTION1-1",
+    "prerequisiteCourseCode": "ENGL113",
+    "description": "Text & Meaning"
+  },
+  {
+    "groupKey": "BUSA442-OPTION2-2",
+    "prerequisiteCourseCode": "BUSA162",
+    "description": "Foundations of Design & Entrepreneurship II"
+  },
+
+  
+  {
+    "groupKey": "BUSA444-OPTION1-1",
+    "prerequisiteCourseCode": "MATH233",
+    "description": "Quantitative Methods"
+  },
+  {
+    "groupKey": "BUSA444-OPTION2-2",
+    "prerequisiteCourseCode": "MATH152",
+    "description": "Statistics for Engineering"
+  },
+  {
+    "groupKey": "BUSA444-OPTION2-2",
+    "prerequisiteCourseCode": "BUSA100",
+    "description": "Principles of Economics"
+  },
+
+  
+  {
+    "groupKey": "BUSA451-ECON-1",
+    "prerequisiteCourseCode": "ECON101",
+    "description": "Micro-economics"
+  },
+  {
+    "groupKey": "BUSA451-ECON-1",
+    "prerequisiteCourseCode": "ECON102",
+    "description": "Macro-Economics"
+  },
+  {
+    "groupKey": "BUSA451-ECON-1",
+    "prerequisiteCourseCode": "BUSA100",
+    "description": "Principles of Economics"
+  },
+  {
+    "groupKey": "BUSA451-STATS-2",
+    "prerequisiteCourseCode": "MATH221",
+    "description": "Statistics"
+  },
+
+  
+  {
+    "groupKey": "BUSA471-FDE-1",
+    "prerequisiteCourseCode": "BUSA161",
+    "description": "FDE"
+  },
+  {
+    "groupKey": "BUSA471-MICRO-2",
+    "prerequisiteCourseCode": "ECON101",
+    "description": "Micro-Economics"
+  },
+
+  
+  {
+    "groupKey": "ECON101-MATH-1",
+    "prerequisiteCourseCode": "MATH122",
+    "description": "Pre-Calculus 2"
+  },
+  {
+    "groupKey": "ECON101-MATH-1",
+    "prerequisiteCourseCode": "MATH141",
+    "description": "Calculus 1"
+  },
+
+  
+  {
+    "groupKey": "ECON102-MATH-1",
+    "prerequisiteCourseCode": "MATH122",
+    "description": "Pre-Calculus 2"
+  },
+  {
+    "groupKey": "ECON102-MATH-1",
+    "prerequisiteCourseCode": "MATH141",
+    "description": "Calculus 1"
+  },
+
+  
+  {
+    "groupKey": "ECON452-ECON-1",
+    "prerequisiteCourseCode": "ECON101",
+    "description": "Micro-economics"
+  },
+  {
+    "groupKey": "ECON452-ECON-1",
+    "prerequisiteCourseCode": "ECON102",
+    "description": "Macro-Economics"
+  },
+  {
+    "groupKey": "ECON452-ECON-1",
+    "prerequisiteCourseCode": "BUSA100",
+    "description": "Principles of Economics"
+  },
+  {
+    "groupKey": "ECON452-STATS-2",
+    "prerequisiteCourseCode": "MATH221",
+    "description": "Statistics"
+  },
+  {
+    "groupKey": "ECON452-METHODS-3",
+    "prerequisiteCourseCode": "MATH233",
+    "description": "Quantitative Methods"
+  },
+  {
+    "groupKey": "ECON452-METHODS-3",
+    "prerequisiteCourseCode": "MATH211",
+    "description": "Multi Variable Calculus"
+  },
+
+  
+  {
+    "groupKey": "ECON455-MATH-1",
+    "prerequisiteCourseCode": "MATH122",
+    "description": "Calculus 2"
+  },
+  {
+    "groupKey": "ECON455-MATH-1",
+    "prerequisiteCourseCode": "MATH151",
+    "description": "Applied Calculus"
+  },
+  {
+    "groupKey": "ECON455-MICRO-2",
+    "prerequisiteCourseCode": "ECON101",
+    "description": "Micro-economics"
+  },
+  {
+    "groupKey": "ECON455-MACRO-3",
+    "prerequisiteCourseCode": "ECON102",
+    "description": "Macro-economics"
+  },
+  {
+    "groupKey": "ECON455-STATS-4",
+    "prerequisiteCourseCode": "MATH221",
+    "description": "Statistics"
+  },
+  {
+    "groupKey": "ECON455-STATS-4",
+    "prerequisiteCourseCode": "ECON452",
+    "description": "Econometrics"
+  },
+
+  
+  {
+    "groupKey": "ENGR112-FDE-1",
+    "prerequisiteCourseCode": "BUSA161",
+    "description": "Foundations of Design & Entrepreneurship 1"
+  },
+  {
+    "groupKey": "ENGR112-FDE-1",
+    "prerequisiteCourseCode": "BUSA162",
+    "description": "Foundations of Design & Entrepreneurship 2"
+  },
+
+  
+  {
+    "groupKey": "ENGR113-PHYSICS-1",
+    "prerequisiteCourseCode": "SC112",
+    "description": "Physics I: Mechanics"
+  },
+
+  
+  {
+    "groupKey": "ENGR212-STATS-1",
+    "prerequisiteCourseCode": "MATH152",
+    "description": "Statistics for Engineering and Economics"
+  },
+  {
+    "groupKey": "ENGR212-PHYSICS-2",
+    "prerequisiteCourseCode": "SC112",
+    "description": "Physics I: Mechanics"
+  },
+  {
+    "groupKey": "ENGR212-PHYSICS-2",
+    "prerequisiteCourseCode": "SC113",
+    "description": "Physics II: Electromagnetism"
+  },
+
+  
+  {
+    "groupKey": "ENGR213-PHYSICS-1",
+    "prerequisiteCourseCode": "SC112",
+    "description": "Physics I: Mechanics"
+  },
+
+  
+  {
+    "groupKey": "ENGR221-MECHANICS-1",
+    "prerequisiteCourseCode": "ENGR113",
+    "description": "Engineering Mechanics"
+  },
+
+  
+  {
+    "groupKey": "ENGR300-LEADERSHIP-1",
+    "prerequisiteCourseCode": "ENGR310",
+    "description": "Leadership 4 for Engineers"
+  },
+  {
+    "groupKey": "ENGR300-SYSTEMS-2",
+    "prerequisiteCourseCode": "ENGR311",
+    "description": "System Dynamics"
+  },
+  {
+    "groupKey": "ENGR300-CONTROL-3",
+    "prerequisiteCourseCode": "ENGR312",
+    "description": "Control Systems"
+  },
+
+  
+  {
+    "groupKey": "ENGR310-LEADERSHIP-1",
+    "prerequisiteCourseCode": "SOAN311",
+    "description": "Leadership Seminar 3"
+  },
+
+  
+  {
+    "groupKey": "ENGR311-MATH-1",
+    "prerequisiteCourseCode": "MATH211",
+    "description": "Multivariable Calculus & Linear Algebra"
+  },
+  {
+    "groupKey": "ENGR311-ELECTRONICS-2",
+    "prerequisiteCourseCode": "EE222",
+    "description": "Circuits & Electronics"
+  },
+  {
+    "groupKey": "ENGR311-PROGRAMMING-3",
+    "prerequisiteCourseCode": "CE122",
+    "description": "Applied Programming for Engineers"
+  },
+
+  
+  {
+    "groupKey": "ENGR312-SYSTEMS-1",
+    "prerequisiteCourseCode": "ENGR311",
+    "description": "System Dynamics"
+  },
+
+  
+  {
+    "groupKey": "ENGR400-PROJECT-1",
+    "prerequisiteCourseCode": "ENGR300",
+    "description": "Third Year Project"
+  },
+  {
+    "groupKey": "ENGR400-MANAGEMENT-2",
+    "prerequisiteCourseCode": "ENGR413",
+    "description": "Project Management and Professional Practice"
+  },
+
+  
+  {
+    "groupKey": "ENGR401-PROJECT-1",
+    "prerequisiteCourseCode": "ENGR400",
+    "description": "Senior Project 1"
+  },
+
+  
+  {
+    "groupKey": "ENGR413-ECONOMICS-1",
+    "prerequisiteCourseCode": "ECON101",
+    "description": "Microeconomics"
+  },
+  {
+    "groupKey": "ENGR413-ECONOMICS-1",
+    "prerequisiteCourseCode": "BUSA100",
+    "description": "Principles of Economics"
+  },
+  {
+    "groupKey": "ENGR413-LEADERSHIP-2",
+    "prerequisiteCourseCode": "ENGR310",
+    "description": "Leadership 4 for Engineers"
+  },
+
+  
+  {
+    "groupKey": "ENGR414-THERMO-1",
+    "prerequisiteCourseCode": "ME411",
+    "description": "Thermodynamics"
+  },
+
+  
+  {
+    "groupKey": "CE122-MATH-1",
+    "prerequisiteCourseCode": "MATH141",
+    "description": "Calculus 2"
+  },
+  {
+    "groupKey": "CE122-PROGRAMMING-2",
+    "prerequisiteCourseCode": "CS112",
+    "description": "Computer Programming for Engineering"
+  },
+  {
+    "groupKey": "CE122-PROGRAMMING-2",
+    "prerequisiteCourseCode": "CS115",
+    "description": "Computer Programming for CS"
+  },
+
+  
+  {
+    "groupKey": "CE212-MATH-1",
+    "prerequisiteCourseCode": "MATH141",
+    "description": "Calculus 1"
+  },
+
+  
+  {
+    "groupKey": "CE322-ELECTRONICS-1",
+    "prerequisiteCourseCode": "EE222",
+    "description": "Circuits and Electronics"
+  },
+
+  
+  {
+    "groupKey": "CE451-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS112",
+    "description": "Computer Programming for Engineering"
+  },
+  {
+    "groupKey": "CE451-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS115",
+    "description": "Computer Programming for CS"
+  },
+  {
+    "groupKey": "CE451-DIGITAL-2",
+    "prerequisiteCourseCode": "CE322",
+    "description": "Digital Systems Design"
+  },
+  {
+    "groupKey": "CE451-DIGITAL-2",
+    "prerequisiteCourseCode": "CS331",
+    "description": "Computer Organization"
+  },
+
+  
+  {
+    "groupKey": "CHEM211-PHYSICS-1",
+    "prerequisiteCourseCode": "SC112",
+    "description": "Physics I: Mechanics"
+  },
+
+  
+  {
+    "groupKey": "EE222-PHYSICS-1",
+    "prerequisiteCourseCode": "SC113",
+    "description": "Physics II: Electromagnetism"
+  },
+  {
+    "groupKey": "EE222-MATH-2",
+    "prerequisiteCourseCode": "MATH211",
+    "description": "Multivariable Calculus & Linear Algebra"
+  },
+
+  
+  {
+    "groupKey": "EE242-PHYSICS-1",
+    "prerequisiteCourseCode": "SC112",
+    "description": "Physics I: Mechanics"
+  },
+  {
+    "groupKey": "EE242-PHYSICS-1",
+    "prerequisiteCourseCode": "SC113",
+    "description": "Physics II: Electromagnetism"
+  },
+  {
+    "groupKey": "EE242-ELECTRONICS-2",
+    "prerequisiteCourseCode": "EE222",
+    "description": "Circuits & Electronics"
+  },
+
+  
+  {
+    "groupKey": "EE321-PHYSICS-1",
+    "prerequisiteCourseCode": "SC113",
+    "description": "Physics II: Electromagnetism"
+  },
+  {
+    "groupKey": "EE321-ELECTRONICS-2",
+    "prerequisiteCourseCode": "EE222",
+    "description": "Circuits and Electronics"
+  },
+
+  
+  {
+    "groupKey": "EE331-PHYSICS-1",
+    "prerequisiteCourseCode": "SC113",
+    "description": "Physics II: Electromagnetism"
+  },
+  {
+    "groupKey": "EE331-MATH-2",
+    "prerequisiteCourseCode": "MATH211",
+    "description": "Multivariable Calculus & Linear Algebra"
+  },
+
+  
+  {
+    "groupKey": "EE342-MACHINES-1",
+    "prerequisiteCourseCode": "EE242",
+    "description": "Introduction to Electrical Machines and Power Electronics"
+  },
+
+  
+  {
+    "groupKey": "EE421-COMMUNICATIONS-1",
+    "prerequisiteCourseCode": "EE321",
+    "description": "Communication Systems"
+  },
+
+  
+  {
+    "groupKey": "EE422-COMMUNICATIONS-1",
+    "prerequisiteCourseCode": "EE321",
+    "description": "Communication Systems"
+  },
+
+  
+  {
+    "groupKey": "EE442-ELECTRONICS-1",
+    "prerequisiteCourseCode": "EE222",
+    "description": "Circuits and Electronics"
+  },
+  {
+    "groupKey": "EE442-MACHINES-2",
+    "prerequisiteCourseCode": "EE242",
+    "description": "Introduction to Electrical Machines and Power Electronics"
+  },
+
+  
+  {
+    "groupKey": "EE451-ELECTRONICS-1",
+    "prerequisiteCourseCode": "EE222",
+    "description": "Circuits and Electronics"
+  },
+  {
+    "groupKey": "EE451-MACHINES-2",
+    "prerequisiteCourseCode": "EE242",
+    "description": "Introduction to Electrical Machines and Power Electronics"
+  },
+
+  
+  {
+    "groupKey": "EE453-POWER-1",
+    "prerequisiteCourseCode": "EE451",
+    "description": "Power Engineering"
+  },
+
+  
+  {
+    "groupKey": "EE454-POWER-1",
+    "prerequisiteCourseCode": "EE451",
+    "description": "Power System Engineering"
+  },
+  {
+    "groupKey": "EE454-ELECTRONICS-2",
+    "prerequisiteCourseCode": "EE442",
+    "description": "Power Electronics"
+  },
+
+  
+  {
+    "groupKey": "ME301-PHYSICS-1",
+    "prerequisiteCourseCode": "SC112",
+    "description": "Physics I: Mechanics"
+  },
+  {
+    "groupKey": "ME301-MATERIALS-2",
+    "prerequisiteCourseCode": "ME311",
+    "description": "Mechanics of Materials"
+  },
+
+  
+  {
+    "groupKey": "ME311-PHYSICS-1",
+    "prerequisiteCourseCode": "SC112",
+    "description": "Physics I: Mechanics"
+  },
+  {
+    "groupKey": "ME311-MATERIALS-2",
+    "prerequisiteCourseCode": "ENGR213",
+    "description": "Materials Science & Chemistry"
+  },
+  {
+    "groupKey": "ME311-SYSTEMS-3",
+    "prerequisiteCourseCode": "ENGR311",
+    "description": "Dynamic Systems"
+  },
+
+  
+  {
+    "groupKey": "ME401-MATERIALS-1",
+    "prerequisiteCourseCode": "ME311",
+    "description": "Mechanics of Materials"
+  },
+  {
+    "groupKey": "ME401-SYSTEMS-2",
+    "prerequisiteCourseCode": "ENGR311",
+    "description": "System Dynamics"
+  },
+
+  
+  {
+    "groupKey": "ME411-PHYSICS-1",
+    "prerequisiteCourseCode": "SC112",
+    "description": "Physics I: Mechanics"
+  },
+  {
+    "groupKey": "ME411-SYSTEMS-2",
+    "prerequisiteCourseCode": "ENGR311",
+    "description": "Dynamic Systems"
+  },
+
+  
+  {
+    "groupKey": "ME412-THERMO-1",
+    "prerequisiteCourseCode": "ME411",
+    "description": "Thermodynamics"
+  },
+
+  
+  {
+    "groupKey": "ME413-THERMO-1",
+    "prerequisiteCourseCode": "ME411",
+    "description": "Thermodynamics"
+  },
+  {
+    "groupKey": "ME413-HEAT-2",
+    "prerequisiteCourseCode": "ME421",
+    "description": "Heat Transfer"
+  },
+
+  
+  {
+    "groupKey": "ME421-THERMO-1",
+    "prerequisiteCourseCode": "ME411",
+    "description": "Thermodynamics"
+  },
+
+  
+  {
+    "groupKey": "ME431-THERMO-1",
+    "prerequisiteCourseCode": "ME411",
+    "description": "Thermodynamics"
+  },
+
+  
+  {
+    "groupKey": "SC112-MATH-1",
+    "prerequisiteCourseCode": "MATH141",
+    "description": "Calculus I"
+  },
+  {
+    "groupKey": "SC112-MATH-1",
+    "prerequisiteCourseCode": "MATH151",
+    "description": "Applied Calculus"
+  },
+
+  
+  {
+    "groupKey": "SC113-PHYSICS-1",
+    "prerequisiteCourseCode": "SC112",
+    "description": "Physics I: Mechanics"
+  }
+]

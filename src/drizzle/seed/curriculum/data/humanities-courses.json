@@ -1,0 +1,228 @@
+[
+  {
+    "code": "AS111",
+    "title": "Ashesi Success",
+    "department": "Humanities and Social Sciences",
+    "credits": 0.0,
+    "description": "A program designed to enhance your overall success in college and in life. The most important objective of the program is personal empowerment: learning who you are as a college student, learning who you are as a human being and what you stand for, learning how to speak up when your values are in conflict with those around you, and learning what it takes for you to keep yourself balanced and on course to success.",
+    "prerequisites": "None",
+    "semestersOffered": ["SPRING"],
+    "countsForGpa": false
+  },
+  {
+    "code": "ENGL112",
+    "title": "Written and Oral Communication",
+    "department": "Humanities and Social Sciences",
+    "credits": 1.0,
+    "description": "This course offers an introduction to the practices of reading and writing for general university studies. Students will develop academic writing and analytical skills through critical reading, group discussion and various writing assignments.",
+    "prerequisites": "None",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "ENGL113",
+    "title": "Text and Meaning",
+    "department": "Humanities and Social Sciences",
+    "credits": 1.0,
+    "description": "Text and Meaning takes a fresh approach to the study of literary and critical theory, integrating critical thinking into activities to increase students' very ability to learn and question.",
+    "prerequisites": "None",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "ENGL215",
+    "title": "African Literature",
+    "department": "Humanities and Social Sciences",
+    "credits": 1.0,
+    "description": "African Literature, as a broad conceptual category, covers a broad array of discourses flung across the continent's various sub-cultures and its multiple language heritages. Given that wide and far-reaching background, we shall set ourselves a modest and researchable goal for the semester: we shall imagine the course as a survey course meant to offer a formal introduction to African literature in its broadest historical and cultural contexts.",
+    "prerequisites": "Written and Oral Communication",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "ENGL231",
+    "title": "African Literature & Film (Women Writing Africa)",
+    "department": "Humanities and Social Sciences",
+    "credits": 1.0,
+    "description": "This course is premised on a central question: How have African women's voices and images been shaped, heard, and/or represented in postcolonial Africa? The course seeks to enable students to understand ways in which contemporary African culture is being reconstructed through the restoration of women's voices in the public sphere by African women writers and film makers.",
+    "prerequisites": "None",
+    "semestersOffered": ["SPRING", "FALL"]
+  },
+  {
+    "code": "FRENC111",
+    "title": "Introductory French 1",
+    "department": "Humanities and Social Sciences",
+    "credits": 1.0,
+    "description": "The economic development being experienced by Ghana and the geographical location of the country (surrounded by francophone countries), its trade relations with its neighboring francophone countries, makes both the French language a fundamental means of communication in Ghana, especially in business and at all levels of business transactions.",
+    "prerequisites": "None",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "FRENC122",
+    "title": "Professional French 1",
+    "department": "Humanities and Social Sciences",
+    "credits": 1.0,
+    "description": "The economic development being experienced by Ghana and the geographical location of the country (surrounded by francophone countries), its trade relations with its neighboring francophone countries, makes both the French language a fundamental means of communication in Ghana, especially in business and at all levels of business transactions.",
+    "prerequisites": "None",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "FRENC123",
+    "title": "Introductory French 2",
+    "department": "Humanities and Social Sciences",
+    "credits": 1.0,
+    "description": "The economic development being experienced by Ghana and the geographical location of the country (surrounded by francophone countries), its trade relations with its neighboring francophone countries, makes both the French language a fundamental means of communication in Ghana, especially in business and at all levels of business transactions.",
+    "prerequisites": "None",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "FRENC214",
+    "title": "Professional French 2",
+    "department": "Humanities and Social Sciences",
+    "credits": 1.0,
+    "description": "The economic development being experienced by Ghana and the geographical location of the country (surrounded by francophone countries), its trade relations with its neighboring francophone countries, makes both the French language a fundamental means of communication in Ghana, especially in business and at all levels of business transactions.",
+    "prerequisites": "None",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "POLS221",
+    "title": "African Philosophical Thought",
+    "department": "Humanities and Social Sciences",
+    "credits": 1.0,
+    "description": "A serious thinking through or reflection on the practical/tangible aspects of the human experience is the goal of philosophy. This course is an introduction to a variety of themes of philosophical thinking in Africa. The approach adopted to advance the goals of the course, differs from traditional philosophy courses in a significant way.",
+    "prerequisites": "Written and Oral Communication",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "POLS231",
+    "title": "Africa in International Settings: Africa Beyond Aid",
+    "department": "Humanities and Social Sciences",
+    "credits": 1.0,
+    "description": "Across the African continent many want to do away with decades of aid dependency striving instead for a more assertive Africa on the international scene. This course encourages informed debate and a varied assessment of what overseas development assistance has evolved into over the years and how can it be complemented and replaced by more effective and relevant resources.",
+    "prerequisites": "Written and Oral Communication",
+    "semestersOffered": ["FALL", "SPRING"]
+  },
+  {
+    "code": "POLS322",
+    "title": "China-Africa Relations",
+    "department": "Humanities and Social Sciences",
+    "credits": 1.0,
+    "description": "The period from the 1990s has witnessed rapidly bourgeoning Sino-Africa ties, even though ties between them are not new. This is an interdisciplinary course intended to study the historical, economic, cultural, military, and political relations between the People's Republic of China and independent Africa.",
+    "prerequisites": "None",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "POLS332",
+    "title": "Governance in Africa",
+    "department": "Humanities and Social Sciences",
+    "credits": 1.0,
+    "description": "What are the big ideas, essential questions, disciplinary ways of thinking, and/or approaches to problem solving that students will engage with in the course? Why are they relevant? In social theory as well as public policy the concept of 'governance' is often associated with normative prefixes: good governance, effective governance, sound governance etc. Likewise, governance may often be perceived as acts performed primarily by governments.",
+    "prerequisites": "Written and Oral Communication",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "SOAN111",
+    "title": "Leadership Seminar 1",
+    "department": "Humanities and Social Sciences",
+    "credits": 0.5,
+    "description": "A program designed to enhance your overall success in college and in life. The most important objective of the program is personal empowerment: learning who you are as a college student, learning who you are as a human being and what you stand for, learning how to speak up when your values are in conflict with those around you, and learning what it takes for you to keep yourself balanced and on course to success.",
+    "prerequisites": "Ashesi Success; Written and Oral Communication",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "SOAN112",
+    "title": "Leadership Seminar 4 for Engineers",
+    "department": "Humanities and Social Sciences",
+    "credits": 1.0,
+    "description": "This specialized version of Leadership Seminar 4 is tailored for engineering students, integrating leadership principles with the Third Year Group Project component. It emphasizes the ethical and social responsibilities of engineering professionals.",
+    "prerequisites": "Leadership Seminar 3",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "SOAN220",
+    "title": "Embodied African Aesthetics Foundations",
+    "department": "Humanities and Social Sciences",
+    "credits": 1.0,
+    "description": "It entails various aspects of African culture including music, dance, language, religion, cosmology and symbolism. Usually, teaching this course in the summer makes use of both ontological and epistemological approaches with loads of photos, videos and practical demonstrations.",
+    "prerequisites": "Written and Oral Communication",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "SOAN221",
+    "title": "Leadership Seminar 2",
+    "department": "Humanities and Social Sciences",
+    "credits": 0.5,
+    "description": "This seminar probes the most fundamental questions about the good society: 'What are the most fundamental rights of humanity? 'What impact does national government have on the trajectory of nations? 'What is the Social Contract - Rule of Law, and what impact does it have on civilizations?",
+    "prerequisites": "None",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "SOAN225",
+    "title": "Ghanaian Popular Culture",
+    "department": "Humanities and Social Sciences",
+    "credits": 1.0,
+    "description": "This Ghanaian Popular Culture course is an undergraduate, 300-level, African Studies elective at Ashesi University. The course uses creative and engaging content in Ghanaian Popular Culture (for instance, video movies, vehicle inscriptions, political cartoons) as a channel for teaching disciplinary analytical thinking and reasoning skills to focus on academic writing, and to indirectly prepare students for capstone projects.",
+    "prerequisites": "Written and Oral Communication",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "SOAN227",
+    "title": "Religion in Africa",
+    "department": "Humanities and Social Sciences",
+    "credits": 1.0,
+    "description": "This course is an introduction to a cross-cultural study of religions and cultures of Africa through the disciplines of anthropology, history, and sociology of religion. The goal of the course is to teach students to think critically about the traditional religious heritage of Africa as a profound reflection on the human condition.",
+    "prerequisites": "None",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "SOAN233",
+    "title": "African Music and the Contemporary Art Music Scene",
+    "department": "Humanities and Social Sciences",
+    "credits": 1.0,
+    "description": "This course explores the role of music and dance as essential components of life within African traditions. It introduces students to the basic elements of African life as connected to music and dance. It will extend to include some aspects of contemporary African music and dance.",
+    "prerequisites": "None",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "SOAN235",
+    "title": "Embodied African Aesthetic Foundations: West African Traditional and Contemporary Dance Praxis",
+    "department": "Humanities and Social Sciences",
+    "credits": 1.0,
+    "description": "This course will be a mix of movement labs and lecture conversations. Even through Zoom, movement concepts and aesthetics are translated, explored and deepened in our bodies. We practice dance strengthening and conditioning to prepare our bodies for West African Dance techniques.",
+    "prerequisites": "None",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "SOAN301",
+    "title": "Introduction to Africana Studies: The Global Black Experience",
+    "department": "Humanities and Social Sciences",
+    "credits": 1.0,
+    "description": "Introduction to Africana Studies surveys the sum-total of the content of Black peoples' lives historically and in the present. The course raises and attempts to answer some key questions: What is the nature and historical contours of the Global Black Experience? How have our understandings and appreciations of this experience changed over time?",
+    "prerequisites": "None",
+    "semestersOffered": ["FALL", "SPRING"]
+  },
+  {
+    "code": "SOAN311",
+    "title": "Leadership Seminar 3",
+    "department": "Humanities and Social Sciences",
+    "credits": 0.5,
+    "description": "This seminar asks the questions: 'What is the best way to organize the economic activity of a good society? 'What is the proper definition of 'best' in the issue? 'How do we best achieve a balance of liberty, efficiency, equality and community?",
+    "prerequisites": "None",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "SOAN325",
+    "title": "Research Methods",
+    "department": "Humanities and Social Sciences",
+    "credits": 1.0,
+    "description": "The course is designed to provide the student with broad fundamentals of research methods. To this end, students will be introduced to quantitative, qualitative and mixed methods approaches for conducting research. Students will be guided through the various stages of conducting research; i.e. writing research proposals, where they will identify problems to study; collecting information by conducting appropriate literature review; collecting appropriate primary and/or secondary data; analyzing data; writing mini reports; and critiquing published articles.",
+    "prerequisites": "Statistics",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "SOAN411",
+    "title": "Leadership Seminar 4",
+    "department": "Humanities and Social Sciences",
+    "credits": 1.0,
+    "description": "This seminar is a capstone to the Leadership Seminar series and puts into practice many of the general concepts discussed in the previous seminars as well as courses taken at Ashesi.",
+    "prerequisites": "None",
+    "semestersOffered": ["FALL", "SPRING"]
+  }
+]
