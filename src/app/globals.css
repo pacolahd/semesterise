@@ -6,13 +6,13 @@
   :root {
     /* Main semantic colors mapped to your specific preferences */
     --background: 0 0% 98%;  /* surface-500 #fafafa */
-    --foreground: 0 0% 20%; /* text-500 #333333 */
+    --foreground: 0 0% 20%; /* tcol-500 #333333 */
 
     --card: 0 0% 100%; /* white */
-    --card-foreground: 0 0% 20%; /* text-500 */
+    --card-foreground: 0 0% 20%; /* tcol-500 */
 
     --popover: 0 0% 100%; /* white */
-    --popover-foreground: 0 0% 20%; /* text-500 */
+    --popover-foreground: 0 0% 20%; /* tcol-500 */
 
     --primary: 215 100% 35%; /* primary-500 #004eb4 */
     --primary-foreground: 0 0% 100%; /* white */
@@ -21,7 +21,7 @@
     --secondary-foreground: 215 100% 35%; /* primary-500 */
 
     --muted: 0 0% 96%; /* surface-600 lighter */
-    --muted-foreground: 0 0% 46%; /* text-300 #767676 */
+    --muted-foreground: 0 0% 46%; /* tcol-300 #767676 */
 
     --accent: 215 100% 96%; /* primary-50 */
     --accent-foreground: 215 100% 35%; /* primary-500 */
@@ -164,12 +164,12 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-text-300 dark:bg-text-500 rounded-[50px];
+    @apply bg-tcol-300 dark:bg-tcol-500 rounded-[50px];
     max-height: 2px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    @apply bg-text-400 dark:bg-text-400;
+    @apply bg-tcol-400 dark:bg-tcol-400;
   }
 
   /* Hidden Scrollbar - Maintains scrolling functionality without showing scrollbar */

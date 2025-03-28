@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
 
+import { authUsers } from "@/drizzle/schema/auth";
 import { departmentHeads } from "@/drizzle/schema/institution/department-heads";
 import { staffProfiles } from "@/drizzle/schema/institution/staff-profiles";
 
@@ -20,6 +21,10 @@ export const majorsRelations = relations(majors, ({ one }) => ({
 export const staffProfilesRelations = relations(
   staffProfiles,
   ({ one, many }) => ({
+    user: one(authUsers, {
+      fields: [staffProfiles.auth_id],
+      references: [authUsers.id],
+    }),
     department: one(departments, {
       fields: [staffProfiles.departmentCode],
       references: [departments.code],
@@ -37,7 +42,7 @@ export const departmentHeadsRelations = relations(
     }),
     staff: one(staffProfiles, {
       fields: [departmentHeads.staffId],
-      references: [staffProfiles.id],
+      references: [staffProfiles.staff_id],
     }),
   })
 );

@@ -6,20 +6,27 @@ import {
   decimal,
   integer,
   pgTable,
+  unique,
+  uuid,
   varchar,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 import { capstoneOptions, majors, mathTracks } from "@/drizzle/schema";
+import { authUsers } from "@/drizzle/schema/auth";
 import { createdAt, updatedAt } from "@/drizzle/schema/helpers";
 
 export const studentProfiles = pgTable("student_profiles", {
+  // Keep the existing school-issued ID as the primary key
   student_id: varchar("student_id", { length: 20 }).primaryKey().notNull(),
-  user_id: varchar("user_id", { length: 255 }).notNull().unique(),
-  first_name: varchar("first_name", { length: 100 }).notNull(),
-  last_name: varchar("last_name", { length: 100 }).notNull(),
-  email: varchar("email", { length: 100 }).notNull().unique(),
+
+  // Reference to BetterAuth user
+  auth_id: uuid("user_id")
+    .notNull()
+    .references(() => authUsers.id, { onDelete: "cascade" }),
+
+  // Domain-specific fields
   major_code: varchar("major_code")
     .notNull()
     .references(() => majors.code, { onDelete: "restrict" }),
@@ -28,7 +35,9 @@ export const studentProfiles = pgTable("student_profiles", {
     { onDelete: "set null" }
   ),
   entry_year: integer("entry_year").notNull(),
-  cohort_year: integer("cohort_year").notNull(), // Graduation year
+
+  // Graduation year
+  cohort_year: integer("cohort_year").notNull(),
   current_year: integer("current_year").notNull(),
   current_semester: varchar("current_semester", { length: 20 }).notNull(),
   expected_graduation_date: date("expected_graduation_date"),
@@ -49,10 +58,7 @@ export const studentProfiles = pgTable("student_profiles", {
 
 export const studentProfileSchema = createInsertSchema(studentProfiles).extend({
   student_id: z.string().min(1).max(20),
-  user_id: z.string().min(1).max(255),
-  first_name: z.string().min(1).max(100),
-  last_name: z.string().min(1).max(100),
-  email: z.string().email().max(100),
+  auth_id: z.string().uuid(),
   major_code: z.string(),
   math_track_name: z.string().optional().nullable(),
   entry_year: z.number().int().positive(),

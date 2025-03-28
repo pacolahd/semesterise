@@ -13,28 +13,27 @@ export const departmentHeads = pgTable("department_heads", {
   departmentCode: varchar("department_code")
     .notNull()
     .references(() => departments.code, { onDelete: "cascade" }),
-  staffId: uuid("staff_id")
+  staffId: varchar("staff_id")
     .notNull()
-    .references(() => staffProfiles.id, { onDelete: "cascade" }),
-  startDate: date("start_date").notNull(),
+    .references(() => staffProfiles.staff_id, { onDelete: "cascade" }),
+  startDate: date("start_date"),
   endDate: date("end_date"),
   isCurrent: boolean("is_current").default(true),
   createdAt,
   updatedAt,
 });
 
-export const departmentHeadSchema = createInsertSchema(departmentHeads)
-  .extend({
-    departmentCode: z.string(),
-    staffId: z.string().uuid(),
-    startDate: z.coerce.date(),
-    endDate: z.coerce.date().optional().nullable(),
-    isCurrent: z.boolean().default(true),
-  })
-  .refine((data) => !data.endDate || data.startDate < data.endDate, {
-    message: "End date must be after start date",
-    path: ["endDate"],
-  });
+export const departmentHeadSchema = createInsertSchema(departmentHeads).extend({
+  departmentCode: z.string(),
+  staffId: z.string(),
+  startDate: z.coerce.date().nullable(),
+  endDate: z.coerce.date().optional().nullable(),
+  isCurrent: z.boolean().default(true),
+});
+// .refine((data) => !data.endDate || data?.startDate < data.endDate, {
+//   message: "End date must be after start date",
+//   path: ["endDate"],
+// });
 
 export type DepartmentHeadInput = z.infer<typeof departmentHeadSchema>;
 export type DepartmentHeadRecord = InferSelectModel<typeof departmentHeads>;

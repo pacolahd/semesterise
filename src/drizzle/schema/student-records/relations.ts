@@ -5,6 +5,7 @@ import { academicSemesters } from "@/drizzle/schema/academic-structure/academic-
 import { capstoneOptions } from "@/drizzle/schema/academic-structure/capstone-options";
 import { gradeTypes } from "@/drizzle/schema/academic-structure/grade-types";
 import { mathTracks } from "@/drizzle/schema/academic-structure/math-tracks";
+import { authUsers } from "@/drizzle/schema/auth";
 import { courseCategories } from "@/drizzle/schema/curriculum/course-categories";
 import { courses } from "@/drizzle/schema/curriculum/courses";
 import { majors } from "@/drizzle/schema/institution/majors";
@@ -17,6 +18,11 @@ import { studentSemesterMappings } from "./student-semester-mappings";
 export const studentProfilesRelations = relations(
   studentProfiles,
   ({ one, many }) => ({
+    user: one(authUsers, {
+      fields: [studentProfiles.auth_id],
+      references: [authUsers.id],
+    }),
+
     major: one(majors, {
       fields: [studentProfiles.major_code],
       references: [majors.code],

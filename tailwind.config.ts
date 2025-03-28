@@ -115,7 +115,7 @@ const config: Config = {
           800: "#8c8201",
           900: "#6b6400",
         },
-        text: {
+        tcol: {
           50: "#ebebebeb",
           100: "#c0c0c0",
           200: "#a1a1a1",

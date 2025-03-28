@@ -4,3 +4,4 @@ export * from "./curriculum";
 export * from "./student-records";
 export * from "./transcript-import";
 export * from "./petition-system";
+export * from "./auth";
