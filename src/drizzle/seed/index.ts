@@ -16,7 +16,7 @@ async function main() {
     // 3. Then seed curriculum data
     await seedCurriculum();
 
-    // // 3. Finally, seed student-records data
+    // // 4. Finally, seed student-records data
     // await seedStudentRecords();
 
     console.log("✅ Database seeding completed successfully!");
