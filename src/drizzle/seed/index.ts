@@ -1,6 +1,7 @@
 import seedAcademicStructure from "./academic-structure";
 import seedCurriculum from "./curriculum";
 import seedInstitution from "./institution";
+import seedStudentRecords from "./student-records";
 
 async function main() {
   console.log("🌱 Starting database seeding process...");
@@ -12,8 +13,11 @@ async function main() {
     // 2. Then seed institution data
     await seedInstitution();
 
-    // 4. Finally seed curriculum data
+    // 3. Then seed curriculum data
     await seedCurriculum();
+
+    // // 3. Finally, seed student-records data
+    // await seedStudentRecords();
 
     console.log("✅ Database seeding completed successfully!");
   } catch (error) {

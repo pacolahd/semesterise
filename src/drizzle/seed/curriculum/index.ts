@@ -308,7 +308,7 @@ async function seedCourseCategorizations(dataDirectory: string) {
           courseCode: categorization.courseCode,
           categoryName: categorization.categoryName,
           majorGroup: categorization.majorGroup || null,
-          mathTrackId: mathTrackName, // This is now the math track name (natural key)
+          mathTrackName, // This is now the math track name (natural key)
           isRequired: categorization.isRequired || false,
           isFlexible: categorization.isFlexible || false,
           recommendedYear: categorization.recommendedYear || null,

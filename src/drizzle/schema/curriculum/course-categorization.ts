@@ -1,5 +1,5 @@
 import { InferSelectModel } from "drizzle-orm";
-import { boolean, integer, pgTable, uuid, varchar } from "drizzle-orm/pg-core";
+import { boolean, integer, pgTable, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -23,7 +23,7 @@ export const courseCategorization = pgTable("course_categorization", {
   majorGroup: varchar("major_group", { length: 20 }),
 
   // Math track relationship for track-specific requirements
-  mathTrackId: varchar("math_track_id").references(() => mathTracks.name, {
+  mathTrackName: varchar("math_track_name").references(() => mathTracks.name, {
     onDelete: "set null",
   }),
 
@@ -49,7 +49,7 @@ export const courseCategorizationSchema = createInsertSchema(
   courseCode: z.string(),
   categoryName: z.string(),
   majorGroup: z.string().max(20).optional().nullable(),
-  mathTrackId: z.string().uuid().optional().nullable(),
+  mathTrackName: z.string().uuid().optional().nullable(),
   isRequired: z.boolean().default(false),
   isFlexible: z.boolean().default(false),
   recommendedYear: z.number().int().min(1).max(4).optional().nullable(),

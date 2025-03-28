@@ -13,6 +13,7 @@
     "db:seed-academic-structure": "tsx src/drizzle/seed/academic-structure/index.ts",
     "db:seed-institution": "tsx src/drizzle/seed/institution/index.ts",
     "db:seed-curriculum": "tsx src/drizzle/seed/curriculum/index.ts",
+    "db:seed-student-records": "tsx src/drizzle/seed/student-records/index.ts",
     "db:seed-all": "tsx src/drizzle/seed/index.ts",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",

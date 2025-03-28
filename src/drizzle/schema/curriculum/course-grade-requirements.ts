@@ -1,5 +1,5 @@
 import { InferSelectModel } from "drizzle-orm";
-import { integer, pgTable, uuid, varchar } from "drizzle-orm/pg-core";
+import { integer, pgTable, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 

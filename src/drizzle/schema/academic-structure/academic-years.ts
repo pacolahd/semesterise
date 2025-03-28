@@ -3,7 +3,7 @@ import { boolean, date, pgTable, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-import { createdAt, id, updatedAt } from "@/drizzle/schema/helpers";
+import { createdAt, updatedAt } from "@/drizzle/schema/helpers";
 
 export const academicYears = pgTable("academic_years", {
   yearName: varchar("year_name", { length: 20 }).notNull().primaryKey(),

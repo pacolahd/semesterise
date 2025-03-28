@@ -1,16 +1,8 @@
 import { InferSelectModel } from "drizzle-orm";
-import {
-  decimal,
-  integer,
-  pgTable,
-  text,
-  uuid,
-  varchar,
-} from "drizzle-orm/pg-core";
+import { decimal, integer, pgTable, text, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-import { mathTracks } from "@/drizzle/schema/academic-structure/math-tracks";
 import { createdAt, id, updatedAt } from "@/drizzle/schema/helpers";
 import { majors } from "@/drizzle/schema/institution/majors";
 

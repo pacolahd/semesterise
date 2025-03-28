@@ -77,7 +77,7 @@ export const courseCategorizationRelations = relations(
       references: [courseCategories.name],
     }),
     mathTrack: one(mathTracks, {
-      fields: [courseCategorization.mathTrackId],
+      fields: [courseCategorization.mathTrackName],
       references: [mathTracks.name],
     }),
   })

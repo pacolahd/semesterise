@@ -1,0 +1,42 @@
+[
+  {
+     "student_id": "23142027",
+    "academic_semester_name": "Semester 1 2023-2024",
+    "program_year": 1,
+    "program_semester": 1,
+    "is_summer": false,
+    "is_verified": true
+  },
+  {
+    "student_id": "23142027",
+    "academic_semester_name": "Semester 2 2023-2024",
+    "program_year": 1,
+    "program_semester": 2,
+    "is_summer": false,
+    "is_verified": true
+  },
+  {
+     "student_id": "23142027",
+    "academic_semester_name": "Semester 1 2024-2025",
+    "program_year": 2,
+    "program_semester": 1,
+    "is_summer": false,
+    "is_verified": false
+  },
+  {
+     "student_id": "25642025",
+    "academic_semester_name": "Semester 2 2023-2024",
+    "program_year": 3,
+    "program_semester": 2,
+    "is_summer": false,
+    "is_verified": true
+  },
+  {
+     "student_id": "25642025",
+    "academic_semester_name": "Semester 1 2024-2025",
+    "program_year": 4,
+    "program_semester": 1,
+    "is_summer": false,
+    "is_verified": false
+  }
+]

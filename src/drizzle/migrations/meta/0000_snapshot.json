@@ -1,5 +1,5 @@
 {
-  "id": "3660cea3-48d1-4a7d-b165-f8864628da48",
+  "id": "8de750c9-90dc-4027-9587-6050623dee8a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -490,8 +490,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "math_track_id": {
-          "name": "math_track_id",
+        "math_track_name": {
+          "name": "math_track_name",
           "type": "varchar",
           "primaryKey": false,
           "notNull": false
@@ -577,12 +577,12 @@
           "onDelete": "restrict",
           "onUpdate": "no action"
         },
-        "course_categorization_math_track_id_math_tracks_name_fk": {
-          "name": "course_categorization_math_track_id_math_tracks_name_fk",
+        "course_categorization_math_track_name_math_tracks_name_fk": {
+          "name": "course_categorization_math_track_name_math_tracks_name_fk",
           "tableFrom": "course_categorization",
           "tableTo": "math_tracks",
           "columnsFrom": [
-            "math_track_id"
+            "math_track_name"
           ],
           "columnsTo": [
             "name"
@@ -1130,6 +1130,679 @@
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
+    },
+    "public.academic_warnings": {
+      "name": "academic_warnings",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "student_id": {
+          "name": "student_id",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "warning_type": {
+          "name": "warning_type",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "course_code": {
+          "name": "course_code",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "semester_id": {
+          "name": "semester_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "category_name": {
+          "name": "category_name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "severity": {
+          "name": "severity",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "message": {
+          "name": "message",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recommendation": {
+          "name": "recommendation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_resolved": {
+          "name": "is_resolved",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "resolution_notes": {
+          "name": "resolution_notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "academic_warnings_student_id_student_profiles_student_id_fk": {
+          "name": "academic_warnings_student_id_student_profiles_student_id_fk",
+          "tableFrom": "academic_warnings",
+          "tableTo": "student_profiles",
+          "columnsFrom": [
+            "student_id"
+          ],
+          "columnsTo": [
+            "student_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "academic_warnings_course_code_courses_code_fk": {
+          "name": "academic_warnings_course_code_courses_code_fk",
+          "tableFrom": "academic_warnings",
+          "tableTo": "courses",
+          "columnsFrom": [
+            "course_code"
+          ],
+          "columnsTo": [
+            "code"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "academic_warnings_semester_id_academic_semesters_id_fk": {
+          "name": "academic_warnings_semester_id_academic_semesters_id_fk",
+          "tableFrom": "academic_warnings",
+          "tableTo": "academic_semesters",
+          "columnsFrom": [
+            "semester_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "academic_warnings_category_name_course_categories_name_fk": {
+          "name": "academic_warnings_category_name_course_categories_name_fk",
+          "tableFrom": "academic_warnings",
+          "tableTo": "course_categories",
+          "columnsFrom": [
+            "category_name"
+          ],
+          "columnsTo": [
+            "name"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.student_courses": {
+      "name": "student_courses",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "student_id": {
+          "name": "student_id",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "course_code": {
+          "name": "course_code",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "semester_id": {
+          "name": "semester_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "student_course_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "grade": {
+          "name": "grade",
+          "type": "varchar(5)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "category_name": {
+          "name": "category_name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "original_category_name": {
+          "name": "original_category_name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_verified": {
+          "name": "is_verified",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "counts_for_gpa": {
+          "name": "counts_for_gpa",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": true
+        },
+        "is_used_for_requirement": {
+          "name": "is_used_for_requirement",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": true
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_student_courses_student_semester": {
+          "name": "idx_student_courses_student_semester",
+          "columns": [
+            {
+              "expression": "student_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "semester_id",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {
+            "fillfactor": 90
+          }
+        },
+        "idx_student_courses_category": {
+          "name": "idx_student_courses_category",
+          "columns": [
+            {
+              "expression": "category_name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"student_courses\".\"category_name\" IS NOT NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_student_courses_status": {
+          "name": "idx_student_courses_status",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"student_courses\".\"status\" <> 'dropped'",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "student_courses_student_id_student_profiles_student_id_fk": {
+          "name": "student_courses_student_id_student_profiles_student_id_fk",
+          "tableFrom": "student_courses",
+          "tableTo": "student_profiles",
+          "columnsFrom": [
+            "student_id"
+          ],
+          "columnsTo": [
+            "student_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "student_courses_course_code_courses_code_fk": {
+          "name": "student_courses_course_code_courses_code_fk",
+          "tableFrom": "student_courses",
+          "tableTo": "courses",
+          "columnsFrom": [
+            "course_code"
+          ],
+          "columnsTo": [
+            "code"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "student_courses_semester_id_academic_semesters_id_fk": {
+          "name": "student_courses_semester_id_academic_semesters_id_fk",
+          "tableFrom": "student_courses",
+          "tableTo": "academic_semesters",
+          "columnsFrom": [
+            "semester_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "student_courses_grade_grade_types_grade_fk": {
+          "name": "student_courses_grade_grade_types_grade_fk",
+          "tableFrom": "student_courses",
+          "tableTo": "grade_types",
+          "columnsFrom": [
+            "grade"
+          ],
+          "columnsTo": [
+            "grade"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "student_courses_category_name_course_categories_name_fk": {
+          "name": "student_courses_category_name_course_categories_name_fk",
+          "tableFrom": "student_courses",
+          "tableTo": "course_categories",
+          "columnsFrom": [
+            "category_name"
+          ],
+          "columnsTo": [
+            "name"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "student_courses_original_category_name_course_categories_name_fk": {
+          "name": "student_courses_original_category_name_course_categories_name_fk",
+          "tableFrom": "student_courses",
+          "tableTo": "course_categories",
+          "columnsFrom": [
+            "original_category_name"
+          ],
+          "columnsTo": [
+            "name"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.student_profiles": {
+      "name": "student_profiles",
+      "schema": "",
+      "columns": {
+        "student_id": {
+          "name": "student_id",
+          "type": "varchar(20)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "first_name": {
+          "name": "first_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "last_name": {
+          "name": "last_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "major_code": {
+          "name": "major_code",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "math_track_name": {
+          "name": "math_track_name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "entry_year": {
+          "name": "entry_year",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cohort_year": {
+          "name": "cohort_year",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "current_year": {
+          "name": "current_year",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "current_semester": {
+          "name": "current_semester",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expected_graduation_date": {
+          "name": "expected_graduation_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cumulative_gpa": {
+          "name": "cumulative_gpa",
+          "type": "numeric(3, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "total_credits_earned": {
+          "name": "total_credits_earned",
+          "type": "numeric(5, 1)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'0'"
+        },
+        "capstone_option_id": {
+          "name": "capstone_option_id",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": true
+        },
+        "onboarding_completed": {
+          "name": "onboarding_completed",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "student_profiles_major_code_majors_code_fk": {
+          "name": "student_profiles_major_code_majors_code_fk",
+          "tableFrom": "student_profiles",
+          "tableTo": "majors",
+          "columnsFrom": [
+            "major_code"
+          ],
+          "columnsTo": [
+            "code"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "student_profiles_math_track_name_math_tracks_name_fk": {
+          "name": "student_profiles_math_track_name_math_tracks_name_fk",
+          "tableFrom": "student_profiles",
+          "tableTo": "math_tracks",
+          "columnsFrom": [
+            "math_track_name"
+          ],
+          "columnsTo": [
+            "name"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "student_profiles_capstone_option_id_capstone_options_name_fk": {
+          "name": "student_profiles_capstone_option_id_capstone_options_name_fk",
+          "tableFrom": "student_profiles",
+          "tableTo": "capstone_options",
+          "columnsFrom": [
+            "capstone_option_id"
+          ],
+          "columnsTo": [
+            "name"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "student_profiles_user_id_unique": {
+          "name": "student_profiles_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "user_id"
+          ]
+        },
+        "student_profiles_email_unique": {
+          "name": "student_profiles_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.student_semester_mappings": {
+      "name": "student_semester_mappings",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "student_id": {
+          "name": "student_id",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "academic_semester_id": {
+          "name": "academic_semester_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "program_year": {
+          "name": "program_year",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "program_semester": {
+          "name": "program_semester",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_summer": {
+          "name": "is_summer",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "is_verified": {
+          "name": "is_verified",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "student_semester_mappings_student_id_student_profiles_student_id_fk": {
+          "name": "student_semester_mappings_student_id_student_profiles_student_id_fk",
+          "tableFrom": "student_semester_mappings",
+          "tableTo": "student_profiles",
+          "columnsFrom": [
+            "student_id"
+          ],
+          "columnsTo": [
+            "student_id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "student_semester_mappings_academic_semester_id_academic_semesters_id_fk": {
+          "name": "student_semester_mappings_academic_semester_id_academic_semesters_id_fk",
+          "tableFrom": "student_semester_mappings",
+          "tableTo": "academic_semesters",
+          "columnsFrom": [
+            "academic_semester_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
   "enums": {
@@ -1150,13 +1823,233 @@
         "spring",
         "summer"
       ]
+    },
+    "public.student_course_status": {
+      "name": "student_course_status",
+      "schema": "public",
+      "values": [
+        "verified",
+        "enrolled",
+        "planned",
+        "retake_required",
+        "dropped",
+        "failed"
+      ]
     }
   },
   "schemas": {},
   "sequences": {},
   "roles": {},
   "policies": {},
-  "views": {},
+  "views": {
+    "public.category_progress_view": {
+      "columns": {
+        "student_id": {
+          "name": "student_id",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "category_name": {
+          "name": "category_name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "credits_required": {
+          "name": "credits_required",
+          "type": "numeric(4, 1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "credits_completed": {
+          "name": "credits_completed",
+          "type": "numeric(4, 1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "courses_required": {
+          "name": "courses_required",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "courses_completed": {
+          "name": "courses_completed",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "progress_percentage": {
+          "name": "progress_percentage",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "definition": "\n    WITH student_major_requirements AS (\n      -- Get requirements for each student based on major and cohort year\n      SELECT\n        sp.student_id,\n        cc.name AS category_name,\n        dr.min_credits AS credits_required,\n        dr.min_courses AS courses_required\n      FROM student_profiles sp\n      JOIN degree_requirements dr ON \n        sp.major_code = dr.major_code AND \n        (sp.cohort_year >= dr.applicable_from_cohort_year OR dr.applicable_from_cohort_year IS NULL) AND\n        (sp.cohort_year <= dr.applicable_until_cohort_year OR dr.applicable_until_cohort_year IS NULL)\n      JOIN course_categories cc ON dr.category_name = cc.name\n    ),\n    student_course_completions AS (\n      -- Calculate completed credits and courses by category for each student\n      SELECT\n        sc.student_id,\n        COALESCE(sc.category_name, sc_cat.category_name) AS category_name,\n        SUM(CASE \n          WHEN sc.status = 'verified' AND sc.is_used_for_requirement = true AND EXISTS (\n            SELECT 1 FROM grade_types g WHERE g.grade = sc.grade AND g.is_passing = true\n          )\n          THEN c.credits \n          ELSE 0 \n        END) AS credits_completed,\n        COUNT(DISTINCT CASE \n          WHEN sc.status = 'verified' AND sc.is_used_for_requirement = true AND EXISTS (\n            SELECT 1 FROM grade_types g WHERE g.grade = sc.grade AND g.is_passing = true\n          )\n          THEN sc.course_code\n          ELSE NULL \n        END) AS courses_completed\n      FROM student_courses sc\n      JOIN courses c ON sc.course_code = c.code\n      -- Handle course categorization (either from student course or from course categorization table)\n      LEFT JOIN course_categorization sc_cat ON \n        sc.course_code = sc_cat.course_code AND\n        (sc_cat.major_group IS NULL OR EXISTS (\n          SELECT 1 FROM student_profiles sp \n          WHERE sp.student_id = sc.student_id AND (\n            sc_cat.major_group = sp.major_code OR \n            sc_cat.major_group = 'ALL' OR\n            (sc_cat.major_group = 'NON-ENG' AND sp.major_code NOT LIKE 'ENG%')\n          )\n        ))\n      -- Handle math track requirements when applicable\n      LEFT JOIN student_profiles sp ON sc.student_id = sp.student_id\n      LEFT JOIN course_categorization sc_math ON \n        sc.course_code = sc_math.course_code AND \n        sc_math.math_track_name = sp.math_track_name\n      WHERE sc.category_name IS NOT NULL OR sc_cat.category_name IS NOT NULL OR sc_math.category_name IS NOT NULL\n      GROUP BY sc.student_id, COALESCE(sc.category_name, sc_cat.category_name)\n    )\n    SELECT\n      smr.student_id,\n      smr.category_name,\n      smr.credits_required,\n      COALESCE(scc.credits_completed, 0) AS credits_completed,\n      smr.courses_required,\n      COALESCE(scc.courses_completed, 0) AS courses_completed,\n      CASE \n        WHEN smr.credits_required > 0 \n        THEN LEAST(COALESCE(scc.credits_completed, 0) / smr.credits_required * 100, 100)\n        ELSE 0\n      END AS progress_percentage\n    FROM student_major_requirements smr\n    LEFT JOIN student_course_completions scc ON \n      smr.student_id = scc.student_id AND \n      smr.category_name = scc.category_name\n  ",
+      "name": "category_progress_view",
+      "schema": "public",
+      "isExisting": false,
+      "materialized": false
+    },
+    "public.semester_credit_summaries_view": {
+      "columns": {
+        "student_id": {
+          "name": "student_id",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "semester_id": {
+          "name": "semester_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "credits_attempted": {
+          "name": "credits_attempted",
+          "type": "numeric(4, 1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "credits_registered": {
+          "name": "credits_registered",
+          "type": "numeric(4, 1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "credits_passed": {
+          "name": "credits_passed",
+          "type": "numeric(4, 1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "grade_points": {
+          "name": "grade_points",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "semester_gpa": {
+          "name": "semester_gpa",
+          "type": "numeric(3, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cumulative_gpa": {
+          "name": "cumulative_gpa",
+          "type": "numeric(3, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "planned_credits": {
+          "name": "planned_credits",
+          "type": "numeric(4, 1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "enrolled_credits": {
+          "name": "enrolled_credits",
+          "type": "numeric(4, 1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "completed_credits": {
+          "name": "completed_credits",
+          "type": "numeric(4, 1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_overloaded": {
+          "name": "is_overloaded",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "workload_status": {
+          "name": "workload_status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "recommendation": {
+          "name": "recommendation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "definition": "\n    SELECT \n      sc.student_id,\n      sc.semester_id,\n      COALESCE(SUM(CASE WHEN sc.status IN ('verified', 'enrolled') THEN c.credits ELSE 0 END), 0) AS credits_attempted,\n      COALESCE(SUM(CASE WHEN sc.status = 'enrolled' THEN c.credits ELSE 0 END), 0) AS credits_registered,\n      COALESCE(SUM(CASE \n        WHEN sc.status = 'verified' AND EXISTS (\n          SELECT 1 FROM grade_types g WHERE g.grade = sc.grade AND g.is_passing = true\n        ) THEN c.credits ELSE 0 END), 0) AS credits_passed,\n      COALESCE(SUM(CASE \n        WHEN sc.status = 'verified' AND sc.counts_for_gpa = true THEN \n          (SELECT gt.numeric_value FROM grade_types gt WHERE gt.grade = sc.grade) * c.credits\n        ELSE 0 \n      END), 0) AS grade_points,\n      CASE \n        WHEN SUM(CASE WHEN sc.status = 'verified' AND sc.counts_for_gpa = true THEN c.credits ELSE 0 END) > 0 \n        THEN \n          SUM(CASE \n            WHEN sc.status = 'verified' AND sc.counts_for_gpa = true THEN \n              (SELECT gt.numeric_value FROM grade_types gt WHERE gt.grade = sc.grade) * c.credits\n            ELSE 0 \n          END) / \n          SUM(CASE WHEN sc.status = 'verified' AND sc.counts_for_gpa = true THEN c.credits ELSE 0 END)\n        ELSE NULL\n      END AS semester_gpa,\n      NULL AS cumulative_gpa,\n      COALESCE(SUM(CASE WHEN sc.status = 'planned' THEN c.credits ELSE 0 END), 0) AS planned_credits,\n      COALESCE(SUM(CASE WHEN sc.status = 'enrolled' THEN c.credits ELSE 0 END), 0) AS enrolled_credits,\n      COALESCE(SUM(CASE WHEN sc.status = 'verified' THEN c.credits ELSE 0 END), 0) AS completed_credits,\n      CASE WHEN COALESCE(SUM(CASE WHEN sc.status = 'enrolled' THEN c.credits ELSE 0 END), 0) > 6.0 \n        THEN true ELSE false END AS is_overloaded,\n      CASE \n        WHEN COALESCE(SUM(CASE WHEN sc.status = 'enrolled' THEN c.credits ELSE 0 END), 0) > 6.0 THEN 'heavy'\n        WHEN COALESCE(SUM(CASE WHEN sc.status = 'enrolled' THEN c.credits ELSE 0 END), 0) < 4.0 THEN 'light'\n        ELSE 'balanced'\n      END AS workload_status,\n      CASE \n        WHEN COALESCE(SUM(CASE WHEN sc.status = 'enrolled' THEN c.credits ELSE 0 END), 0) > 6.0 \n          THEN 'Consider reducing your course load for better balance'\n        WHEN COALESCE(SUM(CASE WHEN sc.status = 'enrolled' THEN c.credits ELSE 0 END), 0) < 3.0 \n          THEN 'You might be able to take additional courses'\n        ELSE 'Your course load appears balanced'\n      END AS recommendation\n    FROM student_courses sc\n    JOIN courses c ON sc.course_code = c.code\n    GROUP BY sc.student_id, sc.semester_id\n  ",
+      "name": "semester_credit_summaries_view",
+      "schema": "public",
+      "isExisting": false,
+      "materialized": false
+    },
+    "public.student_graduation_progress_view": {
+      "columns": {
+        "student_id": {
+          "name": "student_id",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_audit_date": {
+          "name": "last_audit_date",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "overall_progress_percentage": {
+          "name": "overall_progress_percentage",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "credits_completed": {
+          "name": "credits_completed",
+          "type": "numeric(5, 1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "credits_remaining": {
+          "name": "credits_remaining",
+          "type": "numeric(5, 1)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "requirements_completed": {
+          "name": "requirements_completed",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "requirements_remaining": {
+          "name": "requirements_remaining",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "on_track_for_graduation": {
+          "name": "on_track_for_graduation",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "projected_graduation_date": {
+          "name": "projected_graduation_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "definition": "\n    SELECT\n      cp.student_id,\n      CURRENT_TIMESTAMP AS last_audit_date,\n      \n      -- Overall progress percentage\n      CASE \n        WHEN SUM(cp.credits_required) > 0 \n        THEN (SUM(cp.credits_completed) / SUM(cp.credits_required)) * 100\n        ELSE 0\n      END AS overall_progress_percentage,\n      \n      -- Credit totals\n      SUM(cp.credits_completed) AS credits_completed,\n      GREATEST(SUM(cp.credits_required) - SUM(cp.credits_completed), 0) AS credits_remaining,\n      \n      -- Requirement counts\n      COUNT(CASE WHEN cp.progress_percentage >= 100 THEN 1 ELSE NULL END) AS requirements_completed,\n      COUNT(CASE WHEN cp.progress_percentage < 100 THEN 1 ELSE NULL END) AS requirements_remaining,\n      \n      -- On track flag\n      CASE \n        WHEN COUNT(CASE WHEN cp.progress_percentage < 100 THEN 1 ELSE NULL END) = 0 THEN true\n        WHEN (SUM(cp.credits_completed) / NULLIF(SUM(cp.credits_required), 0)) >= 0.8 THEN true\n        ELSE false\n      END AS on_track_for_graduation,\n      \n      -- Graduate date estimation (simplified)\n      (\n        SELECT sp.expected_graduation_date \n        FROM student_profiles sp \n        WHERE sp.student_id = cp.student_id\n      ) AS projected_graduation_date\n    FROM category_progress_view cp\n    GROUP BY cp.student_id\n  ",
+      "name": "student_graduation_progress_view",
+      "schema": "public",
+      "isExisting": false,
+      "materialized": false
+    }
+  },
   "_meta": {
     "columns": {},
     "schemas": {},

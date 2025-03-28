@@ -11,15 +11,12 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 import {
+  courseStatusEnum,
   courseStatusValues,
   semesterOfferingEnum,
   semesterOfferingValues,
 } from "@/drizzle/schema/curriculum/enums";
-import {
-  courseStatusEnum,
-  createdAt,
-  updatedAt,
-} from "@/drizzle/schema/helpers";
+import { createdAt, updatedAt } from "@/drizzle/schema/helpers";
 import { departments } from "@/drizzle/schema/institution/departments";
 
 export const courses = pgTable("courses", {
