@@ -1,4 +1,4 @@
-export * from "./institution";
+export * from "./institution/index";
 export * from "./academic-structure";
 export * from "./curriculum";
 export * from "./student-records";

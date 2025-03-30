@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import React from "react";
 
 import { Providers } from "@/components/providers";
+import { Toaster } from "@/components/ui/sonner";
 import { satoshi } from "@/lib/fonts";
 
 import "./globals.css";
@@ -38,6 +39,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${satoshi.variable} antialiased`}>
         <Providers>{children}</Providers>
+        <Toaster closeButton richColors />
       </body>
     </html>
   );

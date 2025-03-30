@@ -32,7 +32,7 @@ export const userTypeValues = ["student", "staff"] as const;
 // Enum mapping for easier usage
 export const userTypes = {
   student: "student",
-  staff: "staff", // ✅ Corrected
+  staff: "staff",
 } as const;
 
 // TypeScript type for type safety

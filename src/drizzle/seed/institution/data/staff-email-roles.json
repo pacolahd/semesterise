@@ -1,0 +1,43 @@
+[
+  {
+    "email": "jane.doe@ashesi.edu.gh",
+    "role": "academic_advisor",
+    "departmentCode": null
+  },
+  {
+    "email": "john.smith@ashesi.edu.gh",
+    "role": "hod",
+    "departmentCode": "CSIS"
+   },
+  {
+    "email": "ama.rika@ashesi.edu.gh",
+    "role": "hod",
+    "departmentCode": "HSS"
+   },
+  {
+    "email": "thomas.kiran@ashesi.edu.gh",
+    "role": "hod",
+    "departmentCode": "ENG"
+   },
+  {
+    "email": "papa.tee@ashesi.edu.gh",
+    "role": "hod",
+    "departmentCode": "BA"
+   },
+  {
+    "email": "alice.jones@ashesi.edu.gh",
+    "role": "provost",
+    "departmentCode": null
+   },
+  {
+    "email": "bob.brown@ashesi.edu.gh",
+    "role": "registry",
+    "departmentCode": null
+  },
+  {
+    "email": "afum.brown@ashesi.edu.gh",
+    "role": "registry",
+    "departmentCode": null
+  }
+
+]

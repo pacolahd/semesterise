@@ -13,9 +13,9 @@ export const authSessions = pgTable("session", {
   userId: uuid("user_id")
     .notNull()
     .references(() => authUsers.id, { onDelete: "cascade" }),
-  token: varchar("token", { length: 255 }).notNull(),
+  token: varchar("token").notNull(),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-  ipAddress: varchar("ip_address", { length: 100 }),
+  ipAddress: varchar("ip_address"),
   userAgent: text("user_agent"),
   createdAt,
   updatedAt,

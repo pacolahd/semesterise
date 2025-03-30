@@ -17,8 +17,8 @@ export const env = createEnv({
     BETTER_AUTH_SECRET: z.string(),
     BETTER_AUTH_URL: z.string().url(),
     EMAIL_VERIFICATION_CALLBACK_URL: z.string().url(),
-    SENDGRID_API_KEY: z.string(),
-    EMAIL_FROM: z.string().email(),
+    RESEND_API_KEY: z.string(),
+    EMAIL_FROM: z.string(),
   },
   onValidationError: (error: ZodError) => {
     console.error(

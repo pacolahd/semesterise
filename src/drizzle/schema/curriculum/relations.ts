@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm";
 
-import { departments, mathTracks } from "@/drizzle/schema";
+import { mathTracks } from "@/drizzle/schema/academic-structure";
+import { departments } from "@/drizzle/schema/institution";
 import { majors } from "@/drizzle/schema/institution/majors";
 
 import { courseCategories } from "./course-categories";

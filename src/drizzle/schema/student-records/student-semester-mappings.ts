@@ -5,11 +5,11 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 import { academicSemesters } from "@/drizzle/schema";
-import { createdAt, updatedAt } from "@/drizzle/schema/helpers";
+import { createdAt, id, updatedAt } from "@/drizzle/schema/helpers";
 import { studentProfiles } from "@/drizzle/schema/student-records/student-profiles";
 
 export const studentSemesterMappings = pgTable("student_semester_mappings", {
-  id: uuid("id").defaultRandom().primaryKey().notNull(),
+  id,
   student_id: varchar("student_id", { length: 20 })
     .notNull()
     .references(() => studentProfiles.student_id, { onDelete: "cascade" }),

@@ -1,6 +1,6 @@
 "use server";
 
-import sgMail from "@sendgrid/mail";
+import { Resend } from "resend";
 
 import { env } from "@/env/server";
 
@@ -8,32 +8,31 @@ export async function sendEmail({
   to,
   subject,
   text,
+  html,
 }: {
   to: string;
   subject: string;
   text: string;
+  html?: string;
 }) {
-  sgMail.setApiKey(env.SENDGRID_API_KEY);
-
-  const message = {
-    to: to.toLowerCase().trim(),
-    from: env.EMAIL_FROM,
-    subject: subject.trim(),
-    text: text.trim(),
-  };
+  const resend = new Resend(env.RESEND_API_KEY);
 
   try {
-    const [response] = await sgMail.send(message);
+    const { data, error } = await resend.emails.send({
+      from: env.EMAIL_FROM, // e.g., "Your Company <noreply@yourdomain.com>"
+      to: [to.toLowerCase().trim()], // Note: to should be an array
+      subject: subject.trim(),
+      text: text.trim(),
+      html: html?.trim(),
+    });
 
-    if (response.statusCode !== 202) {
-      throw new Error(
-        `SendGrid API returned status code ${response.statusCode}`
-      );
+    if (error) {
+      throw new Error(error.message);
     }
 
     return {
       success: true,
-      messageId: response.headers["x-message-id"],
+      messageId: data?.id,
     };
   } catch (error) {
     console.error("Error sending email:", error);

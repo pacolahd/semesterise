@@ -10,5 +10,7 @@ export {
   authVerificationSchema,
 } from "./auth-verifications";
 
+export { userTypeEnum, userRoleEnum } from "./enums";
+
 // Relations
 export * from "./relations";

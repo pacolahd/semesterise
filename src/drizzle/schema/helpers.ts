@@ -3,7 +3,7 @@ import { timestamp, uuid } from "drizzle-orm/pg-core";
 /**
  * Reusable schema components
  */
-export const id = uuid("id").primaryKey().defaultRandom();
+export const id = uuid("id").primaryKey().defaultRandom().notNull();
 export const createdAt = timestamp("created_at", { withTimezone: true })
   .notNull()
   .defaultNow();

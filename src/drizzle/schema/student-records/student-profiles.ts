@@ -19,28 +19,29 @@ import { createdAt, updatedAt } from "@/drizzle/schema/helpers";
 
 export const studentProfiles = pgTable("student_profiles", {
   // Keep the existing school-issued ID as the primary key
-  student_id: varchar("student_id", { length: 20 }).primaryKey().notNull(),
+  student_id: varchar("student_id", { length: 20 }).unique(),
 
   // Reference to BetterAuth user
-  auth_id: uuid("user_id")
+  authId: uuid("auth_id")
+    .primaryKey()
     .notNull()
     .references(() => authUsers.id, { onDelete: "cascade" }),
 
   // Domain-specific fields
-  major_code: varchar("major_code")
-    .notNull()
-    .references(() => majors.code, { onDelete: "restrict" }),
+  major_code: varchar("major_code").references(() => majors.code, {
+    onDelete: "restrict",
+  }),
   math_track_name: varchar("math_track_name").references(
     () => mathTracks.name,
     { onDelete: "set null" }
   ),
-  entry_year: integer("entry_year").notNull(),
+  entry_year: integer("entry_year"),
 
   // Graduation year
-  cohort_year: integer("cohort_year").notNull(),
-  current_year: integer("current_year").notNull(),
-  current_semester: varchar("current_semester", { length: 20 }).notNull(),
-  expected_graduation_date: date("expected_graduation_date"),
+  cohort_year: integer("cohort_year"),
+  current_year: integer("current_year"),
+  current_semester: varchar("current_semester", { length: 20 }),
+  expectedGraduationDate: date("expected_graduation_date"),
   cumulative_gpa: decimal("cumulative_gpa", { precision: 3, scale: 2 }),
   total_credits_earned: decimal("total_credits_earned", {
     precision: 5,
@@ -50,7 +51,7 @@ export const studentProfiles = pgTable("student_profiles", {
     () => capstoneOptions.name,
     { onDelete: "set null" }
   ),
-  is_active: boolean("is_active").default(true),
+  isActive: boolean("is_active").default(true),
   onboarding_completed: boolean("onboarding_completed").default(false),
   createdAt,
   updatedAt,
@@ -58,7 +59,7 @@ export const studentProfiles = pgTable("student_profiles", {
 
 export const studentProfileSchema = createInsertSchema(studentProfiles).extend({
   student_id: z.string().min(1).max(20),
-  auth_id: z.string().uuid(),
+  authId: z.string().uuid(),
   major_code: z.string(),
   math_track_name: z.string().optional().nullable(),
   entry_year: z.number().int().positive(),
@@ -69,11 +70,11 @@ export const studentProfileSchema = createInsertSchema(studentProfiles).extend({
   cumulative_gpa: z.number().min(0).max(4).step(0.01).optional().nullable(),
   total_credits_earned: z.number().min(0).step(0.1).default(0),
   capstone_option_id: z.string().optional().nullable(),
-  is_active: z.boolean().default(true),
+  isActive: z.boolean().default(true),
   onboarding_completed: z.boolean().default(false),
 });
 
-// For validation (forms, API input)
+// For validation (auth, API input)
 export type StudentProfileInput = z.infer<typeof studentProfileSchema>;
 // For database results
 export type StudentProfileRecord = InferSelectModel<typeof studentProfiles>;

@@ -1,7 +1,7 @@
 [
   {
     "student_id": "23142027",
-    "user_id": "auth0|st10001234",
+    "auth_id": "auth0|st10001234",
     "first_name": "Kofi",
     "last_name": "Annan",
     "email": "kofi.annan@ashesi.edu.gh",
@@ -20,7 +20,7 @@
   },
   {
     "student_id": "25642025",
-    "user_id": "auth0|st10001235",
+    "auth_id": "auth0|st10001235",
     "first_name": "Ama",
     "last_name": "Ata Aidoo",
     "email": "ama.aidoo@ashesi.edu.gh",
@@ -39,7 +39,7 @@
   },
   {
     "student_id": "20142026",
-    "user_id": "auth0|st10001236",
+    "auth_id": "auth0|st10001236",
     "first_name": "Kwame",
     "last_name": "Nkrumah",
     "email": "kwame.nkrumah@ashesi.edu.gh",
@@ -58,7 +58,7 @@
   },
   {
     "student_id": "10042028",
-    "user_id": "auth0|st10001237",
+    "auth_id": "auth0|st10001237",
     "first_name": "Grace",
     "last_name": "Amponsah",
     "email": "grace.amponsah@ashesi.edu.gh",

@@ -1,7 +1,6 @@
 import seedAcademicStructure from "./academic-structure";
 import seedCurriculum from "./curriculum";
 import seedInstitution from "./institution";
-import seedStudentRecords from "./student-records";
 
 async function main() {
   console.log("🌱 Starting database seeding process...");

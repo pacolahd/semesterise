@@ -13,18 +13,18 @@ export const authAccounts = pgTable("account", {
   userId: uuid("user_id")
     .notNull()
     .references(() => authUsers.id, { onDelete: "cascade" }),
-  accountId: varchar("account_id", { length: 255 }).notNull(),
-  providerId: varchar("provider_id", { length: 255 }).notNull(),
-  accessToken: varchar("access_token", { length: 2000 }),
-  refreshToken: varchar("refresh_token", { length: 2000 }),
+  accountId: varchar("account_id").notNull(),
+  providerId: varchar("provider_id").notNull(),
+  accessToken: varchar("access_token"),
+  refreshToken: varchar("refresh_token"),
+  idToken: text("id_token"),
   accessTokenExpiresAt: timestamp("access_token_expires_at", {
     withTimezone: true,
   }),
   refreshTokenExpiresAt: timestamp("refresh_token_expires_at", {
     withTimezone: true,
   }),
-  scope: varchar("scope", { length: 255 }),
-  idToken: text("id_token"),
+  scope: varchar("scope"),
   password: text("password"),
   createdAt,
   updatedAt,

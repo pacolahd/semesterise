@@ -8,7 +8,6 @@ import {
   academicSemesters,
   academicWarnings,
   studentCourses,
-  studentProfiles,
   studentSemesterMappings,
 } from "@/drizzle/schema";
 
@@ -20,8 +19,8 @@ async function seedStudentRecords() {
   const dataDirectory = path.join(__dirname, "data");
 
   try {
-    // 1. Seed student_profiles
-    await seedStudentProfiles(dataDirectory);
+    // // 1. Seed student_profiles
+    // await seedStudentProfiles(dataDirectory);
 
     // 2. Seed student_semester_mappings
     await seedSemesterMappings(dataDirectory);
@@ -42,41 +41,38 @@ async function seedStudentRecords() {
 /**
  * Seed student_profiles
  */
-async function seedStudentProfiles(dataDirectory: string) {
-  try {
-    const studentProfilesData = JSON.parse(
-      fs.readFileSync(path.join(dataDirectory, "student-profiles.json"), "utf8")
-    );
-
-    for (const student of studentProfilesData) {
-      await db
-        .insert(studentProfiles)
-        .values({
-          student_id: student.student_id,
-          user_id: student.user_id,
-          first_name: student.first_name,
-          last_name: student.last_name,
-          email: student.email,
-          major_code: student.major_code,
-          math_track_name: student.math_track_name,
-          entry_year: student.entry_year,
-          cohort_year: student.cohort_year,
-          current_year: student.current_year,
-          current_semester: student.current_semester,
-          expected_graduation_date: student.expected_graduation_date,
-          cumulative_gpa: student.cumulative_gpa,
-          total_credits_earned: student.total_credits_earned,
-          capstone_option_id: student.capstone_option_id,
-          is_active: student.is_active,
-          onboarding_completed: student.onboarding_completed,
-        })
-        .onConflictDoNothing({ target: studentProfiles.student_id });
-    }
-    console.log("✅ Student profiles seeded successfully");
-  } catch (error) {
-    console.error("❌ Error seeding student profiles:", error);
-  }
-}
+// async function seedStudentProfiles(dataDirectory: string) {
+//   try {
+//     const studentProfilesData = JSON.parse(
+//       fs.readFileSync(path.join(dataDirectory, "student-profiles.json"), "utf8")
+//     );
+//
+//     for (const student of studentProfilesData as StudentProfileInput[]) {
+//       await db
+//         .insert(studentProfiles)
+//         .values({
+//           student_id: student.student_id,
+//           authId: student.authId,
+//           major_code: student.major_code,
+//           math_track_name: student.math_track_name,
+//           entry_year: student.entry_year,
+//           cohort_year: student.cohort_year,
+//           current_year: student.current_year,
+//           current_semester: student.current_semester,
+//           expected_graduation_date: student.expected_graduation_date,
+//           cumulative_gpa: student.cumulative_gpa,
+//           total_credits_earned: student.total_credits_earned,
+//           capstone_option_id: student.capstone_option_id,
+//           isActive: student.isActive,
+//           onboarding_completed: student.onboarding_completed,
+//         })
+//         .onConflictDoNothing({ target: studentProfiles.student_id });
+//     }
+//     console.log("✅ Student profiles seeded successfully");
+//   } catch (error) {
+//     console.error("❌ Error seeding student profiles:", error);
+//   }
+// }
 
 /**
  * Seed semester_mappings

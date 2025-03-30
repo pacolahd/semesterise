@@ -3,7 +3,11 @@ import fs from "fs";
 import path from "path";
 
 import { db } from "@/drizzle";
-import { departments, majors } from "@/drizzle/schema/institution";
+import {
+  departments,
+  majors,
+  staffEmailRoles,
+} from "@/drizzle/schema/institution";
 
 /**
  * Seed all institution tables
@@ -18,6 +22,9 @@ async function seedInstitution() {
 
     // 2. Seed Majors
     await seedMajors(dataDirectory);
+
+    // 3. Seed StaffEmailRoles
+    await seedStaffEmailRoles(dataDirectory);
 
     console.log("✅ Institution seeded successfully");
   } catch (error) {
@@ -78,6 +85,36 @@ async function seedMajors(dataDirectory: string) {
     console.log("✅ Majors seeded successfully");
   } catch (error) {
     console.error("❌ Error seeding majors:", error);
+    throw error;
+  }
+}
+
+/**
+ * Seed staff email roles
+ */
+async function seedStaffEmailRoles(dataDirectory: string) {
+  try {
+    const staffEmailRolesData = JSON.parse(
+      fs.readFileSync(
+        path.join(dataDirectory, "staff-email-roles.json"),
+        "utf8"
+      )
+    );
+
+    for (const staffEmailRole of staffEmailRolesData) {
+      await db
+        .insert(staffEmailRoles)
+        .values({
+          email: staffEmailRole.email,
+          role: staffEmailRole.role,
+          departmentCode: staffEmailRole.departmentCode,
+        })
+        .onConflictDoNothing({ target: staffEmailRoles.email });
+    }
+
+    console.log("✅ StaffEmailRoles seeded successfully");
+  } catch (error) {
+    console.error("❌ Error seeding staffEmailRoles:", error);
     throw error;
   }
 }

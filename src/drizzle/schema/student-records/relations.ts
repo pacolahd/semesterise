@@ -19,7 +19,7 @@ export const studentProfilesRelations = relations(
   studentProfiles,
   ({ one, many }) => ({
     user: one(authUsers, {
-      fields: [studentProfiles.auth_id],
+      fields: [studentProfiles.authId],
       references: [authUsers.id],
     }),
 

@@ -8,8 +8,8 @@ import { createdAt, id, updatedAt } from "@/drizzle/schema/helpers";
 
 export const authVerifications = pgTable("verification", {
   id,
-  identifier: varchar("identifier", { length: 255 }).notNull(),
-  value: varchar("value", { length: 255 }).notNull(),
+  identifier: varchar("identifier").notNull(),
+  value: varchar("value").notNull(),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   createdAt,
   updatedAt,
