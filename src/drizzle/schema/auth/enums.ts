@@ -8,6 +8,7 @@ export const userRoleValues = [
   "provost",
   "registry",
   "lecturer",
+  "student",
 ] as const;
 
 // Enum mapping for easier usage
@@ -36,7 +37,7 @@ export const userTypes = {
 } as const;
 
 // TypeScript type for type safety
-export type userType = (typeof userTypeValues)[number];
+export type UserType = (typeof userTypeValues)[number];
 
 // Define the actual Drizzle enum
 export const userTypeEnum = pgEnum("user_type", userTypeValues);

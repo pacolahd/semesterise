@@ -25,8 +25,16 @@ export const env = createEnv({
       "❌ Invalid environment variables:",
       error.flatten().fieldErrors
     );
-    process.exit(1);
+    // If running in Node (process.exit exists), exit; otherwise, throw an error.
+    if (typeof process !== "undefined" && typeof process.exit === "function") {
+      process.exit(1);
+    } else {
+      throw new Error(
+        `Invalid environment variables: ${JSON.stringify(error.flatten().fieldErrors)}`
+      );
+    }
   },
+
   emptyStringAsUndefined: true,
   // eslint-disable-next-line no-process-env
   experimental__runtimeEnv: process.env,

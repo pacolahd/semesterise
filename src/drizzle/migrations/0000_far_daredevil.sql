@@ -6,8 +6,11 @@ CREATE TYPE "public"."processing_step" AS ENUM('extraction', 'mapping', 'validat
 CREATE TYPE "public"."step_status" AS ENUM('pending', 'in_progress', 'completed', 'failed');--> statement-breakpoint
 CREATE TYPE "public"."participant_role" AS ENUM('student', 'academic_advisor', 'hod', 'provost', 'registry', 'invited_approver', 'observer');--> statement-breakpoint
 CREATE TYPE "public"."petition_status" AS ENUM('draft', 'submitted', 'advisor_approved', 'advisor_rejected', 'hod_approved', 'hod_rejected', 'provost_approved', 'provost_rejected', 'registry_processing', 'completed', 'cancelled');--> statement-breakpoint
-CREATE TYPE "public"."staff_role" AS ENUM('academic_advisor', 'hod', 'provost', 'registry', 'lecturer');--> statement-breakpoint
+CREATE TYPE "public"."staff_role" AS ENUM('academic_advisor', 'hod', 'provost', 'registry', 'lecturer', 'student');--> statement-breakpoint
 CREATE TYPE "public"."user_type" AS ENUM('student', 'staff');--> statement-breakpoint
+CREATE TYPE "public"."error_severity" AS ENUM('info', 'warning', 'error', 'critical');--> statement-breakpoint
+CREATE TYPE "public"."error_source" AS ENUM('client', 'server', 'database', 'api', 'auth', 'unknown');--> statement-breakpoint
+CREATE TYPE "public"."user_activity_status" AS ENUM('success', 'failure', 'warning');--> statement-breakpoint
 CREATE TABLE "department_heads" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"department_code" varchar NOT NULL,
@@ -431,6 +434,40 @@ CREATE TABLE "verification" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "activities" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"type" varchar(50) NOT NULL,
+	"description" text,
+	"actor_id" varchar(255) NOT NULL,
+	"actor_type" varchar(50),
+	"actor_role" varchar(50),
+	"resource_type" varchar(50),
+	"resource_id" varchar(255),
+	"ip_address" varchar(50),
+	"user_agent" text,
+	"location" varchar(100),
+	"status" varchar DEFAULT 'started' NOT NULL,
+	"error_code" varchar(50),
+	"error_message" text,
+	"metadata" jsonb,
+	"is_sensitive" boolean DEFAULT false,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"completed_at" timestamp
+);
+--> statement-breakpoint
+CREATE TABLE "error_logs" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"activity_id" uuid,
+	"error_id" varchar(100) NOT NULL,
+	"name" varchar(100),
+	"message" text NOT NULL,
+	"stack" text,
+	"code" varchar(50),
+	"status" varchar DEFAULT 'unhandled',
+	"context" jsonb,
+	"created_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 ALTER TABLE "department_heads" ADD CONSTRAINT "department_heads_department_code_departments_code_fk" FOREIGN KEY ("department_code") REFERENCES "public"."departments"("code") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "department_heads" ADD CONSTRAINT "department_heads_staff_id_staff_profiles_staff_id_fk" FOREIGN KEY ("staff_id") REFERENCES "public"."staff_profiles"("staff_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "majors" ADD CONSTRAINT "majors_department_code_departments_code_fk" FOREIGN KEY ("department_code") REFERENCES "public"."departments"("code") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
@@ -481,6 +518,7 @@ ALTER TABLE "petitions" ADD CONSTRAINT "petitions_primary_department_id_departme
 ALTER TABLE "petitions" ADD CONSTRAINT "petitions_secondary_department_id_departments_code_fk" FOREIGN KEY ("secondary_department_id") REFERENCES "public"."departments"("code") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "error_logs" ADD CONSTRAINT "error_logs_activity_id_activities_id_fk" FOREIGN KEY ("activity_id") REFERENCES "public"."activities"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "idx_student_courses_student_semester" ON "student_courses" USING btree ("student_id","semester_id" DESC NULLS LAST) WITH (fillfactor=90);--> statement-breakpoint
 CREATE INDEX "idx_student_courses_category" ON "student_courses" USING btree ("category_name") WHERE "student_courses"."category_name" IS NOT NULL;--> statement-breakpoint
 CREATE INDEX "idx_student_courses_status" ON "student_courses" USING btree ("status") WHERE "student_courses"."status" <> 'dropped';--> statement-breakpoint

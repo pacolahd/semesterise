@@ -2,15 +2,12 @@ import { BetterAuthOptions, betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { openAPI } from "better-auth/plugins";
 import { eq } from "drizzle-orm";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { sendEmail } from "@/actions/email";
 import { db } from "@/drizzle";
-import {
-  staffEmailRoles,
-  staffProfiles,
-  studentProfiles,
-} from "@/drizzle/schema";
+import { staffProfiles, studentProfiles } from "@/drizzle/schema";
 import * as authSchema from "@/drizzle/schema/auth";
 import { AuthUserInput } from "@/drizzle/schema/auth/auth-users";
 import {
@@ -20,7 +17,9 @@ import {
   userTypeValues,
   userTypes,
 } from "@/drizzle/schema/auth/enums";
+import { staffEmailRoles } from "@/drizzle/schema/institution";
 import { env } from "@/env/server";
+import { SignUpError } from "@/lib/errors";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -63,13 +62,6 @@ export const auth = betterAuth({
         before: async (user) => {
           const authUser = user as AuthUserInput;
           const userEmail = authUser.email.toLowerCase();
-
-          // Ensure email domain is valid
-          if (!userEmail.endsWith("@ashesi.edu.gh")) {
-            throw new Error(
-              "Only Ashesi University email addresses are allowed."
-            );
-          }
 
           try {
             // Check if email is in staff roles table
