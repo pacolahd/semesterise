@@ -2,7 +2,6 @@ import { BetterAuthOptions, betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { openAPI } from "better-auth/plugins";
 import { eq } from "drizzle-orm";
-import { toast } from "sonner";
 import { z } from "zod";
 
 import { sendEmail } from "@/actions/email";
@@ -20,6 +19,7 @@ import {
 import { staffEmailRoles } from "@/drizzle/schema/institution";
 import { env } from "@/env/server";
 import { SignUpError } from "@/lib/errors";
+import { ActivityService } from "@/lib/services/activity.service";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -62,6 +62,12 @@ export const auth = betterAuth({
         before: async (user) => {
           const authUser = user as AuthUserInput;
           const userEmail = authUser.email.toLowerCase();
+
+          // if (!userEmail.endsWith("@ashesi.edu.gh")) {
+          //   throw new Error(
+          //     "Invalid email domain. Please use an Ashesi email address."
+          //   );
+          // }
 
           try {
             // Check if email is in staff roles table
@@ -145,6 +151,19 @@ export const auth = betterAuth({
       },
     },
   },
+
+  // onAPIError: {
+  //   throw: true,
+  //   onError: (error) => {
+  //     // Custom error handling
+  //     console.error("\n\n\n\nAuth error:", error);
+  //     ActivityService.recordError({
+  //       error,
+  //       status: "unhandled",
+  //     }).then((e) => console.log("\n\n\n\n\nError logged:", e));
+  //   },
+  // },
+
   advanced: {
     // let postgres handle the id generation
     generateId: false,

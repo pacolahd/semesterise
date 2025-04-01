@@ -447,8 +447,6 @@ CREATE TABLE "activities" (
 	"user_agent" text,
 	"location" varchar(100),
 	"status" varchar DEFAULT 'started' NOT NULL,
-	"error_code" varchar(50),
-	"error_message" text,
 	"metadata" jsonb,
 	"is_sensitive" boolean DEFAULT false,
 	"created_at" timestamp DEFAULT now() NOT NULL,
@@ -457,8 +455,7 @@ CREATE TABLE "activities" (
 --> statement-breakpoint
 CREATE TABLE "error_logs" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"activity_id" uuid,
-	"error_id" varchar(100) NOT NULL,
+	"activity_id" uuid NOT NULL,
 	"name" varchar(100),
 	"message" text NOT NULL,
 	"stack" text,
@@ -518,7 +515,6 @@ ALTER TABLE "petitions" ADD CONSTRAINT "petitions_primary_department_id_departme
 ALTER TABLE "petitions" ADD CONSTRAINT "petitions_secondary_department_id_departments_code_fk" FOREIGN KEY ("secondary_department_id") REFERENCES "public"."departments"("code") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "error_logs" ADD CONSTRAINT "error_logs_activity_id_activities_id_fk" FOREIGN KEY ("activity_id") REFERENCES "public"."activities"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "idx_student_courses_student_semester" ON "student_courses" USING btree ("student_id","semester_id" DESC NULLS LAST) WITH (fillfactor=90);--> statement-breakpoint
 CREATE INDEX "idx_student_courses_category" ON "student_courses" USING btree ("category_name") WHERE "student_courses"."category_name" IS NOT NULL;--> statement-breakpoint
 CREATE INDEX "idx_student_courses_status" ON "student_courses" USING btree ("status") WHERE "student_courses"."status" <> 'dropped';--> statement-breakpoint

@@ -1,8 +1,10 @@
+// src/drizzle/schema/system-settings/index.ts
 export {
-  userActivityStatusEnum,
+  activityStatusEnum,
+  errorStatusEnum,
   errorSourceEnum,
   errorSeverityEnum,
 } from "./enums";
 export { activities, activitySchema } from "./activities";
-
 export { errorLogs, errorLogSchema } from "./error-logs";
+export * from "./relations";

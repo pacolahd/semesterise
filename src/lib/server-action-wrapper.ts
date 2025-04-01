@@ -6,27 +6,21 @@ import { type ZodSchema, z } from "zod";
 
 import { auth } from "@/lib/auth/auth";
 import { hasPermission } from "@/lib/auth/authorization";
-import {
-  AppError,
-  AuthorizationError,
-  ServerActionError,
-  ValidationError,
-} from "@/lib/errors";
+import { AuthorizationError, ValidationError } from "@/lib/errors";
 import { ActivityService } from "@/lib/services/activity.service";
 import type { Permission } from "@/lib/types";
 import { redactSensitiveData } from "@/lib/utils/redaction";
 
 // ======================
-// 1. Type Definitions
+// 1. Type Definitions (unchanged)
 // ======================
-
 type BaseActionMetadata = {
   name: string;
   description?: string;
   entityType?: string;
   revalidatePaths?: string[];
   revalidateTags?: string[];
-  formFields?: string[];
+  sensitiveFields?: string[];
 };
 
 type AuthConfig =
@@ -46,7 +40,7 @@ type ActionContext = {
 };
 
 type ActionResponse<T = void> =
-  | { success: true; data: T; status?: number }
+  | { success: true; data?: T; status?: number }
   | {
       success: false;
       error: {
@@ -58,9 +52,8 @@ type ActionResponse<T = void> =
     };
 
 // ======================
-// 2. Core Utilities
+// 2. Core Utilities (unchanged)
 // ======================
-
 async function getRequestContext() {
   const headersList = await headers();
   const session = await auth.api.getSession({ headers: headersList });
@@ -91,54 +84,9 @@ function formatZodErrors(error: z.ZodError) {
   }, {});
 }
 
-async function handleActionError(
-  error: unknown,
-  metadata: ActionMetadata,
-  context: ActionContext
-): Promise<ActionResponse<never>> {
-  // Known error types
-  if (error instanceof AppError) {
-    return ActivityService.toResponse(error);
-  }
-
-  // Zod validation errors
-  if (error instanceof z.ZodError) {
-    return ActivityService.toResponse(
-      new ValidationError("Validation failed", formatZodErrors(error))
-    );
-  }
-
-  // Convert unknown errors
-  const actionError = new ServerActionError(
-    metadata.name,
-    error instanceof Error ? error.message : "Action failed",
-    error instanceof Error ? error : undefined
-  );
-
-  // Log error
-  await ActivityService.record({
-    type: `${metadata.name}:error`,
-    actorId: context.userId,
-    actorType: context.userType,
-    actorRole: context.userRole,
-    status: "failed",
-    errorCode: actionError.code,
-    errorMessage: actionError.message,
-    ipAddress: context.ipAddress,
-    userAgent: context.userAgent,
-    metadata: {
-      error: actionError.message,
-    },
-    ...(metadata.entityType ? { entityType: metadata.entityType } : {}),
-  });
-
-  return ActivityService.toResponse(actionError);
-}
-
 // ======================
-// 3. Action Creators
+// 3. Updated Action Creators
 // ======================
-
 export function createStatelessAction<Output>(config: {
   metadata: ActionMetadata;
   execute: (params: { context: ActionContext }) => Promise<Output>;
@@ -155,7 +103,7 @@ export function createStatelessAction<Output>(config: {
     };
 
     try {
-      // Authentication & Authorization
+      // Auth checks
       if (
         (config.metadata.requireAuth || config.metadata.requiredPermission) &&
         !session
@@ -169,35 +117,36 @@ export function createStatelessAction<Output>(config: {
         throw new AuthorizationError("Permission denied");
       }
 
-      // Execute action
-      const result = await config.execute({ context });
-
-      // Log success
-      await ActivityService.record({
-        type: `${config.metadata.name}:execute`,
-        actorId: context.userId,
-        actorType: context.userType,
-        actorRole: context.userRole,
-        status: "succeeded",
-        ipAddress: context.ipAddress,
-        userAgent: context.userAgent,
-        description: config.metadata.description,
-        ...(config.metadata.entityType
-          ? { entityType: config.metadata.entityType }
-          : {}),
-        metadata: {
-          result: "success",
+      // Execute with automatic tracking
+      const trackingResult = await ActivityService.track(
+        {
+          type: `${config.metadata.name}:execute`,
+          actorId: context.userId,
+          actorType: context.userType,
+          actorRole: context.userRole,
+          ipAddress: context.ipAddress,
+          userAgent: context.userAgent,
+          description: config.metadata.description,
+          ...(config.metadata.entityType
+            ? { entityType: config.metadata.entityType }
+            : {}),
+          metadata: {
+            action: config.metadata.name,
+          },
         },
-      });
+        async () => config.execute({ context })
+      );
 
       batchRevalidate({
         paths: config.metadata.revalidatePaths,
         tags: config.metadata.revalidateTags,
       });
 
-      return { success: true, data: result };
+      return trackingResult.error
+        ? ActivityService.toResponse(trackingResult.error)
+        : { success: true, data: trackingResult.result };
     } catch (error) {
-      return handleActionError(error, config.metadata, context);
+      return ActivityService.toResponse(error);
     }
   };
 }
@@ -221,7 +170,7 @@ export function createAction<Input, Output>(config: {
     };
 
     try {
-      // Authentication & Authorization
+      // Auth checks
       if (
         (config.metadata.requireAuth || config.metadata.requiredPermission) &&
         !session
@@ -235,38 +184,40 @@ export function createAction<Input, Output>(config: {
         throw new AuthorizationError("Permission denied");
       }
 
-      const result = await config.execute({ input, context });
-
-      // Log success
-      await ActivityService.record({
-        type: `${config.metadata.name}:execute`,
-        actorId: context.userId,
-        actorType: context.userType,
-        actorRole: context.userRole,
-        status: "succeeded",
-        ipAddress: context.ipAddress,
-        userAgent: context.userAgent,
-        description: config.metadata.description,
-        ...(config.metadata.entityType
-          ? { entityType: config.metadata.entityType }
-          : {}),
-        metadata: {
-          result: "success",
-          input: redactSensitiveData(
-            input as Record<string, unknown>,
-            config.metadata.formFields
-          ),
+      // Execute with automatic tracking
+      const { result, error } = await ActivityService.track(
+        {
+          type: `${config.metadata.name}:execute`,
+          actorId: context.userId,
+          actorType: context.userType,
+          actorRole: context.userRole,
+          ipAddress: context.ipAddress,
+          userAgent: context.userAgent,
+          description: config.metadata.description,
+          ...(config.metadata.entityType
+            ? { entityType: config.metadata.entityType }
+            : {}),
+          metadata: {
+            action: config.metadata.name,
+            input: redactSensitiveData(
+              input as Record<string, unknown>,
+              config.metadata.sensitiveFields
+            ),
+          },
         },
-      });
+        async () => config.execute({ input, context })
+      );
 
       batchRevalidate({
         paths: config.metadata.revalidatePaths,
         tags: config.metadata.revalidateTags,
       });
 
-      return { success: true, data: result };
+      return error
+        ? ActivityService.toResponse(error)
+        : { success: true, data: result };
     } catch (error) {
-      return handleActionError(error, config.metadata, context);
+      return ActivityService.toResponse(error);
     }
   };
 }
@@ -303,7 +254,7 @@ export function createValidatedAction<
         );
       }
 
-      // Authentication & Authorization
+      // Auth checks
       if (
         (config.metadata.requireAuth || config.metadata.requiredPermission) &&
         !session
@@ -317,41 +268,40 @@ export function createValidatedAction<
         throw new AuthorizationError("Permission denied");
       }
 
-      const result = await config.execute({
-        input: parseResult.data,
-        context,
-      });
-
-      // Log success
-      await ActivityService.record({
-        type: `${config.metadata.name}:execute`,
-        actorId: context.userId,
-        actorType: context.userType,
-        actorRole: context.userRole,
-        status: "succeeded",
-        ipAddress: context.ipAddress,
-        userAgent: context.userAgent,
-        description: config.metadata.description,
-        ...(config.metadata.entityType
-          ? { entityType: config.metadata.entityType }
-          : {}),
-        metadata: {
-          result: "success",
-          input: redactSensitiveData(
-            parseResult.data,
-            config.metadata.formFields
-          ),
+      // Execute with automatic tracking
+      const trackingResult = await ActivityService.track(
+        {
+          type: `${config.metadata.name}:execute`,
+          actorId: context.userId,
+          actorType: context.userType,
+          actorRole: context.userRole,
+          ipAddress: context.ipAddress,
+          userAgent: context.userAgent,
+          description: config.metadata.description,
+          ...(config.metadata.entityType
+            ? { entityType: config.metadata.entityType }
+            : {}),
+          metadata: {
+            action: config.metadata.name,
+            input: redactSensitiveData(
+              parseResult.data,
+              config.metadata.sensitiveFields
+            ),
+          },
         },
-      });
+        async () => config.execute({ input: parseResult.data, context })
+      );
 
       batchRevalidate({
         paths: config.metadata.revalidatePaths,
         tags: config.metadata.revalidateTags,
       });
 
-      return { success: true, data: result };
+      return trackingResult.error
+        ? ActivityService.toResponse(trackingResult.error)
+        : { success: true, data: trackingResult.result };
     } catch (error) {
-      return handleActionError(error, config.metadata, context);
+      return ActivityService.toResponse(error);
     }
   };
 }

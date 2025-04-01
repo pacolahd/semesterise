@@ -1,6 +1,6 @@
 {
-  "id": "8fb3c697-05d1-4b02-beae-a108424dc07e",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "7a6bae5d-e561-4c71-84fd-364900122561",
+  "prevId": "de4bd5b6-5e2b-4bc9-b786-65e7c314f8ec",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -3350,7 +3350,7 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
@@ -3385,7 +3385,7 @@
           "name": "activity_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "name": {
           "name": "name",
@@ -3426,7 +3426,7 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
@@ -3560,7 +3560,10 @@
         "info",
         "warning",
         "error",
-        "critical"
+        "critical",
+        "high",
+        "low",
+        "medium"
       ]
     },
     "public.error_source": {

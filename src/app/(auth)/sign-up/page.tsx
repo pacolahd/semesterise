@@ -8,7 +8,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -27,24 +26,19 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { signUpSchema } from "@/drizzle/schema/auth/signin-signup-schema";
+import {
+  SignUpInput,
+  signUpSchema,
+} from "@/drizzle/schema/auth/signin-signup-schema";
 
 import { signUp } from "../actions";
 
 // app/(auth)/sign-up/page.tsx
 
-// app/(auth)/sign-up/page.tsx
-
-// app/(auth)/sign-up/page.tsx
-
-// app/(auth)/sign-up/page.tsx
-
-type SignUpInputs = z.infer<typeof signUpSchema>;
-
 export default function SignUpPage() {
   const [isPending, setIsPending] = useState(false);
 
-  const form = useForm<SignUpInputs>({
+  const form = useForm<SignUpInput>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
       name: "",
@@ -54,7 +48,7 @@ export default function SignUpPage() {
     },
   });
 
-  async function onSubmit(values: SignUpInputs) {
+  async function onSubmit(values: SignUpInput) {
     try {
       setIsPending(true);
       const result = await signUp(values);
@@ -63,17 +57,14 @@ export default function SignUpPage() {
         // Handle field-specific validation errors
         if (result.error?.details) {
           Object.entries(result.error.details).forEach(([field, messages]) => {
-            form.setError(field as keyof SignUpInputs, {
+            form.setError(field as keyof SignUpInput, {
               type: "server",
               message: messages.join(", "),
             });
           });
         } else {
           // Show general error toast
-          toast.error(
-            `${result.error?.message} ` ||
-              "Details - User already exists 422 SIGNUP_ERROR undefined"
-          );
+          toast.error(`${result.error?.message}`);
         }
         return;
       }
@@ -84,7 +75,7 @@ export default function SignUpPage() {
       );
       // router.push("/sign-in");
     } catch (error) {
-      console.error("Sign up error:", error);
+      // console.error("Sign up page - Sign up error:", error);
       toast.error("Something went wrong. Please try again.");
     } finally {
       setIsPending(false);

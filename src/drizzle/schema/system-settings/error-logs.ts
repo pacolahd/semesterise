@@ -1,23 +1,17 @@
-// src/drizzle/schema/system/error-logs.ts
+// src/drizzle/schema/system-settings/error-logs.ts
 import { InferSelectModel } from "drizzle-orm";
-import {
-  jsonb,
-  pgTable,
-  text,
-  timestamp,
-  uuid,
-  varchar,
-} from "drizzle-orm/pg-core";
+import { jsonb, pgTable, text, uuid, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-import { activities } from "@/drizzle/schema";
-import { activitySchema } from "@/drizzle/schema/system-settings/activities";
+import { createdAt, id } from "@/drizzle/schema/helpers";
+import { errorStatusValues } from "@/drizzle/schema/system-settings/enums";
 
+// Remove the circular reference
 export const errorLogs = pgTable("error_logs", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  activityId: uuid("activity_id").references(() => activities.id),
-  errorId: varchar("error_id", { length: 100 }).notNull(),
+  id,
+  // This is a foreign key to activities table, but we don't reference it directly here
+  activityId: uuid("activity_id"),
 
   // Error details
   name: varchar("name", { length: 100 }),
@@ -25,18 +19,18 @@ export const errorLogs = pgTable("error_logs", {
   stack: text("stack"),
   code: varchar("code", { length: 50 }),
   status: varchar("status", {
-    enum: ["unhandled", "handled", "suppressed", "critical"],
+    enum: errorStatusValues,
   }).default("unhandled"),
 
   // Context
   context: jsonb("context"),
 
   // Timestamp
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt,
 });
 
 export const errorLogSchema = createInsertSchema(errorLogs, {
-  status: z.enum(["unhandled", "handled", "suppressed", "critical"]).optional(),
+  status: z.enum(errorStatusValues).optional(),
 });
 
 // Type exports

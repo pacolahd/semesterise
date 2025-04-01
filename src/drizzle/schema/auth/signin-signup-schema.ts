@@ -12,11 +12,11 @@ const getConfirmPasswordSchema = () =>
 const getEmailSchema = () =>
   string({ required_error: "Email is required" })
     .min(1, "Email is required")
-    .email("Invalid email")
-    .endsWith("ashesi.edu.gh", {
-      message:
-        "Please use your Ashesi email address (ending with ashesi.edu.gh)",
-    });
+    .email("Invalid email");
+// .endsWith("ashesi.edu.gh", {
+//   message:
+//     "Please use your Ashesi email address (ending with ashesi.edu.gh)",
+// });
 
 const getNameSchema = () =>
   string({ required_error: "Name is required" })

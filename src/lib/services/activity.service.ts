@@ -7,6 +7,7 @@ import {
   ActivityRecord,
   activities,
 } from "@/drizzle/schema/system-settings/activities";
+import { ErrorStatus } from "@/drizzle/schema/system-settings/enums";
 import {
   ErrorLogInput,
   ErrorLogRecord,
@@ -42,9 +43,9 @@ export class ActivityService {
    * Records detailed error information
    */
   static async recordError(params: {
-    activityId: string;
+    activityId?: string;
     error: unknown;
-    status?: ErrorLogInput["status"];
+    status?: ErrorStatus;
   }): Promise<ErrorLogRecord> {
     const appError = toAppError(params.error);
     const errorInput: ErrorLogInput = {
@@ -74,7 +75,7 @@ export class ActivityService {
     errorLog?: ErrorLogRecord;
   }> {
     // Start the activity
-    const activity = await this.record({
+    let activity = await this.record({
       ...input,
       status: "started",
     });
@@ -84,40 +85,36 @@ export class ActivityService {
       const result = await operation();
 
       // Mark as succeeded
-      const updatedActivity = await this.update(activity.id, {
+      activity = await this.update(activity.id, {
         status: "succeeded",
         completedAt: new Date(),
       });
 
-      return { result, activity: updatedActivity };
+      return { result, activity };
     } catch (error) {
+      // console.error("\n\n\n\n\nError in operation:", error);
       // Handle the error
       const appError = toAppError(error);
 
-      // Update activity with error details
-      const updatedActivity = await this.update(activity.id, {
+      // Record error FIRST
+      const errorLog = await this.recordError({
+        activityId: activity.id,
+        error: appError,
+        status: appError.severity === "critical" ? "critical" : "unhandled",
+      });
+
+      // Then update the activity
+      activity = await this.update(activity.id, {
         status: "failed",
-        errorCode: appError.code,
-        errorMessage: appError.message,
-        completedAt: new Date(),
+        // completedAt: new Date(),
         metadata: {
           ...(input.metadata || {}),
-          errorId: appError.errorId,
+          // errorId: appError.errorId,
         },
       });
 
-      // Record full error details if not operational
-      let errorLog: ErrorLogRecord | undefined;
-      if (!appError.isOperational) {
-        errorLog = await this.recordError({
-          activityId: activity.id,
-          error: appError,
-          status: appError.severity === "critical" ? "critical" : "unhandled",
-        });
-      }
-
       return {
-        activity: updatedActivity,
+        activity,
         error: appError,
         errorLog,
       };
