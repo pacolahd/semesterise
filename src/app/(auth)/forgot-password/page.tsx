@@ -1,6 +1,6 @@
 // "use client";
 //
-// import { useState } from "react";
+// import React, { useState } from "react";
 //
 // import { zodResolver } from "@hookform/resolvers/zod";
 // import { Loader2 } from "lucide-react";
@@ -96,9 +96,8 @@
 //     </div>
 //   );
 // }
-import React from "react";
-
-const Page = () => {
-  return <div>Page</div>;
-};
-export default Page;
+//
+// const Page = () => {
+//   return <div>Page</div>;
+// };
+// export default Page;

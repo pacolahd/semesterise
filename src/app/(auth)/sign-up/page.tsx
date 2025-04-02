@@ -2,30 +2,14 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { AuthFormItem } from "@/components/forms/auth-form-item";
+import { FormSubmitButton } from "@/components/forms/form-submit-button";
+import { Form, FormField } from "@/components/ui/form";
 import {
   SignUpInput,
   signUpSchema,
@@ -35,9 +19,43 @@ import { signUp } from "../actions";
 
 // app/(auth)/sign-up/page.tsx
 
-export default function SignUpPage() {
-  const [isPending, setIsPending] = useState(false);
+// app/(auth)/sign-up/page.tsx
 
+// app/(auth)/sign-up/page.tsx
+
+// app/(auth)/sign-up/page.tsx
+
+// app/(auth)/sign-up/page.tsx
+
+// app/(auth)/sign-up/page.tsx
+
+// app/(auth)/sign-up/page.tsx
+
+// app/(auth)/sign-up/page.tsx
+
+// app/(auth)/sign-up/page.tsx
+
+// app/(auth)/sign-up/page.tsx
+
+// app/(auth)/sign-up/page.tsx
+
+// app/(auth)/sign-up/page.tsx
+
+// app/(auth)/sign-up/page.tsx
+
+// app/(auth)/sign-up/page.tsx
+
+// app/(auth)/sign-up/page.tsx
+
+// app/(auth)/sign-up/page.tsx
+
+// app/(auth)/sign-up/page.tsx
+
+// app/(auth)/sign-up/page.tsx
+
+// app/(auth)/sign-up/page.tsx
+
+export default function SignUpPage() {
   const form = useForm<SignUpInput>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -50,7 +68,6 @@ export default function SignUpPage() {
 
   async function onSubmit(values: SignUpInput) {
     try {
-      setIsPending(true);
       const result = await signUp(values);
 
       if (!result.success) {
@@ -75,99 +92,87 @@ export default function SignUpPage() {
       );
       // router.push("/sign-in");
     } catch (error) {
-      // console.error("Sign up page - Sign up error:", error);
       toast.error("Something went wrong. Please try again.");
-    } finally {
-      setIsPending(false);
     }
   }
+
   return (
-    <Card className="mx-auto w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Create Your Account</CardTitle>
-        <CardDescription>
-          Enter your details to join Semesterise
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Full Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="John Doe" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+    <div className="space-y-4">
+      <div className="mb-7 space-y-3 text-center">
+        <h1 className="h1-medium text-foreground">Create Your Account</h1>
+        <p className="body1-regular text-muted-foreground">
+          Enter your details to join semesterise
+        </p>
+      </div>
 
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="you@ashesi.edu.gh" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+      {/*
+        The Form component from shadcn/ui internally provides the FormProvider context,
+        which allows the FormSubmitButton to access formState.isSubmitting without
+        explicitly wrapping our form in FormProvider.
+      */}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <AuthFormItem
+                label="Full Name"
+                field={field}
+                placeholder="John Doe"
+              />
+            )}
+          />
 
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <AuthFormItem
+                label="Email"
+                field={field}
+                placeholder="you@ashesi.edu.gh"
+                type="email"
+              />
+            )}
+          />
 
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <AuthFormItem label="Password" field={field} type="password" />
+            )}
+          />
 
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? (
-                <>
-                  <Loader2 className="mr-2 size-4 animate-spin" />
-                  Creating Account...
-                </>
-              ) : (
-                "Sign Up"
-              )}
-            </Button>
-          </form>
-        </Form>
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <AuthFormItem
+                label="Confirm Password"
+                field={field}
+                type="password"
+              />
+            )}
+          />
 
-        <div className="mt-4 text-center text-sm">
+          <FormSubmitButton
+            className="body2-medium flex size-full justify-self-center rounded-[50px] p-3"
+            defaultText="Sign Up"
+            pendingText="Creating account..."
+          />
+        </form>
+      </Form>
+
+      <div className="text-center">
+        <p className="body2-regular text-muted-foreground">
           Already have an account?{" "}
           <Link href="/sign-in" className="text-primary hover:underline">
-            Sign in
+            Log in
           </Link>
-        </div>
-      </CardContent>
-    </Card>
+        </p>
+      </div>
+    </div>
   );
 }

@@ -56,7 +56,7 @@ export class ActivityService {
           ? "critical"
           : "unhandled",
     };
-
+    ``;
     const [error] = await db.insert(errorLogs).values(errorInput).returning();
 
     return error;

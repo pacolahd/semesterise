@@ -2,6 +2,7 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { headers } from "next/headers";
 
+import { AuthenticationError } from "gel";
 import { type ZodSchema, z } from "zod";
 
 import { auth } from "@/lib/auth/auth";
@@ -108,7 +109,7 @@ export function createStatelessAction<Output>(config: {
         (config.metadata.requireAuth || config.metadata.requiredPermission) &&
         !session
       ) {
-        throw new AuthorizationError("Authentication required");
+        throw new AuthenticationError("Authentication required");
       }
       if (
         config.metadata.requiredPermission &&

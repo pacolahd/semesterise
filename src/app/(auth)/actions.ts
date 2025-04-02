@@ -61,7 +61,7 @@ export const signIn = createValidatedAction({
     if (error) {
       console.error("Sign In error:", error);
       const authError = handleAuthError(error);
-      throw new SignUpError({
+      throw new SignInError({
         message:
           // eslint-disable-next-line eqeqeq
           authError.message != "Generic"

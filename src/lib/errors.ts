@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { ErrorLogInput } from "@/drizzle/schema/system-settings/error-logs";
 import { ErrorContext, ErrorSeverity } from "@/lib/types";
+import { redactSensitiveData } from "@/lib/utils/redaction";
 
 export class AppError extends Error {
   public readonly errorId: string;
@@ -41,7 +42,7 @@ export class AppError extends Error {
       stack: this.stack,
       code: this.code,
       status: this.severity === "critical" ? "critical" : "unhandled",
-      context: this.context,
+      context: redactSensitiveData(this.context || {}, ["password", "token"]),
     };
   }
 }
@@ -118,6 +119,18 @@ export class ValidationError extends AppError {
       severity: "low",
       details,
       status: 400,
+    });
+  }
+}
+
+export class AuthenticationError extends AppError {
+  constructor(message: string, context?: ErrorContext) {
+    super({
+      message,
+      code: "AUTHENTICATION_REQUIRED",
+      severity: "high",
+      context,
+      status: 401, // Proper 401 status
     });
   }
 }
@@ -236,7 +249,7 @@ export function handleAuthError(error: BetterAuthErrorType): AuthError {
       break;
     case "INVALID_EMAIL_OR_PASSWORD":
       message = "Invalid email or password";
-      details.email = ["User not found. Please create an account to sign in."];
+      // details.email = ["User not found. Please create an account to sign in."];
       break;
     case "SOCIAL_ACCOUNT_ALREADY_LINKED":
       message = "Social account already linked";

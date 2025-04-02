@@ -2,36 +2,21 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { AuthFormItem } from "@/components/forms/auth-form-item";
+import { FormSubmitButton } from "@/components/forms/form-submit-button";
+import { Form, FormField } from "@/components/ui/form";
 import {
   SignInInput,
   signInSchema,
 } from "@/drizzle/schema/auth/signin-signup-schema";
 
-import { signIn, signUp } from "../actions";
+import { signIn } from "../actions";
 
 // app/(auth)/sign-in/page.tsx
 
@@ -53,8 +38,28 @@ import { signIn, signUp } from "../actions";
 
 // app/(auth)/sign-in/page.tsx
 
-export default function SignUpPage() {
-  const [isPending, setIsPending] = useState(false);
+// app/(auth)/sign-in/page.tsx
+
+// app/(auth)/sign-in/page.tsx
+
+// app/(auth)/sign-in/page.tsx
+
+// app/(auth)/sign-in/page.tsx
+
+// app/(auth)/sign-in/page.tsx
+
+// app/(auth)/sign-in/page.tsx
+
+// app/(auth)/sign-in/page.tsx
+
+// app/(auth)/sign-in/page.tsx
+
+// app/(auth)/sign-in/page.tsx
+
+// app/(auth)/sign-in/page.tsx
+
+export default function SignInPage() {
+  const router = useRouter();
 
   const form = useForm<SignInInput>({
     resolver: zodResolver(signInSchema),
@@ -66,7 +71,6 @@ export default function SignUpPage() {
 
   async function onSubmit(values: SignInInput) {
     try {
-      setIsPending(true);
       const result = await signIn(values);
 
       if (!result.success) {
@@ -81,84 +85,81 @@ export default function SignUpPage() {
         } else {
           // Show general error toast
           toast.error(
-            `${result.error?.message} ` ||
-              "Details - User already exists 422 SIGNUP_ERROR undefined"
+            result.error?.message || "Sign up failed. Please try again."
           );
         }
         return;
       }
 
       // Success case
-      toast.success(
-        "Account created! Please check your email to verify your account."
-      );
-      // router.push("/sign-in");
+      toast.success("Welcome back!");
+      router.push("/");
     } catch (error) {
-      console.error("Sign in error:", error);
-      toast.error("Something went wrong. Please try again.");
-    } finally {
-      setIsPending(false);
+      toast.error("Something went wrong. Check your internet connection");
     }
   }
+
   return (
-    <Card className="mx-auto w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Welcome Back</CardTitle>
-        <CardDescription>
-          Log in to your account to access our dashboard
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="you@ashesi.edu.gh" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+    <div className="space-y-4">
+      <div className="mb-7 space-y-3 text-center">
+        <h1 className="h1-medium text-foreground">Welcome Back!</h1>
+        <p className="body1-regular text-muted-foreground">Please log in</p>
+      </div>
 
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+      {/*
+        The Form component from shadcn/ui internally provides the FormProvider context,
+        which allows the FormSubmitButton to access formState.isSubmitting without
+        explicitly wrapping our form in FormProvider.
+      */}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <AuthFormItem
+                label="Ashesi Email"
+                field={field}
+                type="email"
+                placeholder="you@ashesi.edu.gh"
+              />
+            )}
+          />
 
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? (
-                <>
-                  <Loader2 className="mr-2 size-4 animate-spin" />
-                  Creating Account...
-                </>
-              ) : (
-                "Sign Up"
-              )}
-            </Button>
-          </form>
-        </Form>
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <AuthFormItem label="Password" field={field} type="password" />
+            )}
+          />
 
-        <div className="mt-4 text-center text-sm">
+          <div className="flex items-center">
+            <label className="body2-regular flex cursor-pointer items-center gap-1.5 text-muted-foreground">
+              <input
+                type="checkbox"
+                className="size-4 rounded border-border bg-white focus:ring-primary "
+              />
+              Remember me
+            </label>
+          </div>
+
+          <FormSubmitButton
+            defaultText="Login"
+            pendingText="Logging in..."
+            className="body2-medium flex size-full justify-self-center rounded-[50px] p-3"
+          />
+        </form>
+      </Form>
+
+      <div className="text-center">
+        <p className="body2-regular text-muted-foreground">
           Don&#39;t have an account?{" "}
-          <Link href="/sign-up" className="text-primary hover:underline">
+          <Link href="/sign-up" className="text-primary hover:underline ">
             Sign up
           </Link>
-        </div>
-      </CardContent>
-    </Card>
+        </p>
+      </div>
+    </div>
   );
 }

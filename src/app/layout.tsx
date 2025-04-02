@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import React from "react";
+import React, { ReactNode } from "react";
 
 import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
@@ -30,11 +30,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${satoshi.variable} antialiased`}>
@@ -43,4 +39,6 @@ export default function RootLayout({
       </body>
     </html>
   );
-}
+};
+
+export default RootLayout;
