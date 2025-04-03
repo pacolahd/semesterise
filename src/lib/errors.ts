@@ -58,7 +58,7 @@ export class AuthError extends AppError {
   }) {
     super({
       message: config.message,
-      code: config.code || "AUTH_ERROR",
+      code: `AUTH_ERROR${config.code ? `: ${config.code}` : ""}`,
       severity: config.severity || "medium",
       isOperational: true,
       status: config.status || 401,
@@ -93,6 +93,33 @@ export class SignInError extends AuthError {
     super({
       ...config,
       code: `SIGNIN_ERROR${config.code ? `: ${config.code}` : ""}`,
+    });
+  }
+}
+
+export class ForgotPasswordError extends AuthError {
+  constructor(config: {
+    message: string;
+    details?: Record<string, string[]>;
+    status?: number;
+    code?: string;
+  }) {
+    super({
+      ...config,
+      code: `FORGOT_PASSWORD_ERROR${config.code ? `: ${config.code}` : ""}`,
+    });
+  }
+}
+export class ResetPasswordError extends AuthError {
+  constructor(config: {
+    message: string;
+    details?: Record<string, string[]>;
+    status?: number;
+    code?: string;
+  }) {
+    super({
+      ...config,
+      code: `RESET_PASSWORD_ERROR${config.code ? `: ${config.code.split(":")[1]}` : ""}`,
     });
   }
 }
@@ -258,7 +285,8 @@ export function handleAuthError(error: BetterAuthErrorType): AuthError {
       message = "Provider not found";
       break;
     case "INVALID_TOKEN":
-      message = "invalid token";
+      message =
+        "This password reset link is either expired or invalid.\nPlease request a new link from the forgot password page.";
       break;
     case "ID_TOKEN_NOT_SUPPORTED":
       message = "id_token not supported";

@@ -15,6 +15,7 @@ import {
   SignInInput,
   signInSchema,
 } from "@/drizzle/schema/auth/signin-signup-schema";
+import { authClient } from "@/lib/auth/auth-client";
 
 import { signIn } from "../actions";
 
@@ -58,9 +59,42 @@ import { signIn } from "../actions";
 
 // app/(auth)/sign-in/page.tsx
 
+// app/(auth)/sign-in/page.tsx
+
+// app/(auth)/sign-in/page.tsx
+
+// app/(auth)/sign-in/page.tsx
+
+// app/(auth)/sign-in/page.tsx
+
+// app/(auth)/sign-in/page.tsx
+
+// app/(auth)/sign-in/page.tsx
+
+// app/(auth)/sign-in/page.tsx
+
+// app/(auth)/sign-in/page.tsx
+
+// app/(auth)/sign-in/page.tsx
+
+// app/(auth)/sign-in/page.tsx
+
+// app/(auth)/sign-in/page.tsx
+
+// app/(auth)/sign-in/page.tsx
+
+// app/(auth)/sign-in/page.tsx
+
+// app/(auth)/sign-in/page.tsx
+
+// app/(auth)/sign-in/page.tsx
+
+// app/(auth)/sign-in/page.tsx
+
+// app/(auth)/sign-in/page.tsx
+
 export default function SignInPage() {
   const router = useRouter();
-
   const form = useForm<SignInInput>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -85,15 +119,27 @@ export default function SignInPage() {
         } else {
           // Show general error toast
           toast.error(
-            result.error?.message || "Sign up failed. Please try again."
+            result.error?.message || "Sign in failed. Please try again."
           );
         }
         return;
       }
-
       // Success case
-      toast.success("Welcome back!");
+      form.reset();
+
+      toast.success(`Welcome back! ${result?.data?.user?.name?.split(" ")[0]}`);
+
+      const session = await authClient.getSession();
+
+      if (session) {
+        toast.success("Session found");
+      } else {
+        toast.error("Session not found");
+      }
+      router.refresh();
       router.push("/");
+      // Force a hard navigation to homepage
+      // window.location.href = "/";
     } catch (error) {
       toast.error("Something went wrong. Check your internet connection");
     }
@@ -130,7 +176,19 @@ export default function SignInPage() {
             control={form.control}
             name="password"
             render={({ field }) => (
-              <AuthFormItem label="Password" field={field} type="password" />
+              <AuthFormItem
+                label="Password"
+                field={field}
+                type="password"
+                forgotPassword={
+                  <Link
+                    href="/forgot-password"
+                    className="text-primary hover:underline"
+                  >
+                    Forgot password?
+                  </Link>
+                }
+              />
             )}
           />
 

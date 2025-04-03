@@ -2,8 +2,11 @@ import { object, string, z } from "zod";
 
 const getPasswordSchema = () =>
   string({ required_error: "Password is required" })
+    .min(1, "Password is required")
+
     .min(8, "Password must be at least 8 characters")
     .max(32, "Password cannot exceed 32 characters");
+
 const getConfirmPasswordSchema = () =>
   string({ required_error: "Password confirmation is required" })
     .min(1, "Please confirm your password")
@@ -12,11 +15,11 @@ const getConfirmPasswordSchema = () =>
 const getEmailSchema = () =>
   string({ required_error: "Email is required" })
     .min(1, "Email is required")
-    .email("Invalid email");
-// .endsWith("ashesi.edu.gh", {
-//   message:
-//     "Please use your Ashesi email address (ending with ashesi.edu.gh)",
-// });
+    .email("Invalid email")
+    .endsWith("ashesi.edu.gh", {
+      message:
+        "Please use your Ashesi email address (ending with ashesi.edu.gh)",
+    });
 
 const getNameSchema = () =>
   string({ required_error: "Name is required" })
@@ -54,11 +57,14 @@ export type SignInInput = z.infer<typeof signInSchema>;
 export const forgotPasswordSchema = object({
   email: getEmailSchema(),
 });
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 
 export const resetPasswordSchema = object({
   password: getPasswordSchema(),
   confirmPassword: getConfirmPasswordSchema(),
+  token: string({ required_error: "Token is required" }),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
 });
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;

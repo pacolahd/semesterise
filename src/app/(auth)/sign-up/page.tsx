@@ -21,40 +21,6 @@ import { signUp } from "../actions";
 
 // app/(auth)/sign-up/page.tsx
 
-// app/(auth)/sign-up/page.tsx
-
-// app/(auth)/sign-up/page.tsx
-
-// app/(auth)/sign-up/page.tsx
-
-// app/(auth)/sign-up/page.tsx
-
-// app/(auth)/sign-up/page.tsx
-
-// app/(auth)/sign-up/page.tsx
-
-// app/(auth)/sign-up/page.tsx
-
-// app/(auth)/sign-up/page.tsx
-
-// app/(auth)/sign-up/page.tsx
-
-// app/(auth)/sign-up/page.tsx
-
-// app/(auth)/sign-up/page.tsx
-
-// app/(auth)/sign-up/page.tsx
-
-// app/(auth)/sign-up/page.tsx
-
-// app/(auth)/sign-up/page.tsx
-
-// app/(auth)/sign-up/page.tsx
-
-// app/(auth)/sign-up/page.tsx
-
-// app/(auth)/sign-up/page.tsx
-
 export default function SignUpPage() {
   const form = useForm<SignUpInput>({
     resolver: zodResolver(signUpSchema),
@@ -87,6 +53,8 @@ export default function SignUpPage() {
       }
 
       // Success case
+      form.reset();
+
       toast.success(
         "Account created! Please check your email to verify your account."
       );
@@ -158,7 +126,7 @@ export default function SignUpPage() {
           />
 
           <FormSubmitButton
-            className="body2-medium flex size-full justify-self-center rounded-[50px] p-3"
+            className="body2-medium mt-5 flex h-[58px] w-full justify-self-center rounded-[50px] p-3"
             defaultText="Sign Up"
             pendingText="Creating account..."
           />

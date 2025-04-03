@@ -56,7 +56,7 @@ export class ActivityService {
           ? "critical"
           : "unhandled",
     };
-    ``;
+
     const [error] = await db.insert(errorLogs).values(errorInput).returning();
 
     return error;
@@ -83,6 +83,7 @@ export class ActivityService {
     try {
       // Execute the operation
       const result = await operation();
+      console.error("\n\n\n\n\nResult in operation:", result);
 
       // Mark as succeeded
       activity = await this.update(activity.id, {
@@ -92,9 +93,10 @@ export class ActivityService {
 
       return { result, activity };
     } catch (error) {
-      // console.error("\n\n\n\n\nError in operation:", error);
+      console.error("\n\n\n\n\nError in operation:", error);
       // Handle the error
       const appError = toAppError(error);
+      console.error("\n\n\n\n\nApp Error in operation:", appError.toLog());
 
       // Record error FIRST
       const errorLog = await this.recordError({

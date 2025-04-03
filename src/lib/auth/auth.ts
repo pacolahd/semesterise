@@ -1,5 +1,6 @@
 import { BetterAuthOptions, betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { nextCookies } from "better-auth/next-js";
 import { openAPI } from "better-auth/plugins";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -18,8 +19,6 @@ import {
 } from "@/drizzle/schema/auth/enums";
 import { staffEmailRoles } from "@/drizzle/schema/institution";
 import { env } from "@/env/server";
-import { SignUpError } from "@/lib/errors";
-import { ActivityService } from "@/lib/services/activity.service";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -167,11 +166,49 @@ export const auth = betterAuth({
   advanced: {
     // let postgres handle the id generation
     generateId: false,
+    cookiePrefix: "better-auth",
+    cookies: {
+      sessionToken: {
+        name: "session_token",
+      },
+    },
   },
-  plugins: [openAPI()], // /api/auth/reference
+  plugins: [openAPI(), nextCookies()], // /api/auth/reference
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
+    sendResetPassword: async ({ user, url }) => {
+      await sendEmail({
+        to: user.email,
+        subject: "Reset your password for Semesterise",
+        text: `Hey ${user.name.split(" ")[0]}!\nClick the link to reset your password for Semesterise: ${url}`,
+        html: `    <div>
+        <div>
+            <h2>Hi ${user.name.split(" ")[0]}!</h2>
+            <p>We received a request to reset your Semesterise password. Click the button below to set up a new password:</p>
+            
+            <div style="text-align: center; margin: 35px 0; ">
+                <a href="${url}"  style="background-color: #004eb4; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Reset Password</a>
+            </div>
+
+            <p  style="font-size: 14px;">
+                This link will expire in 1 hour. If you didn't request this, you can safely ignore this email.
+            </p>
+        </div>
+
+        <div>
+            <p>Sent by Semesterise • <a href="http://localhost:3000/" >Visit Website</a></p>
+            <p>This is <span style="color: darkblue"> Ryan Tangu Mbun Tangwe's </span> Applied Capstone Project. An integrated platform for degree auditing and petition processing at Ashesi University</p>
+     
+            <p >
+                © ${new Date().getFullYear()} Semesterise. All rights reserved.
+            </p>
+        </div>
+    </div>
+`,
+      });
+    },
+    resetPasswordTokenExpiresIn: 3600,
   },
   emailVerification: {
     sendOnSignUp: true,

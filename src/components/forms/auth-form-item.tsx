@@ -23,6 +23,7 @@ interface FormInputProps<
   labelClassName?: string;
   required?: boolean;
   description?: ReactNode;
+  forgotPassword?: ReactNode;
 }
 
 export function AuthFormItem<
@@ -37,13 +38,25 @@ export function AuthFormItem<
   labelClassName = "body2-medium",
   required = false,
   description,
+  forgotPassword = null,
 }: FormInputProps<TFieldValues, TName>) {
   return (
     <FormItem>
-      <FormLabel className={labelClassName}>
-        {label}
-        {required && <span className="text-destructive"> *</span>}
-      </FormLabel>
+      {forgotPassword == null ? (
+        <FormLabel className={labelClassName}>
+          {label}
+          {required && <span className="text-destructive"> *</span>}
+        </FormLabel>
+      ) : (
+        <div className="flex items-center justify-between">
+          <FormLabel className={labelClassName}>
+            {label}
+            {required && <span className="text-destructive"> *</span>}
+          </FormLabel>
+          {forgotPassword}
+        </div>
+      )}
+
       {description && (
         <div className="text-xs text-muted-foreground">{description}</div>
       )}

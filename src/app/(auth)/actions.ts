@@ -1,18 +1,31 @@
 "use server";
 
+import { eq } from "drizzle-orm";
+
+import { db } from "@/drizzle";
+import { authUsers } from "@/drizzle/schema";
 import {
+  forgotPasswordSchema,
+  resetPasswordSchema,
   signInSchema,
   signUpSchema,
 } from "@/drizzle/schema/auth/signin-signup-schema";
+import { auth } from "@/lib/auth/auth";
 import { authClient } from "@/lib/auth/auth-client";
-import { SignInError, SignUpError, handleAuthError } from "@/lib/errors";
+import {
+  ForgotPasswordError,
+  ResetPasswordError,
+  SignInError,
+  SignUpError,
+  handleAuthError,
+} from "@/lib/errors";
 import { createValidatedAction } from "@/lib/server-action-wrapper";
 
 export const signUp = createValidatedAction({
   metadata: {
     name: "auth:sign-up",
     description: "Register a new user account",
-    revalidatePaths: ["/auth/signup"],
+    revalidatePaths: ["/sign-up"],
     sensitiveFields: ["password", "confirmPassword"],
     requireAuth: false,
   },
@@ -47,18 +60,17 @@ export const signIn = createValidatedAction({
   metadata: {
     name: "auth:sign-in",
     description: "Sign in to user account",
-    revalidatePaths: ["/auth/signin"],
+    revalidatePaths: ["/sign-in"],
     sensitiveFields: ["password"],
     requireAuth: false,
   },
   schema: signInSchema,
   execute: async ({ input }) => {
-    const { data: authData, error } = await authClient.signIn.email({
-      email: input.email.toLowerCase(),
-      password: input.password,
-    });
-
-    if (error) {
+    try {
+      return await auth.api.signInEmail({
+        body: { email: input.email.toLowerCase(), password: input.password },
+      });
+    } catch (error) {
       console.error("Sign In error:", error);
       const authError = handleAuthError(error);
       throw new SignInError({
@@ -66,7 +78,91 @@ export const signIn = createValidatedAction({
           // eslint-disable-next-line eqeqeq
           authError.message != "Generic"
             ? authError.message
-            : "Sign in failed. Please try again.",
+            : "Sign in failed. Please try again1111.",
+        details: authError.details,
+        status: authError.status,
+        code: authError.code,
+      });
+    }
+  },
+});
+
+export const sendPasswordResetEmail = createValidatedAction({
+  metadata: {
+    name: "auth:forget-password",
+    description: "Forget password",
+    // revalidatePaths: ["/auth/signin"],
+    sensitiveFields: ["password"],
+    requireAuth: false,
+  },
+  schema: forgotPasswordSchema,
+  execute: async ({ input }) => {
+    // check if email is already registered
+    const userEmail = input.email.toLowerCase();
+    const existingUser = await db.query.authUsers.findFirst({
+      where: eq(authUsers.email, userEmail),
+      columns: { id: true },
+    });
+
+    if (!existingUser) {
+      throw new ForgotPasswordError({
+        message: "No account found with this email address.",
+        details: {
+          email: [
+            "No account found with this email address. Correct the email and try again.",
+          ],
+        },
+        status: 404,
+        code: "USER_NOT_FOUND",
+      });
+    }
+
+    const { error } = await authClient.forgetPassword({
+      email: userEmail,
+      redirectTo: "/reset-password",
+    });
+
+    if (error) {
+      console.error("Forgot Password Error:", error);
+      const authError = handleAuthError(error);
+      throw new ForgotPasswordError({
+        message:
+          // eslint-disable-next-line eqeqeq
+          authError.message != "Generic"
+            ? authError.message
+            : "Failed to send reset password link. Please try again.",
+        details: authError.details,
+        status: authError.status,
+        code: authError.code,
+      });
+    }
+  },
+});
+
+export const resetPassword = createValidatedAction({
+  metadata: {
+    name: "auth:reset-password",
+    description: "Reset password",
+    // revalidatePaths: ["/auth/signin"],
+    sensitiveFields: ["password", "confirmPassword"],
+    requireAuth: false,
+  },
+  schema: resetPasswordSchema,
+  execute: async ({ input }) => {
+    const { data: authData, error } = await authClient.resetPassword({
+      newPassword: input.password,
+      token: input.token,
+    });
+
+    if (error) {
+      console.error("Reset Password Error:", error);
+      const authError = handleAuthError(error);
+      throw new ResetPasswordError({
+        message:
+          // eslint-disable-next-line eqeqeq
+          authError.message != "Generic"
+            ? authError.message
+            : "Failed to reset password. Please try again.",
         details: authError.details,
         status: authError.status,
         code: authError.code,

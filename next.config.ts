@@ -12,6 +12,10 @@ const nextConfig: NextConfig = {
   /* config options here */
   experimental: {
     authInterrupts: true,
+    serverActions: {
+      allowedOrigins: ["localhost:3000", "semesterise.pacolahd.com"],
+      bodySizeLimit: "2mb",
+    },
   },
 };
 

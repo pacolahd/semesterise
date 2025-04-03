@@ -20,7 +20,7 @@ export default function AuthLayout({
           />
         </div>
 
-        <div className="mt-[10%] flex min-h-max flex-1 flex-col items-center justify-center py-8">
+        <div className="mx-[15px] mt-[15%] flex min-h-max flex-1 flex-col items-center py-8">
           <div className="relative h-64 w-full max-w-md">
             <Image
               src="/images/colored-light-illustration.png"

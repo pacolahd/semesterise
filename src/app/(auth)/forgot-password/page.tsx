@@ -1,103 +1,131 @@
-// "use client";
-//
-// import React, { useState } from "react";
-//
-// import { zodResolver } from "@hookform/resolvers/zod";
-// import { Loader2 } from "lucide-react";
-// import { useForm } from "react-hook-form";
-// import { toast } from "sonner";
-// import { z } from "zod";
-//
-// import { Button } from "@/components/ui/button";
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// import {
-//   Form,
-//   FormControl,
-//   FormField,
-//   FormItem,
-//   FormLabel,
-//   FormMessage,
-// } from "@/components/ui/form";
-// import { Input } from "@/components/ui/input";
-// import { forgotPasswordSchema } from "@/drizzle/schema/auth/signin-signup-schema";
-// import { authClient } from "@/lib/auth-client";
-//
-// export default function ForgotPassword() {
-//   const [isPending, setIsPending] = useState(false);
-//
-//   const form = useForm<z.infer<typeof forgotPasswordSchema>>({
-//     resolver: zodResolver(forgotPasswordSchema),
-//     defaultValues: {
-//       email: "",
-//     },
-//   });
-//
-//   const onSubmit = async (data: z.infer<typeof forgotPasswordSchema>) => {
-//     setIsPending(true);
-//     const { error } = await authClient.forgetPassword({
-//       email: data.email,
-//       redirectTo: "/reset-password",
-//     });
-//
-//     if (error) {
-//       toast.error("Error", { description: error.message });
-//     } else {
-//       toast.success("Success", {
-//         description:
-//           "If an account exists with this email, you will receive a password reset link.",
-//       });
-//     }
-//     setIsPending(false);
-//   };
-//
-//   return (
-//     <div className="flex grow items-center justify-center p-4">
-//       <Card className="w-full max-w-md">
-//         <CardHeader>
-//           <CardTitle className="text-center text-3xl font-bold text-gray-800">
-//             Forgot Password
-//           </CardTitle>
-//         </CardHeader>
-//         <CardContent>
-//           <Form {...form}>
-//             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-//               <FormField
-//                 control={form.control}
-//                 name="email"
-//                 render={({ field }) => (
-//                   <FormItem>
-//                     <FormLabel>Email</FormLabel>
-//                     <FormControl>
-//                       <Input
-//                         type="email"
-//                         placeholder="Enter your email"
-//                         {...field}
-//                         autoComplete="email"
-//                       />
-//                     </FormControl>
-//                     <FormMessage />
-//                   </FormItem>
-//                 )}
-//               />
-//               <Button disabled={isPending}>
-//                 {isPending ? (
-//                   <>
-//                     <Loader2 className="mr-2 size-4 animate-spin" />
-//                     Creating Account...
-//                   </>
-//                 ) : (
-//                   "Sign Up"
-//                 )}
-//               </Button>
-//             </form>
-//           </Form>
-//         </CardContent>
-//       </Card>
-//     </div>
-//   );
-// }
-//
-// const Page = () => {
-//   return <div>Page</div>;
-// };
-// export default Page;
+// app/(auth)/forgot-password/page.tsx
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+
+import { AuthFormItem } from "@/components/forms/auth-form-item";
+import { FormSubmitButton } from "@/components/forms/form-submit-button";
+import { Form, FormField } from "@/components/ui/form";
+import {
+  ForgotPasswordInput,
+  forgotPasswordSchema,
+} from "@/drizzle/schema/auth/signin-signup-schema";
+
+import { sendPasswordResetEmail } from "../actions";
+
+// app/(auth)/forgot-password/page.tsx
+
+// app/(auth)/forgot-password/page.tsx
+
+// app/(auth)/forgot-password/page.tsx
+
+// app/(auth)/forgot-password/page.tsx
+
+// app/(auth)/forgot-password/page.tsx
+
+// app/(auth)/forgot-password/page.tsx
+
+// app/(auth)/forgot-password/page.tsx
+
+// app/(auth)/forgot-password/page.tsx
+
+// app/(auth)/forgot-password/page.tsx
+
+// app/(auth)/forgot-password/page.tsx
+
+// app/(auth)/forgot-password/page.tsx
+
+// app/(auth)/forgot-password/page.tsx
+
+// app/(auth)/forgot-password/page.tsx
+
+// app/(auth)/forgot-password/page.tsx
+
+export default function ForgotPasswordPage() {
+  const router = useRouter();
+
+  const form = useForm<ForgotPasswordInput>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
+
+  async function onSubmit(values: ForgotPasswordInput) {
+    try {
+      const result = await sendPasswordResetEmail(values);
+
+      if (!result.success) {
+        if (result.error?.details) {
+          Object.entries(result.error.details).forEach(([field, messages]) => {
+            form.setError(field as keyof ForgotPasswordInput, {
+              type: "server",
+              message: messages.join(", "),
+            });
+          });
+        } else {
+          toast.error(
+            result.error?.message || "Password reset failed. Please try again."
+          );
+        }
+        return;
+      }
+
+      // Success case
+      form.reset();
+
+      toast.success("Password reset email sent! Check your inbox.");
+    } catch (error) {
+      toast.error("Something went wrong. Check your internet connection");
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="mb-7 space-y-3 text-center">
+        <h1 className="h1-medium text-foreground">Forgot Password?</h1>
+        <p className="body1-regular text-muted-foreground">
+          Enter your Ashesi email and we&#39;ll email you a link to reset your
+          password
+        </p>
+      </div>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <AuthFormItem
+                label="Ashesi Email"
+                field={field}
+                type="email"
+                placeholder="you@ashesi.edu.gh"
+              />
+            )}
+          />
+
+          <FormSubmitButton
+            defaultText="Send Reset Email"
+            pendingText="Sending..."
+            className="body2-medium flex size-full justify-self-center rounded-[50px] p-3"
+          />
+        </form>
+      </Form>
+
+      <div className="text-center">
+        <p className="body2-regular text-muted-foreground">
+          Remember your password?{" "}
+          <Link href="/sign-in" className="text-primary hover:underline">
+            Sign in
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}

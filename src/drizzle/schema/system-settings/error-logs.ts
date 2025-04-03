@@ -17,7 +17,7 @@ export const errorLogs = pgTable("error_logs", {
   name: varchar("name", { length: 100 }),
   message: text("message").notNull(),
   stack: text("stack"),
-  code: varchar("code", { length: 50 }),
+  code: varchar("code"),
   status: varchar("status", {
     enum: errorStatusValues,
   }).default("unhandled"),

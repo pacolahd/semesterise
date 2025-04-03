@@ -65,8 +65,8 @@ export const activities = pgTable("activities", {
 });
 
 export const activitySchema = createInsertSchema(activities, {
-  type: z.string().min(1).max(50),
-  actorId: z.string().min(1).max(255),
+  type: z.string().min(1),
+  actorId: z.string().min(1),
   status: z.enum(activityStatusValues),
   metadata: z.record(z.any()).optional(),
 });

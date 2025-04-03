@@ -38,7 +38,7 @@ type StructuredDefaultValues<T extends FieldValues> = {
 };
 
 /**
- * Props for the AuthForm component
+ * Props for the ExampleModularForm component
  */
 type AuthFormProps<T extends FieldValues> = {
   formType: "SIGN_IN" | "SIGN_UP";
@@ -51,7 +51,7 @@ type AuthFormProps<T extends FieldValues> = {
 /**
  * Authentication form component for sign in and sign up functionality
  */
-const AuthForm = <T extends FieldValues>({
+const ExampleModularForm = <T extends FieldValues>({
   formType,
   schema,
   defaultValues,
@@ -294,4 +294,4 @@ const AuthForm = <T extends FieldValues>({
   );
 };
 
-export default AuthForm;
+export default ExampleModularForm;
