@@ -215,7 +215,7 @@ const options = {
         to: user.email,
         subject: "Reset your password for Semesterise",
         text: `Hey ${user.name.split(" ")[0]}!\nClick the link to reset your password for Semesterise: ${url}`,
-        html: `    <div>
+        html: `    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 5px;">
         <div>
             <h2>Hi ${user.name.split(" ")[0]}!</h2>
             <p>We received a request to reset your Semesterise password. Click the button below to set up a new password:</p>
@@ -229,9 +229,9 @@ const options = {
             </p>
         </div>
 
-        <div>
-            <p>Sent by Semesterise • <a href="http://localhost:3000/" >Visit Website</a></p>
-            <p>This is <span style="color: darkblue"> Ryan Tangu Mbun Tangwe's </span> Applied Capstone Project. An integrated platform for degree auditing and petition processing at Ashesi University</p>
+        <div style="margin-top: 20px;">
+            <p>Sent by Semesterise • <a href="http://localhost:3000/" style="background-color: #004eb4; color: white; padding: 5px 10px; text-decoration: none; border-radius: 10px;">Visit Website</a></p>
+            <p>This is <span style="color: darkblue"> Ryan Tangu Mbun Tangwe's </span> Applied Capstone Project. An integrated platform for degree auditing and petition processing at Ashesi University.</p>
      
             <p >
                 © ${new Date().getFullYear()} Semesterise. All rights reserved.
@@ -261,7 +261,15 @@ const options = {
                 Verify Email Address
               </a>
             </div>
-            <p style="color: #666; font-size: 14px;">If you didn't create an account, please ignore this email.</p>
+            <p style="color: #666; font-size: 14px;">This link will expire in 1 hour. If you didn't create an account, please ignore this email.</p>
+            <div style="margin-top: 20px;">
+              <p>Sent by Semesterise • <a href="http://localhost:3000/" style="background-color: #004eb4; color: white; padding: 5px 10px; text-decoration: none; border-radius: 10px;">Visit Website</a></p>
+              <p>This is <span style="color: darkblue"> Ryan Tangu Mbun Tangwe's </span> Applied Capstone Project. An integrated platform for degree auditing and petition processing at Ashesi University.</p>
+       
+              <p >
+                  © ${new Date().getFullYear()} Semesterise. All rights reserved.
+              </p>
+            </div>
           </div>
         `,
       });
