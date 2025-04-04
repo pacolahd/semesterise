@@ -5,9 +5,9 @@ import { headers } from "next/headers";
 import { AuthenticationError } from "gel";
 import { type ZodSchema, z } from "zod";
 
-import { auth } from "@/lib/auth/auth";
+import { ServerSession, auth } from "@/lib/auth/auth";
 import { hasPermission } from "@/lib/auth/authorization";
-import { AuthorizationError, ValidationError } from "@/lib/errors";
+import { AuthorizationError, ValidationError } from "@/lib/errors/errors";
 import { ActivityService } from "@/lib/services/activity.service";
 import type { Permission } from "@/lib/types";
 import { redactSensitiveData } from "@/lib/utils/redaction";
@@ -37,7 +37,8 @@ type ActionContext = {
   userType?: string;
   ipAddress: string;
   userAgent: string;
-  session?: Awaited<ReturnType<typeof auth.api.getSession>>;
+  // session?: Awaited<ReturnType<typeof auth.api.getSession>>;
+  session: ServerSession | null;
 };
 
 type ActionResponse<T = void> =
@@ -57,7 +58,12 @@ type ActionResponse<T = void> =
 // ======================
 async function getRequestContext() {
   const headersList = await headers();
-  const session = await auth.api.getSession({ headers: headersList });
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
+  const session: ServerSession | null = await auth.api.getSession({
+    headers: headersList,
+  });
 
   return {
     session,

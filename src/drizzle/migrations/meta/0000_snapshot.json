@@ -1,5 +1,5 @@
 {
-  "id": "8fb3c697-05d1-4b02-beae-a108424dc07e",
+  "id": "f7407ff9-3370-4136-946d-8613b6e10526",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -3350,7 +3350,7 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
@@ -3385,7 +3385,7 @@
           "name": "activity_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "name": {
           "name": "name",
@@ -3407,7 +3407,7 @@
         },
         "code": {
           "name": "code",
-          "type": "varchar(50)",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
@@ -3426,7 +3426,7 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
@@ -3553,6 +3553,16 @@
         "staff"
       ]
     },
+    "public.user_activity_status": {
+      "name": "user_activity_status",
+      "schema": "public",
+      "values": [
+        "started",
+        "succeeded",
+        "failed",
+        "partial"
+      ]
+    },
     "public.error_severity": {
       "name": "error_severity",
       "schema": "public",
@@ -3560,7 +3570,10 @@
         "info",
         "warning",
         "error",
-        "critical"
+        "critical",
+        "high",
+        "low",
+        "medium"
       ]
     },
     "public.error_source": {
@@ -3575,13 +3588,14 @@
         "unknown"
       ]
     },
-    "public.user_activity_status": {
-      "name": "user_activity_status",
+    "public.error_status": {
+      "name": "error_status",
       "schema": "public",
       "values": [
-        "success",
-        "failure",
-        "warning"
+        "unhandled",
+        "handled",
+        "suppressed",
+        "critical"
       ]
     }
   },

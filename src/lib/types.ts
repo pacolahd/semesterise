@@ -78,14 +78,14 @@ export const EntityTypes = {
 };
 
 // src/lib/types.ts
-export interface ActionResponse<T = null> {
-  success: boolean;
-  data?: T;
-  error?: {
-    message: string;
-    details?: Record<string, string[]>;
-    code?: string;
-    status?: number;
-  };
-  status?: number;
-}
+export type ActionResponse<T = void> =
+  | { success: true; data?: T; status?: number }
+  | {
+      success: false;
+      error: {
+        message: string;
+        code?: string;
+        status?: number;
+        details?: Record<string, string[]>;
+      };
+    };

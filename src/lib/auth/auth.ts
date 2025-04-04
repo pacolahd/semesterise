@@ -1,13 +1,13 @@
 import { BetterAuthOptions, betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
-import { openAPI } from "better-auth/plugins";
+import { customSession, openAPI } from "better-auth/plugins";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { sendEmail } from "@/actions/email";
 import { db } from "@/drizzle";
-import { staffProfiles, studentProfiles } from "@/drizzle/schema";
+import { authUsers, staffProfiles, studentProfiles } from "@/drizzle/schema";
 import * as authSchema from "@/drizzle/schema/auth";
 import { AuthUserInput } from "@/drizzle/schema/auth/auth-users";
 import {
@@ -19,8 +19,10 @@ import {
 } from "@/drizzle/schema/auth/enums";
 import { staffEmailRoles } from "@/drizzle/schema/institution";
 import { env } from "@/env/server";
+import { BetterAuthErrorType } from "@/lib/errors/errors";
 
-export const auth = betterAuth({
+const options = {
+  appName: "Semesterise",
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: {
@@ -173,7 +175,38 @@ export const auth = betterAuth({
       },
     },
   },
-  plugins: [openAPI(), nextCookies()], // /api/auth/reference
+  plugins: [
+    openAPI(),
+
+    customSession(async ({ session, user }) => {
+      // Get full user data with role - ADD AWAIT HERE
+      const userWithRole = await db.query.authUsers.findFirst({
+        where: eq(authUsers.id, session.userId),
+        columns: { role: true, userType: true },
+      });
+
+      if (!userWithRole) {
+        return { user, session };
+      }
+
+      return {
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          emailVerified: user.emailVerified,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+          image: user.image,
+          userType: userWithRole.userType,
+          role: userWithRole.role,
+        },
+        session,
+      };
+    }),
+
+    nextCookies(),
+  ], // /api/auth/reference
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
@@ -234,5 +267,24 @@ export const auth = betterAuth({
       });
     },
   },
-} satisfies BetterAuthOptions);
-export type Session = typeof auth.$Infer.Session;
+} satisfies BetterAuthOptions;
+
+export const auth = betterAuth({
+  ...options,
+  plugins: [
+    ...(options.plugins ?? []),
+    customSession(async ({ user, session }) => {
+      // now both user and session will infer the fields added by plugins and your custom fields
+      return {
+        user,
+        session,
+      };
+    }, options), // pass options here
+  ],
+});
+
+export type ServerSession = typeof auth.$Infer.Session;
+export type ServerSessionResult = {
+  data: ServerSession | null; // Or ServerSession | undefined depending on your case
+  error: BetterAuthErrorType; // Adjust the error type as needed
+};

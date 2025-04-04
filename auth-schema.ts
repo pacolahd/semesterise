@@ -1,6 +1,4 @@
 import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -13,10 +11,6 @@ export const user = pgTable("user", {
   role: text("role").notNull(),
   userType: text("user_type").notNull(),
 });
-
-export const userSchema = createInsertSchema(user);
-
-export type userInput = z.infer<typeof userSchema>;
 
 export const session = pgTable("session", {
   id: text("id").primaryKey(),

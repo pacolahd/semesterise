@@ -12,7 +12,7 @@ const getConfirmPasswordSchema = () =>
     .min(1, "Please confirm your password")
     .max(32, "Confirmation cannot exceed 32 characters");
 
-const getEmailSchema = () =>
+export const getEmailSchema = () =>
   string({ required_error: "Email is required" })
     .min(1, "Email is required")
     .email("Invalid email")
@@ -26,6 +26,10 @@ const getNameSchema = () =>
     .min(1, "Name is required")
     .min(5, "Name is too short. It must be at least 5 characters")
     .max(50, "Name must be less than 50 characters")
+    .regex(
+      /^[A-Za-z\s.-]+$/,
+      "Name can only contain letters, spaces, periods, and hyphens"
+    )
     .refine(
       (value) => {
         // Split by spaces and filter out empty strings
@@ -50,6 +54,7 @@ export type SignUpInput = z.infer<typeof signUpSchema>;
 export const signInSchema = object({
   email: getEmailSchema(),
   password: getPasswordSchema(),
+  rememberMe: z.boolean().default(true),
 });
 
 export type SignInInput = z.infer<typeof signInSchema>;

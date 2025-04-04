@@ -1,13 +1,54 @@
-import { inferAdditionalFields } from "better-auth/client/plugins";
+import {
+  customSessionClient,
+  inferAdditionalFields,
+} from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
+import { z } from "zod";
 
-import { env } from "@/env/server";
+import {
+  userRoleValues,
+  userRoles,
+  userTypeValues,
+  userTypes,
+} from "@/drizzle/schema/auth/enums";
+// import { env } from "@/env/server";
 import { auth } from "@/lib/auth/auth";
+import { BetterAuthErrorType } from "@/lib/errors/errors";
 
 export const authClient = createAuthClient({
   /** the base url of the server (optional if you're using the same domain) */
   // eslint-disable-next-line no-process-env
   baseURL: process.env.BETTER_AUTH_URL,
-  plugins: [inferAdditionalFields<typeof auth>()],
+  plugins: [
+    inferAdditionalFields({
+      user: {
+        role: {
+          type: "string",
+          required: true,
+          defaultValue: userRoles.student,
+          validator: {
+            input: z.enum(userRoleValues),
+            output: z.enum(userRoleValues),
+          },
+          input: false, // Don't allow users to set their own role
+        },
+        userType: {
+          type: "string",
+          required: true,
+          defaultValue: userTypes.student, // Either "student" or "staff"
+          validator: {
+            input: z.enum(userTypeValues),
+            output: z.enum(userTypeValues),
+          },
+          input: false,
+        },
+      },
+    }),
+    customSessionClient<typeof auth>(),
+  ],
 });
-// export type Session = typeof authClient.$Infer.Session;
+export type ClientSession = typeof authClient.$Infer.Session;
+export type ClientSessionResult = {
+  data: ClientSession | null; // Or ServerSession | undefined depending on your case
+  error: BetterAuthErrorType; // Adjust the error type as needed
+};

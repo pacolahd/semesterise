@@ -13,7 +13,7 @@ import {
   ErrorLogRecord,
   errorLogs,
 } from "@/drizzle/schema/system-settings/error-logs";
-import { AppError, toAppError } from "@/lib/errors";
+import { AppError, toAppError } from "@/lib/errors/errors";
 
 export class ActivityService {
   /**

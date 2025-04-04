@@ -1,95 +1,31 @@
-// app/(auth)/sign-in/page.tsx
 "use client";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { ErrorContext } from "@better-fetch/fetch";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import { getUserByEmail } from "@/app/(auth)/actions";
 import { AuthFormItem } from "@/components/forms/auth-form-item";
 import { FormSubmitButton } from "@/components/forms/form-submit-button";
-import { Form, FormField } from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
 import {
   SignInInput,
   signInSchema,
 } from "@/drizzle/schema/auth/signin-signup-schema";
 import { authClient } from "@/lib/auth/auth-client";
-
-import { signIn } from "../actions";
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
-
-// app/(auth)/sign-in/page.tsx
+import { logClientError } from "@/lib/errors/client/log-client-error";
+import { handleAuthError } from "@/lib/errors/errors";
 
 // app/(auth)/sign-in/page.tsx
 
@@ -100,49 +36,63 @@ export default function SignInPage() {
     defaultValues: {
       email: "",
       password: "",
+      rememberMe: true,
     },
   });
 
   async function onSubmit(values: SignInInput) {
-    try {
-      const result = await signIn(values);
+    // first off, check if user exists:
+    const userExists = await getUserByEmail(values.email.toLowerCase());
 
-      if (!result.success) {
-        // Handle field-specific validation errors
-        if (result.error?.details) {
-          Object.entries(result.error.details).forEach(([field, messages]) => {
-            form.setError(field as keyof SignInInput, {
-              type: "server",
-              message: messages.join(", "),
-            });
-          });
-        } else {
-          // Show general error toast
-          toast.error(
-            result.error?.message || "Sign in failed. Please try again."
-          );
-        }
-        return;
-      }
-      // Success case
-      form.reset();
-
-      toast.success(`Welcome back! ${result?.data?.user?.name?.split(" ")[0]}`);
-
-      const session = await authClient.getSession();
-
-      if (session) {
-        toast.success("Session found");
-      } else {
-        toast.error("Session not found");
-      }
-      router.refresh();
-      router.push("/");
-      // Force a hard navigation to homepage
-      // window.location.href = "/";
-    } catch (error) {
-      toast.error("Something went wrong. Check your internet connection");
+    if (!userExists) {
+      // No account with this email
+      form.setError("email", {
+        type: "server",
+        message:
+          "Chale! No account was found with this email address. Please correct your email or sign up.",
+      });
+      return;
     }
+    // Continue with sign-in process only for non-existing users
+    await authClient.signIn.email(
+      {
+        email: values.email,
+        password: values.password,
+        rememberMe: values.rememberMe,
+      },
+      {
+        onRequest: () => {
+          // Show loading toast?
+        },
+        onSuccess: async (ctx) => {
+          form.reset();
+          toast.success(`Welcome back! ${ctx.data.user.name.split(" ")[0]}`);
+          router.push("/");
+          // router.refresh();
+        },
+        onError: async (ctx: ErrorContext) => {
+          console.error(ctx.error);
+          const authError = handleAuthError(ctx.error);
+          if (authError?.details) {
+            Object.entries(authError.details).forEach(([field, messages]) => {
+              form.setError(field as keyof SignInInput, {
+                type: "server",
+                message: messages.join(", "),
+              });
+            });
+          } else {
+            // Show general error toast
+            toast.error(
+              // eslint-disable-next-line eqeqeq
+              authError.message == "Generic"
+                ? "Something went wrong. Check your internet connection"
+                : authError.message
+            );
+          }
+          await logClientError(ctx.error);
+        },
+      }
+    );
   }
 
   return (
@@ -180,7 +130,7 @@ export default function SignInPage() {
                 label="Password"
                 field={field}
                 type="password"
-                forgotPassword={
+                rightSideLabel={
                   <Link
                     href="/forgot-password"
                     className="text-primary hover:underline"
@@ -192,15 +142,25 @@ export default function SignInPage() {
             )}
           />
 
-          <div className="flex items-center">
-            <label className="body2-regular flex cursor-pointer items-center gap-1.5 text-muted-foreground">
-              <input
-                type="checkbox"
-                className="size-4 rounded border-border bg-white focus:ring-primary "
-              />
-              Remember me
-            </label>
-          </div>
+          {/* Add Remember me and Forgot password row */}
+          <FormField
+            control={form.control}
+            name="rememberMe"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    className="size-4 rounded border-gray-500"
+                  />
+                </FormControl>
+                <FormLabel className="body2-regular cursor-pointer text-muted-foreground">
+                  Remember me
+                </FormLabel>
+              </FormItem>
+            )}
+          />
 
           <FormSubmitButton
             defaultText="Login"

@@ -8,9 +8,10 @@ CREATE TYPE "public"."participant_role" AS ENUM('student', 'academic_advisor', '
 CREATE TYPE "public"."petition_status" AS ENUM('draft', 'submitted', 'advisor_approved', 'advisor_rejected', 'hod_approved', 'hod_rejected', 'provost_approved', 'provost_rejected', 'registry_processing', 'completed', 'cancelled');--> statement-breakpoint
 CREATE TYPE "public"."staff_role" AS ENUM('academic_advisor', 'hod', 'provost', 'registry', 'lecturer', 'student');--> statement-breakpoint
 CREATE TYPE "public"."user_type" AS ENUM('student', 'staff');--> statement-breakpoint
-CREATE TYPE "public"."error_severity" AS ENUM('info', 'warning', 'error', 'critical');--> statement-breakpoint
+CREATE TYPE "public"."user_activity_status" AS ENUM('started', 'succeeded', 'failed', 'partial');--> statement-breakpoint
+CREATE TYPE "public"."error_severity" AS ENUM('info', 'warning', 'error', 'critical', 'high', 'low', 'medium');--> statement-breakpoint
 CREATE TYPE "public"."error_source" AS ENUM('client', 'server', 'database', 'api', 'auth', 'unknown');--> statement-breakpoint
-CREATE TYPE "public"."user_activity_status" AS ENUM('success', 'failure', 'warning');--> statement-breakpoint
+CREATE TYPE "public"."error_status" AS ENUM('unhandled', 'handled', 'suppressed', 'critical');--> statement-breakpoint
 CREATE TABLE "department_heads" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"department_code" varchar NOT NULL,
@@ -449,20 +450,20 @@ CREATE TABLE "activities" (
 	"status" varchar DEFAULT 'started' NOT NULL,
 	"metadata" jsonb,
 	"is_sensitive" boolean DEFAULT false,
-	"created_at" timestamp DEFAULT now() NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"completed_at" timestamp
 );
 --> statement-breakpoint
 CREATE TABLE "error_logs" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"activity_id" uuid NOT NULL,
+	"activity_id" uuid,
 	"name" varchar(100),
 	"message" text NOT NULL,
 	"stack" text,
-	"code" varchar(50),
+	"code" varchar,
 	"status" varchar DEFAULT 'unhandled',
 	"context" jsonb,
-	"created_at" timestamp DEFAULT now() NOT NULL
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 ALTER TABLE "department_heads" ADD CONSTRAINT "department_heads_department_code_departments_code_fk" FOREIGN KEY ("department_code") REFERENCES "public"."departments"("code") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint

@@ -1,6 +1,6 @@
 // src/lib/auth/authorization.ts
-import { Session } from "@/lib/auth/auth";
-import { authClient } from "@/lib/auth/auth-client";
+import { ServerSession } from "@/lib/auth/auth";
+import { ClientSessionResult, authClient } from "@/lib/auth/auth-client";
 
 import { Permission } from "../types";
 
@@ -55,7 +55,7 @@ const rolePermissions: Record<string, Permission[]> = {
 
 // Check if a user has a specific permission based on their role
 export function hasPermission(
-  session: Session | null,
+  session: ServerSession | null,
   permission: Permission
 ): boolean {
   if (!session?.user?.role) return false;
@@ -67,11 +67,12 @@ export function hasPermission(
 // Verify a session has proper authorization
 export async function checkAuthorization(permission: Permission): Promise<{
   authorized: boolean;
-  session: Session | null;
+  session: ServerSession | null;
 }> {
   // Get the current session
-  const { data: session, error } = await authClient.getSession();
-
+  const getSessionResult: ClientSessionResult = await authClient.getSession();
+  const session = getSessionResult.data as ServerSession;
+  const error = getSessionResult.error;
   if (error || !session) {
     return { authorized: false, session: null };
   }

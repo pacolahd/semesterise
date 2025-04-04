@@ -32,7 +32,12 @@ export class AppError extends Error {
     this.isOperational = config.isOperational ?? true;
     this.status = config.status;
     this.details = config.details;
-    Error.captureStackTrace(this, this.constructor);
+
+    // Adding this undefined check to resolve firefox/zen browser issue
+    // eslint-disable-next-line no-unused-expressions,@typescript-eslint/no-unused-expressions
+    Error.captureStackTrace !== undefined
+      ? Error.captureStackTrace(this, this.constructor)
+      : undefined;
   }
 
   toLog(): Omit<ErrorLogInput, "id" | "activityId"> {
@@ -55,6 +60,7 @@ export class AuthError extends AppError {
     details?: Record<string, string[]>;
     status?: number;
     severity?: ErrorSeverity;
+    context?: ErrorContext;
   }) {
     super({
       message: config.message,
@@ -63,6 +69,7 @@ export class AuthError extends AppError {
       isOperational: true,
       status: config.status || 401,
       details: config.details,
+      context: config.context,
     });
   }
 }
@@ -73,12 +80,14 @@ export class SignUpError extends AuthError {
     details?: Record<string, string[]>;
     status?: number;
     code?: string;
+    context?: ErrorContext;
   }) {
     super({
       message: config.message,
       details: config.details,
       status: config.status,
       code: `SIGNUP_ERROR${config.code ? `: ${config.code}` : ""}`,
+      context: config.context,
     });
   }
 }
@@ -89,10 +98,12 @@ export class SignInError extends AuthError {
     details?: Record<string, string[]>;
     status?: number;
     code?: string;
+    context?: ErrorContext;
   }) {
     super({
       ...config,
       code: `SIGNIN_ERROR${config.code ? `: ${config.code}` : ""}`,
+      context: config.context,
     });
   }
 }
@@ -103,10 +114,12 @@ export class ForgotPasswordError extends AuthError {
     details?: Record<string, string[]>;
     status?: number;
     code?: string;
+    context?: ErrorContext;
   }) {
     super({
       ...config,
       code: `FORGOT_PASSWORD_ERROR${config.code ? `: ${config.code}` : ""}`,
+      context: config.context,
     });
   }
 }
@@ -116,10 +129,12 @@ export class ResetPasswordError extends AuthError {
     details?: Record<string, string[]>;
     status?: number;
     code?: string;
+    context?: ErrorContext;
   }) {
     super({
       ...config,
       code: `RESET_PASSWORD_ERROR${config.code ? `: ${config.code.split(":")[1]}` : ""}`,
+      context: config.context,
     });
   }
 }
@@ -146,18 +161,6 @@ export class ValidationError extends AppError {
       severity: "low",
       details,
       status: 400,
-    });
-  }
-}
-
-export class AuthenticationError extends AppError {
-  constructor(message: string, context?: ErrorContext) {
-    super({
-      message,
-      code: "AUTHENTICATION_REQUIRED",
-      severity: "high",
-      context,
-      status: 401, // Proper 401 status
     });
   }
 }
@@ -222,35 +225,135 @@ export class ServerActionError extends AppError {
     });
   }
 }
-
-export function toAppError(error: unknown): AppError {
-  if (error instanceof AppError) return error;
-
-  const err = error instanceof Error ? error : new Error(String(error));
-
-  return new AppError({
-    message: err.message,
-    code: "INTERNAL_ERROR",
-    severity: "high",
-    context: {
-      stack: err.stack,
-      originalError: error,
-    },
-    isOperational: false,
-  });
-}
-type BetterAuthErrorType = {
+export type BetterAuthErrorType = {
   code?: string | undefined;
   message?: string | undefined;
   t?: boolean | undefined;
   status: number;
   statusText: string;
-};
+} | null;
+
+export function toAppError(
+  error: unknown,
+  errorType: string = "AppError",
+  config: {
+    message?: string;
+    code?: string;
+    severity?: ErrorSeverity;
+    context?: ErrorContext;
+    status?: number;
+    details?: Record<string, string[]>;
+  } = {}
+): AppError {
+  // If it's already an AppError, just return it
+  if (error instanceof AppError) return error;
+
+  // If it's already an AppError, just return it
+  if (error instanceof AppError) return error;
+
+  // Extract info from the error
+  const err =
+    typeof error === "object" &&
+    error !== null &&
+    "status" in error &&
+    "statusText" in error
+      ? (error as unknown as Error)
+      : error instanceof Error
+        ? error
+        : new Error(String(error));
+  const message = config.message || err?.message;
+
+  // Create the specified error type
+  switch (errorType) {
+    case "SignUpError":
+      return new SignUpError({
+        message,
+        details: config.details,
+        status: config.status || 400,
+        code: config.code,
+        context: config.context,
+      });
+
+    case "SignInError":
+      return new SignInError({
+        message,
+        details: config.details,
+        status: config.status || 401,
+        code: config.code,
+        context: config.context,
+      });
+
+    case "ForgotPasswordError":
+      return new ForgotPasswordError({
+        message,
+        details: config.details,
+        status: config.status || 400,
+        code: config.code,
+        context: config.context,
+      });
+
+    case "ResetPasswordError":
+      return new ResetPasswordError({
+        message,
+        details: config.details,
+        status: config.status || 400,
+        code: config.code,
+        context: config.context,
+      });
+
+    case "AuthError":
+      return new AuthError({
+        message,
+        code: config.code,
+        details: config.details,
+        status: config.status || 401,
+        severity: config.severity,
+        context: config.context,
+      });
+
+    case "ValidationError":
+      return new ValidationError(message, config.details || {});
+
+    // Default case - create base AppError
+    default:
+      return new AppError({
+        message,
+        code: config.code || "INTERNAL_ERROR",
+        severity: config.severity || "high",
+        context: config.context || {
+          stack: err.stack,
+          originalError: error,
+        },
+        isOperational: false,
+        status: config.status,
+        details: config.details,
+      });
+  }
+}
+
+// export function toAppError(error: unknown): AppError {
+//   if (error instanceof AppError) return error;
+//
+//   const err = error as Error;
+//   // const err = error instanceof Error ? error : new Error(String(error));
+//
+//   return new AppError({
+//     message: err.message,
+//     code: "INTERNAL_ERROR",
+//     severity: "high",
+//     context: {
+//       stack: err.stack,
+//       originalError: error,
+//     },
+//     isOperational: false,
+//   });
+// }
+
 export function handleAuthError(error: BetterAuthErrorType): AuthError {
   const details: Record<string, string[]> = {};
   let message = "";
 
-  switch (error.code) {
+  switch (error?.code) {
     case "USER_NOT_FOUND":
       message = "User not found";
       break;
@@ -275,8 +378,10 @@ export function handleAuthError(error: BetterAuthErrorType): AuthError {
       details.email = ["Invalid email address"];
       break;
     case "INVALID_EMAIL_OR_PASSWORD":
-      message = "Invalid email or password";
-      // details.email = ["User not found. Please create an account to sign in."];
+      message = "Invalid password";
+      details.password = [
+        "Password is incorrect. Please correct your password and try again",
+      ];
       break;
     case "SOCIAL_ACCOUNT_ALREADY_LINKED":
       message = "Social account already linked";
@@ -338,8 +443,8 @@ export function handleAuthError(error: BetterAuthErrorType): AuthError {
 
   return new AuthError({
     message,
-    code: error.code,
+    code: error?.code,
     details: Object.keys(details).length ? details : undefined,
-    status: error.status,
+    status: error?.status,
   });
 }

@@ -1,4 +1,3 @@
-// app/(auth)/reset-password/page.tsx
 "use client";
 
 import Link from "next/link";
@@ -11,7 +10,6 @@ import { toast } from "sonner";
 
 import { AuthFormItem } from "@/components/forms/auth-form-item";
 import { FormSubmitButton } from "@/components/forms/form-submit-button";
-import { Card, CardHeader } from "@/components/ui/card";
 import { Form, FormField } from "@/components/ui/form";
 import {
   ResetPasswordInput,
@@ -19,20 +17,6 @@ import {
 } from "@/drizzle/schema/auth/signin-signup-schema";
 
 import { resetPassword } from "../actions";
-
-// app/(auth)/reset-password/page.tsx
-
-// app/(auth)/reset-password/page.tsx
-
-// app/(auth)/reset-password/page.tsx
-
-// app/(auth)/reset-password/page.tsx
-
-// app/(auth)/reset-password/page.tsx
-
-// app/(auth)/reset-password/page.tsx
-
-// app/(auth)/reset-password/page.tsx
 
 // app/(auth)/reset-password/page.tsx
 
@@ -89,6 +73,7 @@ function ResetPasswordPageContent() {
 
       toast.success("Password reset successfully!");
       router.push("/sign-in");
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast.error("Something went wrong. Please try again later.");
     }

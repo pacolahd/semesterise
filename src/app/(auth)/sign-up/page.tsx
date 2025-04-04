@@ -21,6 +21,12 @@ import { signUp } from "../actions";
 
 // app/(auth)/sign-up/page.tsx
 
+// app/(auth)/sign-up/page.tsx
+
+// app/(auth)/sign-up/page.tsx
+
+// app/(auth)/sign-up/page.tsx
+
 export default function SignUpPage() {
   const form = useForm<SignUpInput>({
     resolver: zodResolver(signUpSchema),
@@ -59,6 +65,7 @@ export default function SignUpPage() {
         "Account created! Please check your email to verify your account."
       );
       // router.push("/sign-in");
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast.error("Something went wrong. Please try again.");
     }

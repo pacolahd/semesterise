@@ -1,8 +1,6 @@
-// app/(auth)/forgot-password/page.tsx
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -20,35 +18,7 @@ import { sendPasswordResetEmail } from "../actions";
 
 // app/(auth)/forgot-password/page.tsx
 
-// app/(auth)/forgot-password/page.tsx
-
-// app/(auth)/forgot-password/page.tsx
-
-// app/(auth)/forgot-password/page.tsx
-
-// app/(auth)/forgot-password/page.tsx
-
-// app/(auth)/forgot-password/page.tsx
-
-// app/(auth)/forgot-password/page.tsx
-
-// app/(auth)/forgot-password/page.tsx
-
-// app/(auth)/forgot-password/page.tsx
-
-// app/(auth)/forgot-password/page.tsx
-
-// app/(auth)/forgot-password/page.tsx
-
-// app/(auth)/forgot-password/page.tsx
-
-// app/(auth)/forgot-password/page.tsx
-
-// app/(auth)/forgot-password/page.tsx
-
 export default function ForgotPasswordPage() {
-  const router = useRouter();
-
   const form = useForm<ForgotPasswordInput>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
@@ -80,6 +50,7 @@ export default function ForgotPasswordPage() {
       form.reset();
 
       toast.success("Password reset email sent! Check your inbox.");
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast.error("Something went wrong. Check your internet connection");
     }

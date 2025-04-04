@@ -1,2 +1,0 @@
-ALTER TABLE "activities" ALTER COLUMN "created_at" SET DATA TYPE timestamp with time zone;--> statement-breakpoint
-ALTER TABLE "error_logs" ALTER COLUMN "created_at" SET DATA TYPE timestamp with time zone;
