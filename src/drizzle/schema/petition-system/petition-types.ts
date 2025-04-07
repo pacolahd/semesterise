@@ -1,4 +1,4 @@
-// src/drizzle/schema/petition-system/petition-types.ts
+// src/drizzle/schema/petition-system/petition-common.ts
 import { InferSelectModel } from "drizzle-orm";
 import {
   boolean,

@@ -52,7 +52,6 @@ export const studentProfiles = pgTable("student_profiles", {
     { onDelete: "set null" }
   ),
   isActive: boolean("is_active").default(true),
-  onboarding_completed: boolean("onboarding_completed").default(false),
   createdAt,
   updatedAt,
 });
@@ -71,7 +70,6 @@ export const studentProfileSchema = createInsertSchema(studentProfiles).extend({
   total_credits_earned: z.number().min(0).step(0.1).default(0),
   capstone_option_id: z.string().optional().nullable(),
   isActive: z.boolean().default(true),
-  onboarding_completed: z.boolean().default(false),
 });
 
 // For validation (auth, API input)

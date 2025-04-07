@@ -1,6 +1,7 @@
 // This file contains types that are used throughout the application.
-
 // These are imported from the drizzle schema
+import { AuthErrorDetails } from "@/lib/auth/auth-error-utils";
+
 export type {
   ErrorSeverity,
   ErrorSource,
@@ -77,15 +78,18 @@ export const EntityTypes = {
   STUDENT: "student",
 };
 
-// src/lib/types.ts
-export type ActionResponse<T = void> =
-  | { success: true; data?: T; status?: number }
-  | {
-      success: false;
-      error: {
-        message: string;
-        code?: string;
-        status?: number;
-        details?: Record<string, string[]>;
-      };
-    };
+export interface GenericErrorType {
+  message: string;
+  code?: string;
+  status?: number | string;
+  statusText?: string;
+  details?: Record<string, string[]>;
+}
+
+// src/lib/common.ts
+export type ActionResponse<dataT = null, errorT = GenericErrorType> = {
+  success: boolean;
+  data?: dataT;
+  status?: number;
+  error: errorT;
+};

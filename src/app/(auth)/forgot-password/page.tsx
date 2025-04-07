@@ -4,7 +4,6 @@ import Link from "next/link";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 
 import { AuthFormItem } from "@/components/forms/auth-form-item";
 import { FormSubmitButton } from "@/components/forms/form-submit-button";
@@ -13,12 +12,10 @@ import {
   ForgotPasswordInput,
   forgotPasswordSchema,
 } from "@/drizzle/schema/auth/signin-signup-schema";
-
-import { sendPasswordResetEmail } from "../actions";
-
-// app/(auth)/forgot-password/page.tsx
+import { useForgotPassword } from "@/lib/api/auth";
 
 export default function ForgotPasswordPage() {
+  // Initialize form with React Hook Form
   const form = useForm<ForgotPasswordInput>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
@@ -26,34 +23,12 @@ export default function ForgotPasswordPage() {
     },
   });
 
+  // Use the TanStack Query hook and pass the form for error handling
+  const forgotPasswordMutation = useForgotPassword(form);
+
+  // Form submission handler
   async function onSubmit(values: ForgotPasswordInput) {
-    try {
-      const result = await sendPasswordResetEmail(values);
-
-      if (!result.success) {
-        if (result.error?.details) {
-          Object.entries(result.error.details).forEach(([field, messages]) => {
-            form.setError(field as keyof ForgotPasswordInput, {
-              type: "server",
-              message: messages.join(", "),
-            });
-          });
-        } else {
-          toast.error(
-            result.error?.message || "Password reset failed. Please try again."
-          );
-        }
-        return;
-      }
-
-      // Success case
-      form.reset();
-
-      toast.success("Password reset email sent! Check your inbox.");
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      toast.error("Something went wrong. Check your internet connection");
-    }
+    forgotPasswordMutation.mutate(values);
   }
 
   return (
@@ -85,6 +60,7 @@ export default function ForgotPasswordPage() {
             defaultText="Send Reset Email"
             pendingText="Sending..."
             className="body2-medium flex size-full justify-self-center rounded-[50px] p-3"
+            isSubmitting={forgotPasswordMutation.isPending}
           />
         </form>
       </Form>

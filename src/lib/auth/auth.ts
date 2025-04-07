@@ -5,7 +5,6 @@ import { customSession, openAPI } from "better-auth/plugins";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
-import { sendEmail } from "@/actions/email";
 import { db } from "@/drizzle";
 import { authUsers, staffProfiles, studentProfiles } from "@/drizzle/schema";
 import * as authSchema from "@/drizzle/schema/auth";
@@ -19,7 +18,8 @@ import {
 } from "@/drizzle/schema/auth/enums";
 import { staffEmailRoles } from "@/drizzle/schema/institution";
 import { env } from "@/env/server";
-import { BetterAuthErrorType } from "@/lib/errors/errors";
+import { sendEmail } from "@/lib/actions/email";
+import { BetterAuthClientErrorType } from "@/lib/auth/auth-error-utils";
 
 const options = {
   appName: "Semesterise",
@@ -51,6 +51,15 @@ const options = {
         validator: {
           input: z.enum(userTypeValues),
           output: z.enum(userTypeValues),
+        },
+        input: false,
+      },
+      onboardingCompleted: {
+        type: "boolean",
+        defaultValue: false,
+        validator: {
+          input: z.boolean(),
+          output: z.boolean(),
         },
         input: false,
       },
@@ -108,8 +117,6 @@ const options = {
               // Create student profile with minimal information
               await db.insert(studentProfiles).values({
                 authId: authUser.id,
-                isActive: true,
-                onboarding_completed: false,
               });
 
               // Log successful student profile creation
@@ -182,7 +189,7 @@ const options = {
       // Get full user data with role - ADD AWAIT HERE
       const userWithRole = await db.query.authUsers.findFirst({
         where: eq(authUsers.id, session.userId),
-        columns: { role: true, userType: true },
+        columns: { role: true, userType: true, onboardingCompleted: true },
       });
 
       if (!userWithRole) {
@@ -200,6 +207,7 @@ const options = {
           image: user.image,
           userType: userWithRole.userType,
           role: userWithRole.role,
+          onboardingCompleted: userWithRole.onboardingCompleted,
         },
         session,
       };
@@ -292,7 +300,9 @@ export const auth = betterAuth({
 });
 
 export type ServerSession = typeof auth.$Infer.Session;
+export type ServerSessionUser = ServerSession["user"];
+export type ServerSessionSession = ServerSession["session"];
 export type ServerSessionResult = {
   data: ServerSession | null; // Or ServerSession | undefined depending on your case
-  error: BetterAuthErrorType; // Adjust the error type as needed
+  error: BetterAuthClientErrorType; // Adjust the error type as needed
 };

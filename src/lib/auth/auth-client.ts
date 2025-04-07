@@ -13,7 +13,7 @@ import {
 } from "@/drizzle/schema/auth/enums";
 // import { env } from "@/env/server";
 import { auth } from "@/lib/auth/auth";
-import { BetterAuthErrorType } from "@/lib/errors/errors";
+import { BetterAuthClientErrorType } from "@/lib/auth/auth-error-utils";
 
 export const authClient = createAuthClient({
   /** the base url of the server (optional if you're using the same domain) */
@@ -42,6 +42,16 @@ export const authClient = createAuthClient({
           },
           input: false,
         },
+        onboardingCompleted: {
+          type: "boolean",
+          required: true,
+          defaultValue: false,
+          validator: {
+            input: z.boolean(),
+            output: z.boolean(),
+          },
+          input: false,
+        },
       },
     }),
     customSessionClient<typeof auth>(),
@@ -50,5 +60,5 @@ export const authClient = createAuthClient({
 export type ClientSession = typeof authClient.$Infer.Session;
 export type ClientSessionResult = {
   data: ClientSession | null; // Or ServerSession | undefined depending on your case
-  error: BetterAuthErrorType; // Adjust the error type as needed
+  error: BetterAuthClientErrorType; // Adjust the error type as needed
 };

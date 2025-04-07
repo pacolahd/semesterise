@@ -1,5 +1,9 @@
-import { IconPackage } from "@tabler/icons-react";
+"use client";
 
+import { IconPackage } from "@tabler/icons-react";
+import { Loader2 } from "lucide-react";
+
+import { SignOutButton } from "@/components/auth/sign-out-button";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +29,8 @@ import {
 } from "@/components/ui/popover";
 
 export default function Home() {
+  // const { mutate: signOut, isPending } = useSignOut();
+
   return (
     <div className="flex h-screen flex-col items-center justify-center space-y-10">
       <div className="flex items-center space-x-4 pb-6">
@@ -32,6 +38,13 @@ export default function Home() {
         <IconPackage />
         <ThemeSwitcher />
       </div>
+
+      <SignOutButton
+        variant="destructive"
+        text="Sign out of your account"
+        className="w-full sm:w-auto"
+      />
+
       <Card>
         <CardHeader>
           <CardTitle>Card Title</CardTitle>

@@ -249,7 +249,6 @@ CREATE TABLE "student_profiles" (
 	"total_credits_earned" numeric(5, 1) DEFAULT '0',
 	"capstone_option_id" varchar,
 	"is_active" boolean DEFAULT true,
-	"onboarding_completed" boolean DEFAULT false,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "student_profiles_student_id_unique" UNIQUE("student_id")
@@ -421,6 +420,7 @@ CREATE TABLE "user" (
 	"image" varchar,
 	"user_type" varchar(20) DEFAULT 'student' NOT NULL,
 	"role" varchar(50) DEFAULT 'student' NOT NULL,
+	"onboarding_completed" boolean DEFAULT false,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "user_email_unique" UNIQUE("email")

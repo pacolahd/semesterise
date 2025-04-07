@@ -1,5 +1,5 @@
 {
-  "id": "f7407ff9-3370-4136-946d-8613b6e10526",
+  "id": "29e407bb-5d9d-436e-8a87-138d204a21b5",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -1840,13 +1840,6 @@
           "notNull": false,
           "default": true
         },
-        "onboarding_completed": {
-          "name": "onboarding_completed",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -3173,6 +3166,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'student'"
+        },
+        "onboarding_completed": {
+          "name": "onboarding_completed",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
         },
         "created_at": {
           "name": "created_at",

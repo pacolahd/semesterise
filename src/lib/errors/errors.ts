@@ -2,7 +2,8 @@
 import { v4 as uuidv4 } from "uuid";
 
 import { ErrorLogInput } from "@/drizzle/schema/system-settings/error-logs";
-import { ErrorContext, ErrorSeverity } from "@/lib/types";
+import { BetterAuthClientErrorType } from "@/lib/auth/auth-error-utils";
+import { ErrorContext, ErrorSeverity } from "@/lib/types/common";
 import { redactSensitiveData } from "@/lib/utils/redaction";
 
 export class AppError extends Error {
@@ -225,13 +226,13 @@ export class ServerActionError extends AppError {
     });
   }
 }
-export type BetterAuthErrorType = {
-  code?: string | undefined;
-  message?: string | undefined;
-  t?: boolean | undefined;
-  status: number;
-  statusText: string;
-} | null;
+// export type BetterAuthClientErrorType = {
+//   code?: string | undefined;
+//   message?: string | undefined;
+//   t?: boolean | undefined;
+//   status: number;
+//   statusText: string;
+// } | null;
 
 export function toAppError(
   error: unknown,
@@ -349,7 +350,7 @@ export function toAppError(
 //   });
 // }
 
-export function handleAuthError(error: BetterAuthErrorType): AuthError {
+export function handleAuthError(error: BetterAuthClientErrorType): AuthError {
   const details: Record<string, string[]> = {};
   let message = "";
 
@@ -438,7 +439,7 @@ export function handleAuthError(error: BetterAuthErrorType): AuthError {
       message = "Account not found";
       break;
     default:
-      message = "Generic";
+      message = error?.message ?? "Generic";
   }
 
   return new AuthError({

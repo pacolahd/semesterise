@@ -1,14 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
-import { ErrorContext } from "@better-fetch/fetch";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 
-import { getUserByEmail } from "@/app/(auth)/actions";
 import { AuthFormItem } from "@/components/forms/auth-form-item";
 import { FormSubmitButton } from "@/components/forms/form-submit-button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -23,14 +19,10 @@ import {
   SignInInput,
   signInSchema,
 } from "@/drizzle/schema/auth/signin-signup-schema";
-import { authClient } from "@/lib/auth/auth-client";
-import { logClientError } from "@/lib/errors/client/log-client-error";
-import { handleAuthError } from "@/lib/errors/errors";
-
-// app/(auth)/sign-in/page.tsx
+import { useSignIn } from "@/lib/api/auth";
 
 export default function SignInPage() {
-  const router = useRouter();
+  // Initialize form with React Hook Form
   const form = useForm<SignInInput>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -40,59 +32,12 @@ export default function SignInPage() {
     },
   });
 
-  async function onSubmit(values: SignInInput) {
-    // first off, check if user exists:
-    const userExists = await getUserByEmail(values.email.toLowerCase());
+  // Use the TanStack Query hook and pass the form for error handling
+  const signInMutation = useSignIn(form);
 
-    if (!userExists) {
-      // No account with this email
-      form.setError("email", {
-        type: "server",
-        message:
-          "Chale! No account was found with this email address. Please correct your email or sign up.",
-      });
-      return;
-    }
-    // Continue with sign-in process only for non-existing users
-    await authClient.signIn.email(
-      {
-        email: values.email,
-        password: values.password,
-        rememberMe: values.rememberMe,
-      },
-      {
-        onRequest: () => {
-          // Show loading toast?
-        },
-        onSuccess: async (ctx) => {
-          form.reset();
-          toast.success(`Welcome back! ${ctx.data.user.name.split(" ")[0]}`);
-          router.push("/");
-          // router.refresh();
-        },
-        onError: async (ctx: ErrorContext) => {
-          console.error(ctx.error);
-          const authError = handleAuthError(ctx.error);
-          if (authError?.details) {
-            Object.entries(authError.details).forEach(([field, messages]) => {
-              form.setError(field as keyof SignInInput, {
-                type: "server",
-                message: messages.join(", "),
-              });
-            });
-          } else {
-            // Show general error toast
-            toast.error(
-              // eslint-disable-next-line eqeqeq
-              authError.message == "Generic"
-                ? "Something went wrong. Check your internet connection"
-                : authError.message
-            );
-          }
-          await logClientError(ctx.error);
-        },
-      }
-    );
+  // Form submission handler
+  async function onSubmit(values: SignInInput) {
+    signInMutation.mutate(values);
   }
 
   return (
@@ -102,11 +47,6 @@ export default function SignInPage() {
         <p className="body1-regular text-muted-foreground">Please log in</p>
       </div>
 
-      {/*
-        The Form component from shadcn/ui internally provides the FormProvider context,
-        which allows the FormSubmitButton to access formState.isSubmitting without
-        explicitly wrapping our form in FormProvider.
-      */}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField
@@ -142,7 +82,6 @@ export default function SignInPage() {
             )}
           />
 
-          {/* Add Remember me and Forgot password row */}
           <FormField
             control={form.control}
             name="rememberMe"
@@ -166,6 +105,7 @@ export default function SignInPage() {
             defaultText="Login"
             pendingText="Logging in..."
             className="body2-medium flex size-full justify-self-center rounded-[50px] p-3"
+            isSubmitting={signInMutation.isPending}
           />
         </form>
       </Form>

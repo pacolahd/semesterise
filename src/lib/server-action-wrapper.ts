@@ -9,7 +9,7 @@ import { ServerSession, auth } from "@/lib/auth/auth";
 import { hasPermission } from "@/lib/auth/authorization";
 import { AuthorizationError, ValidationError } from "@/lib/errors/errors";
 import { ActivityService } from "@/lib/services/activity.service";
-import type { Permission } from "@/lib/types";
+import type { Permission } from "@/lib/types/common";
 import { redactSensitiveData } from "@/lib/utils/redaction";
 
 // ======================

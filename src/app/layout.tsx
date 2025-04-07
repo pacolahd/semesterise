@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import React, { ReactNode } from "react";
 
-import { Providers } from "@/components/providers";
-import { Toaster } from "@/components/ui/sonner";
+import { ErrorBoundary } from "@/components/error-boundary";
+import { Providers } from "@/components/providers/providers";
 import { satoshi } from "@/lib/fonts";
 
 import "./globals.css";
@@ -34,8 +34,11 @@ const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${satoshi.variable} antialiased`}>
-        <Providers>{children}</Providers>
-        <Toaster closeButton richColors />
+        {/* Providers are used to wrap the application with necessary context providers */}
+        {/* This includes theming, query client, etc. */}
+        <Providers>
+          <ErrorBoundary>{children}</ErrorBoundary>
+        </Providers>
       </body>
     </html>
   );

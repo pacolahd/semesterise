@@ -24,6 +24,7 @@ export const authUsers = pgTable("user", {
     .notNull()
     .default(userTypes.student),
   role: varchar("role", { length: 50 }).notNull().default(userRoles.student),
+  onboardingCompleted: boolean("onboarding_completed").default(false),
   createdAt,
   updatedAt,
 });
@@ -39,6 +40,7 @@ export const authUserSchema = createInsertSchema(authUsers).extend({
   updatedAt: z.date(), // Required
   userType: z.enum(userTypeValues),
   role: z.enum(userRoleValues),
+  onboardingCompleted: z.boolean().default(false),
 });
 
 export type AuthUserInput = z.infer<typeof authUserSchema>;

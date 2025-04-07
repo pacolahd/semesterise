@@ -57,6 +57,16 @@ const config = [
       "no-process-env": "error", // Avoid direct process.env access for better testability
       "prefer-template": "error", // Use template literals instead of string concatenation
 
+      // Rule to ignore unused variables, specifically for catch clauses
+      "no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrors: "ignore",
+        },
+      ],
+
       // File naming convention rules
       "check-file/filename-naming-convention": [
         "error",

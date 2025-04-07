@@ -2,7 +2,7 @@
 import { ServerSession } from "@/lib/auth/auth";
 import { ClientSessionResult, authClient } from "@/lib/auth/auth-client";
 
-import { Permission } from "../types";
+import { Permission } from "../types/common";
 
 // Define permissions for each role
 const rolePermissions: Record<string, Permission[]> = {

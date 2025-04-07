@@ -1,11 +1,9 @@
-// app/(auth)/sign-up/page.tsx
 "use client";
 
 import Link from "next/link";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 
 import { AuthFormItem } from "@/components/forms/auth-form-item";
 import { FormSubmitButton } from "@/components/forms/form-submit-button";
@@ -14,20 +12,10 @@ import {
   SignUpInput,
   signUpSchema,
 } from "@/drizzle/schema/auth/signin-signup-schema";
-
-import { signUp } from "../actions";
-
-// app/(auth)/sign-up/page.tsx
-
-// app/(auth)/sign-up/page.tsx
-
-// app/(auth)/sign-up/page.tsx
-
-// app/(auth)/sign-up/page.tsx
-
-// app/(auth)/sign-up/page.tsx
+import { useSignUp } from "@/lib/api/auth";
 
 export default function SignUpPage() {
+  // Initialize form with React Hook Form
   const form = useForm<SignUpInput>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -38,37 +26,12 @@ export default function SignUpPage() {
     },
   });
 
+  // Use the TanStack Query hook and pass the form for error handling
+  const signUpMutation = useSignUp(form);
+
+  // Form submission handler
   async function onSubmit(values: SignUpInput) {
-    try {
-      const result = await signUp(values);
-
-      if (!result.success) {
-        // Handle field-specific validation errors
-        if (result.error?.details) {
-          Object.entries(result.error.details).forEach(([field, messages]) => {
-            form.setError(field as keyof SignUpInput, {
-              type: "server",
-              message: messages.join(", "),
-            });
-          });
-        } else {
-          // Show general error toast
-          toast.error(`${result.error?.message}`);
-        }
-        return;
-      }
-
-      // Success case
-      form.reset();
-
-      toast.success(
-        "Account created! Please check your email to verify your account."
-      );
-      // router.push("/sign-in");
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      toast.error("Something went wrong. Please try again.");
-    }
+    signUpMutation.mutate(values);
   }
 
   return (
@@ -80,11 +43,6 @@ export default function SignUpPage() {
         </p>
       </div>
 
-      {/*
-        The Form component from shadcn/ui internally provides the FormProvider context,
-        which allows the FormSubmitButton to access formState.isSubmitting without
-        explicitly wrapping our form in FormProvider.
-      */}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
           <FormField
@@ -136,6 +94,7 @@ export default function SignUpPage() {
             className="body2-medium mt-5 flex h-[58px] w-full justify-self-center rounded-[50px] p-3"
             defaultText="Sign Up"
             pendingText="Creating account..."
+            isSubmitting={signUpMutation.isPending}
           />
         </form>
       </Form>

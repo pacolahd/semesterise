@@ -2,11 +2,10 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 
 import { AuthFormItem } from "@/components/forms/auth-form-item";
 import { FormSubmitButton } from "@/components/forms/form-submit-button";
@@ -15,70 +14,40 @@ import {
   ResetPasswordInput,
   resetPasswordSchema,
 } from "@/drizzle/schema/auth/signin-signup-schema";
-
-import { resetPassword } from "../actions";
-
-// app/(auth)/reset-password/page.tsx
+import { useResetPassword } from "@/lib/api/auth";
 
 function ResetPasswordPageContent() {
-  const router = useRouter();
+  // Access query parameters
   const searchParams = useSearchParams();
   const resetToken = searchParams.get("token");
   const error = searchParams.get("error");
+
+  // Initialize form with React Hook Form
   const form = useForm<ResetPasswordInput>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
       password: "",
       confirmPassword: "",
-      token: "",
+      token: resetToken || "",
     },
   });
 
-  async function onSubmit(values: ResetPasswordInput) {
-    try {
-      form.setValue("token", resetToken || "");
-      const result = await resetPassword(values);
-
-      if (!result.success) {
-        if (result.error?.details) {
-          Object.entries(result.error.details).forEach(([field, messages]) => {
-            form.setError(field as keyof ResetPasswordInput, {
-              type: "server",
-              message: messages.join(", "),
-            });
-          });
-        } else {
-          // console.error(result.error);
-          if (result.error?.code?.split(" ").pop() === "INVALID_TOKEN") {
-            toast.error("Password reset failed", {
-              description:
-                "It seems your password reset link is either expired or invalid. Try Again one more time, or Resend Link.",
-              action: {
-                label: "Resend Link",
-                onClick: () => router.push("/forgot-password"),
-              },
-            });
-          } else {
-            toast.error(
-              result.error?.message ||
-                "Password reset failed. Please try again."
-            );
-          }
-        }
-        return;
-      }
-
-      // Success case
-      form.reset();
-
-      toast.success("Password reset successfully!");
-      router.push("/sign-in");
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      toast.error("Something went wrong. Please try again later.");
+  // Update token in form when it changes in URL
+  useEffect(() => {
+    if (resetToken) {
+      form.setValue("token", resetToken);
     }
+  }, [resetToken, form]);
+
+  // Use the TanStack Query hook and pass the form for error handling
+  const resetPasswordMutation = useResetPassword(form);
+
+  // Form submission handler
+  async function onSubmit(values: ResetPasswordInput) {
+    resetPasswordMutation.mutate(values);
   }
 
+  // Handle invalid token error
   if (error === "INVALID_TOKEN") {
     return (
       <div className="space-y-4">
@@ -141,10 +110,14 @@ function ResetPasswordPageContent() {
             )}
           />
 
+          {/* This field is hidden but needed for the form submission */}
+          <input type="hidden" {...form.register("token")} />
+
           <FormSubmitButton
             defaultText="Reset Password"
             pendingText="Resetting..."
             className="body2-medium flex size-full justify-self-center rounded-[50px] p-3"
+            isSubmitting={resetPasswordMutation.isPending}
           />
         </form>
       </Form>

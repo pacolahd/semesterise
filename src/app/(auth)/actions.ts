@@ -175,6 +175,6 @@ export const getUserByEmail = async (email: string) => {
     where: eq(authUsers.email, email),
     columns: { id: true },
   });
-
+  console.log("\nExisting user:", existingUser);
   return !!existingUser;
 };

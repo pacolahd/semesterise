@@ -10,6 +10,7 @@ export const user = pgTable("user", {
   updatedAt: timestamp("updated_at").notNull(),
   role: text("role").notNull(),
   userType: text("user_type").notNull(),
+  onboardingCompleted: boolean("onboarding_completed").notNull(),
 });
 
 export const session = pgTable("session", {
