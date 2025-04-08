@@ -11,6 +11,9 @@ import {
 } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { AppError, ValidationError } from "@/lib/errors/app-error-classes";
+import { convertToAppError } from "@/lib/errors/error-converter";
+
 // Import DevTools using Next.js dynamic import with ssr disabled
 const ReactQueryDevtools = dynamic(
   () =>
@@ -20,48 +23,23 @@ const ReactQueryDevtools = dynamic(
   { ssr: false }
 );
 
-// Expanded error type that matches your auth API responses
-type QueryError = {
-  status?: number;
-  message?: string;
-  code?: string;
-  details?: Record<string, string[]>;
-};
-
-// Error handler function
-function handleQueryError(error: unknown): string {
-  // Handle error objects that match our QueryError type
-  if (typeof error === "object" && error !== null) {
-    // Check for API error response structure
-    if ("message" in error && typeof error.message === "string") {
-      return error.message;
-    }
-
-    if (
-      error.code === "ECONNREFUSED" ||
-      error.code === "ETIMEDOUT" ||
-      error.code === "NETWORK_ERROR"
-    ) {
-      return "Network error. Please check your internet connection and try again.";
-    }
-
-    // Handle error.response pattern (common in Axios/Fetch)
-    if (
-      "response" in error &&
-      typeof error.response === "object" &&
-      error.response
-    ) {
-      const response = error.response as any;
-      if (response.data?.message) return response.data.message;
-      if (response.message) return response.message;
-      if (response.statusText) return response.statusText;
-    }
+/**
+ * Provides an appropriate error message for display
+ */
+function formatErrorForDisplay(error: unknown): string {
+  // If it's already an AppError, use its message
+  if (error instanceof AppError) {
+    return error.toUserMessage();
   }
 
-  // Default message for unhandled error types
-  return "An unexpected error occurred";
+  // Otherwise, convert to AppError first
+  const appError = convertToAppError(error);
+  return appError.toUserMessage();
 }
 
+/**
+ * React Query Provider with comprehensive error handling
+ */
 export function QueryProvider({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
     () =>
@@ -71,24 +49,35 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
             refetchOnWindowFocus: false,
             networkMode: "always", // Better for Next.js
             retry: (failureCount: number, error: unknown) => {
-              // Type guard to check if error matches our QueryError structure
-              const queryError = error as QueryError;
+              const appError =
+                error instanceof AppError ? error : convertToAppError(error);
 
-              // For network errors, retry up to 2 times
-              if (queryError?.code === "NETWORK_ERROR") return failureCount < 3;
+              // Customize retry behavior based on error
+              switch (appError.code) {
+                // Retry network errors more times
+                case "NETWORK_ERROR":
+                  return failureCount < 3;
 
-              // Don't retry auth errors
-              if (queryError?.status === 401 || queryError?.status === 403) {
+                // Don't retry auth errors
+                case "SESSION_EXPIRED":
+                case "FAILED_TO_CREATE_SESSION":
+                case "FAILED_TO_GET_SESSION":
+                case "INVALID_TOKEN":
+                case "NO_SESSION": // I'm not sure if we'll ever get this though, it's not part of the better auth stuff
+                  return false;
+
+                // Don't retry validation errors
+                case "VALIDATION_ERROR":
+                  return false;
+              }
+
+              // Don't retry based on status codes
+              if (appError.status === 401 || appError.status === 403) {
                 return false;
               }
 
-              // Don't retry if error indicates invalid token
-              if (queryError?.code?.includes("INVALID_TOKEN")) {
-                return false;
-              }
-
-              // For other errors, retry up to 2 times
-              return failureCount < 2;
+              // Default: retry once for other errors
+              return failureCount < 1;
             },
             staleTime: 1000 * 60 * 5, // 5 minutes
           },
@@ -101,30 +90,95 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
         // Error handling for queries
         queryCache: new QueryCache({
           onError: (error, query) => {
-            // Skip global error handling for queries that handle their own errors
+            // Skip global error handling for queries that opt out
             if (query.options.meta?.skipGlobalErrorHandler) {
               return;
             }
 
-            toast.error(handleQueryError(error));
+            const appError =
+              error instanceof AppError ? error : convertToAppError(error);
 
-            // Perhaps render cleaner error in production
-            // toast.error(
-            //   process.env.NODE_ENV === 'production'
-            //     ? "Something went wrong. Please try again."
-            //     : handleQueryError(error)
-            // );
+            // Don't show toasts for validation errors
+            if (appError instanceof ValidationError) {
+              return;
+            }
+
+            // Skip toasts for errors with validation details
+            if (appError.hasValidationDetails()) {
+              return;
+            }
+
+            // Network errors get a special toast with retry action
+            if (appError.code === "NETWORK_ERROR") {
+              toast.error(appError.message, {
+                description: "Check your internet connection and try again.",
+                action: {
+                  label: "Retry",
+                  onClick: () => query.fetch(),
+                },
+              });
+              return;
+            }
+
+            // Session/auth errors that should redirect to login
+            if (
+              appError.status === 401 ||
+              appError.code === "SESSION_EXPIRED" ||
+              appError.code === "NO_SESSION"
+            ) {
+              toast.error(appError.message, {
+                description: "Please sign in to continue.",
+                action: {
+                  label: "Sign In",
+                  onClick: () => {
+                    window.location.href = "/sign-in";
+                  },
+                },
+              });
+              return;
+            }
+
+            // Standard error toast
+            toast.error(formatErrorForDisplay(error));
+
+            // Log detailed error in development
+            if (process.env.NODE_ENV !== "production") {
+              console.group("Query Error");
+              console.error(appError);
+              console.groupEnd();
+            }
           },
         }),
         // Error handling for mutations
         mutationCache: new MutationCache({
-          onError: (error, variables, context, mutation) => {
-            // Skip global error handling for mutations that handle their own errors
+          onError: (error, _variables, _context, mutation) => {
+            // Skip global error handling for mutations that opt out
             if (mutation.options.meta?.skipGlobalErrorHandler) {
               return;
             }
 
-            toast.error(handleQueryError(error));
+            const appError =
+              error instanceof AppError ? error : convertToAppError(error);
+
+            // Skip toast for validation errors - they should be handled by forms
+            if (appError instanceof ValidationError) {
+              return;
+            }
+
+            // Skip toasts for errors with validation details
+            if (appError.hasValidationDetails()) {
+              return;
+            }
+
+            // Show appropriate toast message
+            toast.error(formatErrorForDisplay(error));
+
+            // Log detailed error in development
+            if (process.env.NODE_ENV !== "production") {
+              console.group("Mutation Error");
+              console.error(appError);
+              console.groupEnd();
+            }
           },
         }),
       })
@@ -133,7 +187,6 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {/* eslint-disable-next-line no-process-env */}
       {process.env.NODE_ENV === "development" && (
         <ReactQueryDevtools initialIsOpen={false} />
       )}

@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 import type { ServerSessionUser } from "@/lib/auth/auth";
+import { AppError } from "@/lib/errors/app-error-classes";
 
 // Define a date transformer that can handle both Date objects and date strings
 const dateTransformer = z.union([
@@ -30,14 +31,24 @@ interface AuthState {
   user: z.infer<typeof userSchema> | null;
   isLoading: boolean;
   isInitialized: boolean;
-  error: string | null;
+
+  // Enhanced error storage - now can store structured error info
+  error: {
+    message: string;
+    code?: string;
+    source?: string;
+  } | null;
 
   // Actions
   setUser: (user: ServerSessionUser | null) => void;
-  setError: (error: string | null) => void;
+
+  // Enhanced error handling - accept string or AppError
+  setError: (error: string | AppError | Error | null) => void;
+
   setLoading: (isLoading: boolean) => void;
   setInitialized: (initialized: boolean) => void;
   logout: () => void;
+  clearError: () => void; // Added for convenient error clearing
 }
 
 // Helper to ensure dates are Date objects
@@ -82,13 +93,39 @@ export const useAuthStore = create<AuthState>()(
           error: null,
         }),
 
+      // Enhanced error handler that can work with different error types
       setError: (error) =>
-        set((state) => ({
-          ...state,
-          error,
-          isLoading: false,
-          isInitialized: true,
-        })),
+        set((state) => {
+          let errorInfo = null;
+
+          // Handle different error types
+          if (error instanceof AppError) {
+            // For our custom AppError class
+            errorInfo = {
+              message: error.message,
+              code: error.code,
+              source: error.source,
+            };
+          } else if (error instanceof Error) {
+            // For standard Error objects
+            errorInfo = {
+              message: error.message,
+              code: (error as any).code, // Try to extract code if present
+            };
+          } else if (typeof error === "string") {
+            // For simple string errors
+            errorInfo = {
+              message: error,
+            };
+          }
+
+          return {
+            ...state,
+            error: errorInfo,
+            isLoading: false,
+            isInitialized: true,
+          };
+        }),
 
       setLoading: (isLoading) =>
         set((state) => ({
@@ -100,6 +137,12 @@ export const useAuthStore = create<AuthState>()(
         set((state) => ({
           ...state,
           isInitialized: initialized,
+        })),
+
+      clearError: () =>
+        set((state) => ({
+          ...state,
+          error: null,
         })),
 
       logout: () => {

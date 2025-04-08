@@ -1,9 +1,8 @@
-// src/lib/types/errors.ts
-import { APIError } from "better-auth/api";
+// src/lib/errors/error-types.ts
+import { APIError } from "better-auth";
 
 /**
  * Error type from BetterAuth client operations
- * Using custom type from better-fetch
  */
 export type BetterAuthClientErrorType = {
   code?: string | undefined;
@@ -25,7 +24,7 @@ export interface AppErrorData {
   message: string;
   code?: string;
   status?: number | string;
-  details?: Record<string, string[]>;
+  details?: ValidationErrorDetails;
   source?: ErrorSource;
   originalError?: unknown;
 }
@@ -46,3 +45,15 @@ export type ErrorSource =
  * Fields that can have validation errors
  */
 export type ValidationErrorDetails = Record<string, string[]>;
+
+/**
+ * Serialized AppError for transmission
+ */
+export interface SerializedAppError {
+  name: string;
+  message: string;
+  code: string;
+  status: number | string;
+  details?: ValidationErrorDetails;
+  source: ErrorSource;
+}

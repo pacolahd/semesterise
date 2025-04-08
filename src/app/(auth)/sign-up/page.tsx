@@ -12,7 +12,7 @@ import {
   SignUpInput,
   signUpSchema,
 } from "@/drizzle/schema/auth/signin-signup-schema";
-import { useSignUp } from "@/lib/api/auth";
+import { useSignUp } from "@/lib/auth/auth-hooks";
 
 export default function SignUpPage() {
   // Initialize form with React Hook Form

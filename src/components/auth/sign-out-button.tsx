@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 import { Loader2, LogOut } from "lucide-react";
 
 import { Button, ButtonProps } from "@/components/ui/button";
-import { useSignOut } from "@/lib/api/auth";
+import { useSignOut } from "@/lib/auth/auth-hooks";
 
 interface SignOutButtonProps extends Omit<ButtonProps, "onClick"> {
   variant?:

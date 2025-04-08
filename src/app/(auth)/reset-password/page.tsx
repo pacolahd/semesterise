@@ -14,7 +14,7 @@ import {
   ResetPasswordInput,
   resetPasswordSchema,
 } from "@/drizzle/schema/auth/signin-signup-schema";
-import { useResetPassword } from "@/lib/api/auth";
+import { useResetPassword } from "@/lib/auth/auth-hooks";
 
 function ResetPasswordPageContent() {
   // Access query parameters

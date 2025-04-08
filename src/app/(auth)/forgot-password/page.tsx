@@ -12,7 +12,7 @@ import {
   ForgotPasswordInput,
   forgotPasswordSchema,
 } from "@/drizzle/schema/auth/signin-signup-schema";
-import { useForgotPassword } from "@/lib/api/auth";
+import { useForgotPassword } from "@/lib/auth/auth-hooks";
 
 export default function ForgotPasswordPage() {
   // Initialize form with React Hook Form
