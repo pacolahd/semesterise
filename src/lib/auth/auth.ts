@@ -19,7 +19,7 @@ import {
 import { staffEmailRoles } from "@/drizzle/schema/institution";
 import { env } from "@/env/server";
 import { sendEmail } from "@/lib/actions/email";
-import { BetterAuthClientErrorType } from "@/lib/auth/auth-error-utils";
+import { BetterAuthClientErrorType } from "@/lib/errors/error-types";
 
 const options = {
   appName: "Semesterise",

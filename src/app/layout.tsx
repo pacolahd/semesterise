@@ -3,6 +3,7 @@ import React, { ReactNode } from "react";
 
 import { ErrorBoundary } from "@/components/error-boundary";
 import { Providers } from "@/components/providers/providers";
+import { useSession } from "@/lib/auth/auth-hooks";
 import { satoshi } from "@/lib/fonts";
 
 import "./globals.css";

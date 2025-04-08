@@ -110,7 +110,7 @@ class ErrorBoundaryComponent extends Component<
 
       // Default error UI
       return (
-        <div className="flex min-h-[400px] w-full flex-col items-center justify-center space-y-4 rounded-lg border border-red-200 bg-red-50 p-8 text-center dark:border-red-900/50 dark:bg-red-950/50">
+        <div className="flex min-h-screen w-full flex-col items-center justify-center space-y-4 rounded-lg border border-red-200 bg-red-50 p-8 text-center dark:border-red-900/50 dark:bg-red-950/50">
           <AlertTriangle className="h-12 w-12 text-red-500" />
           <h2 className="text-xl font-semibold text-red-800 dark:text-red-300">
             Something went wrong

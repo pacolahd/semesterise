@@ -1,4 +1,3 @@
-// src/lib/errors/error-types.ts
 import { APIError } from "better-auth";
 
 /**
@@ -50,10 +49,10 @@ export type ValidationErrorDetails = Record<string, string[]>;
  * Serialized AppError for transmission
  */
 export interface SerializedAppError {
-  name: string;
-  message: string;
-  code: string;
-  status: number | string;
+  name?: string;
+  message?: string;
+  code?: string;
+  status?: number | string;
   details?: ValidationErrorDetails;
-  source: ErrorSource;
+  source?: ErrorSource;
 }

@@ -95,7 +95,7 @@ export function convertToAppError(error: unknown): AppError {
     if (error instanceof Error) {
       return new AppError({
         message: error?.message,
-        code: (error as any).code, // Try to get code if exists
+        code: (error as any).code ?? (error as any).name, // Try to get code or name if exists
         status: (error as any).status || 500, // Try to get status if exists
         originalError: error,
       });

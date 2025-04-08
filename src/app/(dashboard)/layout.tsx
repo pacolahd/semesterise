@@ -1,8 +1,6 @@
 // app/(dashboard)/layout.tsx
 import { PropsWithChildren } from "react";
 
-import { AuthGuard } from "@/components/auth/auth-guard";
-
 /**
  * Dashboard Layout
  *
@@ -19,20 +17,17 @@ import { AuthGuard } from "@/components/auth/auth-guard";
  */
 export default function DashboardLayout({ children }: PropsWithChildren) {
   return (
-    <AuthGuard requireAuth={true}>
-      {/* Dashboard layout structure goes here */}
-      <div className="flex min-h-screen">
-        {/* Sidebar would go here */}
+    <div className="flex min-h-screen">
+      {/* Sidebar would go here */}
 
-        <div className="flex-1">
-          {/* Top navbar would go here */}
+      <div className="flex-1">
+        {/* Top navbar would go here */}
 
-          {/* Main content */}
-          <main className="p-4">{children}</main>
+        {/* Main content */}
+        <main className="p-4">{children}</main>
 
-          {/* Footer would go here */}
-        </div>
+        {/* Footer would go here */}
       </div>
-    </AuthGuard>
+    </div>
   );
 }

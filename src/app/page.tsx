@@ -29,12 +29,10 @@ import {
 } from "@/components/ui/popover";
 
 export default function Home() {
-  // const { mutate: signOut, isPending } = useSignOut();
-
   return (
     <div className="flex h-screen flex-col items-center justify-center space-y-10">
       <div className="flex items-center space-x-4 pb-6">
-        <p className="text-2xl font-bold">Welcome to Semesterise</p>
+        <p className="text-2xl font-bold"> Welcome to Semesterise</p>
         <IconPackage />
         <ThemeSwitcher />
       </div>

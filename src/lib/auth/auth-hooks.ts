@@ -30,12 +30,6 @@ import { convertToAppError } from "@/lib/errors/error-converter";
 /**
  * Session hook with improved error handling
  */
-/**
- * Session hook with improved error handling
- */
-/**
- * Session hook with improved error handling
- */
 export function useSession() {
   const { setUser, setError, setLoading, setInitialized } = useAuthStore();
 
@@ -89,7 +83,6 @@ export function useSession() {
 
   return query;
 }
-
 /**
  * Sign in hook with robust error handling
  */

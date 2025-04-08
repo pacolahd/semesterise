@@ -13,7 +13,7 @@ import {
 } from "@/drizzle/schema/auth/enums";
 // import { env } from "@/env/server";
 import { auth } from "@/lib/auth/auth";
-import { BetterAuthClientErrorType } from "@/lib/auth/auth-error-utils";
+import { BetterAuthClientErrorType } from "@/lib/errors/error-types";
 
 export const authClient = createAuthClient({
   /** the base url of the server (optional if you're using the same domain) */

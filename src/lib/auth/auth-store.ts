@@ -155,14 +155,14 @@ export const useAuthStore = create<AuthState>()(
         });
 
         // Also completely remove persisted state
-        if (typeof localStorage !== "undefined") {
-          localStorage.removeItem(STORAGE_KEY);
-        }
-
-        // Optionally clear session storage too if you use it
-        if (typeof sessionStorage !== "undefined") {
-          sessionStorage.removeItem(STORAGE_KEY);
-        }
+        // if (typeof localStorage !== "undefined") {
+        //   localStorage.removeItem(STORAGE_KEY);
+        // }
+        //
+        // // Optionally clear session storage too if you use it
+        // if (typeof sessionStorage !== "undefined") {
+        //   sessionStorage.removeItem(STORAGE_KEY);
+        // }
       },
     }),
     {
