@@ -31,7 +31,8 @@ import { convertToAppError } from "@/lib/errors/error-converter";
  * Session hook with improved error handling
  */
 export function useSession() {
-  const { setUser, setError, setLoading, setInitialized } = useAuthStore();
+  const { setUser, setError, setLoading, setInitialized, isSigningOut } =
+    useAuthStore();
 
   const query = useQuery({
     queryKey: ["auth", "session"],
@@ -87,15 +88,29 @@ export function useSession() {
  * Sign in hook with robust error handling
  */
 export function useSignIn(form?: UseFormReturn<SignInInput>) {
+  const { setUser } = useAuthStore();
   const queryClient = useQueryClient();
   const router = useRouter();
-
   return useMutation({
     mutationFn: async (values: SignInInput) => {
-      const result = await signIn(values);
-      return handleActionResponse(result);
+      const result1 = await signIn(values);
+
+      // return handleActionResponse(result);
+      const result = await getSession();
+      const sessionData = handleActionResponse(result);
+
+      // If we get here, we have successful data
+      // Update the user in the store right away
+      if (sessionData) {
+        setUser(sessionData.user || null);
+      }
+
+      return sessionData;
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      // user data from signIn doesn't contain details like the role, userType and the onboardingComplete... So we do not set it. But we can call getSession in the mutation and return the result from it rather than that from signIn. So the signIn mutation will both signIn and getSession and then return the session data. The reason is son that the session data is available as soon as the user signIn mutation is done, with no lag waiting for getSession to finish.
+      // setUser(data.user || null);
+
       // Handle successful sign in
       toast.success(`Welcome back, ${data?.user?.name?.split(" ")[0] || ""}!`);
       queryClient.invalidateQueries({ queryKey: ["auth", "session"] });
@@ -239,14 +254,13 @@ export function useResetPassword(form?: UseFormReturn<ResetPasswordInput>) {
  * Sign out hook with robust error handling
  */
 export function useSignOut() {
-  const { logout } = useAuthStore();
+  const { logout, setSigningOut } = useAuthStore();
   const queryClient = useQueryClient();
   const router = useRouter();
 
   return useMutation({
     mutationFn: async () => {
-      // Always logout locally first
-      logout();
+      // setSigningOut(true);
 
       // Clear relevant queries
       queryClient.invalidateQueries({ queryKey: ["auth"] });
@@ -263,9 +277,10 @@ export function useSignOut() {
       toast.success("You have been signed out");
 
       // Navigate to sign-in page after a delay
-      setTimeout(() => {
-        router.push("/sign-in");
-      }, 500);
+      // setTimeout(() => {
+      //   router.push("/sign-in");
+      // }, 500);
+      router.push("/sign-in");
     },
     onError: () => {
       // Even if server logout fails, we've already logged out locally
@@ -275,6 +290,10 @@ export function useSignOut() {
       setTimeout(() => {
         router.push("/sign-in");
       }, 500);
+    },
+    onSettled: () => {
+      // Always logout locally first
+      logout();
     },
   });
 }

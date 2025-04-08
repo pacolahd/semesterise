@@ -27,6 +27,27 @@ export async function requireAuth() {
 }
 
 /**
+ * Checks if the current user has the is not logged in and doesn't have a session
+ * If the user is logged in, redirect to home page
+ */
+export async function requireGuest() {
+  const headersList = await headers();
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error - Auth API types are not fully compatible
+  const session: ServerSession | null = await auth.api.getSession({
+    headers: headersList,
+  });
+
+  if (session?.user) {
+    // If user is authenticated, redirect to home page
+    redirect("/");
+  }
+
+  return true;
+}
+
+/**
  * Checks if the current user has the specified permission
  * Uses forbidden() if they don't have permission
  */

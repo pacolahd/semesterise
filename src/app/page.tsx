@@ -4,6 +4,7 @@ import { IconPackage } from "@tabler/icons-react";
 import { Loader2 } from "lucide-react";
 
 import { SignOutButton } from "@/components/auth/sign-out-button";
+import { SessionStatus } from "@/components/providers/session-status";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,8 +28,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useSession } from "@/lib/auth/auth-hooks";
+import { useAuthStore } from "@/lib/auth/auth-store";
 
 export default function Home() {
+  const { user } = useAuthStore();
   return (
     <div className="flex h-screen flex-col items-center justify-center space-y-10">
       <div className="flex items-center space-x-4 pb-6">
@@ -36,6 +40,10 @@ export default function Home() {
         <IconPackage />
         <ThemeSwitcher />
       </div>
+      <SessionStatus className="w-40 h-10">
+        <h1>Welcome, {user?.name}</h1>
+        <p>Role: {user?.role}</p>
+      </SessionStatus>
 
       <SignOutButton
         variant="destructive"

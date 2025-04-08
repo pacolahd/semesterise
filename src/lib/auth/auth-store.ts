@@ -20,7 +20,7 @@ const userSchema = z.object({
   emailVerified: z.boolean(),
   userType: z.string(),
   role: z.string(),
-  onboardingCompleted: z.boolean().optional().default(false),
+  onboardingCompleted: z.boolean().optional(),
   createdAt: dateTransformer,
   updatedAt: dateTransformer,
   image: z.string().optional().nullable(),
@@ -31,6 +31,7 @@ interface AuthState {
   user: z.infer<typeof userSchema> | null;
   isLoading: boolean;
   isInitialized: boolean;
+  isSigningOut: boolean;
 
   // Enhanced error storage - now can store structured error info
   error: {
@@ -48,6 +49,7 @@ interface AuthState {
   setLoading: (isLoading: boolean) => void;
   setInitialized: (initialized: boolean) => void;
   logout: () => void;
+  setSigningOut: (isSigningOut: boolean) => void;
   clearError: () => void; // Added for convenient error clearing
 }
 
@@ -83,6 +85,7 @@ export const useAuthStore = create<AuthState>()(
       isLoading: true,
       isInitialized: false,
       error: null,
+      isSigningOut: false,
 
       // Actions - with manual immutability
       setUser: (user) =>
@@ -91,6 +94,7 @@ export const useAuthStore = create<AuthState>()(
           isLoading: false,
           isInitialized: true,
           error: null,
+          // isSigningOut: false,
         }),
 
       // Enhanced error handler that can work with different error types
@@ -131,6 +135,12 @@ export const useAuthStore = create<AuthState>()(
         set((state) => ({
           ...state,
           isLoading,
+        })),
+
+      setSigningOut: (isSigningOut) =>
+        set((state) => ({
+          ...state,
+          isSigningOut,
         })),
 
       setInitialized: (initialized) =>

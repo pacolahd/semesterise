@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 import { useAuthStore } from "@/lib/auth/auth-store";
 import { Permission, rolePermissions } from "@/lib/types/common";
@@ -65,4 +66,21 @@ export function useRequireAuth() {
   }
 
   return { user, isLoading };
+}
+
+/**
+ * A hook that redirects to home page if user is authenticated
+ */
+export function useRequireGuest(redirectTo = "/") {
+  const { user, isLoading, isInitialized } = useAuthStore();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isInitialized && !isLoading && user) {
+      // If the user is logged in, redirect away from this page
+      router.replace(redirectTo);
+    }
+  }, [user, isLoading, isInitialized, router, redirectTo]);
+
+  return { isLoading: isLoading || !isInitialized };
 }
