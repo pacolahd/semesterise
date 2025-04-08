@@ -1,3 +1,4 @@
+// TODO: Update middleware to work with new authorization and authentication system
 import { NextRequest, NextResponse } from "next/server";
 
 import { betterFetch } from "@better-fetch/fetch";

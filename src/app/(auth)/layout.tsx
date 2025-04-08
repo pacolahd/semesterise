@@ -1,7 +1,6 @@
 // app/(auth)/layout.tsx
 import Image from "next/image";
 
-import { AuthGuard } from "@/components/auth/auth-guard";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { AshesiLogo } from "@/components/ui/ashesi-logo";
 

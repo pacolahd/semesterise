@@ -40,6 +40,54 @@ export type Permission =
   | "reject:petitions"
   | "implement:petitions";
 
+export const rolePermissions: Record<string, Permission[]> = {
+  student: [
+    "manage:degree-audit",
+    "manage:course-plans",
+    "view:petitions", // Students can only view their own
+  ],
+  academic_advisor: [
+    "view:student-records",
+    "view:petitions",
+    "approve:petitions",
+    "reject:petitions",
+    "view:reports",
+  ],
+  hod: [
+    "view:student-records",
+    "view:petitions",
+    "approve:petitions",
+    "reject:petitions",
+    "view:reports",
+  ],
+  provost: [
+    "view:student-records",
+    "view:petitions",
+    "approve:petitions",
+    "reject:petitions",
+    "view:reports",
+  ],
+  registry: [
+    "view:student-records",
+    "view:petitions",
+    "implement:petitions",
+    "view:reports",
+    "manage:users",
+  ],
+  admin: [
+    "manage:petitions",
+    "view:petitions",
+    "manage:degree-audit",
+    "manage:course-plans",
+    "view:reports",
+    "manage:users",
+    "view:student-records",
+    "approve:petitions",
+    "reject:petitions",
+    "implement:petitions",
+  ],
+};
+
 // Common activity types constants
 export const ActivityTypes = {
   // Auth activities
