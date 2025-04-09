@@ -29,18 +29,24 @@ export const authUsers = pgTable("user", {
   updatedAt,
 });
 
-export const authUserSchema = createInsertSchema(authUsers).extend({
-  // Add validation
-  name: z.string().min(1).max(50),
-  id: z.string().uuid(), // Ensure id is required
-  email: z.string().email().min(1), // Required
-  emailVerified: z.boolean().default(false), // Ensure it's required
-  image: z.string().url().optional().nullable(), // Optional image
-  createdAt: z.date(), // Required
-  updatedAt: z.date(), // Required
-  userType: z.enum(userTypeValues),
-  role: z.enum(userRoleValues),
-  onboardingCompleted: z.boolean().default(false),
+// export const authUserSchema = createInsertSchema(authUsers).extend({
+//   // Add validation
+//   name: z.string().min(1).max(50).optional(),
+//   // id: z.string().uuid(), // Ensure id is required
+//   // email: z.string().email().min(1), // Required
+//   // emailVerified: z.boolean().default(false), // Ensure it's required
+//   image: z.string().url().optional().nullable(), // Optional image
+//   // createdAt: z.date(), // Required
+//   // updatedAt: z.date(), // Required
+//   // userType: z.enum(userTypeValues),
+//   // role: z.enum(userRoleValues),
+//   onboardingCompleted: z.boolean().optional(),
+// });
+
+export const authUserSchema = z.object({
+  name: z.string().min(1).max(50).optional(),
+  image: z.string().url().optional().nullable(),
+  onboardingCompleted: z.boolean().optional(),
 });
 
 export type AuthUserInput = z.infer<typeof authUserSchema>;

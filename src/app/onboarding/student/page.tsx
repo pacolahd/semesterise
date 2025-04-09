@@ -40,19 +40,8 @@ const MATH_TRACKS = [
   { name: "Pre-Calculus", description: "Preparatory mathematics track" },
 ];
 
-// Mock processing stages for transcript
-const PROCESSING_STAGES = [
-  "Extracting course data from transcript",
-  "Analyzing course history",
-  "Matching courses with requirements",
-  "Building your academic profile",
-  "Finalizing your degree audit",
-];
-
 export default function StudentOnboarding() {
   const router = useRouter();
-  const [isTranscriptProcessing, setIsTranscriptProcessing] = useState(false);
-  const [processingStage, setProcessingStage] = useState(-1);
 
   // Get auth state
   const { user, isLoading } = useAuthStore();
@@ -60,11 +49,10 @@ export default function StudentOnboarding() {
   // Get access to the onboarding store
   const {
     currentStep,
-    academicInfo,
-    programInfo,
     setCurrentStep,
     setAcademicInfo,
     setProgramInfo,
+    completeOnboarding,
   } = useOnboardingStore();
 
   // Numeric step derived from the string-based step in the store
@@ -81,10 +69,6 @@ export default function StudentOnboarding() {
         return 0;
     }
   })();
-
-  const transcriptForm = useForm({
-    resolver: zodResolver(transcriptSchema),
-  });
 
   // Check user role and initialize
   useEffect(() => {
@@ -112,50 +96,50 @@ export default function StudentOnboarding() {
     setCurrentStep("transcript-import");
   };
 
-  const handleTranscriptSubmit = async (values: any) => {
-    if (!academicInfo || !programInfo) {
-      toast.error("Please complete all previous steps first");
-      return;
-    }
-
-    setIsTranscriptProcessing(true);
-    setProcessingStage(0); // Start processing animation
-
-    try {
-      const file = values.transcript[0];
-
-      // In a real implementation, this would use the parseTranscriptFile server action
-      // For now, we'll simulate the processing with a timeout for each stage
-
-      // Read the file
-      const fileData = await file.arrayBuffer();
-
-      // Process the file in stages for visual feedback
-      const processSteps = async () => {
-        for (let i = 0; i < PROCESSING_STAGES.length; i++) {
-          await new Promise((resolve) => setTimeout(resolve, 800));
-          setProcessingStage(i);
-        }
-
-        // This would be where we call the server action
-        // const result = await parseTranscriptFile(fileData, file.type, academicInfo, programInfo);
-
-        toast.success("Transcript imported successfully!");
-
-        // Navigate to dashboard or degree audit view after a short delay
-        setTimeout(() => {
-          router.push("/dashboard");
-        }, 1500);
-      };
-
-      processSteps();
-    } catch (error) {
-      console.error("Error processing transcript:", error);
-      toast.error("Failed to process your transcript. Please try again.");
-      setProcessingStage(-1);
-      setIsTranscriptProcessing(false);
-    }
-  };
+  // const handleTranscriptSubmit = async (values: any) => {
+  //   if (!academicInfo || !programInfo) {
+  //     toast.error("Please complete all previous steps first");
+  //     return;
+  //   }
+  //
+  //   setIsTranscriptProcessing(true);
+  //   setProcessingStage(0); // Start processing animation
+  //
+  //   try {
+  //     const file = values.transcript[0];
+  //
+  //     // In a real implementation, this would use the parseTranscriptFile server action
+  //     // For now, we'll simulate the processing with a timeout for each stage
+  //
+  //     // Read the file
+  //     const fileData = await file.arrayBuffer();
+  //
+  //     // Process the file in stages for visual feedback
+  //     const processSteps = async () => {
+  //       for (let i = 0; i < PROCESSING_STAGES.length; i++) {
+  //         await new Promise((resolve) => setTimeout(resolve, 800));
+  //         setProcessingStage(i);
+  //       }
+  //
+  //       // This would be where we call the server action
+  //       // const result = await parseTranscriptFile(fileData, file.type, academicInfo, programInfo);
+  //
+  //       toast.success("Transcript imported successfully!");
+  //
+  //       // Navigate to dashboard or degree audit view after a short delay
+  //       setTimeout(() => {
+  //         router.push("/dashboard");
+  //       }, 1500);
+  //     };
+  //
+  //     processSteps();
+  //   } catch (error) {
+  //     console.error("Error processing transcript:", error);
+  //     toast.error("Failed to process your transcript. Please try again.");
+  //     setProcessingStage(-1);
+  //     setIsTranscriptProcessing(false);
+  //   }
+  // };
 
   // Navigation handlers
   const handleBack = () => {
@@ -213,14 +197,7 @@ export default function StudentOnboarding() {
       )}
 
       {currentStep === "transcript-import" && (
-        <TranscriptImportForm
-          form={transcriptForm}
-          onSubmit={handleTranscriptSubmit}
-          onBack={handleBack}
-          processingStages={PROCESSING_STAGES}
-          isProcessing={isTranscriptProcessing}
-          processingStage={processingStage}
-        />
+        <TranscriptImportForm onBack={handleBack} />
       )}
     </div>
   );

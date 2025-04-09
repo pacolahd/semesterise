@@ -7,6 +7,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 
+import { AuthUserInput } from "@/drizzle/schema/auth/auth-users";
 import {
   ForgotPasswordInput,
   ResetPasswordInput,
@@ -21,6 +22,7 @@ import {
   signIn,
   signOut,
   signUp,
+  updateUserProfile,
 } from "@/lib/auth/auth-actions";
 import { useAuthStore } from "@/lib/auth/auth-store";
 import { handleActionResponse } from "@/lib/errors/action-response-handler";
@@ -307,6 +309,59 @@ export function useSignOut() {
     onSettled: () => {
       // Always logout locally first
       logout();
+    },
+  });
+}
+
+/**
+ * Update Profile hook with robust error handling
+ */
+export function useUpdateUserProfile(
+  userId: string,
+  form?: UseFormReturn<Partial<AuthUserInput>>
+) {
+  const queryClient = useQueryClient();
+  const { setUser } = useAuthStore();
+
+  return useMutation({
+    mutationFn: async (updates: Partial<AuthUserInput>) => {
+      const result = await updateUserProfile(userId, updates);
+      handleActionResponse(result); // will throw if failed
+
+      // Re-fetch session to get updated user data
+      const sessionResult = await getSession();
+      const session = handleActionResponse(sessionResult);
+
+      if (session?.user) {
+        setUser(session.user);
+      }
+
+      return session;
+    },
+    onSuccess: (session) => {
+      toast.success("Profile updated successfully.");
+      queryClient.invalidateQueries({ queryKey: ["auth", "session"] });
+    },
+    onError: (error) => {
+      if (error instanceof AppError && error.hasValidationDetails() && form) {
+        Object.entries(error.details!).forEach(([field, messages]) => {
+          form.setError(field as keyof AuthUserInput, {
+            type: "server",
+            message: Array.isArray(messages)
+              ? messages.join(", ")
+              : String(messages),
+          });
+        });
+      } else if (error instanceof ValidationError && form) {
+        Object.entries(error.details!).forEach(([field, messages]) => {
+          form.setError(field as keyof AuthUserInput, {
+            type: "server",
+            message: Array.isArray(messages)
+              ? messages.join(", ")
+              : String(messages),
+          });
+        });
+      }
     },
   });
 }

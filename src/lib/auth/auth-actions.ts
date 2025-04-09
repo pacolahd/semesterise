@@ -7,7 +7,8 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { db } from "@/drizzle";
-import { authUsers } from "@/drizzle/schema";
+import { authUserSchema, authUsers } from "@/drizzle/schema";
+import { AuthUserInput } from "@/drizzle/schema/auth/auth-users";
 import {
   forgotPasswordSchema,
   resetPasswordSchema,
@@ -307,6 +308,40 @@ export async function resetPassword(
     };
   } catch (error) {
     console.error("Reset password error:", error);
+    return {
+      success: false,
+      error: serializeError(error),
+    };
+  }
+}
+
+// Update User Profile
+export async function updateUserProfile(
+  userId: string,
+  updates: Partial<AuthUserInput>
+): Promise<ActionResponse<null>> {
+  const validated = authUserSchema.safeParse(updates);
+
+  if (!validated.success) {
+    return {
+      success: false,
+      error: {
+        name: "ValidationError",
+        message: "Invalid update data",
+        details: validated.error.flatten().fieldErrors,
+      },
+    };
+  }
+
+  try {
+    await db
+      .update(authUsers)
+      .set(validated.data)
+      .where(eq(authUsers.id, userId));
+
+    return { success: true, data: null };
+  } catch (error) {
+    console.error("Failed to update user profile:", error);
     return {
       success: false,
       error: serializeError(error),

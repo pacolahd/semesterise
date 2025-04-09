@@ -19,6 +19,7 @@ export const env = createEnv({
     EMAIL_VERIFICATION_CALLBACK_URL: z.string().url(),
     RESEND_API_KEY: z.string(),
     EMAIL_FROM: z.string(),
+    FLASK_API_URL: z.string().url(),
   },
   onValidationError: (error: ZodError) => {
     console.error(

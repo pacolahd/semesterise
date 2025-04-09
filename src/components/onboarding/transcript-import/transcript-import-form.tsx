@@ -1,10 +1,13 @@
-"use client";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-import { useState } from "react";
-
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { UseFormReturn } from "react-hook-form";
+import { UseFormReturn, useForm } from "react-hook-form";
+import { toast } from "sonner";
 
+import { transcriptSchema } from "@/components/onboarding/transcript-import/transcript-import-schema";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,33 +17,112 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Form, FormField } from "@/components/ui/form";
+import { useUpdateUserProfile } from "@/lib/auth/auth-hooks";
+import { useAuthStore } from "@/lib/auth/auth-store";
+import {
+  parseTranscriptFile,
+  processTranscriptData,
+} from "@/lib/services/transcript-service";
+import { useOnboardingStore } from "@/lib/stores/onboarding-store";
 
 import { ExportHelpDialog } from "./export-help-dialog";
 import { FileUpload } from "./file-upload";
 import { ProcessingVisualization } from "./processing-visualization";
 
 interface TranscriptImportFormProps {
-  form: UseFormReturn<any>;
-  onSubmit: (data: any) => Promise<void>;
   onBack: () => void;
-  processingStages: string[];
-  isProcessing: boolean;
-  processingStage: number;
 }
 
-/**
- * Transcript import form component
- */
-export function TranscriptImportForm({
-  form,
-  onSubmit,
-  onBack,
-  processingStages,
-  isProcessing,
-  processingStage,
-}: TranscriptImportFormProps) {
+export function TranscriptImportForm({ onBack }: TranscriptImportFormProps) {
   const [showWhyImportDialog, setShowWhyImportDialog] = useState(false);
   const [showHowToExportDialog, setShowHowToExportDialog] = useState(false);
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const { academicInfo, programInfo, completeOnboarding } =
+    useOnboardingStore();
+  const { user } = useAuthStore();
+
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingStage, setProcessingStage] = useState(-1);
+  const { mutate: updateUserProfile, isPending: isUpdateUserPending } =
+    useUpdateUserProfile(user!.id);
+
+  const transcriptForm = useForm({
+    resolver: zodResolver(transcriptSchema),
+  });
+
+  // Mock processing stages for transcript
+  const processingStages = [
+    "Extracting course data from transcript",
+    "Analyzing course history",
+    "Matching courses with requirements",
+    "Building your academic profile",
+    "Finalizing your degree audit",
+  ];
+  // Replace the existing onSubmit handler with this one
+  const handleSubmit = async (values: any) => {
+    if (!academicInfo || !programInfo) {
+      toast.error("Please complete all previous steps first");
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+
+      const file = values.transcript[0];
+
+      // Start visual processing feedback
+      const currentStage = 0;
+      const updateStage = (stage: number) => {
+        setProcessingStage(stage);
+      };
+
+      // Simulate progress for visual feedback
+      const progressInterval = setInterval(() => {
+        if (currentStage < processingStages.length - 1) {
+          updateStage(currentStage + 1);
+        } else {
+          clearInterval(progressInterval);
+        }
+      }, 800);
+
+      // Actually process the file
+      const transcriptData = await parseTranscriptFile(
+        file,
+        academicInfo,
+        programInfo
+      );
+
+      // Clear the interval and set final stage
+      clearInterval(progressInterval);
+      updateStage(processingStages.length - 1);
+
+      // Process the data and store it for use throughout the app
+      const processedData = processTranscriptData(transcriptData);
+      queryClient.setQueryData(["transcript-data"], processedData);
+
+      // Also store in local storage as fallback
+      localStorage.setItem("transcript-data", JSON.stringify(processedData));
+
+      toast.success("Transcript imported successfully!");
+
+      // Mark onboarding as complete and navigate
+      // setTimeout(async () => {
+      updateUserProfile({ onboardingCompleted: true });
+      completeOnboarding();
+      router.push("/dashboard");
+      // }, 1500);
+    } catch (error) {
+      console.error("Error processing transcript:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to process your transcript. Please try again."
+      );
+      setProcessingStage(-1);
+      setIsProcessing(false);
+    }
+  };
 
   if (isProcessing) {
     return (
@@ -60,10 +142,13 @@ export function TranscriptImportForm({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <Form {...transcriptForm}>
+          <form
+            onSubmit={transcriptForm.handleSubmit(handleSubmit)}
+            className="space-y-6"
+          >
             <FormField
-              control={form.control}
+              control={transcriptForm.control}
               name="transcript"
               render={({ field }) => (
                 <FileUpload
