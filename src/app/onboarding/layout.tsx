@@ -1,4 +1,3 @@
-// src/app/onboarding/layout.tsx
 import { ReactNode } from "react";
 
 import { ThemeSwitcher } from "@/components/theme-switcher";

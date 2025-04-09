@@ -69,7 +69,7 @@ export async function getSession(): Promise<ActionResponse<ServerSession>> {
 
     if (!session) {
       const error = new AuthError({
-        message: "No active session",
+        message: "No active session. Please sign in/sign up and try again.",
         code: "NO_SESSION",
         source: "auth-api",
       });
@@ -97,6 +97,17 @@ export async function getSession(): Promise<ActionResponse<ServerSession>> {
 export async function signIn(
   formData: z.infer<typeof signInSchema>
 ): Promise<ActionResponse<any>> {
+  // Check if user exists (return early if not)
+  const existenceCheck = await checkUserExistenceOrReturn(
+    formData.email.toLowerCase(),
+    {
+      shouldExist: true,
+      errorMessage:
+        "No account found with this email address. Please correct your email or sign up.",
+    }
+  );
+  if (!existenceCheck.success) return existenceCheck;
+
   // Validate input (return early if invalid)
   const validatedFields = signInSchema.safeParse(formData);
   if (!validatedFields.success) {
@@ -112,14 +123,6 @@ export async function signIn(
   }
 
   const { email, password, rememberMe } = validatedFields.data;
-
-  // Check if user exists (return early if not)
-  const existenceCheck = await checkUserExistenceOrReturn(email, {
-    shouldExist: true,
-    errorMessage:
-      "No account found with this email address. Please correct your email or sign up.",
-  });
-  if (!existenceCheck.success) return existenceCheck;
 
   // try signing in
   try {

@@ -30,7 +30,7 @@ export const studentCourses = pgTable(
     id: uuid("id").defaultRandom().primaryKey().notNull(),
     student_id: varchar("student_id", { length: 20 })
       .notNull()
-      .references(() => studentProfiles.student_id, { onDelete: "cascade" }),
+      .references(() => studentProfiles.studentId, { onDelete: "cascade" }),
     course_code: varchar("course_code", { length: 20 })
       .notNull()
       .references(() => courses.code, { onDelete: "restrict" }),

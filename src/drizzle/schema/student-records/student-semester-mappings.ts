@@ -12,7 +12,7 @@ export const studentSemesterMappings = pgTable("student_semester_mappings", {
   id,
   student_id: varchar("student_id", { length: 20 })
     .notNull()
-    .references(() => studentProfiles.student_id, { onDelete: "cascade" }),
+    .references(() => studentProfiles.studentId, { onDelete: "cascade" }),
   academic_semester_id: uuid("academic_semester_id")
     .notNull()
     .references(() => academicSemesters.id, { onDelete: "cascade" }),

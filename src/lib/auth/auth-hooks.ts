@@ -25,7 +25,10 @@ import {
 import { useAuthStore } from "@/lib/auth/auth-store";
 import { handleActionResponse } from "@/lib/errors/action-response-handler";
 import { AppError, ValidationError } from "@/lib/errors/app-error-classes";
-import { convertToAppError } from "@/lib/errors/error-converter";
+import {
+  convertToAppError,
+  isSerializedAppError,
+} from "@/lib/errors/error-converter";
 
 /**
  * Session hook with improved error handling
@@ -93,19 +96,29 @@ export function useSignIn(form?: UseFormReturn<SignInInput>) {
   const router = useRouter();
   return useMutation({
     mutationFn: async (values: SignInInput) => {
-      const result1 = await signIn(values);
+      let result = await signIn(values);
+      if (!result.success && result.error) {
+        // Handle serialized error from server component
+        if (isSerializedAppError(result.error)) {
+          // Convert serialized error to an AppError instance
+          throw AppError.fromSerialized(result.error);
+        } else {
+          // Fallback to generic conversion
+          throw convertToAppError(result.error);
+        }
+      } else {
+        // return handleActionResponse(result);
+        result = await getSession();
+        const sessionData = handleActionResponse(result);
 
-      // return handleActionResponse(result);
-      const result = await getSession();
-      const sessionData = handleActionResponse(result);
+        // If we get here, we have successful data
+        // Update the user in the store right away
+        if (sessionData) {
+          setUser(sessionData.user || null);
+        }
 
-      // If we get here, we have successful data
-      // Update the user in the store right away
-      if (sessionData) {
-        setUser(sessionData.user || null);
+        return sessionData;
       }
-
-      return sessionData;
     },
     onSuccess: async (data) => {
       // user data from signIn doesn't contain details like the role, userType and the onboardingComplete... So we do not set it. But we can call getSession in the mutation and return the result from it rather than that from signIn. So the signIn mutation will both signIn and getSession and then return the session data. The reason is son that the session data is available as soon as the user signIn mutation is done, with no lag waiting for getSession to finish.

@@ -20,7 +20,7 @@ export const transcriptImports = pgTable("transcript_imports", {
   id,
   studentId: varchar("student_id")
     .notNull()
-    .references(() => studentProfiles.student_id, { onDelete: "cascade" }),
+    .references(() => studentProfiles.studentId, { onDelete: "cascade" }),
   fileName: varchar("file_name", { length: 255 }).notNull(),
   fileUrl: varchar("file_url", { length: 255 }).notNull(),
   importDate: timestamp("import_date", { withTimezone: true })

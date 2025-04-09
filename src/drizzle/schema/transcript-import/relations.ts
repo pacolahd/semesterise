@@ -12,7 +12,7 @@ export const transcriptImportsRelations = relations(
   ({ one, many }) => ({
     student: one(studentProfiles, {
       fields: [transcriptImports.studentId],
-      references: [studentProfiles.student_id],
+      references: [studentProfiles.studentId],
     }),
     processingSteps: many(transcriptProcessingSteps),
   })

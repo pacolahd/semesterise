@@ -24,15 +24,15 @@ export const studentProfilesRelations = relations(
     }),
 
     major: one(majors, {
-      fields: [studentProfiles.major_code],
+      fields: [studentProfiles.majorCode],
       references: [majors.code],
     }),
     mathTrack: one(mathTracks, {
-      fields: [studentProfiles.math_track_name],
+      fields: [studentProfiles.mathTrackName],
       references: [mathTracks.name],
     }),
     capstoneOption: one(capstoneOptions, {
-      fields: [studentProfiles.capstone_option_id],
+      fields: [studentProfiles.capstoneOptionId],
       references: [capstoneOptions.name],
     }),
     semesterMappings: many(studentSemesterMappings),
@@ -46,7 +46,7 @@ export const studentSemesterMappingsRelations = relations(
   ({ one }) => ({
     student: one(studentProfiles, {
       fields: [studentSemesterMappings.student_id],
-      references: [studentProfiles.student_id],
+      references: [studentProfiles.studentId],
     }),
     semester: one(academicSemesters, {
       fields: [studentSemesterMappings.academic_semester_id],
@@ -58,7 +58,7 @@ export const studentSemesterMappingsRelations = relations(
 export const studentCoursesRelations = relations(studentCourses, ({ one }) => ({
   student: one(studentProfiles, {
     fields: [studentCourses.student_id],
-    references: [studentProfiles.student_id],
+    references: [studentProfiles.studentId],
   }),
   course: one(courses, {
     fields: [studentCourses.course_code],
@@ -87,7 +87,7 @@ export const academicWarningsRelations = relations(
   ({ one }) => ({
     student: one(studentProfiles, {
       fields: [academicWarnings.student_id],
-      references: [studentProfiles.student_id],
+      references: [studentProfiles.studentId],
     }),
     course: one(courses, {
       fields: [academicWarnings.course_code],

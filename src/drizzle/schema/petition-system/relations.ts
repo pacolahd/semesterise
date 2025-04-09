@@ -23,7 +23,7 @@ export const petitionTypesRelations = relations(petitionTypes, ({ many }) => ({
 export const petitionsRelations = relations(petitions, ({ one, many }) => ({
   student: one(studentProfiles, {
     fields: [petitions.studentId],
-    references: [studentProfiles.student_id],
+    references: [studentProfiles.studentId],
   }),
   petitionType: one(petitionTypes, {
     fields: [petitions.petitionTypeId],

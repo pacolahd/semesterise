@@ -19,7 +19,7 @@ import { createdAt, updatedAt } from "@/drizzle/schema/helpers";
 
 export const studentProfiles = pgTable("student_profiles", {
   // Keep the existing school-issued ID as the primary key
-  student_id: varchar("student_id", { length: 20 }).unique(),
+  studentId: varchar("student_id", { length: 20 }).unique(),
 
   // Reference to BetterAuth user
   authId: uuid("auth_id")
@@ -28,26 +28,25 @@ export const studentProfiles = pgTable("student_profiles", {
     .references(() => authUsers.id, { onDelete: "cascade" }),
 
   // Domain-specific fields
-  major_code: varchar("major_code").references(() => majors.code, {
+  majorCode: varchar("major_code").references(() => majors.code, {
     onDelete: "restrict",
   }),
-  math_track_name: varchar("math_track_name").references(
-    () => mathTracks.name,
-    { onDelete: "set null" }
-  ),
-  entry_year: integer("entry_year"),
+  mathTrackName: varchar("math_track_name").references(() => mathTracks.name, {
+    onDelete: "set null",
+  }),
+  entryYear: integer("entry_year"),
 
   // Graduation year
-  cohort_year: integer("cohort_year"),
-  current_year: integer("current_year"),
-  current_semester: varchar("current_semester", { length: 20 }),
+  cohortYear: integer("cohort_year"),
+  currentYear: integer("current_year"),
+  currentSemester: varchar("current_semester", { length: 20 }),
   expectedGraduationDate: date("expected_graduation_date"),
-  cumulative_gpa: decimal("cumulative_gpa", { precision: 3, scale: 2 }),
-  total_credits_earned: decimal("total_credits_earned", {
+  cumulativeGpa: decimal("cumulative_gpa", { precision: 3, scale: 2 }),
+  totalCreditsEarned: decimal("total_credits_earned", {
     precision: 5,
     scale: 1,
   }).default("0"),
-  capstone_option_id: varchar("capstone_option_id").references(
+  capstoneOptionId: varchar("capstone_option_id").references(
     () => capstoneOptions.name,
     { onDelete: "set null" }
   ),

@@ -28,7 +28,7 @@ export const petitions = pgTable("petitions", {
     .unique(),
   studentId: varchar("student_id", { length: 20 })
     .notNull()
-    .references(() => studentProfiles.student_id, { onDelete: "cascade" }),
+    .references(() => studentProfiles.studentId, { onDelete: "cascade" }),
   petitionTypeId: uuid("petition_type_id")
     .notNull()
     .references(() => petitionTypes.id, { onDelete: "restrict" }),

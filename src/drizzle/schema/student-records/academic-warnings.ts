@@ -12,7 +12,7 @@ export const academicWarnings = pgTable("academic_warnings", {
   id: uuid("id").defaultRandom().primaryKey().notNull(),
   student_id: varchar("student_id", { length: 20 })
     .notNull()
-    .references(() => studentProfiles.student_id, { onDelete: "cascade" }),
+    .references(() => studentProfiles.studentId, { onDelete: "cascade" }),
   warning_type: varchar("warning_type", { length: 50 }).notNull(),
   course_code: varchar("course_code", { length: 20 }).references(
     () => courses.code,
