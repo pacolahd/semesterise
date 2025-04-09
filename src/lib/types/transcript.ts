@@ -1,4 +1,4 @@
-// src/types/transcript.ts
+// src/lib/types/transcript.ts
 export interface TranscriptStudentInfo {
   student_id: string;
   name: string;
@@ -35,8 +35,10 @@ export interface TranscriptData {
   studentInfo: TranscriptStudentInfo;
   currentCredits?: string;
   semesters: TranscriptSemester[];
-  metadata?: {
-    academicInfo?: any;
-    programInfo?: any;
+  enhancedData?: {
+    allCourses?: TranscriptCourse[];
+    totalCredits?: number;
+    completedCredits?: number;
+    completionPercentage?: number;
   };
 }

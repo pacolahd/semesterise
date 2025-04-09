@@ -38,7 +38,7 @@ export function TranscriptImportForm({ onBack }: TranscriptImportFormProps) {
   const [showHowToExportDialog, setShowHowToExportDialog] = useState(false);
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { academicInfo, programInfo, completeOnboarding } =
+  const { academicInfo, programInfo, completeOnboarding, setTranscriptData } =
     useOnboardingStore();
   const { user } = useAuthStore();
 
@@ -59,7 +59,7 @@ export function TranscriptImportForm({ onBack }: TranscriptImportFormProps) {
     "Building your academic profile",
     "Finalizing your degree audit",
   ];
-  // Replace the existing onSubmit handler with this one
+
   const handleSubmit = async (values: any) => {
     if (!academicInfo || !programInfo) {
       toast.error("Please complete all previous steps first");
@@ -68,26 +68,24 @@ export function TranscriptImportForm({ onBack }: TranscriptImportFormProps) {
 
     try {
       setIsProcessing(true);
-
       const file = values.transcript[0];
 
       // Start visual processing feedback
-      const currentStage = 0;
-      const updateStage = (stage: number) => {
-        setProcessingStage(stage);
-      };
+      setProcessingStage(0);
 
       // Simulate progress for visual feedback
+      let currentStage = 0;
       const progressInterval = setInterval(() => {
         if (currentStage < processingStages.length - 1) {
-          updateStage(currentStage + 1);
+          currentStage++;
+          setProcessingStage(currentStage);
         } else {
           clearInterval(progressInterval);
         }
       }, 800);
 
       // Actually process the file
-      const transcriptData = await parseTranscriptFile(
+      const parsedData = await parseTranscriptFile(
         file,
         academicInfo,
         programInfo
@@ -95,23 +93,21 @@ export function TranscriptImportForm({ onBack }: TranscriptImportFormProps) {
 
       // Clear the interval and set final stage
       clearInterval(progressInterval);
-      updateStage(processingStages.length - 1);
+      setProcessingStage(processingStages.length - 1);
 
-      // Process the data and store it for use throughout the app
-      const processedData = processTranscriptData(transcriptData);
-      queryClient.setQueryData(["transcript-data"], processedData);
-
-      // Also store in local storage as fallback
-      localStorage.setItem("transcript-data", JSON.stringify(processedData));
+      // Store in onboarding store instead of React Query
+      setTranscriptData(parsedData);
 
       toast.success("Transcript imported successfully!");
 
       // Mark onboarding as complete and navigate
-      // setTimeout(async () => {
       updateUserProfile({ onboardingCompleted: true });
-      completeOnboarding();
-      router.push("/dashboard");
-      // }, 1500);
+
+      // Navigate after a short delay
+      setTimeout(() => {
+        router.push("/dashboard");
+        completeOnboarding();
+      }, 1500);
     } catch (error) {
       console.error("Error processing transcript:", error);
       toast.error(

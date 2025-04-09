@@ -2,13 +2,15 @@
 import { ApiError } from "@/lib/api/api-utils";
 import { TranscriptData } from "@/lib/types/transcript";
 
+import { AcademicInfo, ProgramInfo } from "../stores/onboarding-store";
+
 /**
  * Send transcript file to parser service and return structured data
  */
 export async function parseTranscriptFile(
   file: File,
-  academicInfo?: any,
-  programInfo?: any
+  academicInfo?: AcademicInfo,
+  programInfo?: ProgramInfo
 ): Promise<TranscriptData> {
   try {
     const formData = new FormData();
@@ -23,7 +25,7 @@ export async function parseTranscriptFile(
       formData.append("programInfo", JSON.stringify(programInfo));
     }
 
-    // Use our Next.js API route instead of calling Flask directly
+    // Use our Next.js API route
     const response = await fetch("/api/transcript", {
       method: "POST",
       body: formData,
@@ -38,7 +40,9 @@ export async function parseTranscriptFile(
     }
 
     const transcriptData = await response.json();
-    return transcriptData;
+
+    // Process the data before returning
+    return processTranscriptData(transcriptData);
   } catch (error) {
     console.error("Transcript parsing error:", error);
 
@@ -54,10 +58,11 @@ export async function parseTranscriptFile(
 }
 
 /**
- * Process transcript data into application-specific format
- * This can transform the data to match your application's needs
+ * Process transcript data into application-specific format with enhanced data
  */
-export function processTranscriptData(transcriptData: TranscriptData) {
+export function processTranscriptData(
+  transcriptData: TranscriptData
+): TranscriptData {
   // Process courses to add semester information to each course
   const allCourses = transcriptData.semesters.flatMap((semester) =>
     semester.courses.map((course) => ({
@@ -72,7 +77,7 @@ export function processTranscriptData(transcriptData: TranscriptData) {
     0
   );
   const completedCredits = allCourses
-    .filter((course) => course.grade && course.grade !== "E")
+    .filter((course) => course.grade && !["E", "F"].includes(course.grade))
     .reduce((sum, course) => sum + course.credits, 0);
 
   // Return enhanced data

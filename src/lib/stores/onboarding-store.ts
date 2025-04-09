@@ -1,7 +1,11 @@
-// src/lib/state/onboarding.ts
+// src/lib/stores/onboarding-store.ts
 import { z } from "zod";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+
+import { TranscriptData } from "@/lib/types/transcript";
+
+// Add this import
 
 export type OnboardingStep =
   | "welcome"
@@ -63,15 +67,18 @@ interface OnboardingState {
   currentStep: OnboardingStep;
   academicInfo: AcademicInfo | null;
   programInfo: ProgramInfo | null;
+  transcriptData: TranscriptData | null; // Add this field
 
   // Actions
   setCurrentStep: (step: OnboardingStep) => void;
   setAcademicInfo: (info: AcademicInfo) => void;
   setProgramInfo: (info: ProgramInfo) => void;
+  setTranscriptData: (data: TranscriptData) => void; // Add this action
   completeOnboarding: () => void;
+  resetStore: () => void; // Add a reset function
 }
 
-// Validation schema
+// Update validation schema to include transcript data
 const onboardingSchema = z.object({
   currentStep: z.enum([
     "welcome",
@@ -93,37 +100,53 @@ const onboardingSchema = z.object({
       mathTrack: z.string().optional(),
     })
     .nullable(),
+  transcriptData: z.any().nullable(), // We'll allow any for the transcript data
 });
 
 const STORAGE_KEY = "semesterise-onboarding-persistent";
 
+// Default initial state
+const initialState = {
+  currentStep: "welcome" as OnboardingStep,
+  academicInfo: null,
+  programInfo: null,
+  transcriptData: null,
+};
+
 export const useOnboardingStore = create<OnboardingState>()(
   persist(
     (set) => ({
-      currentStep: "welcome",
-      academicInfo: null,
-      programInfo: null,
+      ...initialState,
 
       setCurrentStep: (step) => set({ currentStep: step }),
       setAcademicInfo: (info) => set({ academicInfo: info }),
       setProgramInfo: (info) => set({ programInfo: info }),
+      setTranscriptData: (data) => set({ transcriptData: data }), // Add this function
+      resetStore: () => set(initialState), // Reset function
 
       completeOnboarding: () => {
         set({ currentStep: "complete" });
+        // 2. Explicitly remove from localStorage to ensure it's cleared
         localStorage.removeItem(STORAGE_KEY);
       },
     }),
     {
       name: STORAGE_KEY,
       partialize: (state) => {
-        if (state.currentStep === "complete") return null;
+        // When onboarding is complete, return null to prevent storing anything
+        if (state.currentStep === "complete") {
+          return null; // This prevents anything from being stored
+        }
+
+        // Otherwise store all relevant state
         return {
           currentStep: state.currentStep,
           academicInfo: state.academicInfo,
           programInfo: state.programInfo,
+          transcriptData: state.transcriptData,
         } as Pick<
           OnboardingState,
-          "currentStep" | "academicInfo" | "programInfo"
+          "currentStep" | "academicInfo" | "programInfo" | "transcriptData"
         >;
       },
       onRehydrateStorage: () => (state) => {
@@ -133,16 +156,7 @@ export const useOnboardingStore = create<OnboardingState>()(
           if (!result.success) {
             console.error("Invalid onboarding state:", result.error);
             localStorage.removeItem(STORAGE_KEY);
-            useOnboardingStore.setState({
-              currentStep: "welcome",
-              academicInfo: null,
-              programInfo: null,
-            });
-          }
-
-          // Auto-clear if completed
-          if (state.currentStep === "complete") {
-            localStorage.removeItem(STORAGE_KEY);
+            useOnboardingStore.setState(initialState);
           }
         }
       },
