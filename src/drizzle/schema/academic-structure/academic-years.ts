@@ -21,8 +21,12 @@ export const academicYearSchema = createInsertSchema(academicYears)
       .min(7)
       .max(20)
       .regex(/^\d{4}-\d{4}$/, "Must be in format YYYY-YYYY"),
-    startDate: z.coerce.date(),
-    endDate: z.coerce.date(),
+    startDate: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, "Must be in format YYYY-MM-DD"),
+    endDate: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, "Must be in format YYYY-MM-DD"),
     isCurrent: z.boolean().default(false),
   })
   .refine((data) => data.endDate > data.startDate, {

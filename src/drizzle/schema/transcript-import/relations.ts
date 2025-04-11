@@ -4,6 +4,7 @@ import { studentProfiles } from "@/drizzle/schema/student-records/student-profil
 import {
   transcriptImports,
   transcriptProcessingSteps,
+  transcriptVerifications,
 } from "@/drizzle/schema/transcript-import";
 
 // Define relations for transcript imports
@@ -15,6 +16,7 @@ export const transcriptImportsRelations = relations(
       references: [studentProfiles.studentId],
     }),
     processingSteps: many(transcriptProcessingSteps),
+    verifications: many(transcriptVerifications), // Add this relation
   })
 );
 
@@ -24,6 +26,17 @@ export const transcriptProcessingStepsRelations = relations(
   ({ one }) => ({
     import: one(transcriptImports, {
       fields: [transcriptProcessingSteps.importId],
+      references: [transcriptImports.id],
+    }),
+  })
+);
+
+// Add verification relations
+export const transcriptVerificationsRelations = relations(
+  transcriptVerifications,
+  ({ one }) => ({
+    import: one(transcriptImports, {
+      fields: [transcriptVerifications.importId],
       references: [transcriptImports.id],
     }),
   })

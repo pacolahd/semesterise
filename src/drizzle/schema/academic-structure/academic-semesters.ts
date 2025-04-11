@@ -22,7 +22,11 @@ export const academicSemesters = pgTable("academic_semesters", {
 
 export const academicSemesterSchema = createInsertSchema(academicSemesters)
   .extend({
-    name: z.string().min(3).max(50),
+    name: z
+      .string()
+      .min(7)
+      .max(20)
+      .regex(/^\d{4}-\d{4}$/, "Must be in format YYYY-YYYY"),
     academicYearName: z.string(),
     sequenceNumber: z.number().int().positive(),
     startDate: z.coerce.date(),

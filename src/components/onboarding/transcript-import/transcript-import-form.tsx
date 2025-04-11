@@ -22,7 +22,7 @@ import { useAuthStore } from "@/lib/auth/auth-store";
 import {
   parseTranscriptFile,
   processTranscriptData,
-} from "@/lib/services/transcript-service";
+} from "@/lib/services/transcript-import-service";
 import { useOnboardingStore } from "@/lib/stores/onboarding-store";
 
 import { ExportHelpDialog } from "./export-help-dialog";
