@@ -103,13 +103,31 @@ export function TranscriptImportForm({ onBack }: TranscriptImportFormProps) {
       return;
     }
 
-    if (!values.transcript || values.transcript.length === 0) {
+    // Better validation for transcript file
+    if (!values.transcript) {
       toast.error("Please select a transcript file");
       return;
     }
 
-    const file = values.transcript[0];
-    setFile(file);
+    let fileToProcess: File;
+
+    // Handle different ways the file might be provided
+    if (values.transcript instanceof FileList) {
+      if (values.transcript.length === 0) {
+        toast.error("Please select a transcript file");
+        return;
+      }
+      fileToProcess = values.transcript[0];
+    } else if (values.transcript instanceof File) {
+      fileToProcess = values.transcript;
+    } else {
+      toast.error(
+        "Invalid file format. Please select a valid transcript file."
+      );
+      return;
+    }
+
+    setFile(fileToProcess);
 
     try {
       // Start processing
@@ -120,7 +138,7 @@ export function TranscriptImportForm({ onBack }: TranscriptImportFormProps) {
 
       // Create form data for file upload
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", fileToProcess);
 
       // Add context information
       formData.append("academicInfo", JSON.stringify(academicInfo));

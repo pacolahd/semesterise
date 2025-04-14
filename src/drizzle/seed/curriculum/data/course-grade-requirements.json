@@ -1,14 +1,14 @@
 [
   {
     "majorCode": "CS",
-    "courseCode": "CS215",
+    "courseCode": "CS213",
     "minimumGrade": "C",
     "applicableFromCohortYear": 2025,
     "description": "CS students need a C minimum in Object Oriented Programming"
   },
   {
     "majorCode": "MIS",
-    "courseCode": "CS215",
+    "courseCode": "CS213",
     "minimumGrade": "D+",
     "applicableFromCohortYear": 2025,
     "description": "MIS students need a D+ minimum in Object Oriented Programming"

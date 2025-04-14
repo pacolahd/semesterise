@@ -58,6 +58,14 @@ export async function POST(request: NextRequest) {
         const updatedMappingIds = [];
 
         for (const mapping of mappings) {
+          // Skip mappings without academicSemesterId
+          if (!mapping.academicSemesterId) {
+            console.warn(
+              `Skipping mapping for ${mapping.camuSemesterName} - missing academicSemesterId`
+            );
+            continue;
+          }
+
           // Find the semester mapping record
           const semesterMapping =
             await tx.query.studentSemesterMappings.findFirst({
@@ -65,7 +73,7 @@ export async function POST(request: NextRequest) {
                 eq(studentSemesterMappings.student_id, studentId),
                 eq(
                   studentSemesterMappings.academic_semester_id,
-                  mapping.academicSemesterId || ""
+                  mapping.academicSemesterId
                 )
               ),
             });
@@ -87,7 +95,6 @@ export async function POST(request: NextRequest) {
             updatedMappingIds.push(semesterMapping.id);
           }
         }
-
         // Update verification record
         await tx
           .update(transcriptVerifications)

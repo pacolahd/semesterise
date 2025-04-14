@@ -1,10 +1,9 @@
-// src/components/onboarding/transcript-import/file-upload.tsx
 "use client";
 
-import { ChangeEvent, DragEvent, useState } from "react";
+import { useState } from "react";
+import React from "react";
 
 import { AlertCircle, FileText, Upload } from "lucide-react";
-import { ControllerRenderProps } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -16,8 +15,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-// src/components/onboarding/transcript-import/file-upload.tsx
-
 interface FileUploadProps {
   field: any;
   onFileChange?: (file: File) => void;
@@ -25,9 +22,6 @@ interface FileUploadProps {
   showHowToExportDialog: () => void;
 }
 
-/**
- * File upload component for transcript import with drag and drop support
- */
 export function FileUpload({
   field,
   onFileChange,
@@ -50,6 +44,7 @@ export function FileUpload({
       "text/html",
       "application/x-mimearchive",
       "application/pdf",
+      "multipart/related", // Added to support MHTML
     ];
 
     // Get extension
@@ -66,39 +61,40 @@ export function FileUpload({
     return { valid: true };
   };
 
-  // Handle file selection from input
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files?.length) {
-      const file = files[0];
-      const validation = validateFile(file);
+  // Updated file change handler that properly works with React Hook Form
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target || !e.target.files || e.target.files.length === 0) return;
 
-      if (!validation.valid) {
-        setError(validation.error || "Invalid file");
-        toast.error(validation.error || "Invalid file");
-        return;
-      }
+    const file = e.target.files[0];
+    const validation = validateFile(file);
 
-      setSelectedFile(file);
-      setError(null);
-
-      // Update form value
-      const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(file);
-      field.onChange(dataTransfer.files);
-
-      // Notify parent
-      if (onFileChange) {
-        onFileChange(file);
-      }
-
-      // Display selected filename
-      toast.info(`Selected: ${file.name}`);
+    if (!validation.valid) {
+      setError(validation.error || "Invalid file");
+      toast.error(validation.error || "Invalid file");
+      return;
     }
+
+    // Update UI state
+    setSelectedFile(file);
+    setError(null);
+
+    // Let React Hook Form know about the value change
+    if (field && typeof field.onChange === "function") {
+      // This is safer than creating a synthetic event
+      field.onChange(e);
+    }
+
+    // Notify parent
+    if (onFileChange) {
+      onFileChange(file);
+    }
+
+    // Display selected filename
+    toast.info(`Selected: ${file.name}`);
   };
 
   // Handle drag events
-  const handleDrag = (e: DragEvent<HTMLLabelElement>) => {
+  const handleDrag = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -110,35 +106,58 @@ export function FileUpload({
   };
 
   // Handle file drop
-  const handleDrop = (e: DragEvent<HTMLLabelElement>) => {
+  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
 
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const file = e.dataTransfer.files[0];
-      const validation = validateFile(file);
+    if (
+      !e.dataTransfer ||
+      !e.dataTransfer.files ||
+      e.dataTransfer.files.length === 0
+    ) {
+      return;
+    }
 
-      if (!validation.valid) {
-        setError(validation.error || "Invalid file");
-        toast.error(validation.error || "Invalid file");
-        return;
-      }
+    const file = e.dataTransfer.files[0];
+    const validation = validateFile(file);
 
-      setSelectedFile(file);
-      setError(null);
+    if (!validation.valid) {
+      setError(validation.error || "Invalid file");
+      toast.error(validation.error || "Invalid file");
+      return;
+    }
 
-      // Update form value
-      const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(file);
+    // Update UI state
+    setSelectedFile(file);
+    setError(null);
+
+    // Create a proper file list for the input
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+
+    // Update the form field directly - without creating synthetic events
+    if (field && typeof field.onChange === "function") {
+      // Just pass the FileList to the field's onChange
       field.onChange(dataTransfer.files);
+    }
 
-      // Notify parent
-      if (onFileChange) {
-        onFileChange(file);
-      }
+    // Notify parent
+    if (onFileChange) {
+      onFileChange(file);
+    }
 
-      toast.info(`Selected: ${file.name}`);
+    toast.info(`Selected: ${file.name}`);
+  };
+
+  // Handle file removal/clear
+  const handleClearFile = () => {
+    setSelectedFile(null);
+
+    // Better way to clear the field value
+    if (field && typeof field.onChange === "function") {
+      // Clear by passing an empty value that matches what React Hook Form expects
+      field.onChange(undefined);
     }
   };
 
@@ -183,13 +202,15 @@ export function FileUpload({
                   </p>
                 )}
               </div>
+              {/* Don't use {...field} to prevent conflicts - just use onChange */}
               <input
                 id="dropzone-file"
                 type="file"
                 className="hidden"
-                accept=".html,.mhtml,.pdf,application/x-mimearchive,text/html,application/pdf"
+                accept=".html,.mhtml,.pdf,application/x-mimearchive,text/html,application/pdf,multipart/related"
                 onChange={handleFileChange}
-                {...field}
+                name={field.name}
+                ref={field.ref}
               />
             </label>
           ) : (
@@ -207,10 +228,7 @@ export function FileUpload({
                 size="sm"
                 variant="outline"
                 className="mt-4"
-                onClick={() => {
-                  setSelectedFile(null);
-                  field.onChange(null);
-                }}
+                onClick={handleClearFile}
                 type="button"
               >
                 Change File

@@ -25,7 +25,7 @@
   },
   {
     "student_id": "23142027",
-    "course_code": "CSIS111",
+    "course_code": "CS111",
     "semester_name": "Semester 1 2023-2024", 
     "status": "verified",
     "grade": "A",
@@ -61,7 +61,7 @@
   },
   {
     "student_id": "23142027",
-    "course_code": "CS115",
+    "course_code": "CS212",
     "semester_name": "Semester 2 2023-2024",
     "status": "verified",
     "grade": "B",
@@ -97,7 +97,7 @@
   },
   {
     "student_id": "23142027",
-    "course_code": "CS215",
+    "course_code": "CS213",
     "semester_name": "Semester 1 2024-2025", 
     "status": "enrolled",
     "grade": null,
@@ -133,7 +133,7 @@
   },
   {
     "student_id": "23142027",
-    "course_code": "SOAN221",
+    "course_code": "SOAN211",
     "semester_name": "Semester 1 2024-2025", 
     "status": "enrolled",
     "grade": null,

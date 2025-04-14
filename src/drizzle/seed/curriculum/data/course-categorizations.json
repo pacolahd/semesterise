@@ -27,7 +27,7 @@
     "recommendedSemester": 2
   },
   {
-    "courseCode": "SOAN221",
+    "courseCode": "SOAN211",
     "categoryName": "Humanities & Social Sciences",
     "majorGroup": "ALL",
     "isRequired": true,
@@ -54,7 +54,7 @@
     "recommendedSemester": null
   },
   {
-    "courseCode": "BUSA100",
+    "courseCode": "ECON100",
     "categoryName": "Humanities & Social Sciences",
     "majorGroup": "CS",
     "isRequired": true,
@@ -149,7 +149,7 @@
     "recommendedSemester": 2
   },
   {
-    "courseCode": "CSIS111",
+    "courseCode": "CS111",
     "categoryName": "Computing",
     "majorGroup": "ALL",
     "isRequired": true,
@@ -167,7 +167,7 @@
     "recommendedSemester": 2
   },
   {
-    "courseCode": "CS115",
+    "courseCode": "CS212",
     "categoryName": "Required Major Classes",
     "majorGroup": "CS",
     "isRequired": true,
@@ -176,7 +176,7 @@
     "recommendedSemester": 2
   },
   {
-    "courseCode": "CS215",
+    "courseCode": "CS213",
     "categoryName": "Required Major Classes",
     "majorGroup": "CS",
     "isRequired": true,
@@ -213,7 +213,7 @@
     "recommendedSemester": 2
   },
   {
-    "courseCode": "AI301",
+    "courseCode": "CS254",
     "categoryName": "Required Major Classes",
     "majorGroup": "CS",
     "isRequired": true,
@@ -251,7 +251,7 @@
     "recommendedSemester": 1
   },
   {
-    "courseCode": "CS345",
+    "courseCode": "CS456",
     "categoryName": "Required Major Classes",
     "majorGroup": "CS",
     "isRequired": true,
@@ -278,7 +278,7 @@
     "recommendedSemester": 2
   },
   {
-    "courseCode": "MS301",
+    "courseCode": "CS361",
     "categoryName": "Required Major Classes",
     "majorGroup": "CS",
     "isRequired": true,
@@ -297,7 +297,7 @@
     "recommendedSemester": 2
   },
   {
-    "courseCode": "CS435",
+    "courseCode": "CS433",
     "categoryName": "Required Major Classes",
     "majorGroup": "CS",
     "isRequired": true,
@@ -435,7 +435,7 @@
     "applicableUntilCohortYear": 2024
   },
   {
-    "courseCode": "BUSA100",
+    "courseCode": "ECON100",
     "categoryName": "Humanities & Social Sciences",
     "majorGroup": "MIS",
     "isRequired": true,
@@ -472,7 +472,7 @@
     "recommendedSemester": 2
   },
   {
-    "courseCode": "CS115",
+    "courseCode": "CS212",
     "categoryName": "Required Major Classes",
     "majorGroup": "MIS",
     "isRequired": true,
@@ -481,7 +481,7 @@
     "recommendedSemester": 2
   },
   {
-    "courseCode": "CS215",
+    "courseCode": "CS213",
     "categoryName": "Required Major Classes",
     "majorGroup": "MIS",
     "isRequired": true,
@@ -500,7 +500,7 @@
     "recommendedSemester": 1
   },
   {
-    "courseCode": "AI301",
+    "courseCode": "CS254",
     "categoryName": "Required Major Classes",
     "majorGroup": "MIS",
     "isRequired": true,
@@ -647,7 +647,7 @@
     "isFlexible": true
   },
   {
-    "courseCode": "CS435",
+    "courseCode": "CS433",
     "categoryName": "Major Electives",
     "majorGroup": "MIS",
     "isRequired": false,
@@ -998,7 +998,7 @@
     "notes": "Leadership Seminar 1 - core requirement for all engineering majors"
   },
   {
-    "courseCode": "SOAN221",
+    "courseCode": "SOAN211",
     "categoryName": "Humanities & Social Sciences",
     "majorGroup": "ENG",
     "isRequired": true,
@@ -1028,7 +1028,7 @@
     "notes": "Leadership 4 for Engineers - specialized leadership sequence for engineering majors"
   },
   {
-    "courseCode": "BUSA100",
+    "courseCode": "ECON100",
     "categoryName": "Humanities & Social Sciences",
     "majorGroup": "ENG",
     "isRequired": true,
@@ -1249,7 +1249,7 @@
     "notes": "Computer Organization & Architecture - required for Computer Engineering majors"
   },
   {
-    "courseCode": "CS435",
+    "courseCode": "CS433",
     "categoryName": "Required Major Classes",
     "majorGroup": "CE",
     "isRequired": true,

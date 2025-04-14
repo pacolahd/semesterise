@@ -29,6 +29,40 @@ import {
 } from "@/lib/types/transcript";
 import { generateVerificationToken } from "@/lib/utils/token-utils";
 
+function formatCourseCode(courseCode: string) {
+  return courseCode.replace(/\s/g, ""); // Remove all whitespace
+}
+
+// Add new utility function to map major names to codes
+function mapMajorNameToCode(majorName: string): string {
+  // Map full major names to codes as used in the majors table
+  const majorMap: Record<string, string> = {
+    "Computer Science": "CS",
+    "Business Administration": "BA",
+    "Management Information Systems": "MIS",
+    "Computer Engineering": "CE",
+    "Electrical Engineering": "EE",
+    "Mechanical Engineering": "ME",
+    // Add more mappings as needed
+  };
+
+  // Try to find a direct match
+  if (majorMap[majorName]) {
+    return majorMap[majorName];
+  }
+
+  // Try partial matches
+  for (const [fullName, code] of Object.entries(majorMap)) {
+    if (majorName.includes(fullName)) {
+      return code;
+    }
+  }
+
+  // Default fallback
+  console.warn(`No major code mapping found for "${majorName}", using default`);
+  return "CS"; // Default to Computer Science if no match
+}
+
 // Create a service singleton that we can import
 export const transcriptImportService = {
   /**
@@ -100,13 +134,16 @@ export const transcriptImportService = {
           tx
         );
 
+        // Get major code for course processing
+        const majorCode = mapMajorNameToCode(programInfo.major);
+
         // Process courses
         const courses = await this.processCourses(
           transcriptData,
           mappings,
           academicPeriodsMap,
           studentRecord.studentId,
-          programInfo.major,
+          majorCode, // Use the mapped code here
           tx
         );
 
@@ -310,47 +347,94 @@ export const transcriptImportService = {
     authId: string,
     tx: any
   ) {
-    // Check if student profile exists
-    const existingProfile = await tx.query.studentProfiles.findFirst({
-      where: eq(studentProfiles.studentId, profile.studentId),
-    });
+    try {
+      // Convert full major name to major code
+      const majorCode = mapMajorNameToCode(profile.major);
+      console.log(
+        `Mapped major name "${profile.major}" to code "${majorCode}"`
+      );
 
-    if (existingProfile) {
-      // Update existing profile with relevant fields
-      await tx
-        .update(studentProfiles)
-        .set({
-          majorCode: profile.major,
-          mathTrackName: profile.mathTrackName,
-          cumulativeGpa: profile.cumulativeGpa,
-          cohortYear: profile.yearGroup
-            ? parseInt(profile.yearGroup)
-            : undefined,
-          currentYear: profile.currentYear,
-          currentSemester: profile.currentSemester?.toString(),
-        })
-        .where(eq(studentProfiles.studentId, profile.studentId));
+      // First check if a profile with this authId already exists
+      const existingProfileByAuth = await tx.query.studentProfiles.findFirst({
+        where: eq(studentProfiles.authId, authId),
+      });
 
-      return existingProfile;
-    } else {
-      // Create new profile
-      const newProfiles = await tx
-        .insert(studentProfiles)
-        .values({
+      if (existingProfileByAuth) {
+        // Update existing profile with new data from transcript
+        await tx
+          .update(studentProfiles)
+          .set({
+            studentId: profile.studentId, // Update studentId from transcript
+            majorCode: majorCode, // Use the mapped code
+            mathTrackName: profile.mathTrackName,
+            cumulativeGpa: profile.cumulativeGpa,
+            cohortYear: profile.yearGroup
+              ? parseInt(profile.yearGroup)
+              : undefined,
+            currentYear: profile.currentYear,
+            currentSemester: profile.currentSemester?.toString(),
+          })
+          .where(eq(studentProfiles.authId, authId));
+
+        // Return updated profile data
+        return {
+          ...existingProfileByAuth,
           studentId: profile.studentId,
-          authId,
-          majorCode: profile.major,
-          mathTrackName: profile.mathTrackName,
-          cumulativeGpa: profile.cumulativeGpa,
-          cohortYear: profile.yearGroup
-            ? parseInt(profile.yearGroup)
-            : undefined,
-          currentYear: profile.currentYear,
-          currentSemester: profile.currentSemester?.toString(),
-        })
-        .returning();
+        };
+      }
 
-      return newProfiles[0];
+      // Then check if a profile with this studentId already exists
+      const existingProfileByStudentId =
+        await tx.query.studentProfiles.findFirst({
+          where: eq(studentProfiles.studentId, profile.studentId),
+        });
+
+      if (existingProfileByStudentId) {
+        // If the profile exists but has a different authId, we need to handle it
+        console.log(
+          `Student ID ${profile.studentId} already exists with different auth ID, updating...`
+        );
+
+        // Update existing profile with new authId and data
+        await tx
+          .update(studentProfiles)
+          .set({
+            authId, // Link to current user
+            majorCode: majorCode, // Use the mapped code
+            mathTrackName: profile.mathTrackName,
+            cumulativeGpa: profile.cumulativeGpa,
+            cohortYear: profile.yearGroup
+              ? parseInt(profile.yearGroup)
+              : undefined,
+            currentYear: profile.currentYear,
+            currentSemester: profile.currentSemester?.toString(),
+          })
+          .where(eq(studentProfiles.studentId, profile.studentId));
+
+        return existingProfileByStudentId;
+      } else {
+        // Create new profile if neither exists
+        const newProfiles = await tx
+          .insert(studentProfiles)
+          .values({
+            studentId: profile.studentId,
+            authId,
+            majorCode: majorCode, // Use the mapped code
+            mathTrackName: profile.mathTrackName,
+            cumulativeGpa: profile.cumulativeGpa,
+            cohortYear: profile.yearGroup
+              ? parseInt(profile.yearGroup)
+              : undefined,
+            currentYear: profile.currentYear,
+            currentSemester: profile.currentSemester?.toString(),
+          })
+          .returning();
+
+        return newProfiles[0];
+      }
+    } catch (error) {
+      console.error("Error in upsertStudentProfile:", error);
+      throw error;
     }
   },
 
@@ -446,7 +530,13 @@ export const transcriptImportService = {
     mappings: SemesterMapping[],
     tx: any
   ) {
-    // Create import record
+    // Extract and map the major name to code
+    const majorName = this.extractMajorFromDegree(
+      transcriptData.studentInfo.degree
+    );
+    const majorCode = mapMajorNameToCode(majorName);
+
+    // Create import record - REMOVE fileType and fileSize fields
     const importRecords = await tx
       .insert(transcriptImports)
       .values({
@@ -455,9 +545,7 @@ export const transcriptImportService = {
         fileUrl: "n/a", // No physical file stored
         importStatus: "processing",
         semesterCount: mappings.length,
-        extractedMajor: this.extractMajorFromDegree(
-          transcriptData.studentInfo.degree
-        ),
+        extractedMajor: majorCode,
         importData: { semesters: transcriptData.semesters.map((s) => s.name) },
       })
       .returning();
@@ -484,13 +572,18 @@ export const transcriptImportService = {
   ) {
     const createdMappings = [];
 
-    for (const mapping of mappings) {
+    // First update the original mapping objects with academicSemesterId values
+    for (let i = 0; i < mappings.length; i++) {
+      const mapping = mappings[i];
       const semesterId = academicPeriodsMap.get(mapping.camuSemesterName);
 
       if (!semesterId) {
         console.warn(`No semester ID found for ${mapping.camuSemesterName}`);
         continue;
       }
+
+      // Add the academicSemesterId to the original mapping object
+      mappings[i].academicSemesterId = semesterId;
 
       // Create semester mapping
       const mappingRecords = await tx
@@ -505,6 +598,7 @@ export const transcriptImportService = {
         })
         .returning();
 
+      // Store the created mapping record
       createdMappings.push(mappingRecords[0]);
     }
 
@@ -534,7 +628,7 @@ export const transcriptImportService = {
       for (const course of semester.courses) {
         // Determine category
         const category = await determineCategoryForCourse(
-          course.code,
+          formatCourseCode(course.code),
           majorCode,
           tx
         );
@@ -546,7 +640,7 @@ export const transcriptImportService = {
         const existingCourse = await tx.query.studentCourses.findFirst({
           where: and(
             eq(studentCourses.student_id, studentId),
-            eq(studentCourses.course_code, course.code)
+            eq(studentCourses.course_code, formatCourseCode(course.code))
           ),
         });
 
@@ -554,8 +648,8 @@ export const transcriptImportService = {
         const courseRecords = await tx
           .insert(studentCourses)
           .values({
-            studentId,
-            course_code: course.code,
+            student_id: studentId,
+            course_code: formatCourseCode(course.code),
             semester_id: semesterId,
             status: isFailed ? "failed" : "verified",
             grade: course.grade,

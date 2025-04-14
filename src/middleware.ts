@@ -108,7 +108,7 @@ async function handleProtectedRoutes(request: NextRequest) {
   // Without fresh, if cookie exists, the user will be allowed access, even if the user is no longer the database (if the user was somehow deleted directly on the databse while they were still signed in on their end.)
   // Means it will go on if the cookie exists even without an actual user existing in the db. But I actually think that they won't be able to do stuff in the app because a subsequent getSession will not return a user. Hmn let's see how it goes.
   // Well it means they've used the app before and the route they're trying to access is not an admin route, so it should be fine.
-  if (await hasValidSession(request, { requireFresh: false })) {
+  if (await hasValidSession(request, { requireFresh: true })) {
     // TODO: Add functionality to check if the user has completed onboarding and to redirect them to the onboarding page for them to continue if need be.
     return NextResponse.next();
   }

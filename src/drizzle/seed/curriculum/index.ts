@@ -365,7 +365,7 @@ async function seedCourseGradeRequirements(dataDirectory: string) {
 
 /**
  * Helper function to derive course level from course code
- * @example CS115 -> 100, MATH221 -> 200
+ * @example MATH221 -> 200
  */
 function deriveCourseLevel(courseCode: string): number {
   // Try to extract a 3-digit number from the course code
@@ -387,7 +387,7 @@ function deriveCourseLevel(courseCode: string): number {
 
 /**
  * Helper function to derive department code from course code
- * @example CS115 -> CSIS, MATH221 -> CSIS, BUSA100 -> BA
+ * @example CS212 -> CSIS, MATH221 -> CSIS, ECON100 -> BA
  */
 function deriveDepartmentCode(courseCode: string): string {
   // Extract the alphabetic prefix from the course code

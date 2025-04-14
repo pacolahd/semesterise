@@ -9,7 +9,7 @@
     "semestersOffered": ["FALL", "SPRING"]
   },
   {
-    "code": "CS115",
+    "code": "CS212",
     "title": "Computer Programming for CS",
     "department": "CSIS",
     "credits": 1.0,
@@ -18,7 +18,7 @@
     "semestersOffered": ["SPRING"]
   },
   {
-    "code": "CS215",
+    "code": "CS213",
     "title": "Object Oriented Programming",
     "department": "CSIS",
     "credits": 1.0,
@@ -73,6 +73,15 @@
     "semestersOffered": ["SPRING"]
   },
   {
+    "code": "CS330",
+    "title": "Hardware and Systems Fundamentals",
+    "department": "CSIS",
+    "credits": 0.5,
+    "description": "This course presents the fundamental concepts of computer organization and instruction set architectures. Assembly language programming is used to present and illustrate the concepts of instruction set design. The basics of Central Processor Unit (CPU) design and implementation are covered, including some performance enhancing methods like pipelining and memory caches.",
+    "prerequisites": "EITHER Computer Programming for CS OR Computer Programming for Engineering. Completion or concurrent enrollment in Discrete Structures and Theory.",
+    "semestersOffered": ["SPRING"]
+  },
+  {
     "code": "CS331",
     "title": "Computer Organization and Architecture",
     "department": "CSIS",
@@ -91,7 +100,7 @@
     "semestersOffered": ["FALL"]
   },
   {
-    "code": "CS345",
+    "code": "CS456",
     "title": "Algorithm Design & Analysis",
     "department": "CSIS",
     "credits": 1.0,
@@ -127,12 +136,21 @@
     "semestersOffered": ["SPRING"]
   },
   {
-    "code": "CS435",
+    "code": "CS433",
     "title": "Operating Systems",
     "department": "CSIS",
     "credits": 1.0,
     "description": "This is a course on theory and practices of operating system design and implementation. Operating Systems are found in most computing devices we use. All operating systems deal in some way or another with users, security, resources, storage and memory, threads and processes, scheduling, as well as policies associated with or built on these.",
     "prerequisites": "EITHER Computer Programming for CS OR Computer Programming for Engineering, EITHER Discrete Structures and Theory OR Data Structures and Algorithms",
+    "semestersOffered": ["FALL"]
+  },
+  {
+    "code": "CS443",
+    "title": "Mobile Application Development / Mobile Web Programming",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This is a course on mobile application development with the flutter framework.",
+    "prerequisites": "Database Management Systems and Web Technologies",
     "semestersOffered": ["FALL"]
   },
   {
@@ -181,7 +199,7 @@
     "semestersOffered": ["SPRING"]
   },
   {
-    "code": "CSIS111",
+    "code": "CS111",
     "title": "Introduction to Computing and Information Systems",
     "department": "CSIS",
     "credits": 1.0,
@@ -263,12 +281,20 @@
   },
   {
     "code": "MATH141",
-    "title": "Calculus 1",
+    "title": "Calculus I",
     "department": "CSIS",
     "credits": 1.0,
     "description": "This course seeks to equip students with an intuitive idea of limits. We will discuss continuity and the derivative of a function. Rules of differentiation would be examined and applied. The derivative of the elementary and transcendental functions would be discussed. We would apply the taught theoretical concepts to solve real-life problems.",
     "prerequisites": "None",
     "semestersOffered": ["FALL"]
+  },  {
+    "code": "MATH142",
+    "title": "Calculus II",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course seeks to equip students with an intuitive idea of limits. We will discuss continuity and the derivative of a function. Rules of differentiation would be examined and applied. The derivative of the elementary and transcendental functions would be discussed. We would apply the taught theoretical concepts to solve real-life problems.",
+    "prerequisites": "Calculus 1",
+    "semestersOffered": ["SPRING"]
   },
   {
     "code": "MATH151",
@@ -307,6 +333,15 @@
     "semestersOffered": ["FALL", "SPRING"]
   },
   {
+    "code": "MATH212",
+    "title": "Linear Algebra",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "Physical problems require problem solving approaches which combine mathematical thinking and technology to develop modern solutions.",
+    "prerequisites": "Calculus 2 or Applied Calculus",
+    "semestersOffered": ["SPRING"]
+  },
+  {
     "code": "MATH221",
     "title": "Statistics with Probability",
     "department": "CSIS",
@@ -343,7 +378,7 @@
     "semestersOffered": ["FALL"]
   },
   {
-    "code": "AI301",
+    "code": "CS254",
     "title": "Introduction to Artificial Intelligence",
     "department": "CSIS",
     "credits": 1.0,
@@ -352,7 +387,7 @@
     "semestersOffered": ["FALL", "SPRING"]
   },
   {
-    "code": "MS301",
+    "code": "CS361",
     "title": "Introduction to Modelling & Simulation",
     "department": "CSIS",
     "credits": 0.5,

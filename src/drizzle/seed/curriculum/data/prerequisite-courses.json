@@ -53,6 +53,12 @@
   },
 
   {
+    "groupKey": "MATH142-MATH-1",
+    "prerequisiteCourseCode": "MATH141",
+    "description": "Calculus 1 Foundation"
+  },
+
+ {
     "groupKey": "SOAN325-STATS-1",
     "prerequisiteCourseCode": "MATH221",
     "description": "Statistics"
@@ -60,8 +66,8 @@
 
   
   {
-    "groupKey": "CS215-PROGRAMMING-1",
-    "prerequisiteCourseCode": "CS115",
+    "groupKey": "CS213-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS212",
     "description": "Computer Programming for CS"
   },
 
@@ -78,12 +84,12 @@
   },
   {
     "groupKey": "CS221-COMPUTING-2",
-    "prerequisiteCourseCode": "CSIS111",
+    "prerequisiteCourseCode": "CS111",
     "description": "Introduction to Computing & IS"
   },
   {
     "groupKey": "CS221-COMPUTING-2",
-    "prerequisiteCourseCode": "CS115",
+    "prerequisiteCourseCode": "CS212",
     "description": "Computer Programming for CS"
   },
   {
@@ -95,7 +101,7 @@
   
   {
     "groupKey": "CS222-PROGRAMMING-1",
-    "prerequisiteCourseCode": "CS115",
+    "prerequisiteCourseCode": "CS212",
     "description": "Computer Programming for CS"
   },
   {
@@ -112,7 +118,7 @@
   
   {
     "groupKey": "CS313-PROGRAMMING-1",
-    "prerequisiteCourseCode": "CS115",
+    "prerequisiteCourseCode": "CS212",
     "description": "Computer Programming for CS"
   },
   {
@@ -124,12 +130,12 @@
   
   {
     "groupKey": "CS314-COMPUTING-1",
-    "prerequisiteCourseCode": "CSIS111",
+    "prerequisiteCourseCode": "CS111",
     "description": "Introduction to Computing & IS"
   },
   {
     "groupKey": "CS314-COMPUTING-1",
-    "prerequisiteCourseCode": "CS115",
+    "prerequisiteCourseCode": "CS212",
     "description": "Computer Programming for CS"
   },
   {
@@ -141,7 +147,7 @@
   
   {
     "groupKey": "CS323-PROGRAMMING-1",
-    "prerequisiteCourseCode": "CS115",
+    "prerequisiteCourseCode": "CS212",
     "description": "Computer Programming for CS"
   },
   {
@@ -168,7 +174,7 @@
   
   {
     "groupKey": "CS331-PROGRAMMING-1",
-    "prerequisiteCourseCode": "CS115",
+    "prerequisiteCourseCode": "CS212",
     "description": "Computer Programming for CS"
   },
   {
@@ -185,7 +191,7 @@
   
   {
     "groupKey": "CS341-PROGRAMMING-1",
-    "prerequisiteCourseCode": "CS115",
+    "prerequisiteCourseCode": "CS212",
     "description": "Computer Programming for CS"
   },
   {
@@ -201,7 +207,7 @@
 
   
   {
-    "groupKey": "CS345-ALGORITHMS-1",
+    "groupKey": "CS456-ALGORITHMS-1",
     "prerequisiteCourseCode": "CS222",
     "description": "Data Structures & Algorithms"
   },
@@ -209,7 +215,7 @@
   
   {
     "groupKey": "CS415-PROGRAMMING-1",
-    "prerequisiteCourseCode": "CS115",
+    "prerequisiteCourseCode": "CS212",
     "description": "Computer Programming for CS"
   },
   {
@@ -253,7 +259,7 @@
   
   {
     "groupKey": "CS432-PROGRAMMING-1",
-    "prerequisiteCourseCode": "CS115",
+    "prerequisiteCourseCode": "CS212",
     "description": "Computer Programming for CS"
   },
   {
@@ -264,22 +270,22 @@
 
   
   {
-    "groupKey": "CS435-PROGRAMMING-1",
-    "prerequisiteCourseCode": "CS115",
+    "groupKey": "CS433-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS212",
     "description": "Computer Programming for CS"
   },
   {
-    "groupKey": "CS435-PROGRAMMING-1",
+    "groupKey": "CS433-PROGRAMMING-1",
     "prerequisiteCourseCode": "CS112",
     "description": "Computer Programming for Engineering"
   },
   {
-    "groupKey": "CS435-THEORY-2",
+    "groupKey": "CS433-THEORY-2",
     "prerequisiteCourseCode": "CS221",
     "description": "Discrete Structures and Theory"
   },
   {
-    "groupKey": "CS435-THEORY-2",
+    "groupKey": "CS433-THEORY-2",
     "prerequisiteCourseCode": "CS222",
     "description": "Data Structures and Algorithms"
   },
@@ -296,10 +302,21 @@
     "description": "Web Technologies"
   },
 
+  {
+    "groupKey": "CS443-DATABASE-1",
+    "prerequisiteCourseCode": "CS323",
+    "description": "Database Management Systems"
+  },
+  {
+    "groupKey": "CS443-WEB-2",
+    "prerequisiteCourseCode": "CS341",
+    "description": "Web Technologies"
+  },
+
   
   {
     "groupKey": "CS452-PROGRAMMING-1",
-    "prerequisiteCourseCode": "CS115",
+    "prerequisiteCourseCode": "CS212",
     "description": "Computer Programming for CS"
   },
   {
@@ -316,7 +333,7 @@
   
   {
     "groupKey": "CS453-PROGRAMMING-1",
-    "prerequisiteCourseCode": "CS115",
+    "prerequisiteCourseCode": "CS212",
     "description": "Computer Programming for CS"
   },
   {
@@ -338,7 +355,7 @@
   
   {
     "groupKey": "CS458-PROGRAMMING-1",
-    "prerequisiteCourseCode": "CS115",
+    "prerequisiteCourseCode": "CS212",
     "description": "Computer Programming for CS"
   },
   {
@@ -350,7 +367,7 @@
   
   {
     "groupKey": "CS459-PROGRAMMING-1",
-    "prerequisiteCourseCode": "CS115",
+    "prerequisiteCourseCode": "CS212",
     "description": "Computer Programming for CS"
   },
   {
@@ -362,7 +379,7 @@
   
   {
     "groupKey": "IS331-PROGRAMMING-1",
-    "prerequisiteCourseCode": "CS115",
+    "prerequisiteCourseCode": "CS212",
     "description": "Computer Programming for CS"
   },
   {
@@ -374,7 +391,7 @@
   
   {
     "groupKey": "IS332-PROGRAMMING-1",
-    "prerequisiteCourseCode": "CS115",
+    "prerequisiteCourseCode": "CS212",
     "description": "Computer Programming for CS"
   },
   {
@@ -389,7 +406,7 @@
   },
   {
     "groupKey": "IS332-SYSTEMS-2",
-    "prerequisiteCourseCode": "CS435",
+    "prerequisiteCourseCode": "CS433",
     "description": "Operating Systems"
   },
   {
@@ -401,7 +418,7 @@
   
   {
     "groupKey": "IS335-COMPUTING-1",
-    "prerequisiteCourseCode": "CSIS111",
+    "prerequisiteCourseCode": "CS111",
     "description": "Introduction to Computing and Information Systems"
   },
 
@@ -413,7 +430,7 @@
   },
   {
     "groupKey": "IS451-PROGRAMMING-2",
-    "prerequisiteCourseCode": "CS115",
+    "prerequisiteCourseCode": "CS212",
     "description": "Computer Programming for CS"
   },
   {
@@ -443,10 +460,9 @@
     "description": "Engineering Calculus"
   },
 
-  
   {
     "groupKey": "MATH211-MATH-1",
-    "prerequisiteCourseCode": "MATH141",
+    "prerequisiteCourseCode": "MATH142",
     "description": "Calculus 2"
   },
   {
@@ -475,7 +491,7 @@
   },
   {
     "groupKey": "MATH233-MATH-1",
-    "prerequisiteCourseCode": "MATH141",
+    "prerequisiteCourseCode": "MATH142",
     "description": "Calculus 2"
   },
   {
@@ -502,47 +518,47 @@
   },
   {
     "groupKey": "MATH251-PROGRAMMING-2",
-    "prerequisiteCourseCode": "CS115",
+    "prerequisiteCourseCode": "CS212",
     "description": "Computer Programming for CS"
   },
 
   
   {
     "groupKey": "SYS101-PROGRAMMING-1",
-    "prerequisiteCourseCode": "CS115",
+    "prerequisiteCourseCode": "CS212",
     "description": "Computer Programming for CS"
   },
   
   {
-    "groupKey": "AI301-ALGORITHMS-1",
+    "groupKey": "CS254-ALGORITHMS-1",
     "prerequisiteCourseCode": "CS222",
     "description": "Data Structures & Algorithms"
   },
   {
-    "groupKey": "AI301-STATS-2",
+    "groupKey": "CS254-STATS-2",
     "prerequisiteCourseCode": "MATH221",
     "description": "Statistics with Probability"
   },
 
-  
+
   {
-    "groupKey": "MS301-STATS-1",
+    "groupKey": "CS361-STATS-1",
     "prerequisiteCourseCode": "MATH221",
     "description": "Statistics with Probability"
   },
   {
-    "groupKey": "MS301-MATH-2",
-    "prerequisiteCourseCode": "MATH211",
-    "description": "Multivariable Calculus & Linear Algebra"
+    "groupKey": "CS361-MATH-2",
+    "prerequisiteCourseCode": "MATH212",
+    "description": "Linear Algebra"
   },
 
   {
-    "groupKey": "BUSA100-MATH-1",
+    "groupKey": "ECON100-MATH-1",
     "prerequisiteCourseCode": "MATH122",
     "description": "Pre-Calculus 2"
   },
   {
-    "groupKey": "BUSA100-MATH-1",
+    "groupKey": "ECON100-MATH-1",
     "prerequisiteCourseCode": "MATH141",
     "description": "Calculus 1"
   },
@@ -747,7 +763,7 @@
   },
   {
     "groupKey": "BUSA444-OPTION2-2",
-    "prerequisiteCourseCode": "BUSA100",
+    "prerequisiteCourseCode": "ECON100",
     "description": "Principles of Economics"
   },
 
@@ -764,7 +780,7 @@
   },
   {
     "groupKey": "BUSA451-ECON-1",
-    "prerequisiteCourseCode": "BUSA100",
+    "prerequisiteCourseCode": "ECON100",
     "description": "Principles of Economics"
   },
   {
@@ -822,7 +838,7 @@
   },
   {
     "groupKey": "ECON452-ECON-1",
-    "prerequisiteCourseCode": "BUSA100",
+    "prerequisiteCourseCode": "ECON100",
     "description": "Principles of Economics"
   },
   {
@@ -845,7 +861,7 @@
   {
     "groupKey": "ECON455-MATH-1",
     "prerequisiteCourseCode": "MATH122",
-    "description": "Calculus 2"
+    "description": "Pre-Calculus 2"
   },
   {
     "groupKey": "ECON455-MATH-1",
@@ -998,7 +1014,7 @@
   },
   {
     "groupKey": "ENGR413-ECONOMICS-1",
-    "prerequisiteCourseCode": "BUSA100",
+    "prerequisiteCourseCode": "ECON100",
     "description": "Principles of Economics"
   },
   {
@@ -1017,7 +1033,7 @@
   
   {
     "groupKey": "CE122-MATH-1",
-    "prerequisiteCourseCode": "MATH141",
+    "prerequisiteCourseCode": "MATH142",
     "description": "Calculus 2"
   },
   {
@@ -1027,7 +1043,7 @@
   },
   {
     "groupKey": "CE122-PROGRAMMING-2",
-    "prerequisiteCourseCode": "CS115",
+    "prerequisiteCourseCode": "CS212",
     "description": "Computer Programming for CS"
   },
 
@@ -1053,7 +1069,7 @@
   },
   {
     "groupKey": "CE451-PROGRAMMING-1",
-    "prerequisiteCourseCode": "CS115",
+    "prerequisiteCourseCode": "CS212",
     "description": "Computer Programming for CS"
   },
   {

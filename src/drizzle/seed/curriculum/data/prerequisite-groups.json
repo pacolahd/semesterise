@@ -111,8 +111,8 @@
   },
   
   {
-    "groupKey": "CS215-PROGRAMMING-1",
-    "courseCode": "CS215",
+    "groupKey": "CS213-PROGRAMMING-1",
+    "courseCode": "CS213",
     "groupName": "Programming Foundation",
     "externalLogicOperator": "AND",
     "internalLogicOperator": "AND",
@@ -120,6 +120,15 @@
     "description": "Programming foundation"
   },
   
+  {
+    "groupKey": "MATH142-MATH-1",
+    "courseCode": "MATH142",
+    "groupName": "Calculus 1 Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Calculus 1 Foundation"
+  },
   {
     "groupKey": "CS221-MATH-1",
     "courseCode": "CS221",
@@ -247,8 +256,8 @@
 
   
   {
-    "groupKey": "CS345-ALGORITHMS-1",
-    "courseCode": "CS345",
+    "groupKey": "CS456-ALGORITHMS-1",
+    "courseCode": "CS456",
     "groupName": "Algorithms Foundation",
     "externalLogicOperator": "AND",
     "internalLogicOperator": "AND",
@@ -309,8 +318,8 @@
 
   
   {
-    "groupKey": "CS435-PROGRAMMING-1",
-    "courseCode": "CS435",
+    "groupKey": "CS433-PROGRAMMING-1",
+    "courseCode": "CS433",
     "groupName": "Programming Foundation",
     "externalLogicOperator": "AND",
     "internalLogicOperator": "OR",
@@ -318,8 +327,8 @@
     "description": "Programming background"
   },
   {
-    "groupKey": "CS435-THEORY-2",
-    "courseCode": "CS435",
+    "groupKey": "CS433-THEORY-2",
+    "courseCode": "CS433",
     "groupName": "Theory Foundation",
     "externalLogicOperator": "AND",
     "internalLogicOperator": "OR",
@@ -340,6 +349,25 @@
   {
     "groupKey": "CS442-WEB-2",
     "courseCode": "CS442",
+    "groupName": "Web Development",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 2,
+    "description": "Web development background"
+  },
+
+  {
+    "groupKey": "CS443-DATABASE-1",
+    "courseCode": "CS443",
+    "groupName": "Database Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Database background"
+  },
+  {
+    "groupKey": "CS443-WEB-2",
+    "courseCode": "CS443",
     "groupName": "Web Development",
     "externalLogicOperator": "AND",
     "internalLogicOperator": "AND",
@@ -593,8 +621,8 @@
 
   
   {
-    "groupKey": "AI301-ALGORITHMS-1",
-    "courseCode": "AI301",
+    "groupKey": "CS254-ALGORITHMS-1",
+    "courseCode": "CS254",
     "groupName": "Algorithms Foundation",
     "externalLogicOperator": "AND",
     "internalLogicOperator": "AND",
@@ -602,8 +630,8 @@
     "description": "Algorithms background"
   },
   {
-    "groupKey": "AI301-STATS-2",
-    "courseCode": "AI301",
+    "groupKey": "CS254-STATS-2",
+    "courseCode": "CS254",
     "groupName": "Statistics Foundation",
     "externalLogicOperator": "AND",
     "internalLogicOperator": "AND",
@@ -613,8 +641,8 @@
 
   
   {
-    "groupKey": "MS301-STATS-1",
-    "courseCode": "MS301",
+    "groupKey": "CS361-STATS-1",
+    "courseCode": "CS361",
     "groupName": "Statistics Foundation",
     "externalLogicOperator": "AND",
     "internalLogicOperator": "AND",
@@ -622,8 +650,8 @@
     "description": "Statistics background"
   },
   {
-    "groupKey": "MS301-MATH-2",
-    "courseCode": "MS301",
+    "groupKey": "CS361-MATH-2",
+    "courseCode": "CS361",
     "groupName": "Linear Algebra",
     "externalLogicOperator": "AND",
     "internalLogicOperator": "AND",
@@ -633,8 +661,8 @@
 
   
   {
-    "groupKey": "BUSA100-MATH-1",
-    "courseCode": "BUSA100",
+    "groupKey": "ECON100-MATH-1",
+    "courseCode": "ECON100",
     "groupName": "Math Foundation",
     "externalLogicOperator": "AND",
     "internalLogicOperator": "OR",

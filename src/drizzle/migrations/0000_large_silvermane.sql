@@ -1,9 +1,10 @@
 CREATE TYPE "public"."course_status" AS ENUM('active', 'archived', 'development');--> statement-breakpoint
 CREATE TYPE "public"."semester_offering" AS ENUM('fall', 'spring', 'summer');--> statement-breakpoint
 CREATE TYPE "public"."student_course_status" AS ENUM('verified', 'enrolled', 'planned', 'retake_required', 'dropped', 'failed');--> statement-breakpoint
-CREATE TYPE "public"."import_status" AS ENUM('pending', 'processing', 'success', 'partial', 'failed');--> statement-breakpoint
-CREATE TYPE "public"."processing_step" AS ENUM('extraction', 'mapping', 'validation', 'categorization');--> statement-breakpoint
-CREATE TYPE "public"."step_status" AS ENUM('pending', 'in_progress', 'completed', 'failed');--> statement-breakpoint
+CREATE TYPE "public"."import_status" AS ENUM('pending', 'processing', 'extracting', 'mapping', 'verifying', 'importing', 'success', 'partial', 'failed', 'cancelled', 'awaiting_verification');--> statement-breakpoint
+CREATE TYPE "public"."processing_step" AS ENUM('file_validation', 'extraction', 'student_identification', 'semester_mapping', 'course_validation', 'categorization', 'grade_analysis', 'requirements_mapping', 'database_integration', 'verification', 'completion');--> statement-breakpoint
+CREATE TYPE "public"."step_status" AS ENUM('pending', 'in_progress', 'completed', 'failed', 'warning', 'skipped', 'awaiting_user_input');--> statement-breakpoint
+CREATE TYPE "public"."verification_status" AS ENUM('not_required', 'pending', 'approved', 'rejected', 'modified');--> statement-breakpoint
 CREATE TYPE "public"."participant_role" AS ENUM('student', 'academic_advisor', 'hod', 'provost', 'registry', 'invited_approver', 'observer');--> statement-breakpoint
 CREATE TYPE "public"."petition_status" AS ENUM('draft', 'submitted', 'advisor_approved', 'advisor_rejected', 'hod_approved', 'hod_rejected', 'provost_approved', 'provost_rejected', 'registry_processing', 'completed', 'cancelled');--> statement-breakpoint
 CREATE TYPE "public"."staff_role" AS ENUM('academic_advisor', 'hod', 'provost', 'registry', 'lecturer', 'student');--> statement-breakpoint
@@ -271,10 +272,20 @@ CREATE TABLE "transcript_imports" (
 	"student_id" varchar NOT NULL,
 	"file_name" varchar(255) NOT NULL,
 	"file_url" varchar(255) NOT NULL,
+	"file_type" varchar(50),
+	"file_size" integer,
 	"import_date" timestamp with time zone DEFAULT now() NOT NULL,
 	"import_status" "import_status" NOT NULL,
+	"verification_status" "verification_status" DEFAULT 'not_required' NOT NULL,
 	"processed_courses_count" integer DEFAULT 0,
+	"successfully_imported_count" integer DEFAULT 0,
+	"semester_count" integer DEFAULT 0,
+	"extracted_major" varchar(100),
+	"extracted_math_track" varchar(50),
+	"requires_verification" boolean DEFAULT false,
+	"import_data" jsonb,
 	"notes" text,
+	"error" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -287,6 +298,19 @@ CREATE TABLE "transcript_processing_steps" (
 	"started_at" timestamp with time zone,
 	"completed_at" timestamp with time zone,
 	"details" jsonb,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "transcript_verifications" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"import_id" uuid NOT NULL,
+	"verification_token" varchar(100) NOT NULL,
+	"status" "verification_status" DEFAULT 'pending' NOT NULL,
+	"verified_at" timestamp with time zone,
+	"original_mappings" jsonb,
+	"updated_mappings" jsonb,
+	"user_notes" varchar(500),
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -502,6 +526,7 @@ ALTER TABLE "student_semester_mappings" ADD CONSTRAINT "student_semester_mapping
 ALTER TABLE "student_semester_mappings" ADD CONSTRAINT "student_semester_mappings_academic_semester_id_academic_semesters_id_fk" FOREIGN KEY ("academic_semester_id") REFERENCES "public"."academic_semesters"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "transcript_imports" ADD CONSTRAINT "transcript_imports_student_id_student_profiles_student_id_fk" FOREIGN KEY ("student_id") REFERENCES "public"."student_profiles"("student_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "transcript_processing_steps" ADD CONSTRAINT "transcript_processing_steps_import_id_transcript_imports_id_fk" FOREIGN KEY ("import_id") REFERENCES "public"."transcript_imports"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "transcript_verifications" ADD CONSTRAINT "transcript_verifications_import_id_transcript_imports_id_fk" FOREIGN KEY ("import_id") REFERENCES "public"."transcript_imports"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "petition_courses" ADD CONSTRAINT "petition_courses_petition_id_petitions_id_fk" FOREIGN KEY ("petition_id") REFERENCES "public"."petitions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "petition_courses" ADD CONSTRAINT "petition_courses_course_code_courses_code_fk" FOREIGN KEY ("course_code") REFERENCES "public"."courses"("code") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "petition_courses" ADD CONSTRAINT "petition_courses_target_semester_id_academic_semesters_id_fk" FOREIGN KEY ("target_semester_id") REFERENCES "public"."academic_semesters"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
