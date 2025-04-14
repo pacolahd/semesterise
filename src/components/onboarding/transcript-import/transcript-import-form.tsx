@@ -1,13 +1,15 @@
+// src/components/onboarding/transcript-import/transcript-import-form.tsx
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { UseFormReturn, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import { ProcessingVisualization } from "@/components/onboarding/transcript-import/processing-visualization";
 import { transcriptSchema } from "@/components/onboarding/transcript-import/transcript-import-schema";
+import { VerificationDialog } from "@/components/onboarding/transcript-import/verification-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,164 +18,375 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Form, FormField } from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { useUpdateUserProfile } from "@/lib/auth/auth-hooks";
 import { useAuthStore } from "@/lib/auth/auth-store";
-import {
-  parseTranscriptFile,
-  processTranscriptData,
-} from "@/lib/services/transcript-import-service";
 import { useOnboardingStore } from "@/lib/stores/onboarding-store";
+import { SemesterMapping, StudentProfileData } from "@/lib/types/transcript";
 
 import { ExportHelpDialog } from "./export-help-dialog";
 import { FileUpload } from "./file-upload";
-import { ProcessingVisualization } from "./processing-visualization";
+import { WhyImportDialog } from "./why-import-dialog";
 
 interface TranscriptImportFormProps {
   onBack: () => void;
 }
 
 export function TranscriptImportForm({ onBack }: TranscriptImportFormProps) {
-  const [showWhyImportDialog, setShowWhyImportDialog] = useState(false);
-  const [showHowToExportDialog, setShowHowToExportDialog] = useState(false);
   const router = useRouter();
-  const queryClient = useQueryClient();
+  const { user } = useAuthStore();
   const { academicInfo, programInfo, completeOnboarding, setTranscriptData } =
     useOnboardingStore();
-  const { user } = useAuthStore();
 
+  // State for form and processing
+  const [file, setFile] = useState<File | null>(null);
+  const [showWhyImportDialog, setShowWhyImportDialog] = useState(false);
+  const [showHowToExportDialog, setShowHowToExportDialog] = useState(false);
+
+  // Processing state
   const [isProcessing, setIsProcessing] = useState(false);
-  const [processingStage, setProcessingStage] = useState(-1);
-  const { mutate: updateUserProfile, isPending: isUpdateUserPending } =
-    useUpdateUserProfile(user!.id);
+  const [currentPhase, setCurrentPhase] = useState(0);
+  const [currentStage, setCurrentStage] = useState(0);
+  const [processingError, setProcessingError] = useState<string | undefined>(
+    undefined
+  );
+  const [statusMessage, setStatusMessage] = useState<string | undefined>(
+    undefined
+  );
 
+  // Verification state
+  const [showVerificationDialog, setShowVerificationDialog] = useState(false);
+  const [mappings, setMappings] = useState<SemesterMapping[]>([]);
+  const [studentProfile, setStudentProfile] =
+    useState<StudentProfileData | null>(null);
+  const [verificationToken, setVerificationToken] = useState<
+    string | undefined
+  >(undefined);
+
+  // Processing phases
+  const phases = [
+    [
+      "Analyzing transcript data",
+      "Extracting completed courses",
+      "Identifying degree and major",
+      "Detecting math track",
+      "Verifying academic timeline",
+    ],
+    [
+      "Mapping to degree requirements",
+      "Verifying grade requirements",
+      "Calculating remaining credits",
+      "Setting up personalized dashboard",
+      "Finalizing your academic plan",
+    ],
+  ];
+
+  // Form setup
   const transcriptForm = useForm({
     resolver: zodResolver(transcriptSchema),
   });
 
-  // Mock processing stages for transcript
-  const processingStages = [
-    "Extracting course data from transcript",
-    "Analyzing course history",
-    "Matching courses with requirements",
-    "Building your academic profile",
-    "Finalizing your degree audit",
-  ];
+  // User profile update mutation
+  const { mutate: updateUserProfile, isPending: isUpdateUserPending } =
+    useUpdateUserProfile(user!.id);
 
+  // Handles file selection
+  const handleFileChange = (selectedFile: File) => {
+    setFile(selectedFile);
+    console.log("File selected:", selectedFile.name);
+  };
+
+  // Main form submission
   const handleSubmit = async (values: any) => {
     if (!academicInfo || !programInfo) {
       toast.error("Please complete all previous steps first");
       return;
     }
 
+    if (!values.transcript || values.transcript.length === 0) {
+      toast.error("Please select a transcript file");
+      return;
+    }
+
+    const file = values.transcript[0];
+    setFile(file);
+
     try {
+      // Start processing
       setIsProcessing(true);
-      const file = values.transcript[0];
+      setCurrentPhase(0);
+      setCurrentStage(0);
+      setProcessingError(undefined);
 
-      // Start visual processing feedback
-      setProcessingStage(0);
+      // Create form data for file upload
+      const formData = new FormData();
+      formData.append("file", file);
 
-      // Simulate progress for visual feedback
-      let currentStage = 0;
-      const progressInterval = setInterval(() => {
-        if (currentStage < processingStages.length - 1) {
-          currentStage++;
-          setProcessingStage(currentStage);
-        } else {
-          clearInterval(progressInterval);
-        }
-      }, 800);
+      // Add context information
+      formData.append("academicInfo", JSON.stringify(academicInfo));
+      formData.append("programInfo", JSON.stringify(programInfo));
 
-      // Actually process the file
-      const parsedData = await parseTranscriptFile(
-        file,
-        academicInfo,
-        programInfo
+      // Phase 1: Send to Flask parser service
+      setStatusMessage("Sending transcript to parser service...");
+
+      updateProgress(0, 0, "Analyzing transcript data");
+
+      // Extract data using Flask parser API
+      const parseResponse = await fetch("/api/transcript", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!parseResponse.ok) {
+        const errorData = await parseResponse.json();
+        throw new Error(errorData.error || "Failed to parse transcript");
+      }
+
+      const parsedData = await parseResponse.json();
+      updateProgress(0, 1, "Extracted courses from transcript");
+
+      // Check required data
+      if (!parsedData.studentInfo || !parsedData.semesters) {
+        throw new Error("Invalid data returned from parser service");
+      }
+
+      // Continue Phase 1 progress
+      updateProgress(
+        0,
+        2,
+        `Identified "${parsedData.studentInfo.degree}" major`
       );
 
-      // Clear the interval and set final stage
-      clearInterval(progressInterval);
-      setProcessingStage(processingStages.length - 1);
+      // Simulate math track detection
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      updateProgress(0, 3, `Detected math track`);
 
-      // Store in onboarding store instead of React Query
+      // Analyze timeline
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      updateProgress(0, 4, `Analyzing academic timeline`);
+
+      // Phase 2: Process data with our API
+      setCurrentPhase(1);
+      setCurrentStage(0);
+      setStatusMessage("Processing with database...");
+
+      // Import to database
+      const importResponse = await fetch("/api/student/import-transcript", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          transcriptData: parsedData,
+          academicInfo,
+          programInfo,
+        }),
+      });
+
+      if (!importResponse.ok) {
+        const errorData = await importResponse.json();
+        throw new Error(errorData.error || "Failed to import transcript");
+      }
+
+      const importResult = await importResponse.json();
+
+      // Process remaining steps
+      updateProgress(1, 1, "Mapping courses to requirements");
+      await new Promise((resolve) => setTimeout(resolve, 600));
+
+      updateProgress(1, 2, "Calculating remaining credits");
+      await new Promise((resolve) => setTimeout(resolve, 600));
+
+      updateProgress(1, 3, "Setting up your dashboard");
+      await new Promise((resolve) => setTimeout(resolve, 600));
+
+      updateProgress(1, 4, "Import complete");
+
+      // Store transcript data
       setTranscriptData(parsedData);
 
-      toast.success("Transcript imported successfully!");
+      // Check if verification is needed
+      if (importResult.requiresVerification) {
+        setMappings(importResult.mappings);
+        setStudentProfile(importResult.studentProfile);
+        setVerificationToken(importResult.verificationToken);
 
-      // Mark onboarding as complete and navigate
-      updateUserProfile({ onboardingCompleted: true });
-
-      // Navigate after a short delay
-      setTimeout(() => {
-        router.push("/dashboard");
+        // Show verification dialog
+        setShowVerificationDialog(true);
+        setIsProcessing(false);
+      } else {
+        // Complete onboarding
         completeOnboarding();
-      }, 1500);
+        updateUserProfile({ onboardingCompleted: true });
+
+        // Show success message
+        toast.success("Transcript imported successfully!");
+
+        // Navigate to dashboard
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 1500);
+      }
     } catch (error) {
       console.error("Error processing transcript:", error);
+
+      setProcessingError(
+        error instanceof Error
+          ? error.message
+          : "Failed to process your transcript. Please try again."
+      );
+
       toast.error(
         error instanceof Error
           ? error.message
           : "Failed to process your transcript. Please try again."
       );
-      setProcessingStage(-1);
+
+      // Reset processing state after a delay
+      setTimeout(() => {
+        setIsProcessing(false);
+      }, 3000);
+    }
+  };
+
+  // Helper for updating progress
+  const updateProgress = (phase: number, stage: number, message?: string) => {
+    setCurrentPhase(phase);
+    setCurrentStage(stage);
+    if (message) {
+      setStatusMessage(message);
+    }
+  };
+
+  // Handle verification confirmation
+  const handleVerificationConfirm = async (
+    updatedMappings: SemesterMapping[]
+  ) => {
+    try {
+      setIsProcessing(true);
+      setStatusMessage("Updating semester mappings...");
+
+      // Send verification update
+      const response = await fetch("/api/student/verify-mappings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          mappings: updatedMappings,
+          studentId: studentProfile?.studentId,
+          token: verificationToken,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to verify mappings");
+      }
+
+      // Complete onboarding
+      completeOnboarding();
+      updateUserProfile({ onboardingCompleted: true });
+
+      // Show success message
+      toast.success("Transcript import completed successfully!");
+
+      // Close dialog and navigate to dashboard
+      setShowVerificationDialog(false);
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 500);
+    } catch (error) {
+      console.error("Verification error:", error);
+
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to verify mappings. Please try again."
+      );
+
       setIsProcessing(false);
     }
   };
 
+  // Render processing state
   if (isProcessing) {
     return (
       <ProcessingVisualization
-        processingStage={processingStage}
-        stages={processingStages}
+        phase={currentPhase}
+        stage={currentStage}
+        phases={phases}
+        error={processingError}
+        statusMessage={statusMessage}
       />
     );
   }
 
   return (
-    <Card className="w-full max-w-lg border-2 border-primary/10 shadow-lg">
-      <CardHeader>
-        <CardTitle className="text-center">Import Your Transcript</CardTitle>
-        <CardDescription className="text-center">
-          We'll automatically extract your courses and grades
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...transcriptForm}>
-          <form
-            onSubmit={transcriptForm.handleSubmit(handleSubmit)}
-            className="space-y-6"
-          >
-            <FormField
-              control={transcriptForm.control}
-              name="transcript"
-              render={({ field }) => (
-                <FileUpload
-                  field={field}
-                  showWhyImportDialog={showWhyImportDialog}
-                  setShowWhyImportDialog={setShowWhyImportDialog}
-                />
-              )}
-            />
+    <>
+      <Card className="w-full max-w-lg border-2 border-primary/10 shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-center">Import Your Transcript</CardTitle>
+          <CardDescription className="text-center">
+            We'll automatically extract your courses and grades
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...transcriptForm}>
+            <form
+              onSubmit={transcriptForm.handleSubmit(handleSubmit)}
+              className="space-y-6"
+            >
+              <FileUpload
+                field={transcriptForm.register("transcript")}
+                onFileChange={handleFileChange}
+                showWhyImportDialog={() => setShowWhyImportDialog(true)}
+                showHowToExportDialog={() => setShowHowToExportDialog(true)}
+              />
 
-            {/* How to export transcript help */}
-            <ExportHelpDialog
-              open={showHowToExportDialog}
-              onOpenChange={setShowHowToExportDialog}
-            />
+              {/* How to export transcript help */}
+              <ExportHelpDialog
+                open={showHowToExportDialog}
+                onOpenChange={setShowHowToExportDialog}
+              />
 
-            <div className="flex justify-between pt-4">
-              <Button type="button" variant="outline" onClick={onBack}>
-                <ChevronLeft className="mr-2 size-4" />
-                Back
-              </Button>
-              <Button type="submit" className="body2-medium rounded-[50px]">
-                Import Transcript
-                <ChevronRight className="ml-2 size-4" />
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+              <div className="flex justify-between pt-4">
+                <Button type="button" variant="outline" onClick={onBack}>
+                  <ChevronLeft className="mr-2 size-4" />
+                  Back
+                </Button>
+                <Button
+                  type="submit"
+                  className="body2-medium rounded-[50px]"
+                  disabled={!file}
+                >
+                  Import Transcript
+                  <ChevronRight className="ml-2 size-4" />
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+
+      {/* Why Import Dialog */}
+      <WhyImportDialog
+        open={showWhyImportDialog}
+        onOpenChange={setShowWhyImportDialog}
+      />
+
+      {/* Verification Dialog */}
+      {showVerificationDialog && studentProfile && (
+        <VerificationDialog
+          isOpen={showVerificationDialog}
+          onClose={() => setShowVerificationDialog(false)}
+          mappings={mappings}
+          studentProfile={studentProfile}
+          verificationToken={verificationToken}
+          onConfirm={handleVerificationConfirm}
+          onUpdate={(updatedMappings) => setMappings(updatedMappings)}
+        />
+      )}
+    </>
   );
 }

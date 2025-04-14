@@ -5,6 +5,7 @@ import { db } from "@/drizzle";
 import {
   academicSemesters,
   academicYears,
+  authUsers,
   studentCourses,
   studentProfiles,
   studentSemesterMappings,
@@ -14,6 +15,10 @@ import {
 } from "@/drizzle/schema";
 import { AppError } from "@/lib/errors/app-error-classes";
 import { determineCategoryForCourse } from "@/lib/services/course-categorization-service";
+import {
+  extractSemesterNumber,
+  isSummerSemester,
+} from "@/lib/services/semester-mapping-service";
 import {
   CourseWithCategory,
   SemesterMapping,
@@ -53,6 +58,9 @@ export const transcriptImportService = {
           academicInfo,
           programInfo
         );
+
+        // Update user's name if different
+        await this.updateUserName(authId, studentProfile.name, tx);
 
         // Create/update student profile
         const studentRecord = await this.upsertStudentProfile(
@@ -115,7 +123,7 @@ export const transcriptImportService = {
         const requiresVerification = this.shouldRequireVerification(mappings);
 
         // Generate verification token if needed
-        let verificationToken: string | undefined;
+        let verificationToken: string | undefined = undefined;
         if (requiresVerification) {
           verificationToken = generateVerificationToken();
 
@@ -175,7 +183,7 @@ export const transcriptImportService = {
     });
   },
 
-  // Helper methods that use the passed transaction
+  // Helper methods
   extractStudentProfile(
     transcriptData: TranscriptData,
     academicInfo: any,
@@ -183,8 +191,8 @@ export const transcriptImportService = {
   ): StudentProfileData {
     const studentInfo = transcriptData.studentInfo;
 
-    // Extract student ID
-    const studentId = studentInfo.student_id;
+    // Extract student ID - use student_roll_no from CAMU
+    const studentId = studentInfo.student_roll_no;
 
     // Extract name
     const name = studentInfo.name;
@@ -198,14 +206,14 @@ export const transcriptImportService = {
     }
 
     // Get latest CGPA if available
-    let cumulativeGpa: string | undefined;
+    let cumulativeGpa = undefined;
     if (transcriptData.semesters.length > 0) {
       const lastSemester =
         transcriptData.semesters[transcriptData.semesters.length - 1];
       cumulativeGpa = lastSemester.gpaInfo.cgpa;
     }
 
-    // Extract credit hours
+    // Extract credit hours from currentCredits field
     const creditHours = transcriptData.currentCredits;
 
     // Extract date of admission
@@ -229,7 +237,7 @@ export const transcriptImportService = {
       major,
       mathTrackName: programInfo?.mathTrack,
       cumulativeGpa,
-      creditHours: creditHours ? parseInt(creditHours) : undefined,
+      creditHours: creditHours ? parseFloat(creditHours) : undefined,
       dateOfAdmission,
       yearGroup,
       currentYear,
@@ -261,8 +269,8 @@ export const transcriptImportService = {
   shouldRequireVerification(mappings: SemesterMapping[]): boolean {
     // Check for semester 3 that's not marked as summer
     const hasSemester3NotSummer = mappings.some((m) => {
-      const semNumber = m.camuSemesterName.match(/semester\s+(\d+)/i);
-      return semNumber && semNumber[1] === "3" && !m.isSummer;
+      const semNumber = extractSemesterNumber(m.camuSemesterName);
+      return semNumber === 3 && !m.isSummer;
     });
 
     // Check for inconsistent program year/semester sequencing
@@ -289,7 +297,14 @@ export const transcriptImportService = {
     return hasSemester3NotSummer || hasSequencingIssue;
   },
 
-  // Methods that need a transaction - note they receive tx as a parameter
+  // Methods that need a transaction
+  async updateUserName(authId: string, name: string, tx: any) {
+    // Update the name in authUsers table if it exists
+    if (name) {
+      await tx.update(authUsers).set({ name }).where(eq(authUsers.id, authId));
+    }
+  },
+
   async upsertStudentProfile(
     profile: StudentProfileData,
     authId: string,
@@ -301,11 +316,10 @@ export const transcriptImportService = {
     });
 
     if (existingProfile) {
-      // Update existing profile
+      // Update existing profile with relevant fields
       await tx
         .update(studentProfiles)
         .set({
-          name: profile.name,
           majorCode: profile.major,
           mathTrackName: profile.mathTrackName,
           cumulativeGpa: profile.cumulativeGpa,
@@ -325,7 +339,6 @@ export const transcriptImportService = {
         .values({
           studentId: profile.studentId,
           authId,
-          name: profile.name,
           majorCode: profile.major,
           mathTrackName: profile.mathTrackName,
           cumulativeGpa: profile.cumulativeGpa,
@@ -395,10 +408,14 @@ export const transcriptImportService = {
           // Spring semester: Jan-May
           startDate = new Date(`${endYear}-01-15`);
           endDate = new Date(`${endYear}-05-15`);
-        } else {
+        } else if (mapping.isSummer) {
           // Summer semester: May-Aug
           startDate = new Date(`${endYear}-05-20`);
           endDate = new Date(`${endYear}-08-10`);
+        } else {
+          // Semester 3 (non-summer): Sep-Dec
+          startDate = new Date(`${endYear}-09-01`);
+          endDate = new Date(`${endYear}-12-20`);
         }
 
         // Create semester
@@ -522,6 +539,17 @@ export const transcriptImportService = {
           tx
         );
 
+        // Check if failing grade (E)
+        const isFailed = course.grade === "E";
+
+        // Check if this course has been taken before
+        const existingCourse = await tx.query.studentCourses.findFirst({
+          where: and(
+            eq(studentCourses.student_id, studentId),
+            eq(studentCourses.course_code, course.code)
+          ),
+        });
+
         // Create student course record
         const courseRecords = await tx
           .insert(studentCourses)
@@ -529,16 +557,26 @@ export const transcriptImportService = {
             studentId,
             course_code: course.code,
             semester_id: semesterId,
-            status: "verified",
+            status: isFailed ? "failed" : "verified",
             grade: course.grade,
             category_name: category,
             is_verified: true,
             counts_for_gpa: course.grade !== "W", // 'W' (withdrawn) doesn't count for GPA
-            is_used_for_requirement: true,
+            is_used_for_requirement: !isFailed, // Failed courses don't count for requirements
           })
           .returning();
 
         importedCourses.push(courseRecords[0]);
+
+        // If this is a retake, update the original course to not count for requirements
+        if (existingCourse && !isFailed) {
+          await tx
+            .update(studentCourses)
+            .set({
+              is_used_for_requirement: false,
+            })
+            .where(eq(studentCourses.id, existingCourse.id));
+        }
       }
     }
 
@@ -586,16 +624,3 @@ export const transcriptImportService = {
     return records[0];
   },
 };
-
-// Export semester number extraction function
-export function extractSemesterNumber(semesterName: string): number {
-  const semPattern = /semester\s+(\d+)/i;
-  const match = semesterName.match(semPattern);
-
-  if (match && match[1]) {
-    return parseInt(match[1], 10);
-  }
-
-  // Default to semester 1 if not found
-  return 1;
-}

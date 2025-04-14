@@ -8,71 +8,85 @@ import {
 } from "@/drizzle/schema";
 
 /**
- * Determine the appropriate category for a course
+ * Determine the appropriate category for a course based on the course code and student's major
+ * by looking up the mapping in the course-categorizations table
  */
 export async function determineCategoryForCourse(
   courseCode: string,
   majorCode: string,
   tx: any
 ): Promise<string> {
-  // Try to find a direct category match for this course code and major
-  const categoryMapping = await tx.query.courseCategorization.findFirst({
+  // Clean the course code - remove any spaces
+  const cleanCourseCode = courseCode.replace(/\s+/g, "");
+
+  // Look for a direct match with the student's major
+  let categoryMapping = await tx.query.courseCategorization.findFirst({
     where: and(
-      eq(courseCategorization.courseCode, courseCode),
-      or(
-        eq(courseCategorization.majorGroup, majorCode),
-        eq(courseCategorization.majorGroup, "ALL"),
-        isNull(courseCategorization.majorGroup)
-      )
+      eq(courseCategorization.courseCode, cleanCourseCode),
+      eq(courseCategorization.majorGroup, majorCode)
     ),
   });
 
+  // If not found, look for an "ALL" mapping that applies to all majors
+  if (!categoryMapping) {
+    categoryMapping = await tx.query.courseCategorization.findFirst({
+      where: and(
+        eq(courseCategorization.courseCode, cleanCourseCode),
+        eq(courseCategorization.majorGroup, "ALL")
+      ),
+    });
+  }
+
+  // If a specific mapping was found, use it
   if (categoryMapping) {
     return categoryMapping.categoryName;
   }
 
-  // If no category mapping found, use department code to guess
-  const departmentCode = extractDepartmentCode(courseCode);
+  // If still no mapping found, try to determine based on course prefix
+  // Extract the department code from the course code
+  const departmentCode = extractDepartmentCode(cleanCourseCode);
 
-  // Standard categories based on department code
+  // Map department code to appropriate categories based on provided info
   switch (departmentCode) {
+    // Computer Science and Information Systems (CSIS) Department
     case "CS":
-    case "MIS":
-      return majorCode === "CS" || majorCode === "Computer Science"
-        ? "Major Required"
-        : "Major Elective";
+      return majorCode === "CS" ? "Required Major Classes" : "Computing";
+    case "IS":
+    case "CSIS":
+    case "AI":
+    case "MS":
+    case "SYS":
+      return "Computing";
     case "MATH":
       return "Mathematics & Quantitative";
-    case "HUMN":
-    case "HIST":
-    case "PHIL":
-      return "Humanities & Social Sciences";
-    case "ENGR":
-      return majorCode.includes("Engineering")
-        ? "Major Required"
-        : "Engineering";
-    case "BUSN":
-    case "MGMT":
+
+    // Business Administration Department
+    case "BUSA":
     case "ECON":
-    case "ACCT":
-    case "FINC":
-      return majorCode === "Business Administration" || majorCode === "BA"
-        ? "Major Required"
-        : "Business Administration";
-    case "SCI":
-    case "BIOL":
+      return "Business";
+
+    // Engineering Department
+    case "ENGR":
+    case "CE":
+    case "EE":
+    case "ME":
+      return majorCode.includes("E")
+        ? "Required Major Classes"
+        : "Non-Major Electives";
     case "CHEM":
-    case "PHYS":
-      return "Natural Sciences";
-    case "COMM":
+    case "SC":
+      return "Science";
+
+    // Humanities and Social Sciences Department
+    case "AS":
     case "ENGL":
-      return "Written & Oral Communication";
-    case "INDS":
-    case "LEAD":
-    case "ETHN":
-      return "Leadership & Ethics";
+    case "FRENC":
+    case "POLS":
+    case "SOAN":
+      return "Humanities & Social Sciences";
+
     default:
-      return "Uncategorized";
+      return "Non-Major Electives"; // Default fallback
   }
 }
 
@@ -82,5 +96,5 @@ export async function determineCategoryForCourse(
 function extractDepartmentCode(courseCode: string): string {
   // Match letters at the beginning of the course code
   const match = courseCode.match(/^([A-Za-z]+)/);
-  return match ? match[1].toUpperCase() : "UNKNOWN";
+  return match ? match[1].toUpperCase() : "";
 }

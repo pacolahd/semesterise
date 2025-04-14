@@ -87,6 +87,7 @@ export async function POST(request: NextRequest) {
         {
           error: data.error || "Failed to parse transcript",
           details: data.details || {},
+          code: data.code || "TRANSCRIPT_PARSE_ERROR",
           status: "error",
         },
         { status: response.status }
@@ -116,10 +117,15 @@ export async function POST(request: NextRequest) {
         ? error.message
         : "Failed to communicate with transcript parsing service";
 
+    // const errorCode =   error instanceof Error
+    //   ? error.code
+    //   : "ECONNREFUSED";
+
     return NextResponse.json(
       {
         error: errorMessage,
         status: "error",
+        code: (error as any).code,
         details: { timestamp: new Date().toISOString() },
       },
       { status: 500 }

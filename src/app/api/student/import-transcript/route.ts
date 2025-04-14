@@ -4,6 +4,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/auth";
 import { AppError } from "@/lib/errors/app-error-classes";
 import { processSemesterMappings } from "@/lib/services/semester-mapping-service";
+import {
+  extractSemesterNumber,
+  isSummerSemester,
+} from "@/lib/services/semester-mapping-service";
 import { transcriptImportService } from "@/lib/services/transcript-import-service";
 import {
   TranscriptImportRequest,
@@ -42,16 +46,41 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Perform basic validation on transcript data
+    if (
+      !importRequest.transcriptData.studentInfo ||
+      !importRequest.transcriptData.semesters
+    ) {
+      return NextResponse.json(
+        { error: "Invalid transcript data format" },
+        { status: 400 }
+      );
+    }
+
+    // Make sure we have a student ID
+    if (!importRequest.transcriptData.studentInfo.student_roll_no) {
+      return NextResponse.json(
+        { error: "Missing student ID in transcript data" },
+        { status: 400 }
+      );
+    }
+
     // Process semester mappings
     const mappings = await processSemesterMappings(
       importRequest.transcriptData.semesters,
       importRequest.academicInfo
     );
 
+    // Enhancing mappings with summer semester information
+    const enhancedMappings = mappings.map((mapping) => ({
+      ...mapping,
+      isSummer: isSummerSemester(mapping.camuSemesterName),
+    }));
+
     // Process transcript import with transaction
     const result = await transcriptImportService.importTranscript(
       importRequest,
-      mappings
+      enhancedMappings
     );
 
     return NextResponse.json(result);

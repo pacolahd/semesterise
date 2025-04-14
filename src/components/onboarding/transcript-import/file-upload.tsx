@@ -1,8 +1,9 @@
+// src/components/onboarding/transcript-import/file-upload.tsx
 "use client";
 
 import { ChangeEvent, DragEvent, useState } from "react";
 
-import { FileText, Upload } from "lucide-react";
+import { AlertCircle, FileText, Upload } from "lucide-react";
 import { ControllerRenderProps } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -15,31 +16,84 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-import { WhyImportDialog } from "./why-import-dialog";
+// src/components/onboarding/transcript-import/file-upload.tsx
 
 interface FileUploadProps {
-  field: ControllerRenderProps<any, "transcript">;
-  showWhyImportDialog: boolean;
-  setShowWhyImportDialog: (show: boolean) => void;
+  field: any;
+  onFileChange?: (file: File) => void;
+  showWhyImportDialog: () => void;
+  showHowToExportDialog: () => void;
 }
 
 /**
  * File upload component for transcript import with drag and drop support
  */
 export function FileUpload({
-  field: { onChange, value, ...field },
+  field,
+  onFileChange,
   showWhyImportDialog,
-  setShowWhyImportDialog,
+  showHowToExportDialog,
 }: FileUploadProps) {
   const [dragActive, setDragActive] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Helper to validate file
+  const validateFile = (file: File): { valid: boolean; error?: string } => {
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      return { valid: false, error: "File size exceeds the 10MB limit" };
+    }
+
+    // Validate file type
+    const validTypes = [
+      "text/html",
+      "application/x-mimearchive",
+      "application/pdf",
+    ];
+
+    // Get extension
+    const ext = file.name.split(".").pop()?.toLowerCase();
+    const isValidExtension = ext === "html" || ext === "mhtml" || ext === "pdf";
+
+    if (!validTypes.includes(file.type) && !isValidExtension) {
+      return {
+        valid: false,
+        error: "Please upload an HTML, MHTML, or PDF file exported from CAMU",
+      };
+    }
+
+    return { valid: true };
+  };
 
   // Handle file selection from input
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files?.length) {
-      onChange(files);
+      const file = files[0];
+      const validation = validateFile(file);
+
+      if (!validation.valid) {
+        setError(validation.error || "Invalid file");
+        toast.error(validation.error || "Invalid file");
+        return;
+      }
+
+      setSelectedFile(file);
+      setError(null);
+
+      // Update form value
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+      field.onChange(dataTransfer.files);
+
+      // Notify parent
+      if (onFileChange) {
+        onFileChange(file);
+      }
+
       // Display selected filename
-      toast.info(`Selected: ${files[0].name}`);
+      toast.info(`Selected: ${file.name}`);
     }
   };
 
@@ -62,20 +116,29 @@ export function FileUpload({
     setDragActive(false);
 
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      // Check if the file type is acceptable
       const file = e.dataTransfer.files[0];
-      const isValidType =
-        file.type === "application/x-mimearchive" ||
-        file.type === "text/html" ||
-        file.name.endsWith(".mhtml") ||
-        file.name.endsWith(".html");
+      const validation = validateFile(file);
 
-      if (isValidType) {
-        onChange(e.dataTransfer.files);
-        toast.info(`Selected: ${file.name}`);
-      } else {
-        toast.error("Please upload an HTML or MHTML file.");
+      if (!validation.valid) {
+        setError(validation.error || "Invalid file");
+        toast.error(validation.error || "Invalid file");
+        return;
       }
+
+      setSelectedFile(file);
+      setError(null);
+
+      // Update form value
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+      field.onChange(dataTransfer.files);
+
+      // Notify parent
+      if (onFileChange) {
+        onFileChange(file);
+      }
+
+      toast.info(`Selected: ${file.name}`);
     }
   };
 
@@ -84,13 +147,15 @@ export function FileUpload({
       <FormLabel className="body2-medium">Transcript File</FormLabel>
       <FormControl>
         <div className="flex w-full flex-col items-center justify-center">
-          {!value || value.length === 0 ? (
+          {!selectedFile ? (
             <label
               htmlFor="dropzone-file"
               className={`flex h-48 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed ${
                 dragActive
                   ? "border-primary bg-primary/5"
-                  : "border-primary/20 bg-surface-50 hover:bg-surface-100 dark:hover:bg-surface-800"
+                  : error
+                    ? "border-destructive/50 bg-destructive/5"
+                    : "border-primary/20 bg-surface-50 hover:bg-surface-100 dark:hover:bg-surface-800"
               }`}
               onDragEnter={handleDrag}
               onDragOver={handleDrag}
@@ -98,22 +163,31 @@ export function FileUpload({
               onDrop={handleDrop}
             >
               <div className="flex flex-col items-center justify-center pb-6 pt-5">
-                <Upload
-                  className={`mb-3 size-10 ${dragActive ? "text-primary-600" : "text-primary"}`}
-                />
+                {error ? (
+                  <AlertCircle className="mb-3 size-10 text-destructive" />
+                ) : (
+                  <Upload
+                    className={`mb-3 size-10 ${dragActive ? "text-primary-600" : "text-primary"}`}
+                  />
+                )}
                 <p className="mb-2 text-center text-sm">
                   <span className="font-medium">Click to upload</span> or drag
                   and drop
                 </p>
                 <p className="text-center text-xs text-muted-foreground">
-                  MHTML or HTML file exported from CAMU
+                  MHTML, HTML, or PDF file exported from CAMU
                 </p>
+                {error && (
+                  <p className="mt-2 text-center text-xs text-destructive">
+                    {error}
+                  </p>
+                )}
               </div>
               <input
                 id="dropzone-file"
                 type="file"
                 className="hidden"
-                accept=".html,.mhtml,application/x-mimearchive,text/html"
+                accept=".html,.mhtml,.pdf,application/x-mimearchive,text/html,application/pdf"
                 onChange={handleFileChange}
                 {...field}
               />
@@ -124,16 +198,19 @@ export function FileUpload({
                 <FileText className="h-6 w-6 text-primary" />
               </div>
               <p className="mb-1 break-all text-center font-medium">
-                {value[0].name}
+                {selectedFile.name}
               </p>
               <p className="text-center text-sm text-muted-foreground">
-                {(value[0].size / 1024).toFixed(1)} KB
+                {(selectedFile.size / 1024).toFixed(1)} KB
               </p>
               <Button
                 size="sm"
                 variant="outline"
                 className="mt-4"
-                onClick={() => onChange(null)}
+                onClick={() => {
+                  setSelectedFile(null);
+                  field.onChange(null);
+                }}
                 type="button"
               >
                 Change File
@@ -143,15 +220,31 @@ export function FileUpload({
         </div>
       </FormControl>
       <div className="mt-2 flex items-center justify-between">
-        <FormDescription>
-          Export your transcript from CAMU as an HTML or MHTML file
+        <FormDescription className="flex gap-2">
+          <span>
+            Export your transcript from CAMU as an HTML, MHTML, or PDF file
+          </span>
+          <Button
+            variant="link"
+            type="button"
+            className="h-auto p-0 text-xs"
+            onClick={showHowToExportDialog}
+          >
+            How?
+          </Button>
         </FormDescription>
 
         {/* Why Import Button */}
-        <WhyImportDialog
-          open={showWhyImportDialog}
-          onOpenChange={setShowWhyImportDialog}
-        />
+        <Button
+          variant="ghost"
+          size="sm"
+          type="button"
+          className="flex items-center gap-1.5 text-primary"
+          onClick={showWhyImportDialog}
+        >
+          <AlertCircle className="size-4" />
+          Why import?
+        </Button>
       </div>
       <FormMessage />
     </FormItem>

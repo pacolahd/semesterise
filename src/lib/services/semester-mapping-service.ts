@@ -41,6 +41,23 @@ export function extractSemesterNumber(semesterName: string): number {
 }
 
 /**
+ * Check if a semester is a summer semester based on academic year and semester number
+ * Special case for 2023-2024: Semester 3 is NOT a summer semester
+ */
+export function isSummerSemester(semesterName: string): boolean {
+  const semNumber = extractSemesterNumber(semesterName);
+  const academicYear = extractAcademicYear(semesterName);
+
+  // Special case: Semester 3 2023-2024 is NOT a summer semester
+  if (semNumber === 3 && academicYear === "2023-2024") {
+    return false;
+  }
+
+  // Otherwise, Semester 3 is typically a summer semester
+  return semNumber === 3;
+}
+
+/**
  * Map CAMU semesters to program years
  */
 export async function processSemesterMappings(
@@ -87,9 +104,8 @@ export async function processSemesterMappings(
     const semesterNumber = extractSemesterNumber(semester.name);
 
     // Determine if this is a summer semester
-    // Special case for 2023-2024: Semester 3 is a regular semester
-    const isSummer =
-      semesterNumber === 3 && !academicYear.includes("2023-2024");
+    // Special case for 2023-2024: Semester 3 is NOT a summer semester
+    const isSummer = isSummerSemester(semester.name);
 
     // If it's the most recent semester, use the academicInfo values directly
     if (index === sortedSemesters.length - 1) {
@@ -98,7 +114,7 @@ export async function processSemesterMappings(
         academicYearRange: academicYear,
         programYear: currentYear,
         programSemester: currentSemester <= 2 ? currentSemester : 1, // Convert summer to fall if needed
-        isSummer: currentSemester === 3 && !academicYear.includes("2023-2024"),
+        isSummer: isSummer,
         courseCount: semester.courses.length,
       });
       return;
@@ -110,10 +126,8 @@ export async function processSemesterMappings(
 
     // Adjust for summer semesters
     const previousSemesters = sortedSemesters.slice(0, index);
-    const summerSemesterCount = previousSemesters.filter(
-      (s) =>
-        extractSemesterNumber(s.name) === 3 &&
-        !extractAcademicYear(s.name).includes("2023-2024")
+    const summerSemesterCount = previousSemesters.filter((s) =>
+      isSummerSemester(s.name)
     ).length;
 
     semestersFromBeginning -= summerSemesterCount;
