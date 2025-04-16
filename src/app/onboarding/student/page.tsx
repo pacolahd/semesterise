@@ -1,26 +1,20 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { AcademicInfoForm } from "@/components/onboarding/academic-info-form";
 import { ProgramInfoForm } from "@/components/onboarding/program-info-form";
 import { StepIndicator } from "@/components/onboarding/step-indicator";
 import { TranscriptImportForm } from "@/components/onboarding/transcript-import/transcript-import-form";
-import { transcriptSchema } from "@/components/onboarding/transcript-import/transcript-import-schema";
 import { userRoles } from "@/drizzle/schema/auth/enums";
 import { useAuthStore } from "@/lib/auth/auth-store";
 import {
   AcademicInfo,
   ProgramInfo,
-  academicInfoSchema,
-  programInfoSchema,
   useOnboardingStore,
 } from "@/lib/stores/onboarding-store";
 

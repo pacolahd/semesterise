@@ -91,7 +91,11 @@ export interface StudentProfileData {
   major: string;
   mathTrackName?: string;
   cumulativeGpa?: string;
-  creditHours?: number;
+  // Updated credit fields
+  creditsPassed?: number; // Credits from passed courses meeting grade requirements
+  creditsTaken?: number; // Total credits attempted regardless of pass/fail
+  coursesPassed?: number; // Number of courses passed
+  coursesTotal?: number; // Total courses taken
   dateOfAdmission?: string;
   yearGroup?: string;
   currentYear?: number;

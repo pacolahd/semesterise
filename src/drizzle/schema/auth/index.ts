@@ -1,5 +1,9 @@
 // src/drizzle/schema/auth/index.ts
-export { authUsers, authUserSchema } from "./auth-users";
+export {
+  authUsers,
+  authUserSchema,
+  authUserSchemaForBetterAuth,
+} from "./auth-users";
 
 export { authSessions, authSessionSchema } from "./auth-sessions";
 

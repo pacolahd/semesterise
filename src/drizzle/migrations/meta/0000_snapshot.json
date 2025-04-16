@@ -1,5 +1,5 @@
 {
-  "id": "4c4ce002-d451-48fd-ba1f-dbe9d02b7e60",
+  "id": "6d75c186-f139-423c-8d5a-87849af87e0c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -2036,25 +2036,25 @@
         },
         "student_id": {
           "name": "student_id",
-          "type": "varchar",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "file_name": {
           "name": "file_name",
-          "type": "varchar(255)",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "file_url": {
           "name": "file_url",
-          "type": "varchar(255)",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "file_type": {
           "name": "file_type",
-          "type": "varchar(50)",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
@@ -2064,19 +2064,19 @@
           "primaryKey": false,
           "notNull": false
         },
-        "import_date": {
-          "name": "import_date",
-          "type": "timestamp with time zone",
+        "extracted_major": {
+          "name": "extracted_major",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
+          "notNull": false
         },
         "import_status": {
           "name": "import_status",
           "type": "import_status",
           "typeSchema": "public",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "'pending'"
         },
         "verification_status": {
           "name": "verification_status",
@@ -2086,45 +2086,36 @@
           "notNull": true,
           "default": "'not_required'"
         },
-        "processed_courses_count": {
-          "name": "processed_courses_count",
-          "type": "integer",
+        "requires_verification": {
+          "name": "requires_verification",
+          "type": "boolean",
           "primaryKey": false,
-          "notNull": false,
-          "default": 0
-        },
-        "successfully_imported_count": {
-          "name": "successfully_imported_count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "default": 0
+          "notNull": true,
+          "default": false
         },
         "semester_count": {
           "name": "semester_count",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
-          "default": 0
+          "notNull": false
         },
-        "extracted_major": {
-          "name": "extracted_major",
-          "type": "varchar(100)",
+        "processed_courses_count": {
+          "name": "processed_courses_count",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
-        "extracted_math_track": {
-          "name": "extracted_math_track",
-          "type": "varchar(50)",
+        "successfully_imported_count": {
+          "name": "successfully_imported_count",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
-        "requires_verification": {
-          "name": "requires_verification",
-          "type": "boolean",
+        "failed_count": {
+          "name": "failed_count",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false,
-          "default": false
+          "notNull": false
         },
         "import_data": {
           "name": "import_data",
@@ -2132,17 +2123,40 @@
           "primaryKey": false,
           "notNull": false
         },
-        "notes": {
-          "name": "notes",
-          "type": "text",
+        "new_semesters_count": {
+          "name": "new_semesters_count",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": 0
         },
-        "error": {
-          "name": "error",
-          "type": "text",
+        "updated_semesters_count": {
+          "name": "updated_semesters_count",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": 0
+        },
+        "new_courses_count": {
+          "name": "new_courses_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "updated_courses_count": {
+          "name": "updated_courses_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "is_update": {
+          "name": "is_update",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
         },
         "created_at": {
           "name": "created_at",
@@ -2160,21 +2174,7 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "transcript_imports_student_id_student_profiles_student_id_fk": {
-          "name": "transcript_imports_student_id_student_profiles_student_id_fk",
-          "tableFrom": "transcript_imports",
-          "tableTo": "student_profiles",
-          "columnsFrom": [
-            "student_id"
-          ],
-          "columnsTo": [
-            "student_id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},

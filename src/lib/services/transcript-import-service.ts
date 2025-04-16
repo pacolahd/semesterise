@@ -15,9 +15,12 @@ import {
 } from "@/drizzle/schema";
 import { AppError } from "@/lib/errors/app-error-classes";
 import { determineCategoryForCourse } from "@/lib/services/course-categorization-service";
+import { calculateCourseStatistics } from "@/lib/services/credit-calculation-service";
+import { determineMathTrack } from "@/lib/services/math-track-service";
 import {
   extractSemesterNumber,
   isSummerSemester,
+  processSemesterMappings,
 } from "@/lib/services/semester-mapping-service";
 import {
   CourseWithCategory,
@@ -26,6 +29,7 @@ import {
   TranscriptData,
   TranscriptImportRequest,
   TranscriptImportResult,
+  TranscriptSemester,
 } from "@/lib/types/transcript";
 import { generateVerificationToken } from "@/lib/utils/token-utils";
 
@@ -66,7 +70,7 @@ function mapMajorNameToCode(majorName: string): string {
 // Create a service singleton that we can import
 export const transcriptImportService = {
   /**
-   * Main method to process a transcript import request with transaction
+   * Main method to process a transcript import request with transaction and upsert capability
    */
   async importTranscript(
     importRequest: TranscriptImportRequest,
@@ -86,11 +90,12 @@ export const transcriptImportService = {
           });
         }
 
-        // Extract student profile data
-        const studentProfile = this.extractStudentProfile(
+        // Extract student profile data with improved math track detection and credit calculation
+        const studentProfile = await this.extractStudentProfile(
           transcriptData,
           academicInfo,
-          programInfo
+          programInfo,
+          tx
         );
 
         // Update user's name if different
@@ -103,13 +108,37 @@ export const transcriptImportService = {
           tx
         );
 
-        // Create academic years and semesters
+        // NEW: Check for previous imports for this student
+        const previousImports = await tx.query.transcriptImports.findMany({
+          where: eq(transcriptImports.studentId, studentRecord.studentId),
+          orderBy: (imports, { desc }) => [desc(imports.createdAt)],
+        });
+
+        const hasPreviousImports = previousImports.length > 0;
+        console.log(
+          `Student has previous imports: ${hasPreviousImports ? "Yes" : "No"}`
+        );
+
+        // NEW: Get existing semester mappings for this student
+        const existingSemesterMappings =
+          await tx.query.studentSemesterMappings.findMany({
+            where: eq(
+              studentSemesterMappings.student_id,
+              studentRecord.studentId
+            ),
+          });
+
+        console.log(
+          `Found ${existingSemesterMappings.length} existing semester mappings`
+        );
+
+        // Create academic years and semesters - these can be reused across imports
         const academicPeriodsMap = await this.createAcademicPeriods(
           mappings,
           tx
         );
 
-        // Create transcript import record
+        // Create new transcript import record for this import session
         const importRecord = await this.createImportRecord(
           studentRecord.studentId,
           transcriptData,
@@ -117,11 +146,12 @@ export const transcriptImportService = {
           tx
         );
 
-        // Create semester mappings
-        const mappingRecords = await this.createSemesterMappings(
+        // NEW: Determine which semesters need to be created vs updated
+        const mappingResults = await this.upsertSemesterMappings(
           studentRecord.studentId,
           mappings,
           academicPeriodsMap,
+          existingSemesterMappings,
           tx
         );
 
@@ -130,20 +160,32 @@ export const transcriptImportService = {
           importRecord.id,
           "semester_mapping",
           "completed",
-          { mappingCount: mappingRecords.length },
+          {
+            mappingCount: mappings.length,
+            newCount: mappingResults.created,
+            updatedCount: mappingResults.updated,
+          },
           tx
         );
 
         // Get major code for course processing
         const majorCode = mapMajorNameToCode(programInfo.major);
 
-        // Process courses
-        const courses = await this.processCourses(
+        // NEW: Get existing courses for this student
+        const existingCourses = await tx.query.studentCourses.findMany({
+          where: eq(studentCourses.student_id, studentRecord.studentId),
+        });
+
+        console.log(`Found ${existingCourses.length} existing courses`);
+
+        // Process courses with upsert logic
+        const courseResults = await this.upsertCourses(
           transcriptData,
           mappings,
           academicPeriodsMap,
           studentRecord.studentId,
-          majorCode, // Use the mapped code here
+          majorCode,
+          existingCourses,
           tx
         );
 
@@ -152,7 +194,11 @@ export const transcriptImportService = {
           importRecord.id,
           "categorization",
           "completed",
-          { courseCount: courses.length },
+          {
+            courseCount: courseResults.total,
+            newCount: courseResults.created,
+            updatedCount: courseResults.updated,
+          },
           tx
         );
 
@@ -184,8 +230,13 @@ export const transcriptImportService = {
               ? "pending"
               : "not_required",
             requiresVerification,
-            processedCoursesCount: courses.length,
-            successfullyImportedCount: courses.length,
+            processedCoursesCount: courseResults.total,
+            successfullyImportedCount: courseResults.total,
+            newSemestersCount: mappingResults.created,
+            updatedSemestersCount: mappingResults.updated,
+            newCoursesCount: courseResults.created,
+            updatedCoursesCount: courseResults.updated,
+            isUpdate: hasPreviousImports,
           })
           .where(eq(transcriptImports.id, importRecord.id));
 
@@ -196,8 +247,15 @@ export const transcriptImportService = {
           mappings,
           studentProfile,
           requiresVerification,
-          importedCoursesCount: courses.length,
+          importedCoursesCount: courseResults.total,
           verificationToken,
+          isUpdate: hasPreviousImports,
+          stats: {
+            newSemesters: mappingResults.created,
+            updatedSemesters: mappingResults.updated,
+            newCourses: courseResults.created,
+            updatedCourses: courseResults.updated,
+          },
         };
       } catch (error) {
         console.error("Error during transcript import:", error);
@@ -220,12 +278,17 @@ export const transcriptImportService = {
     });
   },
 
-  // Helper methods
-  extractStudentProfile(
+  // UPDATED: Extract student profile with math track detection and credit calculation
+  /**
+   * Extract and enhance student profile data from transcript
+   * Includes calculation of credits passed/taken and courses passed/total
+   */
+  async extractStudentProfile(
     transcriptData: TranscriptData,
     academicInfo: any,
-    programInfo: any
-  ): StudentProfileData {
+    programInfo: any,
+    tx: any
+  ): Promise<StudentProfileData> {
     const studentInfo = transcriptData.studentInfo;
 
     // Extract student ID - use student_roll_no from CAMU
@@ -242,6 +305,14 @@ export const transcriptImportService = {
       major = programInfo.major;
     }
 
+    // Get all courses from all semesters for analysis
+    const allCourses = transcriptData.semesters.flatMap(
+      (semester) => semester.courses
+    );
+
+    // Determine math track based on courses taken
+    const mathTrackName = determineMathTrack(allCourses);
+
     // Get latest CGPA if available
     let cumulativeGpa = undefined;
     if (transcriptData.semesters.length > 0) {
@@ -250,8 +321,29 @@ export const transcriptImportService = {
       cumulativeGpa = lastSemester.gpaInfo.cgpa;
     }
 
-    // Extract credit hours from currentCredits field
-    const creditHours = transcriptData.currentCredits;
+    // Get major code for credit calculation
+    const majorCode = mapMajorNameToCode(major);
+
+    // Calculate detailed credits and course statistics
+    let creditStats = {
+      creditsPassed: 0,
+      creditsTaken: 0,
+      coursesPassed: 0,
+      coursesTotal: 0,
+    };
+
+    try {
+      creditStats = await calculateCourseStatistics(allCourses, majorCode, tx);
+    } catch (error) {
+      console.error("Error calculating credit statistics:", error);
+
+      // Fallback: just count raw totals if calculation fails
+      creditStats.creditsTaken = allCourses.reduce(
+        (sum, course) => sum + (Number(course.credits) || 0),
+        0
+      );
+      creditStats.coursesTotal = allCourses.length;
+    }
 
     // Extract date of admission
     const dateOfAdmission = studentInfo.date_of_admission;
@@ -272,9 +364,12 @@ export const transcriptImportService = {
       studentId,
       name,
       major,
-      mathTrackName: programInfo?.mathTrack,
+      mathTrackName,
       cumulativeGpa,
-      creditHours: creditHours ? parseFloat(creditHours) : undefined,
+      creditsPassed: creditStats.creditsPassed,
+      creditsTaken: creditStats.creditsTaken,
+      coursesPassed: creditStats.coursesPassed,
+      coursesTotal: creditStats.coursesTotal,
       dateOfAdmission,
       yearGroup,
       currentYear,
@@ -283,6 +378,7 @@ export const transcriptImportService = {
     };
   },
 
+  // Helper function to extract major from degree
   extractMajorFromDegree(degree: string): string {
     // Handle format like "B.Sc - Computer Science"
     const parts = degree.split(" - ");
@@ -564,17 +660,26 @@ export const transcriptImportService = {
     return importRecord;
   },
 
-  async createSemesterMappings(
+  /**
+   * NEW: Upsert semester mappings - update existing ones and create only new ones
+   */
+  async upsertSemesterMappings(
     studentId: string,
     mappings: SemesterMapping[],
     academicPeriodsMap: Map<string, string>,
+    existingMappings: any[],
     tx: any
-  ) {
-    const createdMappings = [];
+  ): Promise<{ created: number; updated: number }> {
+    let created = 0;
+    let updated = 0;
 
-    // First update the original mapping objects with academicSemesterId values
-    for (let i = 0; i < mappings.length; i++) {
-      const mapping = mappings[i];
+    // Build a lookup map of existing mappings by semester ID
+    const existingMappingsMap = new Map();
+    existingMappings.forEach((mapping) => {
+      existingMappingsMap.set(mapping.academic_semester_id, mapping);
+    });
+
+    for (const mapping of mappings) {
       const semesterId = academicPeriodsMap.get(mapping.camuSemesterName);
 
       if (!semesterId) {
@@ -582,42 +687,89 @@ export const transcriptImportService = {
         continue;
       }
 
-      // Add the academicSemesterId to the original mapping object
-      mappings[i].academicSemesterId = semesterId;
+      // Update the mapping object with the semesterId for later use
+      mapping.academicSemesterId = semesterId;
 
-      // Create semester mapping
-      const mappingRecords = await tx
-        .insert(studentSemesterMappings)
-        .values({
-          student_id: studentId,
-          academic_semester_id: semesterId,
-          program_year: mapping.programYear,
-          program_semester: mapping.isSummer ? null : mapping.programSemester,
-          is_summer: mapping.isSummer,
-          is_verified: !mapping.isSummer, // Only non-summer semesters are auto-verified
-        })
-        .returning();
+      // Check if mapping already exists
+      const existingMapping = existingMappingsMap.get(semesterId);
 
-      // Store the created mapping record
-      createdMappings.push(mappingRecords[0]);
+      if (existingMapping) {
+        // Update existing mapping if needed
+        if (
+          existingMapping.program_year !== mapping.programYear ||
+          existingMapping.program_semester !==
+            (mapping.isSummer ? null : mapping.programSemester) ||
+          existingMapping.is_summer !== mapping.isSummer
+        ) {
+          await tx
+            .update(studentSemesterMappings)
+            .set({
+              program_year: mapping.programYear,
+              program_semester: mapping.isSummer
+                ? null
+                : mapping.programSemester,
+              is_summer: mapping.isSummer,
+              is_verified: true, // Always mark as verified on update
+            })
+            .where(eq(studentSemesterMappings.id, existingMapping.id));
+
+          updated++;
+        }
+      } else {
+        // Create new mapping
+        const mappingRecords = await tx
+          .insert(studentSemesterMappings)
+          .values({
+            student_id: studentId,
+            academic_semester_id: semesterId,
+            program_year: mapping.programYear,
+            program_semester: mapping.isSummer ? null : mapping.programSemester,
+            is_summer: mapping.isSummer,
+            is_verified: !mapping.isSummer, // Summer semesters need verification
+          })
+          .returning();
+
+        created++;
+      }
     }
 
-    return createdMappings;
+    return { created, updated };
   },
 
-  async processCourses(
+  /**
+   * NEW: Upsert courses - update existing ones and create only new ones
+   */
+  async upsertCourses(
     transcriptData: TranscriptData,
     mappings: SemesterMapping[],
     academicPeriodsMap: Map<string, string>,
     studentId: string,
     majorCode: string,
+    existingCourses: any[],
     tx: any
-  ) {
-    const importedCourses = [];
+  ): Promise<{ total: number; created: number; updated: number }> {
+    let created = 0;
+    let updated = 0;
+    let total = 0;
+
+    // Create a lookup map for existing courses by code and semester
+    const existingCoursesMap = new Map();
+    existingCourses.forEach((course) => {
+      const key = `${course.course_code.toUpperCase()}|${course.semester_id}`;
+      existingCoursesMap.set(key, course);
+    });
+
+    // Build a map of semester names to semester IDs for easy lookup
+    const semesterIdMap = new Map();
+    mappings.forEach((mapping) => {
+      if (mapping.academicSemesterId) {
+        semesterIdMap.set(mapping.camuSemesterName, mapping.academicSemesterId);
+      }
+    });
 
     // Process each semester
     for (const semester of transcriptData.semesters) {
-      const semesterId = academicPeriodsMap.get(semester.name);
+      const semesterId = semesterIdMap.get(semester.name);
 
       if (!semesterId) {
         console.warn(`No semester ID found for ${semester.name}`);
@@ -626,30 +778,50 @@ export const transcriptImportService = {
 
       // Process each course in the semester
       for (const course of semester.courses) {
+        const cleanCourseCode = formatCourseCode(course.code);
+
         // Determine category
         const category = await determineCategoryForCourse(
-          formatCourseCode(course.code),
+          cleanCourseCode,
           majorCode,
           tx
         );
 
-        // Check if failing grade (E)
-        const isFailed = course.grade === "E";
+        // Check if failing grade (E, F)
+        const isFailed = course.grade === "E" || course.grade === "F";
 
-        // Check if this course has been taken before
-        const existingCourse = await tx.query.studentCourses.findFirst({
-          where: and(
-            eq(studentCourses.student_id, studentId),
-            eq(studentCourses.course_code, formatCourseCode(course.code))
-          ),
-        });
+        // Build key for lookup
+        const courseKey = `${cleanCourseCode.toUpperCase()}|${semesterId}`;
 
-        // Create student course record
-        const courseRecords = await tx
-          .insert(studentCourses)
-          .values({
+        // Check if course already exists
+        const existingCourse = existingCoursesMap.get(courseKey);
+
+        if (existingCourse) {
+          // Update existing course if needed
+          if (
+            existingCourse.grade !== course.grade ||
+            existingCourse.category_name !== category ||
+            existingCourse.status !== (isFailed ? "failed" : "verified")
+          ) {
+            await tx
+              .update(studentCourses)
+              .set({
+                grade: course.grade,
+                category_name: category,
+                status: isFailed ? "failed" : "verified",
+                is_verified: true,
+                counts_for_gpa: course.grade !== "W", // 'W' (withdrawn) doesn't count for GPA
+                is_used_for_requirement: !isFailed, // Failed courses don't count for requirements
+              })
+              .where(eq(studentCourses.id, existingCourse.id));
+
+            updated++;
+          }
+        } else {
+          // Create new course
+          await tx.insert(studentCourses).values({
             student_id: studentId,
-            course_code: formatCourseCode(course.code),
+            course_code: cleanCourseCode,
             semester_id: semesterId,
             status: isFailed ? "failed" : "verified",
             grade: course.grade,
@@ -657,24 +829,34 @@ export const transcriptImportService = {
             is_verified: true,
             counts_for_gpa: course.grade !== "W", // 'W' (withdrawn) doesn't count for GPA
             is_used_for_requirement: !isFailed, // Failed courses don't count for requirements
-          })
-          .returning();
+          });
 
-        importedCourses.push(courseRecords[0]);
+          created++;
+        }
 
-        // If this is a retake, update the original course to not count for requirements
-        if (existingCourse && !isFailed) {
-          await tx
-            .update(studentCourses)
-            .set({
-              is_used_for_requirement: false,
-            })
-            .where(eq(studentCourses.id, existingCourse.id));
+        total++;
+
+        // Check if this is a retake of a course from a different semester
+        const otherSemesterCoursesWithSameCode = existingCourses.filter(
+          (ec) =>
+            ec.course_code === cleanCourseCode && ec.semester_id !== semesterId
+        );
+
+        // If it's a retake and not failed, update previous occurrences to not count for requirements
+        if (otherSemesterCoursesWithSameCode.length > 0 && !isFailed) {
+          for (const previousCourse of otherSemesterCoursesWithSameCode) {
+            await tx
+              .update(studentCourses)
+              .set({
+                is_used_for_requirement: false,
+              })
+              .where(eq(studentCourses.id, previousCourse.id));
+          }
         }
       }
     }
 
-    return importedCourses;
+    return { total, created, updated };
   },
 
   async recordProcessingStep(
@@ -716,5 +898,19 @@ export const transcriptImportService = {
       .returning();
 
     return records[0];
+  },
+
+  // Generate updated semester mappings with the fixed algorithm
+  async generateSemesterMappings(
+    semesters: TranscriptSemester[],
+    academicInfo: any,
+    studentInfo: any
+  ): Promise<SemesterMapping[]> {
+    // Use the fixed semester mapping algorithm
+    return processSemesterMappings(
+      semesters,
+      academicInfo,
+      studentInfo.date_of_admission
+    );
   },
 };

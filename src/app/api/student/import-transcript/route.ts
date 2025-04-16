@@ -1,4 +1,5 @@
 // src/app/api/student/import-transcript/route.ts
+// Updated to use the corrected services
 import { NextRequest, NextResponse } from "next/server";
 
 import { auth } from "@/lib/auth/auth";
@@ -65,10 +66,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Process semester mappings
-    const mappings = await processSemesterMappings(
+    // Use the updated semester mapping function from the transcript import service that takes admission date into account
+    const mappings = await transcriptImportService.generateSemesterMappings(
       importRequest.transcriptData.semesters,
-      importRequest.academicInfo
+      importRequest.academicInfo,
+      importRequest.transcriptData.studentInfo
     );
 
     // Enhancing mappings with summer semester information
@@ -76,6 +78,9 @@ export async function POST(request: NextRequest) {
       ...mapping,
       isSummer: isSummerSemester(mapping.camuSemesterName),
     }));
+
+    // Log for debugging
+    console.log("Generated semester mappings:", enhancedMappings);
 
     // Process transcript import with transaction
     const result = await transcriptImportService.importTranscript(

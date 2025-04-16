@@ -1,6 +1,8 @@
 // src/app/api/transcript/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
+import { validateTranscriptContent } from "@/lib/services/transcript-validation-service";
+
 // Configure Flask service URL (set in environment variables)
 const FLASK_API_URL = process.env.FLASK_API_URL || "http://localhost:5000";
 
@@ -92,6 +94,22 @@ export async function POST(request: NextRequest) {
             status: "error",
           },
           { status: response.status }
+        );
+      }
+
+      // NEW: Validate the parsed data actually contains transcript information
+      const contentValidation = validateTranscriptContent(data);
+      if (!contentValidation.valid) {
+        return NextResponse.json(
+          {
+            error: contentValidation.error || "Invalid transcript content",
+            details:
+              contentValidation.details ||
+              "The file doesn't contain valid transcript data",
+            code: "INVALID_TRANSCRIPT_FORMAT",
+            status: "error",
+          },
+          { status: 400 }
         );
       }
 
@@ -221,7 +239,7 @@ export async function GET() {
 
         if (causeCode === "ECONNREFUSED") {
           errorMessage =
-            "Transcript service is not running or connection was refused";
+            "Transcript import service is not running or is currently undergoing maintenance";
         }
       }
     }

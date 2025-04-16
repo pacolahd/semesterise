@@ -8,7 +8,7 @@ import { z } from "zod";
 import { db } from "@/drizzle";
 import { authUsers, staffProfiles, studentProfiles } from "@/drizzle/schema";
 import * as authSchema from "@/drizzle/schema/auth";
-import { AuthUserInput } from "@/drizzle/schema/auth/auth-users";
+import { AuthUserInputForBetterAuth } from "@/drizzle/schema/auth/auth-users";
 import {
   UserRole,
   userRoleValues,
@@ -70,7 +70,7 @@ const options = {
     user: {
       create: {
         before: async (user) => {
-          const authUser = user as AuthUserInput;
+          const authUser = user as AuthUserInputForBetterAuth;
           const userEmail = authUser.email.toLowerCase();
 
           // if (!userEmail.endsWith("@ashesi.edu.gh")) {
@@ -110,7 +110,7 @@ const options = {
           }
         },
         after: async (user) => {
-          const authUser = user as AuthUserInput;
+          const authUser = user as AuthUserInputForBetterAuth;
 
           try {
             if (authUser.userType === userTypes.student) {

@@ -58,11 +58,15 @@ export function isSummerSemester(semesterName: string): boolean {
 }
 
 /**
- * Map CAMU semesters to program years
+ * NEW SIMPLIFIED APPROACH: Simply count sequential semesters from the first one in the transcript
+ *
+ * This approach treats the first semester in the transcript as Year 1, Semester 1,
+ * regardless of its academic year/semester designation in CAMU
  */
 export async function processSemesterMappings(
   semesters: TranscriptSemester[],
-  academicInfo: AcademicInfo
+  academicInfo: AcademicInfo,
+  admissionDate?: string
 ): Promise<SemesterMapping[]> {
   // Sort semesters chronologically
   const sortedSemesters = [...semesters].sort((a, b) => {
@@ -83,68 +87,42 @@ export async function processSemesterMappings(
     return semNumA - semNumB;
   });
 
-  // Map to program years based on current year and semester
-  const currentYear = parseInt(academicInfo.currentYear);
-  const currentSemester =
-    academicInfo.currentSemester === "Fall"
-      ? 1
-      : academicInfo.currentSemester === "Spring"
-        ? 2
-        : 3;
-
-  // Count backward from current position to determine program years
+  // Create mappings for each semester with sequential program years/semesters
   const mappings: SemesterMapping[] = [];
 
-  // Calculate how many regular semesters we are from the beginning
-  let regularSemestersFromBeginning =
-    (currentYear - 1) * 2 + (currentSemester <= 2 ? currentSemester - 1 : 2);
+  // Keep track of the current program year and semester
+  let currentProgramYear = 1;
+  let currentProgramSemester = 1;
 
-  sortedSemesters.forEach((semester, index) => {
+  // Process each semester in chronological order
+  for (let i = 0; i < sortedSemesters.length; i++) {
+    const semester = sortedSemesters[i];
     const academicYear = extractAcademicYear(semester.name);
     const semesterNumber = extractSemesterNumber(semester.name);
-
-    // Determine if this is a summer semester
-    // Special case for 2023-2024: Semester 3 is NOT a summer semester
     const isSummer = isSummerSemester(semester.name);
 
-    // If it's the most recent semester, use the academicInfo values directly
-    if (index === sortedSemesters.length - 1) {
-      mappings.push({
-        camuSemesterName: semester.name,
-        academicYearRange: academicYear,
-        programYear: currentYear,
-        programSemester: currentSemester <= 2 ? currentSemester : 1, // Convert summer to fall if needed
-        isSummer: isSummer,
-        courseCount: semester.courses.length,
-      });
-      return;
-    }
-
-    // Calculate how many regular semesters this semester is from the beginning
-    let semestersFromBeginning =
-      regularSemestersFromBeginning - (sortedSemesters.length - index - 1);
-
-    // Adjust for summer semesters
-    const previousSemesters = sortedSemesters.slice(0, index);
-    const summerSemesterCount = previousSemesters.filter((s) =>
-      isSummerSemester(s.name)
-    ).length;
-
-    semestersFromBeginning -= summerSemesterCount;
-
-    // Calculate program year and semester
-    const programYear = Math.floor(semestersFromBeginning / 2) + 1;
-    const programSemester = (semestersFromBeginning % 2) + 1;
-
+    // Add the mapping
     mappings.push({
       camuSemesterName: semester.name,
       academicYearRange: academicYear,
-      programYear: Math.max(1, programYear), // Ensure minimum of Year 1
-      programSemester: isSummer ? 0 : programSemester, // 0 for summer
+      programYear: currentProgramYear,
+      programSemester: isSummer ? 0 : currentProgramSemester,
       isSummer,
       courseCount: semester.courses.length,
     });
-  });
+
+    // If it's not a summer semester, prepare for the next regular semester
+    if (!isSummer) {
+      // Increment program semester
+      currentProgramSemester++;
+
+      // If we've completed a year (2 semesters), move to the next year
+      if (currentProgramSemester > 2) {
+        currentProgramYear++;
+        currentProgramSemester = 1;
+      }
+    }
+  }
 
   return mappings;
 }

@@ -269,23 +269,25 @@ CREATE TABLE "student_semester_mappings" (
 --> statement-breakpoint
 CREATE TABLE "transcript_imports" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"student_id" varchar NOT NULL,
-	"file_name" varchar(255) NOT NULL,
-	"file_url" varchar(255) NOT NULL,
-	"file_type" varchar(50),
+	"student_id" text NOT NULL,
+	"file_name" text NOT NULL,
+	"file_url" text NOT NULL,
+	"file_type" text,
 	"file_size" integer,
-	"import_date" timestamp with time zone DEFAULT now() NOT NULL,
-	"import_status" "import_status" NOT NULL,
+	"extracted_major" text,
+	"import_status" "import_status" DEFAULT 'pending' NOT NULL,
 	"verification_status" "verification_status" DEFAULT 'not_required' NOT NULL,
-	"processed_courses_count" integer DEFAULT 0,
-	"successfully_imported_count" integer DEFAULT 0,
-	"semester_count" integer DEFAULT 0,
-	"extracted_major" varchar(100),
-	"extracted_math_track" varchar(50),
-	"requires_verification" boolean DEFAULT false,
+	"requires_verification" boolean DEFAULT false NOT NULL,
+	"semester_count" integer,
+	"processed_courses_count" integer,
+	"successfully_imported_count" integer,
+	"failed_count" integer,
 	"import_data" jsonb,
-	"notes" text,
-	"error" text,
+	"new_semesters_count" integer DEFAULT 0,
+	"updated_semesters_count" integer DEFAULT 0,
+	"new_courses_count" integer DEFAULT 0,
+	"updated_courses_count" integer DEFAULT 0,
+	"is_update" boolean DEFAULT false,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -524,7 +526,6 @@ ALTER TABLE "student_profiles" ADD CONSTRAINT "student_profiles_math_track_name_
 ALTER TABLE "student_profiles" ADD CONSTRAINT "student_profiles_capstone_option_id_capstone_options_name_fk" FOREIGN KEY ("capstone_option_id") REFERENCES "public"."capstone_options"("name") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "student_semester_mappings" ADD CONSTRAINT "student_semester_mappings_student_id_student_profiles_student_id_fk" FOREIGN KEY ("student_id") REFERENCES "public"."student_profiles"("student_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "student_semester_mappings" ADD CONSTRAINT "student_semester_mappings_academic_semester_id_academic_semesters_id_fk" FOREIGN KEY ("academic_semester_id") REFERENCES "public"."academic_semesters"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "transcript_imports" ADD CONSTRAINT "transcript_imports_student_id_student_profiles_student_id_fk" FOREIGN KEY ("student_id") REFERENCES "public"."student_profiles"("student_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "transcript_processing_steps" ADD CONSTRAINT "transcript_processing_steps_import_id_transcript_imports_id_fk" FOREIGN KEY ("import_id") REFERENCES "public"."transcript_imports"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "transcript_verifications" ADD CONSTRAINT "transcript_verifications_import_id_transcript_imports_id_fk" FOREIGN KEY ("import_id") REFERENCES "public"."transcript_imports"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "petition_courses" ADD CONSTRAINT "petition_courses_petition_id_petitions_id_fk" FOREIGN KEY ("petition_id") REFERENCES "public"."petitions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
