@@ -97,6 +97,8 @@ export function TranscriptImportForm({ onBack }: TranscriptImportFormProps) {
   };
 
   // Main form submission
+  // Updated handleSubmit function for transcript-import-form.tsx - with better error handling
+
   const handleSubmit = async (values: any) => {
     if (!academicInfo || !programInfo) {
       toast.error("Please complete all previous steps first");
@@ -155,17 +157,48 @@ export function TranscriptImportForm({ onBack }: TranscriptImportFormProps) {
         body: formData,
       });
 
+      // Get the response data - even if it's an error
+      const responseData = await parseResponse.json();
+
       if (!parseResponse.ok) {
-        const errorData = await parseResponse.json();
-        throw new Error(errorData.error || "Failed to parse transcript");
+        // Extract detailed error information from the API response
+        const errorMessage = responseData.error || "Failed to parse transcript";
+        const errorCode = responseData.code || "UNKNOWN_ERROR";
+        const errorDetails = responseData.details || {};
+
+        // Construct a detailed error message based on the error code
+        let userFriendlyMessage = errorMessage;
+
+        if (errorCode === "SERVICE_UNAVAILABLE") {
+          userFriendlyMessage =
+            "The transcript parsing service is not available. Please try again later or contact support.";
+        } else if (errorCode === "SERVICE_NOT_FOUND") {
+          userFriendlyMessage =
+            "Cannot connect to the transcript parsing service. Please try again later or contact support.";
+        } else if (errorCode === "SERVICE_TIMEOUT") {
+          userFriendlyMessage =
+            "The connection to the transcript parsing service timed out. Please try again later.";
+        }
+
+        // Log detailed error for debugging
+        console.error("Transcript parsing error:", {
+          code: errorCode,
+          message: errorMessage,
+          details: errorDetails,
+        });
+
+        throw new Error(userFriendlyMessage);
       }
 
-      const parsedData = await parseResponse.json();
+      // Successfully parsed transcript data
+      const parsedData = responseData;
       updateProgress(0, 1, "Extracted courses from transcript");
 
       // Check required data
       if (!parsedData.studentInfo || !parsedData.semesters) {
-        throw new Error("Invalid data returned from parser service");
+        throw new Error(
+          "Invalid data returned from parser service. The transcript could not be properly parsed."
+        );
       }
 
       // Continue Phase 1 progress
@@ -201,12 +234,27 @@ export function TranscriptImportForm({ onBack }: TranscriptImportFormProps) {
         }),
       });
 
+      // Get the import response data - even if it's an error
+      const importResponseData = await importResponse.json();
+
       if (!importResponse.ok) {
-        const errorData = await importResponse.json();
-        throw new Error(errorData.error || "Failed to import transcript");
+        // Extract detailed error information from the API response
+        const errorMessage =
+          importResponseData.error || "Failed to import transcript";
+        const errorCode = importResponseData.code || "UNKNOWN_ERROR";
+        const errorDetails = importResponseData.details || {};
+
+        // Log detailed error for debugging
+        console.error("Transcript import error:", {
+          code: errorCode,
+          message: errorMessage,
+          details: errorDetails,
+        });
+
+        throw new Error(`Import failed: ${errorMessage}`);
       }
 
-      const importResult = await importResponse.json();
+      const importResult = importResponseData;
 
       // Process remaining steps
       updateProgress(1, 1, "Mapping courses to requirements");
@@ -248,17 +296,31 @@ export function TranscriptImportForm({ onBack }: TranscriptImportFormProps) {
     } catch (error) {
       console.error("Error processing transcript:", error);
 
-      setProcessingError(
-        error instanceof Error
-          ? error.message
-          : "Failed to process your transcript. Please try again."
-      );
+      // Extract the most user-friendly error message
+      let errorMessage = "Failed to process your transcript. Please try again.";
 
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to process your transcript. Please try again."
-      );
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === "string") {
+        errorMessage = error;
+      }
+
+      // Update UI state
+      setProcessingError(errorMessage);
+
+      // Show error toast with more details
+      toast.error(errorMessage, {
+        description:
+          "Check if the transcript parser service is running or contact support.",
+        duration: 6000, // Show longer for error messages
+        action: {
+          label: "Try Again",
+          onClick: () => {
+            setIsProcessing(false);
+            setProcessingError(undefined);
+          },
+        },
+      });
 
       // Reset processing state after a delay
       setTimeout(() => {
@@ -386,12 +448,6 @@ export function TranscriptImportForm({ onBack }: TranscriptImportFormProps) {
           </Form>
         </CardContent>
       </Card>
-
-      {/* Why Import Dialog */}
-      <WhyImportDialog
-        open={showWhyImportDialog}
-        onOpenChange={setShowWhyImportDialog}
-      />
 
       {/* Verification Dialog */}
       {showVerificationDialog && studentProfile && (

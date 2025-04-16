@@ -4,6 +4,7 @@ import { useState } from "react";
 import React from "react";
 
 import { AlertCircle, FileText, Upload } from "lucide-react";
+import { useFormContext } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -26,11 +27,11 @@ export function FileUpload({
   field,
   onFileChange,
   showWhyImportDialog,
-  showHowToExportDialog,
 }: FileUploadProps) {
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const formContext = useFormContext();
 
   // Helper to validate file
   const validateFile = (file: File): { valid: boolean; error?: string } => {
@@ -79,9 +80,14 @@ export function FileUpload({
     setError(null);
 
     // Let React Hook Form know about the value change
-    if (field && typeof field.onChange === "function") {
-      // This is safer than creating a synthetic event
-      field.onChange(e);
+    // Pass the event directly to field.onChange
+    field.onChange(e);
+
+    // Also set the field value directly in the form
+    if (formContext) {
+      const fileList = new DataTransfer();
+      fileList.items.add(file);
+      formContext.setValue(field.name, fileList.files);
     }
 
     // Notify parent
@@ -132,14 +138,22 @@ export function FileUpload({
     setSelectedFile(file);
     setError(null);
 
-    // Create a proper file list for the input
+    // Create a DataTransfer object to create a proper FileList
     const dataTransfer = new DataTransfer();
     dataTransfer.items.add(file);
+    const fileList = dataTransfer.files;
 
-    // Update the form field directly - without creating synthetic events
-    if (field && typeof field.onChange === "function") {
-      // Just pass the FileList to the field's onChange
-      field.onChange(dataTransfer.files);
+    // 1. Update the field value directly for React Hook Form
+    field.onChange({
+      target: { name: field.name, files: fileList },
+    });
+
+    // 2. Ensure it's also set in the FormContext for good measure
+    if (formContext) {
+      formContext.setValue(field.name, fileList);
+
+      // Trigger validation to update form state
+      formContext.trigger(field.name);
     }
 
     // Notify parent
@@ -148,17 +162,37 @@ export function FileUpload({
     }
 
     toast.info(`Selected: ${file.name}`);
+
+    // For debugging
+    console.log("File added via drag & drop:", file.name);
+    if (formContext) {
+      console.log("Current form values:", formContext.getValues());
+    }
   };
 
   // Handle file removal/clear
   const handleClearFile = () => {
     setSelectedFile(null);
+    setError(null);
 
-    // Better way to clear the field value
-    if (field && typeof field.onChange === "function") {
-      // Clear by passing an empty value that matches what React Hook Form expects
-      field.onChange(undefined);
+    // Clear the field in multiple ways to ensure it works
+    field.onChange({ target: { name: field.name, files: null, value: "" } });
+
+    // Also clear via setValue if FormContext is available
+    if (formContext) {
+      formContext.setValue(field.name, undefined);
+      formContext.trigger(field.name);
     }
+
+    // Reset the actual input element if it exists
+    const fileInput = document.getElementById(
+      "dropzone-file"
+    ) as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = "";
+    }
+
+    console.log("File cleared");
   };
 
   return (
@@ -202,7 +236,6 @@ export function FileUpload({
                   </p>
                 )}
               </div>
-              {/* Don't use {...field} to prevent conflicts - just use onChange */}
               <input
                 id="dropzone-file"
                 type="file"
@@ -242,14 +275,6 @@ export function FileUpload({
           <span>
             Export your transcript from CAMU as an HTML, MHTML, or PDF file
           </span>
-          <Button
-            variant="link"
-            type="button"
-            className="h-auto p-0 text-xs"
-            onClick={showHowToExportDialog}
-          >
-            How?
-          </Button>
         </FormDescription>
 
         {/* Why Import Button */}
