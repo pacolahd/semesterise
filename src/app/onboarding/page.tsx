@@ -24,7 +24,7 @@ import {
 import { UserRole, userRoles } from "@/drizzle/schema/auth/enums";
 import { authClient } from "@/lib/auth/auth-client";
 import { useAuthStore } from "@/lib/auth/auth-store";
-import { useOnboardingStore } from "@/lib/stores/onboarding-store";
+import { useOnboardingStore } from "@/lib/onboarding/onboarding-store";
 
 export default function OnboardingWelcome() {
   const router = useRouter();

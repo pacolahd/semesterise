@@ -1,7 +1,7 @@
 // src/app/api/transcript/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
-import { validateTranscriptContent } from "@/lib/services/transcript-validation-service";
+import { validateTranscriptContent } from "@/lib/onboarding/transcript-import/services/transcript-validation-service";
 
 // Configure Flask service URL (set in environment variables)
 const FLASK_API_URL = process.env.FLASK_API_URL || "http://localhost:5000";

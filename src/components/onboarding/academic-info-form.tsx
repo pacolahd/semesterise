@@ -33,7 +33,7 @@ import {
   AcademicInfo,
   academicInfoSchema,
   useOnboardingStore,
-} from "@/lib/stores/onboarding-store";
+} from "@/lib/onboarding/onboarding-store";
 
 interface AcademicInfoFormProps {
   onSubmit: (data: AcademicInfo) => void;

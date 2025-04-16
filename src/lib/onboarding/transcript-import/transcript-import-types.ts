@@ -1,5 +1,5 @@
 // src/lib/types/transcript.ts - Extended version
-import { AcademicInfo, ProgramInfo } from "@/lib/stores/onboarding-store";
+import { AcademicInfo, ProgramInfo } from "@/lib/onboarding/onboarding-store";
 
 export interface TranscriptStudentInfo {
   student_id: string;

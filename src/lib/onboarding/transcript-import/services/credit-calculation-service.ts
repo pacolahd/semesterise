@@ -4,7 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { courseGradeRequirements, gradeTypes } from "@/drizzle/schema";
 import { GradeTypeRecord } from "@/drizzle/schema/academic-structure/grade-types";
 import { CourseGradeRequirementRecord } from "@/drizzle/schema/curriculum/course-grade-requirements";
-import { TranscriptCourse } from "@/lib/types/transcript";
+import { TranscriptCourse } from "@/lib/onboarding/transcript-import/transcript-import-types";
 
 /**
  * Calculate comprehensive course and credit statistics

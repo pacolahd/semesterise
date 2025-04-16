@@ -3,7 +3,7 @@ import { z } from "zod";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-import { TranscriptData } from "@/lib/types/transcript";
+import { TranscriptData } from "@/lib/onboarding/transcript-import/transcript-import-types";
 
 // Add this import
 

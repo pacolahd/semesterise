@@ -1,5 +1,5 @@
 // src/lib/services/transcript-validation.ts
-import { TranscriptData } from "@/lib/types/transcript";
+import { TranscriptData } from "@/lib/onboarding/transcript-import/transcript-import-types";
 
 /**
  * Validates that parsed data actually contains transcript information

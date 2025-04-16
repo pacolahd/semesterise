@@ -4,16 +4,16 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { auth } from "@/lib/auth/auth";
 import { AppError } from "@/lib/errors/app-error-classes";
-import { processSemesterMappings } from "@/lib/services/semester-mapping-service";
+import { processSemesterMappings } from "@/lib/onboarding/transcript-import/services/semester-mapping-service";
 import {
   extractSemesterNumber,
   isSummerSemester,
-} from "@/lib/services/semester-mapping-service";
-import { transcriptImportService } from "@/lib/services/transcript-import-service";
+} from "@/lib/onboarding/transcript-import/services/semester-mapping-service";
+import { transcriptImportService } from "@/lib/onboarding/transcript-import/services/transcript-import-service";
 import {
   TranscriptImportRequest,
   TranscriptImportResult,
-} from "@/lib/types/transcript";
+} from "@/lib/onboarding/transcript-import/transcript-import-types";
 
 export async function POST(request: NextRequest) {
   try {

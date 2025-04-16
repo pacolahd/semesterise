@@ -19,7 +19,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { SemesterMapping, StudentProfileData } from "@/lib/types/transcript";
+import {
+  SemesterMapping,
+  StudentProfileData,
+} from "@/lib/onboarding/transcript-import/transcript-import-types";
 
 import { SemesterMappingVerification } from "./semester-mapping-verification";
 

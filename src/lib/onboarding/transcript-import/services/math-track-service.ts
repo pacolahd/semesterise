@@ -1,5 +1,5 @@
 // src/lib/services/math-track-service.ts
-import { TranscriptCourse } from "@/lib/types/transcript";
+import { TranscriptCourse } from "@/lib/onboarding/transcript-import/transcript-import-types";
 
 /**
  * Determine the student's math track based on courses taken

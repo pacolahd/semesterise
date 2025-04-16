@@ -34,7 +34,7 @@ import {
   ProgramInfo,
   programInfoSchema,
   useOnboardingStore,
-} from "@/lib/stores/onboarding-store";
+} from "@/lib/onboarding/onboarding-store";
 
 // Define major and math track types
 interface Major {

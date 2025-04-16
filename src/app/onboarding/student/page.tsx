@@ -16,7 +16,7 @@ import {
   AcademicInfo,
   ProgramInfo,
   useOnboardingStore,
-} from "@/lib/stores/onboarding-store";
+} from "@/lib/onboarding/onboarding-store";
 
 // Mock major data (would come from the database in a real implementation)
 const MAJORS = [

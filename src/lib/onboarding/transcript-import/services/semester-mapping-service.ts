@@ -1,6 +1,9 @@
 // src/lib/services/semester-mapping-service.ts
-import { AcademicInfo } from "@/lib/stores/onboarding-store";
-import { SemesterMapping, TranscriptSemester } from "@/lib/types/transcript";
+import { AcademicInfo } from "@/lib/onboarding/onboarding-store";
+import {
+  SemesterMapping,
+  TranscriptSemester,
+} from "@/lib/onboarding/transcript-import/transcript-import-types";
 
 /**
  * Extract academic year from CAMU semester name (e.g., "Semester 1 2021-2022")

@@ -24,10 +24,13 @@ import {
 import { Form } from "@/components/ui/form";
 import { useUpdateUserProfile } from "@/lib/auth/auth-hooks";
 import { useAuthStore } from "@/lib/auth/auth-store";
-import { checkWithRetry } from "@/lib/services/service-health-checks";
-import { validateTranscriptContent } from "@/lib/services/transcript-validation-service";
-import { useOnboardingStore } from "@/lib/stores/onboarding-store";
-import { SemesterMapping, StudentProfileData } from "@/lib/types/transcript";
+import { useOnboardingStore } from "@/lib/onboarding/onboarding-store";
+import { checkWithRetry } from "@/lib/onboarding/transcript-import/services/service-health-checks";
+import { validateTranscriptContent } from "@/lib/onboarding/transcript-import/services/transcript-validation-service";
+import {
+  SemesterMapping,
+  StudentProfileData,
+} from "@/lib/onboarding/transcript-import/transcript-import-types";
 
 import { ExportHelpDialog } from "./export-help-dialog";
 import { FileUpload } from "./file-upload";

@@ -29,7 +29,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { SemesterMapping } from "@/lib/types/transcript";
+import { SemesterMapping } from "@/lib/onboarding/transcript-import/transcript-import-types";
 
 interface SemesterMappingVerificationProps {
   mappings: SemesterMapping[];

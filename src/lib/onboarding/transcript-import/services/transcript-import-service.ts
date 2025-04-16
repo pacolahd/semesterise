@@ -14,14 +14,15 @@ import {
   transcriptVerifications,
 } from "@/drizzle/schema";
 import { AppError } from "@/lib/errors/app-error-classes";
-import { determineCategoryForCourse } from "@/lib/services/course-categorization-service";
-import { calculateCourseStatistics } from "@/lib/services/credit-calculation-service";
-import { determineMathTrack } from "@/lib/services/math-track-service";
+import { determineCategoryForCourse } from "@/lib/onboarding/transcript-import/services/course-categorization-service";
+import { calculateCourseStatistics } from "@/lib/onboarding/transcript-import/services/credit-calculation-service";
+import { determineMathTrack } from "@/lib/onboarding/transcript-import/services/math-track-service";
 import {
   extractSemesterNumber,
   isSummerSemester,
   processSemesterMappings,
-} from "@/lib/services/semester-mapping-service";
+} from "@/lib/onboarding/transcript-import/services/semester-mapping-service";
+import { generateVerificationToken } from "@/lib/onboarding/transcript-import/token-verification-util";
 import {
   CourseWithCategory,
   SemesterMapping,
@@ -30,8 +31,7 @@ import {
   TranscriptImportRequest,
   TranscriptImportResult,
   TranscriptSemester,
-} from "@/lib/types/transcript";
-import { generateVerificationToken } from "@/lib/utils/token-utils";
+} from "@/lib/onboarding/transcript-import/transcript-import-types";
 
 function formatCourseCode(courseCode: string) {
   return courseCode.replace(/\s/g, ""); // Remove all whitespace
