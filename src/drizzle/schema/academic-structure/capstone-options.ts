@@ -1,6 +1,6 @@
 import { InferSelectModel } from "drizzle-orm";
-import { pgTable, text, varchar } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
+import { boolean, pgTable, text, varchar } from "drizzle-orm/pg-core";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 
 import { createdAt, id, updatedAt } from "@/drizzle/schema/helpers";
@@ -9,13 +9,17 @@ export const capstoneOptions = pgTable("capstone_options", {
   id,
   name: varchar("name", { length: 100 }).notNull().unique(),
   description: text("description"),
+  // New fields
+  firstSemesterCode: varchar("first_semester_code", { length: 20 }),
+  secondSemesterCode: varchar("second_semester_code", { length: 20 }),
+  requiresExtraElective: boolean("requires_extra_elective").default(false),
   createdAt,
   updatedAt,
 });
 
-export const capstoneOptionSchema = createInsertSchema(capstoneOptions).extend({
-  name: z.string().min(3).max(100),
-});
+// Update your schema definitions
+export const capstoneOptionSchema = createInsertSchema(capstoneOptions);
+export const selectCapstoneOptionSchema = createSelectSchema(capstoneOptions);
 
 export type CapstoneOptionInput = z.infer<typeof capstoneOptionSchema>;
-export type CapstoneOptionRecord = InferSelectModel<typeof capstoneOptions>;
+export type CapstoneOptionRecord = z.infer<typeof selectCapstoneOptionSchema>;

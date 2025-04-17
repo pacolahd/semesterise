@@ -1,3 +1,5 @@
+import seedSystemSettings from "@/drizzle/seed/system-settings";
+
 import seedAcademicStructure from "./academic-structure";
 import seedCurriculum from "./curriculum";
 import seedInstitution from "./institution";
@@ -6,16 +8,19 @@ async function main() {
   console.log("🌱 Starting database seeding process...");
 
   try {
-    // 1. First seed the academic structure
+    // 1. First seed the System Settings
+    await seedSystemSettings();
+
+    // 2. First seed the academic structure
     await seedAcademicStructure();
 
-    // 2. Then seed institution data
+    // 3. Then seed institution data
     await seedInstitution();
 
-    // 3. Then seed curriculum data
+    // 4. Then seed curriculum data
     await seedCurriculum();
 
-    // // 4. Finally, seed student-records data
+    // // 5. Finally, seed student-records data
     // await seedStudentRecords();
 
     console.log("✅ Database seeding completed successfully!");

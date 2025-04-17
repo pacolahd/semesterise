@@ -1,0 +1,22 @@
+[
+  {
+    "key": "semester_credit_limits",
+    "value": {
+      "min_credits_regular": 2,
+      "max_credits_regular": 6,
+      "min_credits_summer": 1,
+      "max_credits_summer": 3,
+      "warning_threshold_low": 2,
+      "warning_threshold_high": 6
+    },
+    "description": "Defines credit limits for different semester types"
+  },
+  {
+    "key": "prerequisite_validation",
+    "value": {
+      "enabled": true,
+      "validate_on_drag": true
+    },
+    "description": "Controls for prerequisite validation behavior"
+  }
+]

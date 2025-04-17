@@ -22,5 +22,10 @@ export {
   degreeRequirementSchema,
 } from "./degree-requirements";
 
+export {
+  placeholderCourses,
+  placeholderCourseSchema,
+} from "./placeholder-courses";
+
 export * from "./relations";
 export { courseStatusEnum, semesterOfferingEnum } from "./enums";

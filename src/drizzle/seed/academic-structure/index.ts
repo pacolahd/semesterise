@@ -187,8 +187,20 @@ async function seedCapstoneOptions(dataDirectory: string) {
         .values({
           name: option.name,
           description: option.description,
+          firstSemesterCode: option.firstSemesterCode,
+          secondSemesterCode: option.secondSemesterCode,
+          requiresExtraElective: option.requiresExtraElective,
         })
-        .onConflictDoNothing({ target: capstoneOptions.name });
+        .onConflictDoUpdate({
+          target: capstoneOptions.name,
+          set: {
+            description: option.description,
+            firstSemesterCode: option.firstSemesterCode,
+            secondSemesterCode: option.secondSemesterCode,
+            requiresExtraElective: option.requiresExtraElective,
+            updatedAt: new Date(),
+          },
+        });
     }
 
     console.log("✅ Capstone options seeded successfully");

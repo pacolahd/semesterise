@@ -21,6 +21,10 @@ export {
   studentGraduationProgressView,
   type StudentGraduationProgress,
 } from "./views/student-graduation-progress-view";
+export {
+  studentCapstoneSelections,
+  studentCapstoneSelectionSchema,
+} from "./student-capstone-selections";
 
 // Relations
 export * from "./relations";

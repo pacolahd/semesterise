@@ -1,14 +1,23 @@
 [
   {
     "name": "Undergraduate Thesis",
-    "description": "Two-course sequence (Thesis 1 and 2) to be respectively taken in the 2 semesters of final year, focused on research"
+    "description": "Two-course sequence (Thesis 1 and 2) to be respectively taken in the 2 semesters of final year, focused on research",
+    "firstSemesterCode": "BUSA400A",
+    "secondSemesterCode": "BUSA400B",
+    "requiresExtraElective": false
   },
   {
     "name": "Entrepreneurship",
-    "description": "Two-course sequence (Entrepreneurship 1 and 2)  to be respectively taken in the 2 semesters of final year, focused on business creation"
+    "description": "Two-course sequence (Entrepreneurship 1 and 2) to be respectively taken in the 2 semesters of final year, focused on business creation",
+    "firstSemesterCode": "BUSA401A",
+    "secondSemesterCode": "BUSA401B",
+    "requiresExtraElective": false
   },
   {
     "name": "Applied Project",
-    "description": "An extra major elective in the first semester of final year, and Applied project course in final semester, focused on practical application of knowledge"
+    "description": "An extra major elective in the first semester of final year, and Applied project course in final semester, focused on practical application of knowledge",
+    "firstSemesterCode": null,
+    "secondSemesterCode": "BUSA410",
+    "requiresExtraElective": true
   }
 ]
