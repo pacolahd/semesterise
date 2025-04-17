@@ -22,17 +22,18 @@ interface WhyImportDialogProps {
 export function WhyImportDialog({ open, onOpenChange }: WhyImportDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          type="button"
-          className="flex items-center gap-1.5 text-primary"
-        >
-          <HelpCircle className="size-4" />
-          Why import?
-        </Button>
-      </DialogTrigger>
+      {/*makeshift solution for redundant dialog trigger*/}
+      {/*<DialogTrigger asChild>*/}
+      {/*  <Button*/}
+      {/*    variant="ghost"*/}
+      {/*    size="sm"*/}
+      {/*    type="button"*/}
+      {/*    className="flex items-center gap-1.5 text-primary"*/}
+      {/*  >*/}
+      {/*    <HelpCircle className="size-4" />*/}
+      {/*    Why import?*/}
+      {/*  </Button>*/}
+      {/*</DialogTrigger>*/}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Why Import Your Transcript?</DialogTitle>

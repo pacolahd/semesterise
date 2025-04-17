@@ -40,6 +40,16 @@
     --chart-5: 275 80% 60%; /* purple */
 
     --radius: 0.5rem;
+
+    /* Sidebar-specific variables */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: var(--foreground);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--primary-foreground);
+    --sidebar-accent: var(--secondary);
+    --sidebar-accent-foreground: var(--secondary-foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--ring);
   }
 
   .dark {
@@ -76,6 +86,17 @@
     --chart-3: 0 80% 60%; /* Brighter red */
     --chart-4: 54 91% 60%; /* Brighter yellow */
     --chart-5: 275 80% 70%; /* Brighter purple */
+
+    /* Sidebar-specific variables for dark mode */
+    --sidebar-background: var(--background);
+    --sidebar-foreground: var(--foreground);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--primary-foreground);
+    --sidebar-accent: var(--accent);
+    --sidebar-accent-foreground: var(--accent-foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--ring);
+
   }
 }
 
@@ -182,4 +203,13 @@
     scrollbar-width: none; /* Firefox */
   }
 
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }

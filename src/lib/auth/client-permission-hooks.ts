@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
+import { ServerSessionUser } from "@/lib/auth/auth";
 import { useAuthStore } from "@/lib/auth/auth-store";
 import { Permission, rolePermissions } from "@/lib/types/common";
 
@@ -60,10 +61,18 @@ export function useRequireAuth() {
   const router = useRouter();
   const { user, isLoading, isInitialized } = useAuthStore();
 
-  if (!isLoading && isInitialized && !user) {
-    router.push("/sign-in");
-    return null;
+  if (!isLoading && isInitialized) {
+    if (!user) {
+      router.push("/sign-in");
+      return null;
+    }
+    // else if (user && !(user as ServerSessionUser)?.onboardingCompleted) {
+    // }
   }
+  // if (!isLoading && isInitialized && user && !user.onboardingCompleted) {
+  //   router.push("/onboarding");
+  //   return null;
+  // }
 
   return { user, isLoading };
 }

@@ -1,12 +1,20 @@
-// Centralized place for all routes used in the app
-
 const ROUTES = {
   HOME: "/",
+  DASHBOARD: "/",
+
+  // Student routes
+  YEAR_VIEW: "/student/degree-audit", //default route for student
+  CATEGORY_VIEW: "/student/degree-audit/category-view",
+  STUDENT_PETITIONS: "/student/petitions",
+
+  // Staff routes
+  STAFF: "/staff", //default route for staff
+  STAFF_PETITIONS: "/staff/petitions",
+
+  // Auth routes
   SIGN_IN: "/sign-in",
   SIGN_UP: "/sign-up",
-  EMAIL_VERIFIED: "/",
   FORGOT_PASSWORD: "/sign-in",
-  // PROFILE: (id: string) => `/profile/${id}`,
 };
 
 export default ROUTES;

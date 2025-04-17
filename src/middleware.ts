@@ -1,7 +1,5 @@
-// TODO: Update middleware to work with new authorization and authentication system
 import { NextRequest, NextResponse } from "next/server";
 
-import { betterFetch } from "@better-fetch/fetch";
 import { getSessionCookie } from "better-auth/cookies";
 
 import { ServerSession } from "@/lib/auth/auth";
@@ -15,32 +13,42 @@ const AUTH_ROUTES = [
   "/reset-password",
 ];
 const ADMIN_ROUTES = ["/admin"];
-const STUDENT_ROLE = "student";
+const STUDENT_ROUTE_PREFIX = "/student";
+const STAFF_ROUTE_PREFIX = "/staff";
+const ONBOARDING_ROUTE = "/onboarding";
 
-async function getFullSession(
+// Session cache with 2-second TTL
+const sessionCache = new Map<
+  string,
+  { session: ServerSession | null; timestamp: number }
+>();
+const SESSION_CACHE_TTL = 20000;
+
+async function getOptimizedSession(
   request: NextRequest
 ): Promise<ServerSession | null> {
-  try {
-    /*   const { data: session } = await betterFetch<ServerSession>(
-      "/api/auth/get-session",
-      {
-        baseURL: request.nextUrl.origin,
-        headers: { cookie: request.headers.get("cookie") || "" },
-        cache: "no-store",
-      }
-    ); */
+  const sessionCookie = getSessionCookie(request);
+  if (!sessionCookie) return null;
 
-    const { data: session } = await authClient.getSession({
+  // Check cache first
+  const cached = sessionCache.get(sessionCookie);
+  if (cached && Date.now() - cached.timestamp < SESSION_CACHE_TTL) {
+    return cached.session;
+  }
+
+  try {
+    const { data } = await authClient.getSession({
       fetchOptions: {
-        credentials: "include",
-        headers: {
-          cookie: request.headers.get("cookie") || "",
-        },
+        headers: { cookie: request.headers.get("cookie") || "" },
         cache: "no-store",
       },
       query: { disableCookieCache: true },
     });
 
+    // @ts-ignore
+    const session: ServerSession | null = data;
+    // Update cache
+    sessionCache.set(sessionCookie, { session, timestamp: Date.now() });
     return session as ServerSession;
   } catch (error) {
     console.error("Session fetch error:", error);
@@ -51,100 +59,116 @@ async function getFullSession(
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 1. Public routes - no authentication needed
-  if (isPublicRoute(pathname)) {
+  // 1. Public routes - immediate return
+  if (isPublicRoute(pathname)) return NextResponse.next();
+
+  // 2. Auth routes - lightweight check
+  if (isAuthRoute(pathname)) {
+    const hasSession = !!getSessionCookie(request);
+    return hasSession ? redirectTo("/", request) : NextResponse.next();
+  }
+
+  // 3. Admin routes - validate session once
+  if (isAdminRoute(pathname)) {
+    const session = await getOptimizedSession(request);
+    return handleAdminRoutes(request, session);
+  }
+
+  // 4. All other routes - single session validation
+  const session = await getOptimizedSession(request);
+  return handleProtectedRoutes(request, session, pathname);
+}
+
+// Route handlers
+function handleAdminRoutes(
+  request: NextRequest,
+  session: ServerSession | null
+) {
+  if (!session?.user) return redirectToSignIn(request);
+  if (session.user.role === "student") return redirectToUnauthorized(request);
+  return NextResponse.next();
+}
+
+function handleProtectedRoutes(
+  request: NextRequest,
+  session: ServerSession | null,
+  pathname: string
+) {
+  if (!session?.user) return redirectToSignIn(request);
+
+  // Onboarding check
+  if (!session.user.onboardingCompleted) {
+    // Allow access to any onboarding sub-paths
+    if (!pathname.startsWith(ONBOARDING_ROUTE)) {
+      return redirectTo(ONBOARDING_ROUTE, request);
+    }
     return NextResponse.next();
   }
 
-  // 2. Auth routes - prevent authenticated access
-  if (isAuthRoute(pathname)) {
-    return handleAuthRoutes(request);
+  // Redirect from onboarding paths when completed
+  if (pathname.startsWith(ONBOARDING_ROUTE) || pathname === "/") {
+    return redirectToBasePath(session.user.role, request);
   }
 
-  // 3. Admin routes - strict role validation
-  if (isAdminRoute(pathname)) {
-    return handleAdminRoutes(request);
+  // Role-based routing
+  const isStudent = session.user.role === "student";
+
+  if (pathname.startsWith(STUDENT_ROUTE_PREFIX)) {
+    return isStudent
+      ? handleStudentPath(pathname, request)
+      : redirectToStaff(request);
   }
 
-  // 4. All other routes - require valid session
-  return handleProtectedRoutes(request);
+  if (pathname.startsWith(STAFF_ROUTE_PREFIX) && isStudent) {
+    return redirectToStudent(request);
+  }
+
+  return NextResponse.next();
 }
 
 // Helper functions
-function isPublicRoute(pathname: string) {
-  return PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
+const redirectToSignIn = (request: NextRequest) =>
+  NextResponse.redirect(new URL("/sign-in", request.url));
+
+const redirectToUnauthorized = (request: NextRequest) =>
+  NextResponse.redirect(new URL("/unauthorized", request.url));
+
+const redirectTo = (path: string, request: NextRequest) =>
+  NextResponse.redirect(new URL(path, request.url));
+
+function redirectToBasePath(role: string, request: NextRequest) {
+  return redirectTo(
+    role === "student" ? "/student/degree-audit" : "/staff",
+    request
+  );
 }
 
-function isAuthRoute(pathname: string) {
-  return AUTH_ROUTES.some((route) => pathname.startsWith(route));
+function handleStudentPath(pathname: string, request: NextRequest) {
+  return pathname === "/student"
+    ? redirectTo("/student/degree-audit", request)
+    : NextResponse.next();
 }
 
-function isAdminRoute(pathname: string) {
-  return ADMIN_ROUTES.some((route) => pathname.startsWith(route));
+function redirectToStaff(request: NextRequest) {
+  return redirectTo("/staff", request);
 }
 
-async function handleAuthRoutes(request: NextRequest) {
-  if (await hasValidSession(request, { requireFresh: true })) {
-    return NextResponse.redirect(new URL("/", request.url));
-  }
-  return NextResponse.next();
+function redirectToStudent(request: NextRequest) {
+  return redirectTo("/student/degree-audit", request);
 }
 
-async function handleAdminRoutes(request: NextRequest) {
-  const session = await getFullSession(request);
+// Route checkers
+const isPublicRoute = (pathname: string) =>
+  PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
 
-  if (!session?.user) {
-    return NextResponse.redirect(new URL("/sign-in", request.url));
-  }
+const isAuthRoute = (pathname: string) =>
+  AUTH_ROUTES.some((route) => pathname.startsWith(route));
 
-  if (session.user.role === STUDENT_ROLE) {
-    return NextResponse.redirect(new URL("/unauthorized", request.url));
-  }
-
-  return NextResponse.next();
-}
-
-async function handleProtectedRoutes(request: NextRequest) {
-  // Without fresh, if cookie exists, the user will be allowed access, even if the user is no longer the database (if the user was somehow deleted directly on the databse while they were still signed in on their end.)
-  // Means it will go on if the cookie exists even without an actual user existing in the db. But I actually think that they won't be able to do stuff in the app because a subsequent getSession will not return a user. Hmn let's see how it goes.
-  // Well it means they've used the app before and the route they're trying to access is not an admin route, so it should be fine.
-  if (await hasValidSession(request, { requireFresh: true })) {
-    // TODO: Add functionality to check if the user has completed onboarding and to redirect them to the onboarding page for them to continue if need be.
-    return NextResponse.next();
-  }
-  return NextResponse.redirect(new URL("/sign-in", request.url));
-}
-
-async function hasValidSession(
-  request: NextRequest,
-  options = { requireFresh: true }
-): Promise<boolean> {
-  // Quick cookie check first
-  const sessionCookie = getSessionCookie(request);
-  if (!sessionCookie) return false;
-
-  // Return early if fresh validation not required
-  if (!options.requireFresh) return true;
-
-  // Full session validation
-  const session = await getFullSession(request);
-  if (session) {
-    console.log(
-      `\n\n\nMiddleware User Details: ${session?.user?.role} ${
-        session?.user?.userType
-      } ${session?.user?.onboardingCompleted}\n\n`
-    );
-  }
-
-  return !!session?.user;
-}
+const isAdminRoute = (pathname: string) =>
+  ADMIN_ROUTES.some((route) => pathname.startsWith(route));
 
 export const config = {
   matcher: [
-    "/((?!api/auth|_next/static|_next/image|static|images|favicon.ico|.*\\.png$).*)",
+    "/((?!api/auth|api/transcript|_next/static|_next/image|static|images|favicon.ico|.*\\.(?:png|css|js)$).*)",
   ],
 };
-
-// export const config = {
-//   matcher: ["/((?!api/auth|_next/static|_next/image|.*\\.png$).*)"],
-// };
