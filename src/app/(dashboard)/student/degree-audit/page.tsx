@@ -1,11 +1,11 @@
-// app/student/degree-audit/page.tsx
+"use client";
+
+import { YearByYearView } from "@/components/degree-audit/year-by-year-view";
+
 export default function YearViewPage() {
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Year by Year Planning</h1>
-      <div className="p-8 text-center bg-muted rounded-lg">
-        <p className="text-muted-foreground">Year View Content Will Go Here</p>
-      </div>
+    <div className="container py-6">
+      <YearByYearView />
     </div>
   );
 }

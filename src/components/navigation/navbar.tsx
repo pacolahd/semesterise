@@ -33,6 +33,8 @@ import { useMediaQuery } from "@/lib/hooks/use-media-query";
 
 // src/components/navigation/navbar.tsx
 
+// src/components/navigation/navbar.tsx
+
 // ✅ Props interface
 interface NavbarProps {
   showUploadButton?: boolean;
@@ -63,7 +65,7 @@ export function Navbar({
   }, [user?.name]);
 
   return (
-    <header className="fixed top-0 z-50 flex h-16 w-full items-center justify-between border-b border-border bg-surface-50 dark:bg-[--background] px-4 shadow-sm md:px-8">
+    <header className="fixed top-0 z-50 flex h-16 w-full items-center justify-between border-b border-border bg-surface-50 dark:bg-[#0C1726] px-4 shadow-sm md:px-8">
       <div className="flex items-center gap-4">
         <AshesiLogo
           className="h-auto"

@@ -41,7 +41,7 @@ export default function DashboardLayout({
         <div className="flex">
           <StudentSidebar />
           <section className="flex min-h-screen flex-1 flex-col px-6 pb-6 pt-20 max-md:pb-14 sm:px-6">
-            <div className="mx-auto w-full max-w-5xl">{children}</div>
+            <div className="mx-auto w-full max-w-max">{children}</div>
           </section>
         </div>
       </div>
