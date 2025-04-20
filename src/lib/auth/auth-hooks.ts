@@ -365,3 +365,54 @@ export function useUpdateUserProfile(
     },
   });
 }
+
+/**
+ * Update Profile hook with robust error handling
+ * WITHOUT revalidating the cache
+ * WITHOUT toast
+ */
+export function useUpdateUserProfileSilent(
+  userId: string,
+  form?: UseFormReturn<Partial<AuthUserInput>>
+) {
+  const queryClient = useQueryClient();
+  const { setUser } = useAuthStore();
+
+  return useMutation({
+    mutationFn: async (updates: Partial<AuthUserInput>) => {
+      const result = await updateUserProfile(userId, updates);
+      handleActionResponse(result); // will throw if failed
+
+      // Re-fetch session to get updated user data
+      const sessionResult = await getSession();
+      const session = handleActionResponse(sessionResult);
+
+      if (session?.user) {
+        setUser(session.user);
+      }
+
+      return session;
+    },
+    onError: (error) => {
+      if (error instanceof AppError && error.hasValidationDetails() && form) {
+        Object.entries(error.details!).forEach(([field, messages]) => {
+          form.setError(field as keyof AuthUserInput, {
+            type: "server",
+            message: Array.isArray(messages)
+              ? messages.join(", ")
+              : String(messages),
+          });
+        });
+      } else if (error instanceof ValidationError && form) {
+        Object.entries(error.details!).forEach(([field, messages]) => {
+          form.setError(field as keyof AuthUserInput, {
+            type: "server",
+            message: Array.isArray(messages)
+              ? messages.join(", ")
+              : String(messages),
+          });
+        });
+      }
+    },
+  });
+}

@@ -28,4 +28,8 @@ export {
 } from "./placeholder-courses";
 
 export * from "./relations";
-export { courseStatusEnum, semesterOfferingEnum } from "./enums";
+export {
+  courseStatusEnum,
+  semesterOfferingEnum,
+  majorGroupEnum,
+} from "./enums";

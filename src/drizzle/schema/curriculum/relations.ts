@@ -1,6 +1,9 @@
 import { relations } from "drizzle-orm";
 
-import { mathTracks } from "@/drizzle/schema/academic-structure";
+import {
+  capstoneOptions,
+  mathTracks,
+} from "@/drizzle/schema/academic-structure";
 import { departments } from "@/drizzle/schema/institution";
 import { majors } from "@/drizzle/schema/institution/majors";
 
@@ -80,6 +83,10 @@ export const courseCategorizationRelations = relations(
     mathTrack: one(mathTracks, {
       fields: [courseCategorization.mathTrackName],
       references: [mathTracks.name],
+    }),
+    capstoneOption: one(capstoneOptions, {
+      fields: [courseCategorization.capstoneOptionName],
+      references: [capstoneOptions.name],
     }),
   })
 );

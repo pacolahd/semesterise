@@ -90,6 +90,7 @@ export interface StudentProfileData {
   name: string;
   major: string;
   mathTrackName?: string;
+  capstoneOptionName?: string;
   cumulativeGpa?: string;
   // Updated credit fields
   creditsPassed?: number; // Credits from passed courses meeting grade requirements

@@ -46,7 +46,7 @@ export const studentProfiles = pgTable("student_profiles", {
     precision: 5,
     scale: 1,
   }).default("0"),
-  capstoneOptionId: varchar("capstone_option_id").references(
+  capstoneOptionName: varchar("capstone_option_name").references(
     () => capstoneOptions.name,
     { onDelete: "set null" }
   ),

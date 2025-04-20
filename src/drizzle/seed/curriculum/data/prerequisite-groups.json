@@ -610,8 +610,8 @@
 
   
   {
-    "groupKey": "SYS101-PROGRAMMING-1",
-    "courseCode": "SYS101",
+    "groupKey": "CS330-PROGRAMMING-1",
+    "courseCode": "CS330",
     "groupName": "Programming Foundation",
     "externalLogicOperator": "AND",
     "internalLogicOperator": "AND",

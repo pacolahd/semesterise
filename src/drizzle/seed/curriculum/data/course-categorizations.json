@@ -1,6 +1,66 @@
 [
   {
+    "courseCode": "BUSA400A",
+    "categoryName": "Capstone",
+    "majorGroup": "NON-ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 4,
+    "recommendedSemester": 1,
+    "capstoneOptionName": "Undergraduate Thesis"
+  },
+  {
+    "courseCode": "BUSA400B",
+    "categoryName": "Capstone",
+    "majorGroup": "NON-ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 4,
+    "recommendedSemester": 2,
+    "capstoneOptionName": "Undergraduate Thesis"
+  },
+  {
+    "courseCode": "BUSA401A",
+    "categoryName": "Capstone",
+    "majorGroup": "NON-ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 4,
+    "recommendedSemester": 1,
+    "capstoneOptionName": "Entrepreneurship"
+  },
+  {
+    "courseCode": "BUSA401B",
+    "categoryName": "Capstone",
+    "majorGroup": "NON-ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 4,
+    "recommendedSemester": 2,
+    "capstoneOptionName": "Entrepreneurship"
+  },
+  {
+    "courseCode": "BUSA410",
+    "categoryName": "Capstone",
+    "majorGroup": "NON-ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 4,
+    "recommendedSemester": 2,
+    "capstoneOptionName": "Applied Project"
+  },
+
+  {
     "courseCode": "ENGL112",
+    "categoryName": "Humanities & Social Sciences",
+    "majorGroup": "ALL",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 1,
+    "recommendedSemester": 1
+  },
+  {
+    "courseCode": "AS111",
     "categoryName": "Humanities & Social Sciences",
     "majorGroup": "ALL",
     "isRequired": true,
@@ -63,6 +123,17 @@
     "recommendedSemester": 1,
     "applicableFromCohortYear": 2024
   },
+
+  {
+    "courseCode": "ECON100",
+    "categoryName": "Humanities & Social Sciences",
+    "majorGroup": "ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 2,
+    "recommendedSemester": 1,
+    "applicableFromCohortYear": 2024
+  },
   {
     "courseCode": "BUSA161",
     "categoryName": "Business",
@@ -94,7 +165,7 @@
     "courseCode": "MATH121",
     "categoryName": "Mathematics & Quantitative",
     "majorGroup": "NON-ENG",
-    "isRequired": false,
+    "isRequired": true,
     "isFlexible": true,
     "mathTrackName": "Pre-Calculus",
     "recommendedYear": 1,
@@ -104,7 +175,7 @@
     "courseCode": "MATH122",
     "categoryName": "Mathematics & Quantitative",
     "majorGroup": "NON-ENG",
-    "isRequired": false,
+    "isRequired": true,
     "isFlexible": true,
     "mathTrackName": "Pre-Calculus",
     "recommendedYear": 1,
@@ -114,17 +185,27 @@
     "courseCode": "MATH141",
     "categoryName": "Mathematics & Quantitative",
     "majorGroup": "NON-ENG",
-    "isRequired": false,
+    "isRequired": true,
     "isFlexible": true,
     "mathTrackName": "Calculus",
     "recommendedYear": 1,
     "recommendedSemester": 1
   },
   {
+    "courseCode": "MATH142",
+    "categoryName": "Mathematics & Quantitative",
+    "majorGroup": "NON-ENG",
+    "isRequired": true,
+    "isFlexible": true,
+    "mathTrackName": "Calculus",
+    "recommendedYear": 1,
+    "recommendedSemester": 2
+  },
+  {
     "courseCode": "MATH151",
     "categoryName": "Mathematics & Quantitative",
     "majorGroup": "NON-ENG",
-    "isRequired": false,
+    "isRequired": true,
     "isFlexible": true,
     "mathTrackName": "Pre-Calculus",
     "recommendedYear": 1,
@@ -138,15 +219,6 @@
     "isFlexible": false,
     "recommendedYear": 2,
     "recommendedSemester": 1
-  },
-  {
-    "courseCode": "MATH211",
-    "categoryName": "Mathematics & Quantitative",
-    "majorGroup": "CS",
-    "isRequired": true,
-    "isFlexible": false,
-    "recommendedYear": 2,
-    "recommendedSemester": 2
   },
   {
     "courseCode": "CS111",
@@ -165,6 +237,16 @@
     "isFlexible": false,
     "recommendedYear": 3,
     "recommendedSemester": 2
+  },
+  {
+    "courseCode": "MATH212",
+    "categoryName": "Mathematics & Quantitative",
+    "majorGroup": "CS",
+    "isRequired": true,
+    "isFlexible": true,
+    "recommendedYear": 2,
+    "recommendedSemester": 2,
+    "notes": "Linear Algebra - required for CS majors"
   },
   {
     "courseCode": "CS212",
@@ -232,7 +314,7 @@
     "recommendedSemester": 1
   },
   {
-    "courseCode": "SYS101",
+    "courseCode": "CS330",
     "categoryName": "Required Major Classes",
     "majorGroup": "CS",
     "isRequired": true,
@@ -370,49 +452,11 @@
     "isFlexible": true
   },
   {
-    "courseCode": "BUSA400A",
-    "categoryName": "Capstone",
+    "courseCode": "CS443",
+    "categoryName": "Major Electives",
     "majorGroup": "CS",
     "isRequired": false,
-    "isFlexible": true,
-    "recommendedYear": 4,
-    "recommendedSemester": 1
-  },
-  {
-    "courseCode": "BUSA400B",
-    "categoryName": "Capstone",
-    "majorGroup": "CS",
-    "isRequired": false,
-    "isFlexible": true,
-    "recommendedYear": 4,
-    "recommendedSemester": 2
-  },
-  {
-    "courseCode": "BUSA401A",
-    "categoryName": "Capstone",
-    "majorGroup": "CS",
-    "isRequired": false,
-    "isFlexible": true,
-    "recommendedYear": 4,
-    "recommendedSemester": 1
-  },
-  {
-    "courseCode": "BUSA401B",
-    "categoryName": "Capstone",
-    "majorGroup": "CS",
-    "isRequired": false,
-    "isFlexible": true,
-    "recommendedYear": 4,
-    "recommendedSemester": 2
-  },
-  {
-    "courseCode": "BUSA410",
-    "categoryName": "Capstone",
-    "majorGroup": "CS",
-    "isRequired": false,
-    "isFlexible": true,
-    "recommendedYear": 4,
-    "recommendedSemester": 2
+    "isFlexible": true
   },
   {
     "courseCode": "ECON101",
@@ -682,51 +726,6 @@
     "isFlexible": true
   },
   {
-    "courseCode": "BUSA400A",
-    "categoryName": "Capstone",
-    "majorGroup": "MIS",
-    "isRequired": false,
-    "isFlexible": true,
-    "recommendedYear": 4,
-    "recommendedSemester": 1
-  },
-  {
-    "courseCode": "BUSA400B",
-    "categoryName": "Capstone",
-    "majorGroup": "MIS",
-    "isRequired": false,
-    "isFlexible": true,
-    "recommendedYear": 4,
-    "recommendedSemester": 2
-  },
-  {
-    "courseCode": "BUSA401A",
-    "categoryName": "Capstone",
-    "majorGroup": "MIS",
-    "isRequired": false,
-    "isFlexible": true,
-    "recommendedYear": 4,
-    "recommendedSemester": 1
-  },
-  {
-    "courseCode": "BUSA401B",
-    "categoryName": "Capstone",
-    "majorGroup": "MIS",
-    "isRequired": false,
-    "isFlexible": true,
-    "recommendedYear": 4,
-    "recommendedSemester": 2
-  },
-  {
-    "courseCode": "BUSA410",
-    "categoryName": "Capstone",
-    "majorGroup": "MIS",
-    "isRequired": false,
-    "isFlexible": true,
-    "recommendedYear": 4,
-    "recommendedSemester": 1
-  },
-  {
     "courseCode": "ECON101",
     "categoryName": "Humanities & Social Sciences",
     "majorGroup": "BA",
@@ -921,121 +920,6 @@
     "majorGroup": "BA",
     "isRequired": false,
     "isFlexible": true
-  },
-  {
-    "courseCode": "BUSA400A",
-    "categoryName": "Capstone",
-    "majorGroup": "BA",
-    "isRequired": false,
-    "isFlexible": true,
-    "recommendedYear": 4,
-    "recommendedSemester": 1
-  },
-  {
-    "courseCode": "BUSA400B",
-    "categoryName": "Capstone",
-    "majorGroup": "BA",
-    "isRequired": false,
-    "isFlexible": true,
-    "recommendedYear": 4,
-    "recommendedSemester": 2
-  },
-  {
-    "courseCode": "BUSA401A",
-    "categoryName": "Capstone",
-    "majorGroup": "BA",
-    "isRequired": false,
-    "isFlexible": true,
-    "recommendedYear": 4,
-    "recommendedSemester": 1
-  },
-  {
-    "courseCode": "BUSA401B",
-    "categoryName": "Capstone",
-    "majorGroup": "BA",
-    "isRequired": false,
-    "isFlexible": true,
-    "recommendedYear": 4,
-    "recommendedSemester": 2
-  },
-  {
-    "courseCode": "BUSA410",
-    "categoryName": "Capstone",
-    "majorGroup": "BA",
-    "isRequired": false,
-    "isFlexible": true,
-    "recommendedYear": 4,
-    "recommendedSemester": 1
-  },
-  {
-    "courseCode": "ENGL112",
-    "categoryName": "Humanities & Social Sciences",
-    "majorGroup": "ENG",
-    "isRequired": true,
-    "isFlexible": false,
-    "recommendedYear": 1,
-    "recommendedSemester": 1,
-    "notes": "Written and Oral Communication - core requirement for all engineering majors"
-  },
-  {
-    "courseCode": "ENGL113",
-    "categoryName": "Humanities & Social Sciences",
-    "majorGroup": "ENG",
-    "isRequired": true,
-    "isFlexible": false,
-    "recommendedYear": 1,
-    "recommendedSemester": 2,
-    "notes": "Text and Meaning - core requirement for all engineering majors"
-  },
-  {
-    "courseCode": "SOAN111",
-    "categoryName": "Humanities & Social Sciences",
-    "majorGroup": "ENG",
-    "isRequired": true,
-    "isFlexible": false,
-    "recommendedYear": 1,
-    "recommendedSemester": 2,
-    "notes": "Leadership Seminar 1 - core requirement for all engineering majors"
-  },
-  {
-    "courseCode": "SOAN211",
-    "categoryName": "Humanities & Social Sciences",
-    "majorGroup": "ENG",
-    "isRequired": true,
-    "isFlexible": false,
-    "recommendedYear": 2,
-    "recommendedSemester": 1,
-    "notes": "Leadership Seminar 2 - core requirement for all engineering majors"
-  },
-  {
-    "courseCode": "SOAN311",
-    "categoryName": "Humanities & Social Sciences",
-    "majorGroup": "ENG",
-    "isRequired": true,
-    "isFlexible": false,
-    "recommendedYear": 2,
-    "recommendedSemester": 2,
-    "notes": "Leadership Seminar 3 - core requirement for all engineering majors"
-  },
-  {
-    "courseCode": "ENGR310",
-    "categoryName": "Humanities & Social Sciences",
-    "majorGroup": "ENG",
-    "isRequired": true,
-    "isFlexible": false,
-    "recommendedYear": 3,
-    "recommendedSemester": 1,
-    "notes": "Leadership 4 for Engineers - specialized leadership sequence for engineering majors"
-  },
-  {
-    "courseCode": "ECON100",
-    "categoryName": "Humanities & Social Sciences",
-    "majorGroup": "ENG",
-    "isRequired": true,
-    "isFlexible": false,
-    "recommendedYear": 3,
-    "recommendedSemester": 2,
-    "notes": "Principles of Economics - core requirement for all engineering majors"
   },
   {
     "courseCode": "BUSA161",
@@ -1402,10 +1286,11 @@
     "courseCode": "ENGR400",
     "categoryName": "Capstone",
     "majorGroup": "ENG",
-    "isRequired": true,
+    "isRequired": false,
     "isFlexible": false,
     "recommendedYear": 4,
     "recommendedSemester": 1,
+    "capstoneOptionName": "Engineering Senior Project",
     "notes": "Senior Project 1 - required for all engineering majors"
   },
   {
@@ -1416,6 +1301,7 @@
     "isFlexible": false,
     "recommendedYear": 4,
     "recommendedSemester": 2,
+    "capstoneOptionName": "Engineering Senior Project",
     "notes": "Senior Project and Seminar 2 - required for all engineering majors"
   },
   {

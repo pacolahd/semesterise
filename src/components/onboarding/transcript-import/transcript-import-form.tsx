@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -22,7 +22,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
-import { useUpdateUserProfile } from "@/lib/auth/auth-hooks";
+import {
+  useUpdateUserProfile,
+  useUpdateUserProfileSilent,
+} from "@/lib/auth/auth-hooks";
 import { useAuthStore } from "@/lib/auth/auth-store";
 import { useOnboardingStore } from "@/lib/onboarding/onboarding-store";
 import { checkWithRetry } from "@/lib/onboarding/transcript-import/services/service-health-checks";
@@ -43,8 +46,14 @@ interface TranscriptImportFormProps {
 export function TranscriptImportForm({ onBack }: TranscriptImportFormProps) {
   const router = useRouter();
   const { user } = useAuthStore();
-  const { academicInfo, programInfo, completeOnboarding, setTranscriptData } =
-    useOnboardingStore();
+  const {
+    academicInfo,
+    programInfo,
+    currentStep,
+    setCurrentStep,
+    completeOnboarding,
+    setTranscriptData,
+  } = useOnboardingStore();
 
   // State for form and processing
   const [file, setFile] = useState<File | null>(null);
@@ -53,6 +62,7 @@ export function TranscriptImportForm({ onBack }: TranscriptImportFormProps) {
 
   // Processing state
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isGoingToDashboard, setIsGoingToDashboard] = useState(false);
   const [currentPhase, setCurrentPhase] = useState(0);
   const [currentStage, setCurrentStage] = useState(0);
   const [processingError, setProcessingError] = useState<string | undefined>(
@@ -82,6 +92,7 @@ export function TranscriptImportForm({ onBack }: TranscriptImportFormProps) {
     string | undefined
   >(undefined);
 
+  // TODO: Improv loading simulation when we hit mapping to degree requirements (50%). Include a continuous loading tht goes gradually till verifying grade requirements?
   // Processing phases
   const phases = [
     [
@@ -89,6 +100,7 @@ export function TranscriptImportForm({ onBack }: TranscriptImportFormProps) {
       "Extracting completed courses",
       "Identifying degree and major",
       "Detecting math track",
+      "Detecting capstone option",
       "Verifying academic timeline",
     ],
     [
@@ -107,7 +119,7 @@ export function TranscriptImportForm({ onBack }: TranscriptImportFormProps) {
 
   // User profile update mutation
   const { mutate: updateUserProfile, isPending: isUpdateUserPending } =
-    useUpdateUserProfile(user!.id);
+    useUpdateUserProfileSilent(user!.id);
 
   // Check service health on component mount
   useEffect(() => {
@@ -386,17 +398,28 @@ export function TranscriptImportForm({ onBack }: TranscriptImportFormProps) {
         setShowVerificationDialog(true);
         setIsProcessing(false);
       } else {
-        // Complete onboarding
-        completeOnboarding();
-        updateUserProfile({ onboardingCompleted: true });
-
-        // Show success message
-        toast.success("Transcript imported successfully!");
-
-        // Navigate to dashboard
-        setTimeout(() => {
-          router.push("/dashboard");
-        }, 1500);
+        updateUserProfile(
+          { onboardingCompleted: true },
+          {
+            onSuccess: () => {
+              // set onboarding step to teaching because we're going to the degree auditing view for the first time, and we want to show some guidelines to the user since it's their first time
+              // setCurrentStep("teaching");
+              // setIsProcessing(false);
+              // setIsGoingToDashboard(true);
+              toast.success("Transcript imported successfully!");
+              setTimeout(() => {
+                router.push("/");
+              }, 3000);
+            },
+          }
+        );
+        // // Show success message
+        // toast.success("Transcript imported successfully!");
+        //
+        // // Navigate to dashboard
+        // setTimeout(() => {
+        //   router.push("/dashboard");
+        // }, 1500);
       }
     } catch (error) {
       console.error("Error processing transcript:", error);
@@ -433,6 +456,7 @@ export function TranscriptImportForm({ onBack }: TranscriptImportFormProps) {
 
       // Reset processing state
       setIsProcessing(false);
+      // setIsGoingToDashboard(false);
     }
   };
 
@@ -470,19 +494,37 @@ export function TranscriptImportForm({ onBack }: TranscriptImportFormProps) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to verify mappings");
       }
+      // TODO: Improve transition to year view from the transcript import form. Make sure onboardingCompleted is set to true in the database before we attempt to navigate to the year view.
+
+      // TODO: Use onboarding completed from the store to determine whether to show the user the help/welcome dialog upon reaching the year view. hence only update the onboarding completed in the auth store ONLY if the user has completed the help/welcome in the year view
 
       // Complete onboarding
-      completeOnboarding();
-      updateUserProfile({ onboardingCompleted: true });
-
-      // Show success message
-      toast.success("Transcript import completed successfully!");
-
-      // Close dialog and navigate to dashboard
-      setShowVerificationDialog(false);
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 50);
+      // completeOnboarding();
+      // setIsProcessing(false);
+      // setIsGoingToDashboard(true);
+      updateUserProfile(
+        { onboardingCompleted: true },
+        {
+          onSuccess: () => {
+            // set onboarding step to teaching because we're going to the degree auditing view for the first time, and we want to show some guidelines to the user since it's their first time
+            // setCurrentStep("teaching");
+            toast.success("Transcript imported successfully!");
+            setTimeout(() => {
+              router.push("/");
+            }, 3000);
+          },
+        }
+      );
+      // updateUserProfile({ onboardingCompleted: true });
+      //
+      // // Show success message
+      // toast.success("Transcript import completed successfully!");
+      //
+      // // Close dialog and navigate to dashboard
+      // setShowVerificationDialog(false);
+      // setTimeout(() => {
+      //   router.push("/dashboard");
+      // }, 50);
     } catch (error) {
       console.error("Verification error:", error);
 
@@ -493,6 +535,7 @@ export function TranscriptImportForm({ onBack }: TranscriptImportFormProps) {
       );
 
       setIsProcessing(false);
+      // setIsGoingToDashboard(false);
     }
   };
 
@@ -537,6 +580,19 @@ export function TranscriptImportForm({ onBack }: TranscriptImportFormProps) {
         }}
         onBack={onBack}
       />
+    );
+  }
+
+  if (isGoingToDashboard) {
+    return (
+      <div className="flex h-[30vh] w-full items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="mx-auto mb-4 size-8 animate-spin text-primary" />
+          <p className="body1-regular text-muted-foreground">
+            Finalizing and Redirecting to your dashboard...
+          </p>
+        </div>
+      </div>
     );
   }
 

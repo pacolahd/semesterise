@@ -10,17 +10,20 @@ export { academicWarnings, academicWarningSchema } from "./academic-warnings";
 
 // Views
 export {
-  semesterCreditSummariesView,
-  type SemesterCreditSummary,
-} from "./views/semester-credit-summaries-view";
+  studentRequiredCoursesView,
+  type StudentRequiredCoursesRecord,
+} from "./views/student-required-courses-view";
+
 export {
-  categoryProgressView,
-  type CategoryProgress,
-} from "./views/category-progress-view";
+  studentCourseStatusView,
+  type StudentCourseStatusRecord,
+} from "./views/student-course-status-view";
+
 export {
-  studentGraduationProgressView,
-  type StudentGraduationProgress,
-} from "./views/student-graduation-progress-view";
+  studentDegreeRequirementProgressView,
+  type StudentDegreeRequirementProgressRecord,
+} from "./views/student-degree-requirement-progress-view";
+
 export {
   studentCapstoneSelections,
   studentCapstoneSelectionSchema,

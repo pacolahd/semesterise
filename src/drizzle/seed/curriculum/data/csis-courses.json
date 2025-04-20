@@ -73,15 +73,6 @@
     "semestersOffered": ["SPRING"]
   },
   {
-    "code": "CS330",
-    "title": "Hardware and Systems Fundamentals",
-    "department": "CSIS",
-    "credits": 0.5,
-    "description": "This course presents the fundamental concepts of computer organization and instruction set architectures. Assembly language programming is used to present and illustrate the concepts of instruction set design. The basics of Central Processor Unit (CPU) design and implementation are covered, including some performance enhancing methods like pipelining and memory caches.",
-    "prerequisites": "EITHER Computer Programming for CS OR Computer Programming for Engineering. Completion or concurrent enrollment in Discrete Structures and Theory.",
-    "semestersOffered": ["SPRING"]
-  },
-  {
     "code": "CS331",
     "title": "Computer Organization and Architecture",
     "department": "CSIS",
@@ -369,8 +360,8 @@
     "semestersOffered": ["SPRING"]
   },
   {
-    "code": "SYS101",
-    "title": "Systems Fundamentals",
+    "code": "CS330",
+    "title": "Hardware and Systems Fundamentals",
     "department": "CSIS",
     "credits": 0.5,
     "description": "A foundational course covering core principles of computer systems, architecture, and low-level operation. Serves as a prerequisite for several advanced CS courses.",

@@ -12,34 +12,5 @@
     "minimumGrade": "D+",
     "applicableFromCohortYear": 2025,
     "description": "MIS students need a D+ minimum in Object Oriented Programming"
-  },
-  {
-    "majorCode": "CS",
-    "courseCode": "CS222",
-    "minimumGrade": "C",
-    "applicableFromCohortYear": 2025,
-    "description": "CS students need a C minimum in Data Structures & Algorithms"
-
-  },
-  {
-    "majorCode": "MIS",
-    "courseCode": "CS222",
-    "minimumGrade": "D+",
-    "applicableFromCohortYear": 2025,
-    "description": "CS students need a C minimum in Data Structures & Algorithms"
-  },
-  {
-    "majorCode": "CS",
-    "courseCode": "CS313",
-    "minimumGrade": "C",
-    "applicableFromCohortYear": 2025,
-    "description": "CS students need a C minimum in Intermediate Computer Programming"
-  },
-  {
-    "majorCode": "MIS",
-    "courseCode": "CS313",
-    "minimumGrade": "D+",
-    "applicableFromCohortYear": 2025,
-    "description": "CS students need a C minimum in Intermediate Computer Programming"
   }
 ]

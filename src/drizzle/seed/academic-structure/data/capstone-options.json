@@ -19,5 +19,13 @@
     "firstSemesterCode": null,
     "secondSemesterCode": "BUSA410",
     "requiresExtraElective": true
+  },
+
+  {
+    "name": "Engineering Senior Project",
+    "description": "In their final year, engineering students will undertake an individual or small group project (no more than \n3 students) as a capstone experience to further their expertise in system level design, application, and the \npractice of the profession.",
+    "firstSemesterCode": null,
+    "secondSemesterCode": "ENGR401",
+    "requiresExtraElective": false
   }
 ]

@@ -20,22 +20,21 @@ export async function determineCategoryForCourse(
   const cleanCourseCode = courseCode.replace(/\s+/g, "");
 
   // Look for a direct match with the student's major
+
+  const engStatus =
+    majorCode === "CS" || majorCode === "MIS" || majorCode === "BA"
+      ? "ENG"
+      : "NON-ENG";
   let categoryMapping = await tx.query.courseCategorization.findFirst({
     where: and(
       eq(courseCategorization.courseCode, cleanCourseCode),
-      eq(courseCategorization.majorGroup, majorCode)
+      or(
+        eq(courseCategorization.majorGroup, majorCode),
+        eq(courseCategorization.majorGroup, engStatus),
+        eq(courseCategorization.majorGroup, "ALL")
+      )
     ),
   });
-
-  // If not found, look for an "ALL" mapping that applies to all majors
-  if (!categoryMapping) {
-    categoryMapping = await tx.query.courseCategorization.findFirst({
-      where: and(
-        eq(courseCategorization.courseCode, cleanCourseCode),
-        eq(courseCategorization.majorGroup, "ALL")
-      ),
-    });
-  }
 
   // If a specific mapping was found, use it
   if (categoryMapping) {

@@ -14,6 +14,7 @@ import {
   transcriptVerifications,
 } from "@/drizzle/schema";
 import { AppError } from "@/lib/errors/app-error-classes";
+import { determineCapstoneOption } from "@/lib/onboarding/transcript-import/services/capstone-option-service";
 import { determineCategoryForCourse } from "@/lib/onboarding/transcript-import/services/course-categorization-service";
 import { calculateCourseStatistics } from "@/lib/onboarding/transcript-import/services/credit-calculation-service";
 import { determineMathTrack } from "@/lib/onboarding/transcript-import/services/math-track-service";
@@ -49,6 +50,11 @@ function mapMajorNameToCode(majorName: string): string {
     "Mechanical Engineering": "ME",
     // Add more mappings as needed
   };
+  const codes = ["CS", "BA", "MIS", "CE", "EE", "ME"];
+
+  if (codes.includes(majorName)) {
+    return majorName;
+  }
 
   // Try to find a direct match
   if (majorMap[majorName]) {
@@ -59,6 +65,7 @@ function mapMajorNameToCode(majorName: string): string {
   for (const [fullName, code] of Object.entries(majorMap)) {
     if (majorName.includes(fullName)) {
       return code;
+    } else if (majorName.includes(code)) {
     }
   }
 
@@ -66,6 +73,12 @@ function mapMajorNameToCode(majorName: string): string {
   console.warn(`No major code mapping found for "${majorName}", using default`);
   return "CS"; // Default to Computer Science if no match
 }
+
+// TODO: Remove the status (and hence the need to insert it) from the student_courses table since it's handled in the student_course_status_view
+
+// TODO: Perhaps use the student_course_status_view since it has plenty of useful stuff
+
+// TODO: Find and insert the student's capstone option. If none is found, the default of "Applied Project" should be placed. The student will be told about their capstone option upon import verification and they can change their capstone option there iff it was the default applied and not gotten from their taken courses.
 
 // Create a service singleton that we can import
 export const transcriptImportService = {
@@ -170,6 +183,7 @@ export const transcriptImportService = {
 
         // Get major code for course processing
         const majorCode = mapMajorNameToCode(programInfo.major);
+        console.log(`\n\n\nExtracted major code: ${majorCode}\n\n\n`);
 
         // NEW: Get existing courses for this student
         const existingCourses = await tx.query.studentCourses.findMany({
@@ -312,6 +326,7 @@ export const transcriptImportService = {
 
     // Determine math track based on courses taken
     const mathTrackName = determineMathTrack(allCourses);
+    const capstoneOptionName = determineCapstoneOption(allCourses);
 
     // Get latest CGPA if available
     let cumulativeGpa = undefined;
@@ -323,6 +338,7 @@ export const transcriptImportService = {
 
     // Get major code for credit calculation
     const majorCode = mapMajorNameToCode(major);
+    console.log(`\n\n\nExtracted major code: ${majorCode}\n\n\n`);
 
     // Calculate detailed credits and course statistics
     let creditStats = {
@@ -365,6 +381,7 @@ export const transcriptImportService = {
       name,
       major,
       mathTrackName,
+      capstoneOptionName,
       cumulativeGpa,
       creditsPassed: creditStats.creditsPassed,
       creditsTaken: creditStats.creditsTaken,
@@ -446,6 +463,8 @@ export const transcriptImportService = {
     try {
       // Convert full major name to major code
       const majorCode = mapMajorNameToCode(profile.major);
+      console.log(`\n\n\nExtracted major code: ${majorCode}\n\n\n`);
+
       console.log(
         `Mapped major name "${profile.major}" to code "${majorCode}"`
       );
@@ -463,6 +482,7 @@ export const transcriptImportService = {
             studentId: profile.studentId, // Update studentId from transcript
             majorCode: majorCode, // Use the mapped code
             mathTrackName: profile.mathTrackName,
+            capstoneOptionName: profile.capstoneOptionName,
             cumulativeGpa: profile.cumulativeGpa,
             cohortYear: profile.yearGroup
               ? parseInt(profile.yearGroup)
@@ -630,7 +650,10 @@ export const transcriptImportService = {
     const majorName = this.extractMajorFromDegree(
       transcriptData.studentInfo.degree
     );
+
+    console.log(`\n\n\nExtracted major name: ${majorName}\n\n\n`);
     const majorCode = mapMajorNameToCode(majorName);
+    console.log(`\n\n\nExtracted major code: ${majorCode}\n\n\n`);
 
     // Create import record - REMOVE fileType and fileSize fields
     const importRecords = await tx
@@ -787,9 +810,6 @@ export const transcriptImportService = {
           tx
         );
 
-        // Check if failing grade (E, F)
-        const isFailed = course.grade === "E" || course.grade === "F";
-
         // Build key for lookup
         const courseKey = `${cleanCourseCode.toUpperCase()}|${semesterId}`;
 
@@ -797,21 +817,18 @@ export const transcriptImportService = {
         const existingCourse = existingCoursesMap.get(courseKey);
 
         if (existingCourse) {
-          // Update existing course if needed
+          // Update existing course if needed; if new course or update to existing course or if it was exising as planned course.
           if (
             existingCourse.grade !== course.grade ||
             existingCourse.category_name !== category ||
-            existingCourse.status !== (isFailed ? "failed" : "verified")
+            existingCourse.status !== "planned"
           ) {
             await tx
               .update(studentCourses)
               .set({
                 grade: course.grade,
                 category_name: category,
-                status: isFailed ? "failed" : "verified",
-                is_verified: true,
-                counts_for_gpa: course.grade !== "W", // 'W' (withdrawn) doesn't count for GPA
-                is_used_for_requirement: !isFailed, // Failed courses don't count for requirements
+                status: "imported",
               })
               .where(eq(studentCourses.id, existingCourse.id));
 
@@ -823,12 +840,9 @@ export const transcriptImportService = {
             student_id: studentId,
             course_code: cleanCourseCode,
             semester_id: semesterId,
-            status: isFailed ? "failed" : "verified",
+            status: "imported",
             grade: course.grade,
             category_name: category,
-            is_verified: true,
-            counts_for_gpa: course.grade !== "W", // 'W' (withdrawn) doesn't count for GPA
-            is_used_for_requirement: !isFailed, // Failed courses don't count for requirements
           });
 
           created++;
@@ -841,18 +855,7 @@ export const transcriptImportService = {
           (ec) =>
             ec.course_code === cleanCourseCode && ec.semester_id !== semesterId
         );
-
-        // If it's a retake and not failed, update previous occurrences to not count for requirements
-        if (otherSemesterCoursesWithSameCode.length > 0 && !isFailed) {
-          for (const previousCourse of otherSemesterCoursesWithSameCode) {
-            await tx
-              .update(studentCourses)
-              .set({
-                is_used_for_requirement: false,
-              })
-              .where(eq(studentCourses.id, previousCourse.id));
-          }
-        }
+        // TODO: If >1 course with the same code exists for the incoming course then drop all of them and import afresh (perhaps)
       }
     }
 

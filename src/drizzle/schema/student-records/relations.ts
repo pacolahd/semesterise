@@ -32,7 +32,7 @@ export const studentProfilesRelations = relations(
       references: [mathTracks.name],
     }),
     capstoneOption: one(capstoneOptions, {
-      fields: [studentProfiles.capstoneOptionId],
+      fields: [studentProfiles.capstoneOptionName],
       references: [capstoneOptions.name],
     }),
     semesterMappings: many(studentSemesterMappings),

@@ -301,6 +301,10 @@ async function seedCourseCategorizations(dataDirectory: string) {
       if (categorization.mathTrackName) {
         mathTrackName = categorization.mathTrackName;
       }
+      let capstoneOptionName = null;
+      if (categorization.capstoneOptionName) {
+        capstoneOptionName = categorization.capstoneOptionName;
+      }
 
       await db
         .insert(courseCategorization)
@@ -309,6 +313,7 @@ async function seedCourseCategorizations(dataDirectory: string) {
           categoryName: categorization.categoryName,
           majorGroup: categorization.majorGroup || null,
           mathTrackName, // This is now the math track name (natural key)
+          capstoneOptionName,
           isRequired: categorization.isRequired || false,
           isFlexible: categorization.isFlexible || false,
           recommendedYear: categorization.recommendedYear || null,

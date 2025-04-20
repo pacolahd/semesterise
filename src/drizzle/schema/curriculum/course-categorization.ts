@@ -3,11 +3,17 @@ import { boolean, integer, pgTable, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+import { capstoneOptions } from "@/drizzle/schema";
 import { mathTracks } from "@/drizzle/schema/academic-structure/math-tracks";
+import {
+  majorGroupValues,
+  semesterOfferingValues,
+} from "@/drizzle/schema/curriculum/enums";
 import { createdAt, id, updatedAt } from "@/drizzle/schema/helpers";
 
 import { courseCategories } from "./course-categories";
 import { courses } from "./courses";
+import { majorGroupEnum } from "./enums";
 
 export const courseCategorization = pgTable("course_categorization", {
   id,
@@ -27,6 +33,11 @@ export const courseCategorization = pgTable("course_categorization", {
     onDelete: "set null",
   }),
 
+  // Capstone option relationship
+  capstoneOptionName: varchar("capstone_option_name").references(
+    () => capstoneOptions.name,
+    { onDelete: "set null" }
+  ),
   // Core categorization properties
   isRequired: boolean("is_required").notNull().default(false),
   isFlexible: boolean("is_flexible").notNull().default(false),
@@ -48,7 +59,8 @@ export const courseCategorizationSchema = createInsertSchema(
 ).extend({
   courseCode: z.string(),
   categoryName: z.string(),
-  majorGroup: z.string().max(20).optional().nullable(),
+  majorGroup: z.enum(majorGroupValues).nullable(),
+
   mathTrackName: z.string().uuid().optional().nullable(),
   isRequired: z.boolean().default(false),
   isFlexible: z.boolean().default(false),

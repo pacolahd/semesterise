@@ -6,6 +6,7 @@ export const studentCourseStatusValues = [
   "enrolled",
   "planned",
   "retake_required",
+  "imported",
   "dropped",
   "failed",
 ] as const;

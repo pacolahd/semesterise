@@ -49,9 +49,9 @@ export const studentCourses = pgTable(
       () => courseCategories.name,
       { onDelete: "set null" }
     ),
-    is_verified: boolean("is_verified").default(false),
-    counts_for_gpa: boolean("counts_for_gpa").default(true),
-    is_used_for_requirement: boolean("is_used_for_requirement").default(true),
+    // is_verified: boolean("is_verified").default(false),
+    // counts_for_gpa: boolean("counts_for_gpa").default(true),
+    // is_used_for_requirement: boolean("is_used_for_requirement").default(true),
     notes: text("notes"),
     createdAt,
     updatedAt,
@@ -79,9 +79,9 @@ export const studentCourseSchema = createInsertSchema(studentCourses).extend({
   grade: z.string().max(5).optional().nullable(),
   category_name: z.string().optional().nullable(),
   original_category_name: z.string().optional().nullable(),
-  is_verified: z.boolean().default(false),
-  counts_for_gpa: z.boolean().default(true),
-  is_used_for_requirement: z.boolean().default(true),
+  // is_verified: z.boolean().default(false),
+  // counts_for_gpa: z.boolean().default(true),
+  // is_used_for_requirement: z.boolean().default(true),
   notes: z.string().optional().nullable(),
 });
 

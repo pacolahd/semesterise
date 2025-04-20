@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { getSessionCookie } from "better-auth/cookies";
 
-import { ServerSession } from "@/lib/auth/auth";
+import { ServerSession, ServerSessionUser } from "@/lib/auth/auth";
 import { authClient } from "@/lib/auth/auth-client";
 
 const PUBLIC_ROUTES = ["/about"];
@@ -56,6 +56,32 @@ async function getOptimizedSession(
   }
 }
 
+async function getRawSession(
+  request: NextRequest
+): Promise<ServerSession | null> {
+  const sessionCookie = getSessionCookie(request);
+  if (!sessionCookie) return null;
+
+  try {
+    const { data } = await authClient.getSession({
+      fetchOptions: {
+        headers: { cookie: request.headers.get("cookie") || "" },
+        cache: "no-store",
+      },
+      query: { disableCookieCache: true },
+    });
+
+    // @ts-ignore
+    const session: ServerSession | null = data;
+    // Update cache
+    sessionCache.set(sessionCookie, { session, timestamp: Date.now() });
+    return session as ServerSession;
+  } catch (error) {
+    console.error("Session fetch error:", error);
+    return null;
+  }
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -72,6 +98,34 @@ export async function middleware(request: NextRequest) {
   if (isAdminRoute(pathname)) {
     const session = await getOptimizedSession(request);
     return handleAdminRoutes(request, session);
+  }
+
+  if (pathname.startsWith(ONBOARDING_ROUTE)) {
+    let previousPath = null;
+    const referer = request.headers.get("referer");
+    if (referer) {
+      const refererUrl = new URL(referer);
+      previousPath = refererUrl.pathname;
+    }
+    if (previousPath === ONBOARDING_ROUTE) {
+      // @ts-ignore
+      const session: ServerSession = await getOptimizedSession(request);
+      if (!session.user) return redirectToSignIn(request);
+      if (session.user.onboardingCompleted) {
+        return redirectToBasePath(session.user.role, request);
+      } else {
+        return NextResponse.next();
+      }
+    } else {
+      // @ts-ignore
+      const latestSession: ServerSession = await getRawSession(request);
+      if (!latestSession.user) return redirectToSignIn(request);
+      if (latestSession.user.onboardingCompleted) {
+        return redirectToBasePath(latestSession.user.role, request);
+      } else {
+        return NextResponse.next();
+      }
+    }
   }
 
   // 4. All other routes - single session validation
@@ -91,13 +145,14 @@ function handleAdminRoutes(
 
 function handleProtectedRoutes(
   request: NextRequest,
-  session: ServerSession | null,
-  pathname: string
+  cachedSession: ServerSession | null,
+  pathname: string,
+  rawSession?: ServerSession | null
 ) {
-  if (!session?.user) return redirectToSignIn(request);
+  if (!cachedSession?.user) return redirectToSignIn(request);
 
   // Onboarding check
-  if (!session.user.onboardingCompleted) {
+  if (cachedSession.user.onboardingCompleted === false) {
     // Allow access to any onboarding sub-paths
     if (!pathname.startsWith(ONBOARDING_ROUTE)) {
       return redirectTo(ONBOARDING_ROUTE, request);
@@ -106,12 +161,12 @@ function handleProtectedRoutes(
   }
 
   // Redirect from onboarding paths when completed
-  if (pathname.startsWith(ONBOARDING_ROUTE) || pathname === "/") {
-    return redirectToBasePath(session.user.role, request);
+  if (pathname === "/") {
+    return redirectToBasePath(cachedSession.user.role, request);
   }
 
   // Role-based routing
-  const isStudent = session.user.role === "student";
+  const isStudent = cachedSession.user.role === "student";
 
   if (pathname.startsWith(STUDENT_ROUTE_PREFIX)) {
     return isStudent
@@ -169,6 +224,6 @@ const isAdminRoute = (pathname: string) =>
 
 export const config = {
   matcher: [
-    "/((?!api/auth|api/transcript|_next/static|_next/image|static|images|favicon.ico|.*\\.(?:png|css|js)$).*)",
+    "/((?!api/auth|api/transcript|api/student|_next/static|_next/image|static|images|favicon.ico|.*\\.(?:png|css|js)$).*)",
   ],
 };

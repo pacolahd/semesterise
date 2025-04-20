@@ -12,6 +12,7 @@ export type OnboardingStep =
   | "academic-info"
   | "program-info"
   | "transcript-import"
+  | "teaching"
   | "complete";
 
 // Engineering majors
@@ -85,6 +86,7 @@ const onboardingSchema = z.object({
     "academic-info",
     "program-info",
     "transcript-import",
+    "teaching",
     "complete",
   ]),
   academicInfo: z

@@ -121,6 +121,18 @@ export function VerificationDialog({
                     </dd>
                   </div>
                 )}
+                {studentProfile.capstoneOptionName && (
+                  <div className="flex items-start justify-between gap-2 py-1">
+                    <dt className="font-medium text-muted-foreground">
+                      Capstone:
+                    </dt>
+                    <dd className="text-right">
+                      <Badge variant="outline">
+                        {studentProfile.capstoneOptionName}
+                      </Badge>
+                    </dd>
+                  </div>
+                )}
                 <div className="flex items-start justify-between gap-2 py-1">
                   <dt className="font-medium text-muted-foreground">GPA:</dt>
                   <dd className="text-right">
@@ -137,16 +149,16 @@ export function VerificationDialog({
                       : "N/A"}
                   </dd>
                 </div>{" "}
-                <div className="flex items-start justify-between gap-2 py-1">
-                  <dt className="font-medium text-muted-foreground">
-                    Credits Passed:
-                  </dt>
-                  <dd className="text-right">
-                    {studentProfile.creditsPassed !== undefined
-                      ? studentProfile.creditsPassed
-                      : "N/A"}
-                  </dd>
-                </div>
+                {/*<div className="flex items-start justify-between gap-2 py-1">*/}
+                {/*  <dt className="font-medium text-muted-foreground">*/}
+                {/*    Credits Passed:*/}
+                {/*  </dt>*/}
+                {/*  <dd className="text-right">*/}
+                {/*    {studentProfile.creditsPassed !== undefined*/}
+                {/*      ? studentProfile.creditsPassed*/}
+                {/*      : "N/A"}*/}
+                {/*  </dd>*/}
+                {/*</div>*/}
                 <div className="flex items-start justify-between gap-2 py-1">
                   <dt className="font-medium text-muted-foreground">
                     Admitted:
@@ -181,67 +193,16 @@ export function VerificationDialog({
                       mappings.reduce((sum, m) => sum + m.courseCount, 0)}
                   </dd>
                 </div>
-                <div className="flex items-start justify-between gap-2 py-1">
-                  <dt className="font-medium text-muted-foreground">
-                    Courses Passed:
-                  </dt>
-                  <dd className="text-right">
-                    {studentProfile.coursesPassed !== undefined
-                      ? studentProfile.coursesPassed
-                      : "N/A"}
-                  </dd>
-                </div>
-                <div className="flex items-start justify-between gap-2 py-1">
-                  <dt className="font-medium text-muted-foreground">
-                    Academic Timeline:
-                  </dt>
-                  <dd className="text-right">
-                    {mappings.length > 0
-                      ? `${mappings[0].academicYearRange} to ${mappings[mappings.length - 1].academicYearRange}`
-                      : "N/A"}
-                  </dd>
-                </div>
-                <div className="flex items-start justify-between gap-2 py-1">
-                  <dt className="font-medium text-muted-foreground">
-                    Current Year:
-                  </dt>
-                  <dd className="text-right">
-                    Year {studentProfile.currentYear}
-                  </dd>
-                </div>
-                <div className="flex items-start justify-between gap-2 py-1">
-                  <dt className="font-medium text-muted-foreground">
-                    Current Semester:
-                  </dt>
-                  <dd className="text-right">
-                    Semester {studentProfile.currentSemester}
-                  </dd>
-                </div>
-              </dl>
-            </CardContent>
-          </Card>
-
-          <Card className="p-4">
-            <CardTitle className="mb-4 flex items-center gap-2 text-lg">
-              <FileSpreadsheet className="h-5 w-5" />
-              Transcript Summary
-            </CardTitle>
-            <CardContent className="p-0">
-              <dl className="space-y-2">
-                <div className="flex items-start justify-between gap-2 py-1">
-                  <dt className="font-medium text-muted-foreground">
-                    Semesters:
-                  </dt>
-                  <dd className="text-right">{mappings.length}</dd>
-                </div>
-                <div className="flex items-start justify-between gap-2 py-1">
-                  <dt className="font-medium text-muted-foreground">
-                    Total Courses:
-                  </dt>
-                  <dd className="text-right">
-                    {mappings.reduce((sum, m) => sum + m.courseCount, 0)}
-                  </dd>
-                </div>
+                {/*<div className="flex items-start justify-between gap-2 py-1">*/}
+                {/*  <dt className="font-medium text-muted-foreground">*/}
+                {/*    Courses Passed:*/}
+                {/*  </dt>*/}
+                {/*  <dd className="text-right">*/}
+                {/*    {studentProfile.coursesPassed !== undefined*/}
+                {/*      ? studentProfile.coursesPassed*/}
+                {/*      : "N/A"}*/}
+                {/*  </dd>*/}
+                {/*</div>*/}
                 <div className="flex items-start justify-between gap-2 py-1">
                   <dt className="font-medium text-muted-foreground">
                     Academic Timeline:
