@@ -4,7 +4,7 @@ import { and, eq, isNull, or, sql } from "drizzle-orm";
 import { db } from "@/drizzle";
 import {
   academicSemesters,
-  academicYears,
+  courses,
   prerequisiteCourses,
   prerequisiteGroups,
   studentCourseStatusView,
@@ -12,7 +12,12 @@ import {
   studentDegreeRequirementProgressView,
   studentProfiles,
   studentRequiredCoursesView,
+  studentSemesterMappings,
 } from "@/drizzle/schema";
+import { StudentSemesterMappingRecord } from "@/drizzle/schema/student-records/student-semester-mappings";
+import { AppError } from "@/lib/errors/app-error-classes";
+import { serializeError } from "@/lib/errors/error-converter";
+import { ActionResponse } from "@/lib/types/common";
 
 import {
   CourseWithStatus,
@@ -20,58 +25,6 @@ import {
   Semester,
   YearPlan,
 } from "./types";
-
-// Take note and make everything consistent with the types in the database
-/*
-Example of data in academic semesters table:
-{
-    "name": "Semester 1 2024-2025",
-    "academicYearName": "2024-2025",
-    "sequenceNumber": 10,
-    "startDate": "2024-08-15",
-    "endDate": "2024-12-20"
-  },
-  {
-    "name": "Semester 2 2024-2025",
-    "academicYearName": "2024-2025",
-    "sequenceNumber": 11,
-    "startDate": "2025-01-10",
-    "endDate": "2025-05-31"
-  },
-  {
-    "name": "Semester 3 2024-2025",
-    "academicYearName": "2024-2025",
-    "sequenceNumber": 12,
-    "startDate": "2025-06-01",
-    "endDate": "2025-07-31"
-  },
-  {
-    "name": "Semester 1 2025-2026",
-    "academicYearName": "2025-2026",
-    "sequenceNumber": 13,
-    "startDate": "2025-08-15",
-    "endDate": "2025-12-20"
-  },
-  Take note that semester 3 doesn't mean it's always summer. But summer semesters it will be marked as is_summer in the student semester mappings and also that the imported courses shown in the student course status view will have a was_summer_semester field also.
-
-Example data in academic years table:
-{
-    "yearName": "2021-2022",
-    "startDate": "2021-08-01",
-    "endDate": "2022-07-31",
-  },
-  {
-    "yearName": "2022-2023",
-    "startDate": "2022-08-01",
-    "endDate": "2023-07-31",
-  },
-
-
-  Example data for offered in semester or semester offering
-  ["FALL", "SPRING"]
-  meaning something like offered_in_semesters will contain data like ["fall", "spring", "summer"]. the courses table and the student required courses view have an offered_in_semesters field
-
- */
 
 // Category color mapping for UI
 const CATEGORY_COLORS = {
@@ -87,378 +40,386 @@ const CATEGORY_COLORS = {
   "Research / Project Prep.": "#417505",
 };
 
+// Constants for validation
+const MAX_CREDITS_PER_SEMESTER = 5;
+const MAX_RECOMMENDED_YEARS = 4;
+
 /**
  * Get student's 4-year academic plan
  */
 export async function getStudentAcademicPlan(
   studentId: string
-): Promise<YearPlan> {
-  // 1. Get student profile information
-  const profileData = await db.query.studentProfiles.findFirst({
-    where: eq(studentProfiles.studentId, studentId),
-  });
+): Promise<ActionResponse<YearPlan>> {
+  try {
+    // 1. Get student profile information
+    const profileData = await db.query.studentProfiles.findFirst({
+      where: eq(studentProfiles.studentId, studentId),
+    });
 
-  if (!profileData) {
-    throw new Error(`Student not found: ${studentId}`);
-  }
-
-  // 2. Get all student courses with statuses from the view
-  const coursesWithStatus = await db
-    .select()
-    .from(studentCourseStatusView)
-    .where(eq(studentCourseStatusView.studentId, studentId));
-
-  // 3. Get all required courses for the student
-  const requiredCourses = await db
-    .select()
-    .from(studentRequiredCoursesView)
-    .where(eq(studentRequiredCoursesView.studentId, studentId));
-
-  // 4. Get progress information by category
-  const progressByCategory = await db
-    .select()
-    .from(studentDegreeRequirementProgressView)
-    .where(eq(studentDegreeRequirementProgressView.studentId, studentId));
-
-  // 5. Initialize empty plan structure
-  const plan: YearPlan = {
-    studentId,
-    majorCode: profileData.majorCode || "",
-    mathTrack: profileData.mathTrackName || undefined,
-    capstoneOption: profileData.capstoneOptionName || undefined,
-    years: {},
-    totalCreditsCompleted: 0,
-    totalCreditsRemaining: 0,
-    percentageComplete: 0,
-    lastUpdated: new Date(),
-  };
-
-  // Initialize all years and semesters
-  for (let year = 1; year <= 4; year++) {
-    plan.years[year] = {
-      fall: createEmptySemester(year, 1, "Fall"),
-      spring: createEmptySemester(year, 2, "Spring"),
-      summer: createEmptySemester(year, 3, "Summer", true),
-    };
-  }
-
-  // 6. Populate with actual courses
-  for (const course of coursesWithStatus) {
-    // Skip if not latest attempt for completed/failed courses
-    if (!course.isLatestAttempt && course.grade !== null) {
-      continue;
-    }
-
-    // Determine which semester this belongs to
-    const year = course.yearTaken || 1;
-    const isSummer = course.wasSummerSemester || false;
-    const semester = isSummer ? 3 : course.semesterTaken || 1;
-
-    // Get the appropriate semester object
-    let targetSemester: Semester;
-    if (semester === 1) {
-      targetSemester = plan.years[year].fall;
-    } else if (semester === 2) {
-      targetSemester = plan.years[year].spring;
-    } else {
-      targetSemester = plan.years[year].summer;
-    }
-
-    // Create course object with status from the view
-    const courseWithStatus: CourseWithStatus = {
-      id: course.studentCourseId,
-      courseCode: course.courseCode,
-      courseTitle: course.courseTitle || "",
-      credits: Number(course.credits) || 0,
-      category: {
-        name: course.categoryName || "General",
-        parentName: getCategoryParent(course.categoryName),
-        //TODO: add validation checks for color mapping to make it less fragile
-        color:
-          CATEGORY_COLORS[
-            course.categoryName as keyof typeof CATEGORY_COLORS
-          ] || "#9B9B9B",
-      },
-      departmentCode: course.departmentCode || "",
-
-      // Determine status based on grade and passing info from the view
-      status:
-        course.grade === null
-          ? "planned"
-          : course.passed
-            ? "completed"
-            : "failed",
-
-      grade: course.grade || undefined,
-      minGradeRequired: course.minimumGradeRequired || undefined,
-
-      retakeNeeded: course.retakeNeeded || false,
-      isLatestAttempt: course.isLatestAttempt || false,
-      totalAttempts: course.totalAttempts || 0,
-
-      year,
-      semester: isSummer ? 3 : course.semesterTaken || 1,
-      isSummer,
-
-      // Generate info message for UI tooltip
-      infoMessage: generateCourseInfoMessage(course),
-      hasWarning: course.retakeNeeded || false,
-    };
-
-    // Add to appropriate semester
-    targetSemester.courses.push(courseWithStatus);
-
-    // Update semester credit count
-    targetSemester.totalCredits += courseWithStatus.credits;
-  }
-
-  // 7. Add warning for semesters with too many credits (>5)
-  for (let year = 1; year <= 4; year++) {
-    const yearObj = plan.years[year];
-    yearObj.fall.hasCreditWarning = yearObj.fall.totalCredits > 5;
-    yearObj.spring.hasCreditWarning = yearObj.spring.totalCredits > 5;
-    // No warning for summer
-  }
-
-  // 8. Calculate overall progress statistics
-  const totalProgress = progressByCategory.reduce(
-    (acc, category) => {
-      // Only count parent categories for the overall progress
-      if (!category.subCategory) {
-        acc.completed += Number(category.creditsCompleted);
-        acc.required += Number(category.creditsRequired);
-      }
-      return acc;
-    },
-    { completed: 0, required: 0 }
-  );
-
-  plan.totalCreditsCompleted = totalProgress.completed;
-  plan.totalCreditsRemaining = Math.max(
-    0,
-    totalProgress.required - totalProgress.completed
-  );
-  plan.percentageComplete =
-    totalProgress.required > 0
-      ? Math.min(
-          100,
-          Math.round((totalProgress.completed / totalProgress.required) * 100)
-        )
-      : 0;
-
-  return plan;
-}
-
-/**
- * Create an empty semester object
- */
-function createEmptySemester(
-  year: number,
-  semester: number,
-  name: string,
-  isSummer = false
-): Semester {
-  return {
-    year,
-    semester,
-    isSummer,
-    name,
-    courses: [],
-    totalCredits: 0,
-    hasCreditWarning: false,
-  };
-}
-
-/**
- * Get available courses a student can add to a specific semester
- */
-export async function getAvailableCoursesForSemester(
-  studentId: string,
-  year: number,
-  semester: number
-): Promise<
-  { code: string; title: string; credits: number; category: string }[]
-> {
-  // 1. Get student profile
-  const profile = await db.query.studentProfiles.findFirst({
-    where: eq(studentProfiles.studentId, studentId),
-  });
-
-  if (!profile) {
-    throw new Error(`Student not found: ${studentId}`);
-  }
-
-  // 2. Get all courses the student has already completed or planned
-  const existingCourses = await db
-    .select({
-      courseCode: studentCourseStatusView.courseCode,
-      passed: studentCourseStatusView.passed,
-    })
-    .from(studentCourseStatusView)
-    .where(eq(studentCourseStatusView.studentId, studentId));
-
-  // Create sets for quick lookups
-  const passedCourses = new Set<string>();
-  const allTakenCourses = new Set<string>();
-
-  existingCourses.forEach((course) => {
-    allTakenCourses.add(course.courseCode);
-    if (course.passed) {
-      passedCourses.add(course.courseCode);
-    }
-  });
-
-  // 3. Get required courses from the view
-  const requiredCourses = await db
-    .select({
-      courseCode: studentRequiredCoursesView.courseCode,
-      categoryName: studentRequiredCoursesView.categoryName,
-      credits: studentRequiredCoursesView.credits,
-      courseTitle: studentRequiredCoursesView.courseTitle,
-    })
-    .from(studentRequiredCoursesView)
-    .where(
-      and(
-        eq(studentRequiredCoursesView.studentId, studentId),
-        // Only include actual courses, not placeholders
-        sql`courseCode IS NOT NULL`
-      )
-    );
-
-  //ToDo: Should filter by semester offering as well. Meaning it should show courses that are offered in the current semester first before those which aren't
-
-  // 4. Filter courses based on prerequisites and other criteria
-  const availableCourses = [];
-
-  for (const course of requiredCourses) {
-    // Skip if already passed
-    if (passedCourses.has(course.courseCode)) {
-      continue;
-    }
-
-    // Check prerequisites
-    const prerequisiteCheck = await checkPrerequisitesMet(
-      studentId,
-      course.courseCode,
-      year,
-      semester
-    );
-
-    // Only include courses with prerequisites met
-    if (prerequisiteCheck.isMet) {
-      availableCourses.push({
-        code: course.courseCode,
-        title: course.courseTitle,
-        credits: Number(course.credits),
-        category: course.categoryName,
-      });
-    }
-  }
-
-  return availableCourses;
-}
-
-/**
- * Add a planned course to a student's academic plan
- */
-
-/* TODOs for both planning and moving courses
-//TODO: we should also check if the course is being offered in the semester wherein the student is planning to take it. The student should be warned about planning the course in semesters where they're not offered but should still be allowed to go forward with it. Perhaps a dialog should be shown to the student with a warning message that the course doesn't seem to be offered in that semester and hence their year by year plan may not be accurate and they can click "i understand" or something like that.
-   We should also do Credit load validation checks and warn the student that they are gonna be exceeding the max credits per semester and that they need to reduce the number of courses or plan the course in another semester or perhaps a summer semester to balance it out. Nevertheless students can take more than minimum credits after submitting an Extra course addition petition and receiving the approval of the petition. SO they can proceed with planning the course after confirming that they have that approval.
-   If adding a course to a summer semester, the student should be warned that courses offered in summer semesters are unknown until that time is closer. This is because summer semesters are not always guaranteed to have the same courses as fall/spring semesters. They should be allowed to proceed only after confirming that they understand that their year by year plan may not be accurate.
-   Students should be allowed to have more than 4 years in their plan but they should be warned that they are exceeding the maximum number of years allowed in the program and that they should be careful about that especially if they are on scholarship. They will have to let their guardians and sponsors know (sponsors for scholarship students is the Financial Aid Office but that of non scholarship students is typically their parents). They should be allowed to proceed though after confirming that they understand.
-   If a student is trying to remove a course from a semester, they can be allowed after understanding that they will still have to take the course in a future semester and that they should be plan it in a future semester. They should be allowed to proceed after confirming that they understand.
-
-// of course some of the things proposed above have to do with the UI itself and we can't fully implement those in server actions am i right?. But we just need those functionality to be set up with all they need to be "implementable" on the frontend. I hope i'm not wrong.
-
-
-
-TODO:  Also, perhaps we could have such validation if you think it makes sense at all:
-   export function validateAcademicPlanAction(
-      action: 'add' | 'move' | 'remove'
-    ) {
-      return async (req: Request) => {
-        // Validate semester bounds
-        // Check course existence
-        // Verify student ownership
+    if (!profileData) {
+      return {
+        success: false,
+        error: serializeError(
+          new AppError({
+            message: `Student not found: ${studentId}`,
+            code: "STUDENT_NOT_FOUND",
+          })
+        ),
       };
     }
 
+    // 2. Get all student courses with statuses from the view
+    const coursesWithStatus = await db
+      .select()
+      .from(studentCourseStatusView)
+      .where(eq(studentCourseStatusView.studentId, studentId));
 
+    // 3. Get progress information by category
+    const progressByCategory = await db
+      .select()
+      .from(studentDegreeRequirementProgressView)
+      .where(eq(studentDegreeRequirementProgressView.studentId, studentId));
 
-TODO: Also, the student course status view has year_taken, semester_taken and was_summer_semester fields which can be used to determine the semester and year of courses that have been taken already. Perhaps we should rename them or add new fields to the view to accommodate planned courses' year and semester planned and if it's summer or not.
+    // 4. Initialize empty plan structure
+    const plan: YearPlan = {
+      studentId,
+      majorCode: profileData.majorCode || "",
+      mathTrack: profileData.mathTrackName || undefined,
+      capstoneOption: profileData.capstoneOptionName || undefined,
+      years: {},
+      totalCreditsCompleted: 0,
+      totalCreditsRemaining: 0,
+      percentageComplete: 0,
+      lastUpdated: new Date(),
+    };
+
+    // Initialize all years and semesters
+    for (let year = 1; year <= 4; year++) {
+      plan.years[year] = {
+        fall: createEmptySemester(year, 1, "Fall"),
+        spring: createEmptySemester(year, 2, "Spring"),
+        summer: createEmptySemester(year, 3, "Summer", true),
+      };
+    }
+
+    // 5. Populate with actual courses
+    for (const course of coursesWithStatus) {
+      // Skip if not latest attempt for completed/failed courses
+      if (!course.isLatestAttempt && course.grade !== null) {
+        continue;
+      }
+
+      // Determine which semester this belongs to
+      const year = course.yearTaken || 1;
+      const isSummer = course.wasSummerSemester || false;
+      const semester = isSummer ? 3 : course.semesterTaken || 1;
+
+      // Get the appropriate semester object
+      let targetSemester: Semester;
+      if (semester === 1) {
+        targetSemester = plan.years[year].fall;
+      } else if (semester === 2) {
+        targetSemester = plan.years[year].spring;
+      } else {
+        targetSemester = plan.years[year].summer;
+      }
+
+      // Create course object with status from the view
+      const courseWithStatus: CourseWithStatus = {
+        id: course.studentCourseId,
+        courseCode: course.courseCode,
+        courseTitle: course.courseTitle || "",
+        credits: Number(course.credits) || 0,
+        category: {
+          name: course.categoryName || "General",
+          parentName: getCategoryParent(course.categoryName),
+          color:
+            CATEGORY_COLORS[
+              course.categoryName as keyof typeof CATEGORY_COLORS
+            ] || "#9B9B9B",
+        },
+        departmentCode: course.departmentCode || "",
+
+        // Status is determined by the student_course_status_view
+        status:
+          course.grade === null
+            ? "planned"
+            : course.passed
+              ? "completed"
+              : "failed",
+
+        grade: course.grade || undefined,
+        minGradeRequired: course.minimumGradeRequired || undefined,
+
+        retakeNeeded: course.retakeNeeded || false,
+        isLatestAttempt: course.isLatestAttempt || false,
+        totalAttempts: course.totalAttempts || 0,
+
+        year,
+        semester: isSummer ? 3 : semester,
+        isSummer,
+
+        // Generate info message for UI tooltip
+        infoMessage: generateCourseInfoMessage(course),
+        hasWarning: course.retakeNeeded || false,
+      };
+
+      // Add to appropriate semester
+      targetSemester.courses.push(courseWithStatus);
+      targetSemester.totalCredits += courseWithStatus.credits;
+    }
+
+    // 6. Add warning for semesters with too many credits
+    for (let year = 1; year <= 4; year++) {
+      const yearObj = plan.years[year];
+      yearObj.fall.hasCreditWarning =
+        yearObj.fall.totalCredits > MAX_CREDITS_PER_SEMESTER;
+      yearObj.spring.hasCreditWarning =
+        yearObj.spring.totalCredits > MAX_CREDITS_PER_SEMESTER;
+      // No warning for summer
+    }
+
+    // 7. Calculate overall progress statistics
+    const totalProgress = progressByCategory.reduce(
+      (acc, category) => {
+        // Only count parent categories for the overall progress
+        if (!category.subCategory) {
+          acc.completed += Number(category.creditsCompleted);
+          acc.required += Number(category.creditsRequired);
+        }
+        return acc;
+      },
+      { completed: 0, required: 0 }
+    );
+
+    plan.totalCreditsCompleted = totalProgress.completed;
+    plan.totalCreditsRemaining = Math.max(
+      0,
+      totalProgress.required - totalProgress.completed
+    );
+    plan.percentageComplete =
+      totalProgress.required > 0
+        ? Math.min(
+            100,
+            Math.round((totalProgress.completed / totalProgress.required) * 100)
+          )
+        : 0;
+
+    return {
+      success: true,
+      data: plan,
+    };
+  } catch (error) {
+    console.error("Error getting student academic plan:", error);
+    return {
+      success: false,
+      error: serializeError(error),
+    };
+  }
+}
+
+/**
+ * Validates course placement in a specific semester
+ * Centralizes validation logic used by multiple course planning functions
  */
-
-export async function addPlannedCourse(
+async function validateCoursePlacement(
   studentId: string,
   courseCode: string,
   year: number,
   semester: number
-): Promise<{ success: boolean; message?: string }> {
-  // 1. Check prerequisites
+): Promise<{
+  isValid: boolean;
+  studentProfile?: any;
+  semesterMapping?: StudentSemesterMappingRecord | null;
+  errors: string[];
+  warnings: string[];
+}> {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // 1. Get student profile for validations
+  const studentProfile = await db.query.studentProfiles.findFirst({
+    where: eq(studentProfiles.studentId, studentId),
+  });
+
+  if (!studentProfile?.cohortYear) {
+    return {
+      isValid: false,
+      errors: ["Student profile incomplete or missing"],
+      warnings: [],
+    };
+  }
+
+  // 2. Check prerequisites
   const prerequisiteCheck = await checkPrerequisitesMet(
     studentId,
     courseCode,
     year,
     semester
   );
+
   if (!prerequisiteCheck.isMet) {
-    return {
-      success: false,
-      message: `Prerequisites not met: ${prerequisiteCheck.infoMessage || "Missing prerequisites"}`,
-    };
-  }
-
-  // 2. Check if student already passed this course
-  const existingCourses = await db
-    .select({
-      course_code: studentCourseStatusView.courseCode,
-      passed: studentCourseStatusView.passed,
-    })
-    .from(studentCourseStatusView)
-    .where(
-      and(
-        eq(studentCourseStatusView.studentId, studentId),
-        eq(studentCourseStatusView.courseCode, courseCode)
-      )
+    errors.push(
+      `Prerequisites not met: ${prerequisiteCheck.infoMessage || "Missing prerequisites"}`
     );
-
-  //TODO: Make this such that students can take a course though they have already passed it if the retake_limit_reached = false from the student course status view.
-  const alreadyPassed = existingCourses.some((c) => c.passed);
-  if (alreadyPassed) {
-    return { success: false, message: "You've already passed this course" };
   }
 
-  // 3. Get semester ID for the target semester
+  // 3. Check if course is offered in the target semester
   const isSummer = semester === 3;
-
-  const academicSemester = await getAcademicSemesterForProgramSemester(
-    //TODO: Improve the mapping logic if need be.
-    year,
-    isSummer ? null : semester,
+  const courseAvailability = await checkCourseAvailability(
+    courseCode,
+    semester,
     isSummer
   );
 
-  if (!academicSemester) {
-    return {
-      success: false,
-      message: "Could not find matching academic semester",
-    };
+  if (!courseAvailability.isOffered) {
+    warnings.push(
+      courseAvailability.warning ||
+        `This course may not be offered in ${getSemesterName(semester, isSummer)} semester`
+    );
   }
 
-  // 4. Add the planned course to student_courses table
+  // 4. Check credit load for the semester
+  const semesterCredits = await getSemesterCredits(
+    studentId,
+    year,
+    semester,
+    courseCode
+  );
+
+  if (semesterCredits.total > MAX_CREDITS_PER_SEMESTER) {
+    warnings.push(
+      `This will exceed the recommended credit limit of ${MAX_CREDITS_PER_SEMESTER} credits per semester. Current: ${semesterCredits.existing}, New: ${semesterCredits.new}, Total would be: ${semesterCredits.total}`
+    );
+  }
+
+  // 5. Check if exceeding max recommended years
+  if (year > MAX_RECOMMENDED_YEARS) {
+    warnings.push(
+      `This extends your plan beyond the recommended ${MAX_RECOMMENDED_YEARS} years. Please consult with your academic advisor`
+    );
+  }
+
+  // 6. Special warning for summer courses
+  if (isSummer) {
+    warnings.push(
+      "Course offerings in summer semesters are not guaranteed and may change. Check with your advisor closer to the registration period"
+    );
+  }
+
+  // 7. Get semester ID and create mapping if necessary (only if no errors)
+  let semesterMapping = null;
+  if (errors.length === 0) {
+    semesterMapping = await addStudentSemesterMappingIfNotExists(
+      studentId,
+      studentProfile.cohortYear,
+      year,
+      semester,
+      isSummer
+    );
+
+    if (!semesterMapping) {
+      errors.push("Could not find or create semester mapping");
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    studentProfile,
+    semesterMapping,
+    errors,
+    warnings,
+  };
+}
+
+/**
+ * Add a planned course to a student's academic plan
+ */
+export async function addPlannedCourse(
+  studentId: string,
+  courseCode: string,
+  year: number,
+  semester: number
+): Promise<ActionResponse<{ courseId: string }>> {
   try {
-    await db.insert(studentCourses).values({
+    // 1. Check if student already passed this course (specific to add)
+    const courseStatus = await db
+      .select()
+      .from(studentCourseStatusView)
+      .where(
+        and(
+          eq(studentCourseStatusView.studentId, studentId),
+          eq(studentCourseStatusView.courseCode, courseCode),
+          eq(studentCourseStatusView.isLatestAttempt, true)
+        )
+      );
+
+    const additionalWarnings: string[] = [];
+    if (courseStatus.length > 0 && courseStatus[0].passed) {
+      if (!courseStatus[0].voluntaryRetakePossible) {
+        return {
+          success: false,
+          error: serializeError(
+            new AppError({
+              message: "You've already passed this course and cannot retake it",
+              code: "COURSE_ADD_ERROR",
+            })
+          ),
+        };
+      } else {
+        additionalWarnings.push(
+          "You've already passed this course but retaking may improve your grade."
+        );
+      }
+    }
+
+    // 2. Use shared validation logic
+    const validation = await validateCoursePlacement(
       studentId,
       courseCode,
-      semesterId: academicSemester.id,
-      status: "planned", // Using our simplified status values
-    });
+      year,
+      semester
+    );
 
-    return { success: true, message: "Course added to plan" };
+    if (!validation.isValid) {
+      return {
+        success: false,
+        error: serializeError(
+          new AppError({
+            message: validation.errors[0],
+            code: "COURSE_ADD_ERROR",
+            details: { errors: validation.errors },
+          })
+        ),
+        warnings: [...validation.warnings, ...additionalWarnings],
+      };
+    }
+
+    // 3. Add the course
+    const [newCourse] = await db
+      .insert(studentCourses)
+      .values({
+        studentId,
+        courseCode,
+        semesterId: validation.semesterMapping!.academicSemesterId,
+        status: "planned",
+      })
+      .returning();
+
+    return {
+      success: true,
+      data: { courseId: newCourse.id },
+      warnings:
+        [...validation.warnings, ...additionalWarnings].length > 0
+          ? [...validation.warnings, ...additionalWarnings]
+          : undefined,
+    };
   } catch (error) {
     console.error("Error adding planned course:", error);
-    return { success: false, message: "Failed to add course to plan" };
+    return {
+      success: false,
+      error: serializeError(error),
+    };
   }
 }
 
@@ -470,65 +431,68 @@ export async function movePlannedCourse(
   courseId: string,
   newYear: number,
   newSemester: number
-): Promise<{ success: boolean; message?: string }> {
-  // 1. Check if student course exists and is planned
-  const courseRecord = await db.query.studentCourses.findFirst({
-    where: and(
-      eq(studentCourses.id, courseId),
-      eq(studentCourses.studentId, studentId),
-      eq(studentCourses.status, "planned")
-    ),
-  });
-
-  if (!courseRecord) {
-    return {
-      success: false,
-      message: "Course not found or not a planned course",
-    };
-  }
-
-  // 2. Check prerequisites for new semester
-  const prerequisiteCheck = await checkPrerequisitesMet(
-    studentId,
-    courseRecord.courseCode,
-    newYear,
-    newSemester
-  );
-
-  if (!prerequisiteCheck.isMet) {
-    return {
-      success: false,
-      message: `Prerequisites not met: ${prerequisiteCheck.infoMessage || "Missing prerequisites"}`,
-    };
-  }
-
-  // 3. Get academic semester for the new program semester
-  const isSummer = newSemester === 3;
-  const newAcademicSemester = await getAcademicSemesterForProgramSemester(
-    //TODO: Improve the mapping logic if need be.
-    newYear,
-    isSummer ? null : newSemester,
-    isSummer
-  );
-
-  if (!newAcademicSemester) {
-    return {
-      success: false,
-      message: "Could not find matching academic semester",
-    };
-  }
-
-  // 4. Update the course's semester
+): Promise<ActionResponse<void>> {
   try {
+    // 1. Check if student course exists and is planned
+    const courseRecord = await db.query.studentCourses.findFirst({
+      where: and(
+        eq(studentCourses.id, courseId),
+        eq(studentCourses.studentId, studentId),
+        eq(studentCourses.status, "planned")
+      ),
+    });
+
+    if (!courseRecord) {
+      return {
+        success: false,
+        error: serializeError(
+          new AppError({
+            message: "Course not found or not a planned course",
+            code: "INVALID_COURSE",
+          })
+        ),
+      };
+    }
+
+    // 2. Use shared validation logic
+    const validation = await validateCoursePlacement(
+      studentId,
+      courseRecord.courseCode,
+      newYear,
+      newSemester
+    );
+
+    if (!validation.isValid) {
+      return {
+        success: false,
+        error: serializeError(
+          new AppError({
+            message: validation.errors[0],
+            code: "COURSE_MOVE_ERROR",
+            details: { errors: validation.errors },
+          })
+        ),
+        warnings: validation.warnings,
+      };
+    }
+
+    // 3. Move the course
     await db
       .update(studentCourses)
-      .set({ semesterId: newAcademicSemester.id })
+      .set({ semesterId: validation.semesterMapping!.academicSemesterId })
       .where(eq(studentCourses.id, courseId));
 
-    return { success: true, message: "Course moved successfully" };
+    return {
+      success: true,
+      warnings:
+        validation.warnings.length > 0 ? validation.warnings : undefined,
+    };
   } catch (error) {
     console.error("Error moving planned course:", error);
-    return { success: false, message: "Failed to move course" };
+    return {
+      success: false,
+      error: serializeError(error),
+    };
   }
 }
 
@@ -538,32 +502,275 @@ export async function movePlannedCourse(
 export async function removePlannedCourse(
   studentId: string,
   courseId: string
-): Promise<{ success: boolean; message?: string }> {
-  // 1. Check if student course exists and is planned
-  const courseRecord = await db.query.studentCourses.findFirst({
-    where: and(
-      eq(studentCourses.id, courseId),
-      eq(studentCourses.studentId, studentId),
-      eq(studentCourses.status, "planned")
-    ),
-  });
+): Promise<ActionResponse<void>> {
+  const warnings: string[] = [];
 
-  if (!courseRecord) {
-    return {
-      success: false,
-      message: "Course not found or not a planned course",
-    };
-  }
-
-  // 2. Remove the course
   try {
+    // 1. Check if student course exists and is planned
+    const courseRecord = await db.query.studentCourses.findFirst({
+      where: and(
+        eq(studentCourses.id, courseId),
+        eq(studentCourses.studentId, studentId),
+        eq(studentCourses.status, "planned")
+      ),
+    });
+
+    if (!courseRecord) {
+      return {
+        success: false,
+        error: serializeError(
+          new AppError({
+            message: "Course not found or not a planned course",
+            code: "INVALID_COURSE",
+          })
+        ),
+      };
+    }
+
+    // 2. Check if course is required
+    const requiredCourses = await db
+      .select()
+      .from(studentRequiredCoursesView)
+      .where(
+        and(
+          eq(studentRequiredCoursesView.studentId, studentId),
+          eq(studentRequiredCoursesView.courseCode, courseRecord.courseCode)
+        )
+      );
+
+    if (requiredCourses.length > 0) {
+      warnings.push(
+        "This is a required course for your degree. You will need to plan it in a future semester to meet graduation requirements"
+      );
+    }
+
+    // 3. Remove the course
     await db.delete(studentCourses).where(eq(studentCourses.id, courseId));
 
-    return { success: true, message: "Course removed from plan" };
+    return {
+      success: true,
+      warnings: warnings.length > 0 ? warnings : undefined,
+    };
   } catch (error) {
     console.error("Error removing planned course:", error);
-    return { success: false, message: "Failed to remove course" };
+    return {
+      success: false,
+      error: serializeError(error),
+      warnings: warnings.length > 0 ? warnings : undefined,
+    };
   }
+}
+
+/**
+ * Get available courses a student can add to a specific semester
+ */
+export async function getAvailableCoursesForSemester(
+  studentId: string,
+  year: number,
+  semester: number
+): Promise<
+  ActionResponse<
+    { code: string; title: string; credits: number; category: string }[]
+  >
+> {
+  try {
+    // 1. Get student profile
+    const profile = await db.query.studentProfiles.findFirst({
+      where: eq(studentProfiles.studentId, studentId),
+    });
+
+    if (!profile) {
+      return {
+        success: false,
+        error: serializeError(
+          new AppError({
+            message: `Student not found: ${studentId}`,
+            code: "STUDENT_NOT_FOUND",
+          })
+        ),
+      };
+    }
+
+    // 2. Get all courses the student has already passed from the view
+    const passedCourses = await db
+      .select({
+        courseCode: studentCourseStatusView.courseCode,
+      })
+      .from(studentCourseStatusView)
+      .where(
+        and(
+          eq(studentCourseStatusView.studentId, studentId),
+          eq(studentCourseStatusView.passed, true)
+        )
+      );
+
+    const passedCourseCodes = new Set(passedCourses.map((c) => c.courseCode));
+
+    // 3. Get required courses from the view
+    const requiredCourses = await db
+      .select({
+        courseCode: studentRequiredCoursesView.courseCode,
+        categoryName: studentRequiredCoursesView.categoryName,
+        credits: studentRequiredCoursesView.credits,
+        courseTitle: studentRequiredCoursesView.courseTitle,
+        offeredInSemesters: studentRequiredCoursesView.offeredInSemesters,
+      })
+      .from(studentRequiredCoursesView)
+      .where(
+        and(
+          eq(studentRequiredCoursesView.studentId, studentId),
+          // Only include actual courses, not placeholders
+          sql`course_code IS NOT NULL`
+        )
+      );
+
+    // 4. Filter courses based on prerequisites and other criteria
+    const availableCourses = [];
+    const isSummer = semester === 3;
+    const semesterType = isSummer
+      ? "summer"
+      : semester === 1
+        ? "fall"
+        : "spring";
+
+    for (const course of requiredCourses) {
+      // Skip if already passed
+      if (passedCourseCodes.has(course.courseCode)) {
+        continue;
+      }
+
+      // Check prerequisites
+      const prerequisiteCheck = await checkPrerequisitesMet(
+        studentId,
+        course.courseCode,
+        year,
+        semester
+      );
+
+      // Only include courses with prerequisites met
+      if (prerequisiteCheck.isMet) {
+        const isOfferedInSemester = course.offeredInSemesters?.includes(
+          semesterType as "fall" | "spring" | "summer"
+        );
+
+        availableCourses.push({
+          code: course.courseCode,
+          title: course.courseTitle,
+          credits: Number(course.credits),
+          category: course.categoryName,
+          offeredInSemester: isOfferedInSemester,
+        });
+      }
+    }
+
+    // Sort courses: offered in current semester first
+    availableCourses.sort((a, b) => {
+      if (a.offeredInSemester && !b.offeredInSemester) return -1;
+      if (!a.offeredInSemester && b.offeredInSemester) return 1;
+      return 0;
+    });
+
+    return {
+      success: true,
+      data: availableCourses,
+    };
+  } catch (error) {
+    console.error("Error getting available courses:", error);
+    return {
+      success: false,
+      error: serializeError(error),
+    };
+  }
+}
+
+/**
+ * Helper function to get semester name
+ */
+function getSemesterName(semester: number, isSummer: boolean): string {
+  if (isSummer) return "Summer";
+  if (semester === 1) return "Fall";
+  if (semester === 2) return "Spring";
+  return "Unknown";
+}
+
+/**
+ * Helper function to check course availability by offering pattern
+ */
+async function checkCourseAvailability(
+  courseCode: string,
+  programSemester: number,
+  isSummer: boolean
+): Promise<{ isOffered: boolean; warning?: string }> {
+  // Get course offering information
+  const course = await db.query.courses.findFirst({
+    where: eq(courses.code, courseCode),
+    columns: { offeredInSemesters: true },
+  });
+
+  if (!course) {
+    return { isOffered: false, warning: "Course not found" };
+  }
+
+  const semesterType = isSummer
+    ? "summer"
+    : programSemester === 1
+      ? "fall"
+      : "spring";
+
+  const isOffered = course.offeredInSemesters.includes(
+    semesterType as "fall" | "spring" | "summer"
+  );
+
+  return {
+    isOffered,
+    warning: isOffered
+      ? undefined
+      : `This course is typically not offered in ${semesterType} semester. You may need to adjust your planning if this course isn't available`,
+  };
+}
+
+/**
+ * Helper function to calculate semester credits
+ */
+async function getSemesterCredits(
+  studentId: string,
+  year: number,
+  semester: number,
+  additionalCourseCode?: string
+): Promise<{ existing: number; new: number; total: number }> {
+  // Get existing credits in the semester
+  const semesterCourses = await db
+    .select({
+      credits: studentCourseStatusView.credits,
+    })
+    .from(studentCourseStatusView)
+    .where(
+      and(
+        eq(studentCourseStatusView.studentId, studentId),
+        eq(studentCourseStatusView.yearTaken, year),
+        eq(studentCourseStatusView.semesterTaken, semester)
+      )
+    );
+
+  const existingCredits = semesterCourses.reduce(
+    (sum, course) => sum + Number(course.credits || 0),
+    0
+  );
+
+  let newCredits = 0;
+  if (additionalCourseCode) {
+    const course = await db.query.courses.findFirst({
+      where: eq(courses.code, additionalCourseCode),
+      columns: { credits: true },
+    });
+    newCredits = Number(course?.credits || 0);
+  }
+
+  return {
+    existing: existingCredits,
+    new: newCredits,
+    total: existingCredits + newCredits,
+  };
 }
 
 /**
@@ -622,13 +829,21 @@ export async function checkPrerequisitesMet(
   // 4. Get semester mappings for planned courses
   const plannedSemesters = await db
     .select({
-      //TODO: Add Query to extract program year and semester
       semesterId: academicSemesters.id,
-      programYear: sql<number>`...`, // Query to extract program year
-      programSemester: sql<number>`...`, // Query to extract program semester
+      programYear: studentSemesterMappings.programYear,
+      programSemester: studentSemesterMappings.programSemester,
     })
     .from(academicSemesters)
-    .where(sql`id = ANY(${plannedCourses.map((c) => c.semesterId)})`);
+    .leftJoin(
+      studentSemesterMappings,
+      and(
+        eq(studentSemesterMappings.academicSemesterId, academicSemesters.id),
+        eq(studentSemesterMappings.studentId, studentId)
+      )
+    )
+    .where(
+      sql`academic_semesters.id = ANY(${plannedCourses.map((c) => c.semesterId)})`
+    );
 
   // Create a map for semester information
   const semesterMap = new Map();
@@ -728,51 +943,6 @@ export async function checkPrerequisitesMet(
 }
 
 /**
- * Helper function to get the academic semester for a program semester
- */
-async function getAcademicSemesterForProgramSemester(
-  programYear: number,
-  programSemester: number | null,
-  isSummer: boolean
-): Promise<{ id: string } | null> {
-  // For now, use a simple mock implementation// In real system, this would use actual academic calendars// This is a placeholder that should be replaced with actual logic
-
-  // For simplicity, we'll use the most recent academic year
-  const academicYear = await db.query.academicYears.findFirst({
-    where: eq(academicYears.isCurrent, true),
-  });
-
-  if (!academicYear) {
-    // Fallback to any academic year if no current one found
-    const anyYear = await db.query.academicYears.findFirst();
-    if (!anyYear) return null;
-
-    // Find the semester by sequence number
-    const semester = await db.query.academicSemesters.findFirst({
-      where: and(
-        eq(academicSemesters.academicYearName, anyYear.yearName),
-        eq(
-          academicSemesters.sequenceNumber,
-          isSummer ? 3 : programSemester || 1
-        )
-      ),
-    });
-
-    return semester ? { id: semester.id } : null;
-  }
-
-  // Find the semester by sequence number
-  const semester = await db.query.academicSemesters.findFirst({
-    where: and(
-      eq(academicSemesters.academicYearName, academicYear.yearName),
-      eq(academicSemesters.sequenceNumber, isSummer ? 3 : programSemester || 1)
-    ),
-  });
-
-  return semester ? { id: semester.id } : null;
-}
-
-/**
  * Helper function to generate course info messages for UI tooltips
  */
 function generateCourseInfoMessage(course: any): string {
@@ -780,11 +950,11 @@ function generateCourseInfoMessage(course: any): string {
     return "Planned course";
   }
 
-  if (course.retake_needed) {
-    return `Failed with ${course.grade}. Minimum required: ${course.minimum_grade_required}. Retake required.`;
+  if (course.retakeNeeded) {
+    return `Failed with ${course.grade}. Minimum required: ${course.minimumGradeRequired}. Retake required.`;
   }
 
-  if (course.voluntary_retake_possible) {
+  if (course.voluntaryRetakePossible) {
     return `Passed with ${course.grade}. You can retake to improve your grade.`;
   }
 
@@ -792,7 +962,31 @@ function generateCourseInfoMessage(course: any): string {
     return `Successfully completed with grade ${course.grade}`;
   }
 
-  return "Course information";
+  if (course.totalAttempts > 1) {
+    return `Course attempted ${course.totalAttempts} times. Latest grade: ${course.grade}`;
+  }
+
+  return course.courseDescription || "Course information";
+}
+
+/**
+ * Create an empty semester object
+ */
+function createEmptySemester(
+  year: number,
+  semester: number,
+  name: string,
+  isSummer = false
+): Semester {
+  return {
+    year,
+    semester,
+    isSummer,
+    name,
+    courses: [],
+    totalCredits: 0,
+    hasCreditWarning: false,
+  };
 }
 
 /**
@@ -827,9 +1021,71 @@ function getCategoryParent(categoryName?: string): string {
 }
 
 /**
- * Helper to get program year from academic year
+ * Adds a student semester mapping if it doesn't already exist
+ * @param studentId The student ID
+ * @param cohortYear The student's cohort year (graduation year)
+ * @param programYear The program year (1-4)
+ * @param programSemester The semester number within the year (1-2, null for summer)
+ * @param isSummer Whether this is a summer semester
+ * @returns The student semester mapping record (existing or newly created)
  */
-function getYearFromAcademicYear(academicYear: number): number {
-  // This is a simplification - actual logic would depend on institutional rules// Placeholder implementation
-  return academicYear % 4 === 0 ? 4 : academicYear % 4;
+export async function addStudentSemesterMappingIfNotExists(
+  studentId: string,
+  cohortYear: number,
+  programYear: number,
+  programSemester: number,
+  isSummer: boolean
+): Promise<StudentSemesterMappingRecord | null> {
+  // Calculate academic year based on cohort year and program year
+  const baseYear = cohortYear - 4; // Year student started
+  const startYear = baseYear + programYear - 1;
+  const academicYearName = `${startYear}-${startYear + 1}`;
+
+  // Determine sequence number (1, 2, or 3 for summer)
+  const sequenceNumber = isSummer ? 3 : programSemester || 1;
+
+  // Find the academic semester
+  const semester = await db.query.academicSemesters.findFirst({
+    where: and(
+      eq(academicSemesters.academicYearName, academicYearName),
+      eq(academicSemesters.sequenceNumber, sequenceNumber)
+    ),
+  });
+
+  if (!semester) {
+    console.error(
+      `Academic semester not found for ${academicYearName}, sequence ${sequenceNumber}`
+    );
+    return null;
+  }
+
+  // Check if mapping already exists
+  const existingMapping = await db.query.studentSemesterMappings.findFirst({
+    where: and(
+      eq(studentSemesterMappings.studentId, studentId),
+      eq(studentSemesterMappings.academicSemesterId, semester.id),
+      eq(studentSemesterMappings.programYear, programYear),
+      eq(studentSemesterMappings.programSemester, programSemester),
+      eq(studentSemesterMappings.isSummer, isSummer)
+    ),
+  });
+
+  if (existingMapping) {
+    return existingMapping;
+  }
+
+  // Insert new mapping
+  const [newMapping] = await db
+    .insert(studentSemesterMappings)
+    .values({
+      studentId,
+      academicSemesterId: semester.id,
+      programYear,
+      programSemester,
+      isSummer,
+      isVerified: false,
+    })
+    .returning();
+
+  return newMapping;
 }

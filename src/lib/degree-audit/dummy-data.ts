@@ -16,6 +16,7 @@ export function generateDummyData(): Year[] {
         {
           id: "semester-fall-1",
           name: "Fall",
+          gpa: 3.5,
           courses: [
             {
               id: "course-cs101-1",
@@ -130,6 +131,7 @@ export function generateDummyData(): Year[] {
         {
           id: "semester-fall-2",
           name: "Fall",
+          gpa: 2,
           courses: [
             {
               id: "course-cs201-1",
@@ -241,6 +243,7 @@ export function generateDummyData(): Year[] {
         {
           id: "semester-fall-3",
           name: "Fall",
+          gpa: 3.5,
           courses: [
             {
               id: "course-cs301-1",

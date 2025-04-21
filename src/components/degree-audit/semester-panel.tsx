@@ -20,7 +20,7 @@ interface SemesterPanelProps {
 }
 
 export function SemesterPanel({ semester, onAddCourse }: SemesterPanelProps) {
-  const { name, courses, id, creditWarning } = semester;
+  const { name, courses, id, creditWarning, gpa } = semester;
 
   // Set up droppable area for drag and drop
   const { setNodeRef, isOver } = useDroppable({
@@ -52,7 +52,16 @@ export function SemesterPanel({ semester, onAddCourse }: SemesterPanelProps) {
             </div>
           )}
         </div>
+
         <div className="flex items-center gap-2">
+          {/*GPA only for the imported semesters i.e semesters with imported*/}
+          <Badge
+            variant="outline"
+            className="mx-1 text-xs bg-surface-500 dark:bg-transparent text-tcol-500 dark:text-tcol-100 rounded-[25px] p-[7px]
+              "
+          >
+            GPA: <span className="text-primary-500">{gpa}</span>
+          </Badge>
           <Badge
             variant="outline"
             className="mx-1 text-xs bg-surface-500 dark:bg-transparent text-tcol-500 dark:text-tcol-100 rounded-[25px] p-[7px]
@@ -60,6 +69,7 @@ export function SemesterPanel({ semester, onAddCourse }: SemesterPanelProps) {
           >
             {totalCredits} credits
           </Badge>
+          {/*Add course button only for the imported semesters i.e semesters with imported*/}
           <Button
             variant="outline"
             size="sm"

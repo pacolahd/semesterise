@@ -1,6 +1,9 @@
 // This file contains types that are used throughout the application.
 // These are imported from the drizzle schema
-import { SerializedAppError } from "@/lib/errors/error-types";
+import {
+  SerializedAppError,
+  ValidationErrorDetails,
+} from "@/lib/errors/error-types";
 
 export type {
   ErrorSeverity,
@@ -134,6 +137,7 @@ export type ActionResponse<dataT = null, errorT = SerializedAppError> = {
   data?: dataT;
   status?: number;
   error?: errorT;
+  warnings?: string[];
 };
 
 // export type ActionResponse<T = unknown> =
