@@ -9,40 +9,40 @@ import {
 } from "drizzle-orm/pg-core";
 
 export const studentCourseStatusView = pgView("student_course_status_view", {
-  student_course_id: varchar("student_course_id").primaryKey(),
-  student_id: varchar("student_id"),
-  semester_id: varchar("semester_id"),
+  studentCourseId: varchar("student_course_id").primaryKey(),
+  studentId: varchar("student_id").notNull(),
+  semesterId: varchar("semester_id"),
 
-  year_taken: integer("program_year"), // e.g. 1, 2, 3, 4
-  semester_taken: integer("program_semester"), // e.g. 1, 2 (within program year)
-  was_summer_semester: boolean("is_summer"),
+  yearTaken: integer("program_year"), // e.g. 1, 2, 3, 4
+  semesterTaken: integer("program_semester"), // e.g. 1, 2 (within program year)
+  wasSummerSemester: boolean("is_summer"),
 
-  course_code: varchar("course_code"),
-  category_name: text("category_name"),
+  courseCode: varchar("course_code").notNull(),
+  categoryName: text("category_name").notNull(),
   credits: integer("credits"),
 
   grade: varchar("grade"),
-  grade_numeric_value: decimal("grade_numeric_value", {
+  gradeNumericValue: decimal("grade_numeric_value", {
     precision: 5,
     scale: 2,
   }),
-  minimum_grade_required: varchar("minimum_grade_required"),
-  min_numeric_value_required: decimal("min_numeric_value_required", {
+  minimumGradeRequired: varchar("minimum_grade_required"),
+  minNumericValueRequired: decimal("min_numeric_value_required", {
     precision: 5,
     scale: 2,
   }),
 
   passed: boolean("passed"),
-  retake_needed: boolean("retake_needed"),
-  voluntary_retake_possible: boolean("voluntary_retake_possible"),
+  retakeNeeded: boolean("retake_needed"),
+  voluntaryRetakePossible: boolean("voluntary_retake_possible"),
 
-  total_attempts: integer("total_attempts"),
-  retake_limit_reached: boolean("retake_limit_reached"),
-  is_latest_attempt: boolean("is_latest_attempt"),
+  totalAttempts: integer("total_attempts"),
+  retakeLimitReached: boolean("retake_limit_reached"),
+  isLatestAttempt: boolean("is_latest_attempt"),
 
-  department_code: varchar("department_code"),
-  department_name: text("department_name"),
-  course_title: varchar("course_title", { length: 255 }),
+  departmentCode: varchar("department_code"),
+  departmentName: text("department_name"),
+  courseTitle: varchar("course_title", { length: 255 }),
 }).as(
   sql`
 WITH attempt_ranking AS (

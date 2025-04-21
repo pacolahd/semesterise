@@ -11,17 +11,17 @@ import {
 export const studentRequiredCoursesView = pgView(
   "student_required_courses_view",
   {
-    student_id: varchar("student_id").primaryKey(),
-    parent_category: text("parent_category"),
-    category_name: text("category_name"),
-    sub_category: text("sub_category"),
-    course_code: varchar("course_code"),
-    course_title: text("course_title"),
+    studentId: varchar("student_id").primaryKey(),
+    parentCategory: text("parent_category"),
+    categoryName: text("category_name").notNull(),
+    subCategory: text("sub_category"),
+    courseCode: varchar("course_code").notNull(),
+    courseTitle: text("course_title").notNull(),
     credits: decimal("credits", { precision: 3, scale: 1 }),
-    offered_in_semesters: text("offered_in_semesters").array(), // Assuming enum is stored as text
-    recommended_year: integer("recommended_year"),
-    recommended_semester: integer("recommended_semester"),
-    is_required: boolean("is_required"),
+    offeredInSemesters: text("offered_in_semesters").array(), // Assuming enum is stored as text
+    recommendedYear: integer("recommended_year"),
+    recommendedSemester: integer("recommended_semester"),
+    isRequired: boolean("is_required"),
   }
 ).as(
   sql`

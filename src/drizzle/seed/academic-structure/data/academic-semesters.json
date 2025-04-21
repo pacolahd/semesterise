@@ -145,5 +145,26 @@
     "sequenceNumber": 21,
     "startDate": "2028-06-01",
     "endDate": "2028-07-31"
+  },
+  {
+    "name": "Semester 1 2028-2029",
+    "academicYearName": "2028-2029",
+    "sequenceNumber": 19,
+    "startDate": "2028-08-15",
+    "endDate": "2028-12-20"
+  },
+  {
+    "name": "Semester 2 2028-2029",
+    "academicYearName": "2028-2029",
+    "sequenceNumber": 20,
+    "startDate": "2029-01-10",
+    "endDate": "2029-05-31"
+  },
+  {
+    "name": "Semester 3 2028-2029",
+    "academicYearName": "2028-2029",
+    "sequenceNumber": 21,
+    "startDate": "2029-06-01",
+    "endDate": "2029-07-31"
   }
 ]

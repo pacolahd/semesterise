@@ -11,21 +11,21 @@ import {
 export const studentDegreeRequirementProgressView = pgView(
   "student_degree_requirement_progress_view",
   {
-    student_id: varchar("student_id").primaryKey(),
-    parent_category: text("parent_category"),
-    category_name: text("category_name"),
-    sub_category: text("sub_category"),
-    courses_required: integer("courses_required"),
-    credits_required: integer("credits_required"),
-    courses_completed: integer("courses_completed"),
-    credits_completed: integer("credits_completed"),
-    courses_remaining: integer("courses_remaining"),
-    credits_remaining: integer("credits_remaining"),
-    progress_percentage: decimal("progress_percentage", {
+    studentId: varchar("student_id").primaryKey(),
+    parentCategory: text("parent_category"),
+    categoryName: text("category_name"),
+    subCategory: text("sub_category"),
+    coursesRequired: integer("courses_required"),
+    creditsRequired: integer("credits_required"),
+    coursesCompleted: integer("courses_completed"),
+    creditsCompleted: integer("credits_completed"),
+    coursesRemaining: integer("courses_remaining"),
+    creditsRemaining: integer("credits_remaining"),
+    progressPercentage: decimal("progress_percentage", {
       precision: 5,
       scale: 2,
     }),
-    requirement_met: boolean("requirement_met"),
+    requirementMet: boolean("requirement_met"),
   }
 ).as(
   sql`
