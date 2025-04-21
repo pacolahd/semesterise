@@ -110,18 +110,18 @@ export async function middleware(request: NextRequest) {
     if (previousPath === ONBOARDING_ROUTE) {
       // @ts-ignore
       const session: ServerSession = await getOptimizedSession(request);
-      if (!session.user) return redirectToSignIn(request);
-      if (session.user.onboardingCompleted) {
-        return redirectToBasePath(session.user.role, request);
+      if (!session?.user) return redirectToSignIn(request);
+      if (session?.user.onboardingCompleted) {
+        return redirectToBasePath(session?.user?.role, request);
       } else {
         return NextResponse.next();
       }
     } else {
       // @ts-ignore
       const latestSession: ServerSession = await getRawSession(request);
-      if (!latestSession.user) return redirectToSignIn(request);
-      if (latestSession.user.onboardingCompleted) {
-        return redirectToBasePath(latestSession.user.role, request);
+      if (!latestSession?.user) return redirectToSignIn(request);
+      if (latestSession?.user.onboardingCompleted) {
+        return redirectToBasePath(latestSession?.user?.role, request);
       } else {
         return NextResponse.next();
       }

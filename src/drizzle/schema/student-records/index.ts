@@ -24,11 +24,6 @@ export {
   type StudentDegreeRequirementProgressRecord,
 } from "./views/student-degree-requirement-progress-view";
 
-export {
-  studentCapstoneSelections,
-  studentCapstoneSelectionSchema,
-} from "./student-capstone-selections";
-
 // Relations
 export * from "./relations";
 

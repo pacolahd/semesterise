@@ -70,9 +70,9 @@ export async function POST(request: NextRequest) {
           const semesterMapping =
             await tx.query.studentSemesterMappings.findFirst({
               where: and(
-                eq(studentSemesterMappings.student_id, studentId),
+                eq(studentSemesterMappings.studentId, studentId),
                 eq(
-                  studentSemesterMappings.academic_semester_id,
+                  studentSemesterMappings.academicSemesterId,
                   mapping.academicSemesterId
                 )
               ),
@@ -83,12 +83,12 @@ export async function POST(request: NextRequest) {
             await tx
               .update(studentSemesterMappings)
               .set({
-                program_year: mapping.programYear,
-                program_semester: mapping.isSummer
+                programYear: mapping.programYear,
+                programSemester: mapping.isSummer
                   ? null
                   : mapping.programSemester,
-                is_summer: mapping.isSummer,
-                is_verified: true,
+                isSummer: mapping.isSummer,
+                isVerified: true,
               })
               .where(eq(studentSemesterMappings.id, semesterMapping.id));
 

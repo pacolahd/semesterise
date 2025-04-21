@@ -45,11 +45,11 @@ export const studentSemesterMappingsRelations = relations(
   studentSemesterMappings,
   ({ one }) => ({
     student: one(studentProfiles, {
-      fields: [studentSemesterMappings.student_id],
+      fields: [studentSemesterMappings.studentId],
       references: [studentProfiles.studentId],
     }),
     semester: one(academicSemesters, {
-      fields: [studentSemesterMappings.academic_semester_id],
+      fields: [studentSemesterMappings.academicSemesterId],
       references: [academicSemesters.id],
     }),
   })
@@ -57,23 +57,23 @@ export const studentSemesterMappingsRelations = relations(
 
 export const studentCoursesRelations = relations(studentCourses, ({ one }) => ({
   student: one(studentProfiles, {
-    fields: [studentCourses.student_id],
+    fields: [studentCourses.studentId],
     references: [studentProfiles.studentId],
   }),
   course: one(courses, {
-    fields: [studentCourses.course_code],
+    fields: [studentCourses.courseCode],
     references: [courses.code],
   }),
   semester: one(academicSemesters, {
-    fields: [studentCourses.semester_id],
+    fields: [studentCourses.semesterId],
     references: [academicSemesters.id],
   }),
   category: one(courseCategories, {
-    fields: [studentCourses.category_name],
+    fields: [studentCourses.categoryName],
     references: [courseCategories.name],
   }),
   originalCategory: one(courseCategories, {
-    fields: [studentCourses.original_category_name],
+    fields: [studentCourses.originalCategoryName],
     references: [courseCategories.name],
   }),
   grade: one(gradeTypes, {
@@ -86,19 +86,19 @@ export const academicWarningsRelations = relations(
   academicWarnings,
   ({ one }) => ({
     student: one(studentProfiles, {
-      fields: [academicWarnings.student_id],
+      fields: [academicWarnings.studentId],
       references: [studentProfiles.studentId],
     }),
     course: one(courses, {
-      fields: [academicWarnings.course_code],
+      fields: [academicWarnings.courseCode],
       references: [courses.code],
     }),
     semester: one(academicSemesters, {
-      fields: [academicWarnings.semester_id],
+      fields: [academicWarnings.semesterId],
       references: [academicSemesters.id],
     }),
     category: one(courseCategories, {
-      fields: [academicWarnings.category_name],
+      fields: [academicWarnings.categoryName],
       references: [courseCategories.name],
     }),
   })

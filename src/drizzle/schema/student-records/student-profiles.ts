@@ -56,18 +56,18 @@ export const studentProfiles = pgTable("student_profiles", {
 });
 
 export const studentProfileSchema = createInsertSchema(studentProfiles).extend({
-  student_id: z.string().min(1).max(20),
+  studentId: z.string().min(1).max(20),
   authId: z.string().uuid(),
-  major_code: z.string(),
-  math_track_name: z.string().optional().nullable(),
-  entry_year: z.number().int().positive(),
-  cohort_year: z.number().int().positive(),
-  current_year: z.number().int().min(1).max(4),
-  current_semester: z.string().max(20),
-  expected_graduation_date: z.date().optional().nullable(),
-  cumulative_gpa: z.number().min(0).max(4).step(0.01).optional().nullable(),
-  total_credits_earned: z.number().min(0).step(0.1).default(0),
-  capstone_option_id: z.string().optional().nullable(),
+  majorCode: z.string(),
+  mathTrackName: z.string().optional().nullable(),
+  entryYear: z.number().int().positive(),
+  cohortYear: z.number().int().positive(),
+  currentYear: z.number().int().min(1).max(4),
+  currentSemester: z.string().max(20),
+  expectedGraduationDate: z.date().optional().nullable(),
+  cumulativeGpa: z.number().min(0).max(4).step(0.01).optional().nullable(),
+  totalCreditsEarned: z.number().min(0).step(0.1).default(0),
+  capstoneOptionName: z.string().optional().nullable(),
   isActive: z.boolean().default(true),
 });
 

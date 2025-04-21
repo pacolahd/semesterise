@@ -136,7 +136,7 @@ export const transcriptImportService = {
         const existingSemesterMappings =
           await tx.query.studentSemesterMappings.findMany({
             where: eq(
-              studentSemesterMappings.student_id,
+              studentSemesterMappings.studentId,
               studentRecord.studentId
             ),
           });
@@ -187,7 +187,7 @@ export const transcriptImportService = {
 
         // NEW: Get existing courses for this student
         const existingCourses = await tx.query.studentCourses.findMany({
-          where: eq(studentCourses.student_id, studentRecord.studentId),
+          where: eq(studentCourses.studentId, studentRecord.studentId),
         });
 
         console.log(`Found ${existingCourses.length} existing courses`);
@@ -699,7 +699,7 @@ export const transcriptImportService = {
     // Build a lookup map of existing mappings by semester ID
     const existingMappingsMap = new Map();
     existingMappings.forEach((mapping) => {
-      existingMappingsMap.set(mapping.academic_semester_id, mapping);
+      existingMappingsMap.set(mapping.academicSemesterId, mapping);
     });
 
     for (const mapping of mappings) {
@@ -719,20 +719,20 @@ export const transcriptImportService = {
       if (existingMapping) {
         // Update existing mapping if needed
         if (
-          existingMapping.program_year !== mapping.programYear ||
-          existingMapping.program_semester !==
+          existingMapping.programYear !== mapping.programYear ||
+          existingMapping.programSemester !==
             (mapping.isSummer ? null : mapping.programSemester) ||
-          existingMapping.is_summer !== mapping.isSummer
+          existingMapping.isSummer !== mapping.isSummer
         ) {
           await tx
             .update(studentSemesterMappings)
             .set({
-              program_year: mapping.programYear,
-              program_semester: mapping.isSummer
+              programYear: mapping.programYear,
+              programSemester: mapping.isSummer
                 ? null
                 : mapping.programSemester,
-              is_summer: mapping.isSummer,
-              is_verified: true, // Always mark as verified on update
+              isSummer: mapping.isSummer,
+              isVerified: true, // Always mark as verified on update
             })
             .where(eq(studentSemesterMappings.id, existingMapping.id));
 
@@ -743,12 +743,12 @@ export const transcriptImportService = {
         const mappingRecords = await tx
           .insert(studentSemesterMappings)
           .values({
-            student_id: studentId,
-            academic_semester_id: semesterId,
-            program_year: mapping.programYear,
-            program_semester: mapping.isSummer ? null : mapping.programSemester,
-            is_summer: mapping.isSummer,
-            is_verified: !mapping.isSummer, // Summer semesters need verification
+            studentId: studentId,
+            academicSemesterId: semesterId,
+            programYear: mapping.programYear,
+            programSemester: mapping.isSummer ? null : mapping.programSemester,
+            isSummer: mapping.isSummer,
+            isVerified: !mapping.isSummer, // Summer semesters need verification
           })
           .returning();
 
@@ -778,7 +778,7 @@ export const transcriptImportService = {
     // Create a lookup map for existing courses by code and semester
     const existingCoursesMap = new Map();
     existingCourses.forEach((course) => {
-      const key = `${course.course_code.toUpperCase()}|${course.semester_id}`;
+      const key = `${course.courseCode.toUpperCase()}|${course.semesterId}`;
       existingCoursesMap.set(key, course);
     });
 
@@ -820,14 +820,14 @@ export const transcriptImportService = {
           // Update existing course if needed; if new course or update to existing course or if it was exising as planned course.
           if (
             existingCourse.grade !== course.grade ||
-            existingCourse.category_name !== category ||
+            existingCourse.categoryName !== category ||
             existingCourse.status !== "planned"
           ) {
             await tx
               .update(studentCourses)
               .set({
                 grade: course.grade,
-                category_name: category,
+                categoryName: category,
                 status: "imported",
               })
               .where(eq(studentCourses.id, existingCourse.id));
@@ -837,12 +837,12 @@ export const transcriptImportService = {
         } else {
           // Create new course
           await tx.insert(studentCourses).values({
-            student_id: studentId,
-            course_code: cleanCourseCode,
-            semester_id: semesterId,
+            studentId: studentId,
+            courseCode: cleanCourseCode,
+            semesterId: semesterId,
             status: "imported",
             grade: course.grade,
-            category_name: category,
+            categoryName: category,
           });
 
           created++;
@@ -853,7 +853,7 @@ export const transcriptImportService = {
         // Check if this is a retake of a course from a different semester
         const otherSemesterCoursesWithSameCode = existingCourses.filter(
           (ec) =>
-            ec.course_code === cleanCourseCode && ec.semester_id !== semesterId
+            ec.courseCode === cleanCourseCode && ec.semesterId !== semesterId
         );
         // TODO: If >1 course with the same code exists for the incoming course then drop all of them and import afresh (perhaps)
       }

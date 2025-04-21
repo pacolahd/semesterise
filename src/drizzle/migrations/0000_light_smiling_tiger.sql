@@ -235,13 +235,6 @@ CREATE TABLE "academic_warnings" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "student_capstone_selections" (
-	"student_id" varchar(20) PRIMARY KEY NOT NULL,
-	"capstone_option_id" uuid NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE "student_courses" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"student_id" varchar(20) NOT NULL,
@@ -543,8 +536,6 @@ ALTER TABLE "academic_warnings" ADD CONSTRAINT "academic_warnings_student_id_stu
 ALTER TABLE "academic_warnings" ADD CONSTRAINT "academic_warnings_course_code_courses_code_fk" FOREIGN KEY ("course_code") REFERENCES "public"."courses"("code") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "academic_warnings" ADD CONSTRAINT "academic_warnings_semester_id_academic_semesters_id_fk" FOREIGN KEY ("semester_id") REFERENCES "public"."academic_semesters"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "academic_warnings" ADD CONSTRAINT "academic_warnings_category_name_course_categories_name_fk" FOREIGN KEY ("category_name") REFERENCES "public"."course_categories"("name") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "student_capstone_selections" ADD CONSTRAINT "student_capstone_selections_student_id_student_profiles_student_id_fk" FOREIGN KEY ("student_id") REFERENCES "public"."student_profiles"("student_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "student_capstone_selections" ADD CONSTRAINT "student_capstone_selections_capstone_option_id_capstone_options_id_fk" FOREIGN KEY ("capstone_option_id") REFERENCES "public"."capstone_options"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "student_courses" ADD CONSTRAINT "student_courses_student_id_student_profiles_student_id_fk" FOREIGN KEY ("student_id") REFERENCES "public"."student_profiles"("student_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "student_courses" ADD CONSTRAINT "student_courses_course_code_courses_code_fk" FOREIGN KEY ("course_code") REFERENCES "public"."courses"("code") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "student_courses" ADD CONSTRAINT "student_courses_semester_id_academic_semesters_id_fk" FOREIGN KEY ("semester_id") REFERENCES "public"."academic_semesters"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
@@ -743,8 +734,6 @@ LEFT JOIN categorized_course cc
   ON cc.course_code = sc.course_code 
   AND cc.student_id = sc.student_id
 );--> statement-breakpoint
-
-
 CREATE VIEW "public"."student_required_courses_view" AS (
 WITH student_info AS (
   SELECT
@@ -922,8 +911,7 @@ SELECT
   cr.recommended_semester,  -- Included in final select
   cr.is_required
 FROM combined_required cr
-);
---> statement-breakpoint
+);--> statement-breakpoint
 CREATE VIEW "public"."student_degree_requirement_progress_view" AS (
   WITH student_info AS (
     SELECT 

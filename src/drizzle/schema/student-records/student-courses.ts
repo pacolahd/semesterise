@@ -28,30 +28,30 @@ export const studentCourses = pgTable(
   "student_courses",
   {
     id: uuid("id").defaultRandom().primaryKey().notNull(),
-    student_id: varchar("student_id", { length: 20 })
+    studentId: varchar("student_id", { length: 20 })
       .notNull()
       .references(() => studentProfiles.studentId, { onDelete: "cascade" }),
-    course_code: varchar("course_code", { length: 20 })
+    courseCode: varchar("course_code", { length: 20 })
       .notNull()
       .references(() => courses.code, { onDelete: "restrict" }),
-    semester_id: uuid("semester_id")
+    semesterId: uuid("semester_id")
       .notNull()
       .references(() => academicSemesters.id, { onDelete: "restrict" }),
     status: studentCourseStatusEnum("status").notNull(),
     grade: varchar("grade", { length: 5 }).references(() => gradeTypes.grade, {
       onDelete: "set null",
     }), // References grade_types
-    category_name: varchar("category_name").references(
+    categoryName: varchar("category_name").references(
       () => courseCategories.name,
       { onDelete: "set null" }
     ),
-    original_category_name: varchar("original_category_name").references(
+    originalCategoryName: varchar("original_category_name").references(
       () => courseCategories.name,
       { onDelete: "set null" }
     ),
-    // is_verified: boolean("is_verified").default(false),
-    // counts_for_gpa: boolean("counts_for_gpa").default(true),
-    // is_used_for_requirement: boolean("is_used_for_requirement").default(true),
+    // isVerified: boolean("is_verified").default(false),
+    // countsForGpa: boolean("counts_for_gpa").default(true),
+    // isUsedForRequirement: boolean("is_used_for_requirement").default(true),
     notes: text("notes"),
     createdAt,
     updatedAt,
@@ -59,11 +59,11 @@ export const studentCourses = pgTable(
   (table) => {
     return {
       studentSemesterIndex: index("idx_student_courses_student_semester")
-        .on(table.student_id.asc(), table.semester_id.desc())
+        .on(table.studentId.asc(), table.semesterId.desc())
         .with({ fillfactor: 90 }),
       categoryIndex: index("idx_student_courses_category")
-        .on(table.category_name)
-        .where(sql`${table.category_name} IS NOT NULL`),
+        .on(table.categoryName)
+        .where(sql`${table.categoryName} IS NOT NULL`),
       statusIndex: index("idx_student_courses_status")
         .using("btree", table.status)
         .where(sql`${table.status} <> 'dropped'`),

@@ -1,5 +1,5 @@
 {
-  "id": "6aa4a9d9-24f4-4bb4-b1b6-801affcfac6b",
+  "id": "120f74a5-9e98-4eee-93ae-707554e15730",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -1624,72 +1624,6 @@
             "name"
           ],
           "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.student_capstone_selections": {
-      "name": "student_capstone_selections",
-      "schema": "",
-      "columns": {
-        "student_id": {
-          "name": "student_id",
-          "type": "varchar(20)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "capstone_option_id": {
-          "name": "capstone_option_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "student_capstone_selections_student_id_student_profiles_student_id_fk": {
-          "name": "student_capstone_selections_student_id_student_profiles_student_id_fk",
-          "tableFrom": "student_capstone_selections",
-          "tableTo": "student_profiles",
-          "columnsFrom": [
-            "student_id"
-          ],
-          "columnsTo": [
-            "student_id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "student_capstone_selections_capstone_option_id_capstone_options_id_fk": {
-          "name": "student_capstone_selections_capstone_option_id_capstone_options_id_fk",
-          "tableFrom": "student_capstone_selections",
-          "tableTo": "capstone_options",
-          "columnsFrom": [
-            "capstone_option_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },

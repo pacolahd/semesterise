@@ -24,7 +24,7 @@ export const staffEmailRoles = pgTable("staff_email_roles", {
 export const staffEmailRoleSchema = createInsertSchema(staffEmailRoles).extend({
   email: z.string().email().max(100),
   role: z.enum(userRoleValues),
-  department_code: z.string().optional().nullable(),
+  departmentCode: z.string().optional().nullable(),
 });
 
 export type StaffEmailRoleInput = z.infer<typeof staffEmailRoleSchema>;

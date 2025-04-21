@@ -99,12 +99,12 @@ async function seedSemesterMappings(dataDirectory: string) {
         await db
           .insert(studentSemesterMappings)
           .values({
-            student_id: mappingValues.student_id,
-            program_year: mappingValues.program_year,
-            program_semester: mappingValues.program_semester,
-            is_summer: mappingValues.is_summer,
-            is_verified: mappingValues.is_verified,
-            academic_semester_id: semester.id,
+            studentId: mappingValues.student_id,
+            programYear: mappingValues.program_year,
+            programSemester: mappingValues.programSemester,
+            isSummer: mappingValues.is_summer,
+            isVerified: mappingValues.is_verified,
+            academicSemesterId: semester.id,
           })
           .onConflictDoNothing();
       } else {
@@ -142,7 +142,7 @@ async function seedStudentCourses(dataDirectory: string) {
           .insert(studentCourses)
           .values({
             ...courseValues,
-            semester_id: semester.id,
+            semesterId: semester.id,
           })
           .onConflictDoNothing();
       } else {
@@ -188,7 +188,7 @@ async function seedAcademicWarnings(dataDirectory: string) {
         .insert(academicWarnings)
         .values({
           ...warningValues,
-          semester_id: semesterId,
+          semesterId: semesterId,
         })
         .onConflictDoNothing();
     }
