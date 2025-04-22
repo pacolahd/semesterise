@@ -7,7 +7,7 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { db } from "@/drizzle";
-import { authUserSchema, authUsers } from "@/drizzle/schema";
+import { authUserSchema, authUsers, studentProfiles } from "@/drizzle/schema";
 import { AuthUserInput } from "@/drizzle/schema/auth/auth-users";
 import {
   forgotPasswordSchema,
@@ -51,6 +51,50 @@ export async function checkUserExists(
     return {
       success: false,
       error: serializedError,
+    };
+  }
+}
+
+/**
+ * Get student ID for an authenticated user
+ * This should be called once during session initialization
+ */
+export async function getStudentId(
+  authId: string
+): Promise<ActionResponse<{ studentId: string }>> {
+  try {
+    // Query the student profile directly using the auth ID
+    // This assumes there's a direct relationship between auth users and student profiles
+    const profile = await db.query.studentProfiles.findFirst({
+      where: eq(studentProfiles.authId, authId), // Note: this assumes studentProfiles has a userId column
+      columns: {
+        studentId: true,
+      },
+    });
+
+    if (!profile || !profile.studentId) {
+      return {
+        success: false,
+        error: serializeError(
+          new AppError({
+            message: "No student profile associated with this user account",
+            code: "PROFILE_NOT_FOUND",
+          })
+        ),
+      };
+    }
+
+    return {
+      success: true,
+      data: {
+        studentId: profile.studentId,
+      },
+    };
+  } catch (error) {
+    console.error("Error resolving student ID:", error);
+    return {
+      success: false,
+      error: serializeError(error),
     };
   }
 }

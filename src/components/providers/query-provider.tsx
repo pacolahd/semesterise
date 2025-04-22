@@ -120,6 +120,14 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
               return;
             }
 
+            // if the message contains "relation"
+            if (appError.message?.includes("relation")) {
+              toast.error(
+                "Chale, It seems there's a problem with the database 🥲 Please contact support or try again later"
+              );
+              return;
+            }
+
             // Session/auth errors that should redirect to login
             if (
               appError.status === 401 ||
@@ -167,6 +175,14 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
 
             // Skip toasts for errors with validation details
             if (appError.hasValidationDetails()) {
+              return;
+            }
+
+            // if the message contains "relation"
+            if (appError.message?.includes("relation")) {
+              toast.error("Chale, There' an issue with the database 🥲", {
+                description: "Please contact support or try again later",
+              });
               return;
             }
 

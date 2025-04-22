@@ -162,6 +162,7 @@ export const transcriptImportService = {
         // NEW: Determine which semesters need to be created vs updated
         const mappingResults = await this.upsertSemesterMappings(
           studentRecord.studentId,
+          authId,
           mappings,
           academicPeriodsMap,
           existingSemesterMappings,
@@ -198,6 +199,7 @@ export const transcriptImportService = {
           mappings,
           academicPeriodsMap,
           studentRecord.studentId,
+          studentRecord.authId,
           majorCode,
           existingCourses,
           tx
@@ -688,6 +690,7 @@ export const transcriptImportService = {
    */
   async upsertSemesterMappings(
     studentId: string,
+    authId: string,
     mappings: SemesterMapping[],
     academicPeriodsMap: Map<string, string>,
     existingMappings: any[],
@@ -744,6 +747,7 @@ export const transcriptImportService = {
           .insert(studentSemesterMappings)
           .values({
             studentId: studentId,
+            authId: authId,
             academicSemesterId: semesterId,
             programYear: mapping.programYear,
             programSemester: mapping.isSummer ? null : mapping.programSemester,
@@ -767,6 +771,7 @@ export const transcriptImportService = {
     mappings: SemesterMapping[],
     academicPeriodsMap: Map<string, string>,
     studentId: string,
+    authId: string,
     majorCode: string,
     existingCourses: any[],
     tx: any
@@ -837,6 +842,7 @@ export const transcriptImportService = {
         } else {
           // Create new course
           await tx.insert(studentCourses).values({
+            authId: authId,
             studentId: studentId,
             courseCode: cleanCourseCode,
             semesterId: semesterId,

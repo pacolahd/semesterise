@@ -48,6 +48,10 @@ export const studentSemesterMappingsRelations = relations(
       fields: [studentSemesterMappings.studentId],
       references: [studentProfiles.studentId],
     }),
+    auth: one(authUsers, {
+      fields: [studentSemesterMappings.authId],
+      references: [authUsers.id],
+    }),
     semester: one(academicSemesters, {
       fields: [studentSemesterMappings.academicSemesterId],
       references: [academicSemesters.id],
@@ -59,6 +63,10 @@ export const studentCoursesRelations = relations(studentCourses, ({ one }) => ({
   student: one(studentProfiles, {
     fields: [studentCourses.studentId],
     references: [studentProfiles.studentId],
+  }),
+  auth: one(authUsers, {
+    fields: [studentCourses.authId],
+    references: [authUsers.id],
   }),
   course: one(courses, {
     fields: [studentCourses.courseCode],

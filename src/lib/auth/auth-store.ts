@@ -3,6 +3,7 @@ import { z } from "zod";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+import { userTypes } from "@/drizzle/schema/auth/enums";
 import type { ServerSessionUser } from "@/lib/auth/auth";
 import { AppError } from "@/lib/errors/app-error-classes";
 
@@ -12,7 +13,7 @@ const dateTransformer = z.union([
   z.string().transform((str) => new Date(str)),
 ]);
 
-// Define user schema with proper date handling
+// Define user schema with proper date handling and additional studentId field
 const userSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -96,7 +97,6 @@ export const useAuthStore = create<AuthState>()(
           error: null,
           // isSigningOut: false,
         }),
-
       // Enhanced error handler that can work with different error types
       setError: (error) =>
         set((state) => {
@@ -163,16 +163,6 @@ export const useAuthStore = create<AuthState>()(
           isLoading: false,
           isInitialized: true,
         });
-
-        // Also completely remove persisted state
-        // if (typeof localStorage !== "undefined") {
-        //   localStorage.removeItem(STORAGE_KEY);
-        // }
-        //
-        // // Optionally clear session storage too if you use it
-        // if (typeof sessionStorage !== "undefined") {
-        //   sessionStorage.removeItem(STORAGE_KEY);
-        // }
       },
     }),
     {

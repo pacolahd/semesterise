@@ -18,6 +18,7 @@ import { ServerSession } from "@/lib/auth/auth";
 import {
   forgotPassword,
   getSession,
+  getStudentId,
   resetPassword,
   signIn,
   signOut,
@@ -33,19 +34,20 @@ import {
 } from "@/lib/errors/error-converter";
 
 /**
- * Session hook with improved error handling
+ * Enhanced session hook with student ID resolution
  */
 export function useSession() {
   const { setUser, setError, setLoading, setInitialized, isSigningOut } =
     useAuthStore();
 
+  // Get the session data
   const query = useQuery({
     queryKey: ["auth", "session"],
     queryFn: async () => {
       setLoading(true);
 
       try {
-        // handleActionResponse will return the data or throw
+        // Get session data
         const result = await getSession();
         const sessionData = handleActionResponse(result);
 
@@ -89,6 +91,7 @@ export function useSession() {
 
   return query;
 }
+
 /**
  * Sign in hook with robust error handling
  */

@@ -55,7 +55,7 @@ export const departmentHeadsRelations = relations(
     }),
     staff: one(staffProfiles, {
       fields: [departmentHeads.staffId],
-      references: [staffProfiles.staff_id],
+      references: [staffProfiles.staffId],
     }),
   })
 );

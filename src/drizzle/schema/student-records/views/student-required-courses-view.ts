@@ -5,13 +5,15 @@ import {
   integer,
   pgView,
   text,
+  uuid,
   varchar,
 } from "drizzle-orm/pg-core";
 
 export const studentRequiredCoursesView = pgView(
   "student_required_courses_view",
   {
-    studentId: varchar("student_id").primaryKey(),
+    authId: uuid("auth_id").primaryKey(),
+    studentId: varchar("student_id"),
     parentCategory: text("parent_category"),
     categoryName: text("category_name").notNull(),
     subCategory: text("sub_category"),
@@ -26,14 +28,15 @@ export const studentRequiredCoursesView = pgView(
 ).as(
   sql`
 WITH student_info AS (
-  SELECT 
-    student_id, major_code, cohort_year, 
-    math_track_name, capstone_option_name
+  SELECT
+    student_id, major_code, cohort_year,
+    math_track_name, capstone_option_name, auth_id
   FROM student_profiles
 ),
 required_courses_base AS (
   SELECT
     sp.student_id,
+\tsp.auth_id,
     cc.course_code,
     CASE
       WHEN cc.category_name IN (
@@ -71,12 +74,13 @@ required_courses_base AS (
 major_electives AS (
   SELECT
     si.student_id,
+\tsi.auth_id,
     NULL::TEXT AS course_code,
     'MAJOR' AS parent_category,
     'Major Electives' AS category_name,
     'Major Electives' AS sub_category,
     'Major Elective ' || row_number() OVER (
-      PARTITION BY si.student_id 
+      PARTITION BY si.student_id
       ORDER BY dr.min_courses
     ) AS course_title,
     1.0 AS credits,
@@ -85,14 +89,14 @@ major_electives AS (
     NULL::INTEGER AS recommended_semester,
     true AS is_required
   FROM student_info si
-  JOIN degree_requirements dr 
-    ON si.major_code = dr.major_code 
+  JOIN degree_requirements dr
+    ON si.major_code = dr.major_code
     AND dr.category_name = 'Major Electives'
   CROSS JOIN LATERAL (
-    SELECT generate_series(1, 
-      CASE 
-        WHEN si.capstone_option_name = 'Applied Project' THEN dr.min_courses + 1 
-        ELSE dr.min_courses 
+    SELECT generate_series(1,
+      CASE
+        WHEN si.capstone_option_name = 'Applied Project' THEN dr.min_courses + 1
+        ELSE dr.min_courses
       END
     )
   ) AS s(num)
@@ -100,12 +104,13 @@ major_electives AS (
 non_major_electives AS (
   SELECT
     si.student_id,
+\tsi.auth_id,
     NULL::TEXT AS course_code,
     'LIBERAL ARTS & SCIENCES CORE' AS parent_category,
     'Non-Major Electives' AS category_name,
     'Non-Major Electives' AS sub_category,
     'Non-Major Elective ' || row_number() OVER (
-      PARTITION BY si.student_id 
+      PARTITION BY si.student_id
       ORDER BY dr.min_courses
     ) AS course_title,
     1.0 AS credits,
@@ -121,13 +126,13 @@ non_major_electives AS (
     GROUP BY major_code
   ) dr ON si.major_code = dr.major_code
   CROSS JOIN LATERAL (
-    SELECT generate_series(1, 
+    SELECT generate_series(1,
       GREATEST(
-        dr.min_courses - 
-          CASE 
+        dr.min_courses -
+          CASE
             WHEN si.major_code = 'MIS' THEN 2
-            ELSE 1 
-          END, 
+            ELSE 1
+          END,
         0
       )
     )
@@ -136,6 +141,7 @@ non_major_electives AS (
 africana_electives AS (
   SELECT
     si.student_id,
+\tsi.auth_id,
     NULL::TEXT AS course_code,
     'LIBERAL ARTS & SCIENCES CORE' AS parent_category,
     'Non-Major Electives' AS category_name,
@@ -158,6 +164,7 @@ africana_electives AS (
 free_electives AS (
   SELECT
     si.student_id,
+\tsi.auth_id,
     NULL::TEXT AS course_code,
     'LIBERAL ARTS & SCIENCES CORE' AS parent_category,
     'Non-Major Electives' AS category_name,
@@ -188,8 +195,9 @@ combined_required AS (
   UNION ALL
   SELECT * FROM free_electives
 )
-SELECT 
+SELECT
   cr.student_id,
+  cr.auth_id,
   cr.parent_category,
   cr.category_name,
   cr.sub_category,
@@ -201,6 +209,7 @@ SELECT
   cr.recommended_semester,  -- Included in final select
   cr.is_required
 FROM combined_required cr
+
 `
 );
 

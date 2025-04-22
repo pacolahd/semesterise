@@ -5,17 +5,20 @@ import {
   integer,
   pgView,
   text,
+  uuid,
   varchar,
 } from "drizzle-orm/pg-core";
 
 export const studentCourseStatusView = pgView("student_course_status_view", {
   studentCourseId: varchar("student_course_id").primaryKey(),
+
+  authId: uuid("auth_id").notNull(),
   studentId: varchar("student_id").notNull(),
   semesterId: varchar("semester_id"),
 
-  yearTaken: integer("program_year"), // e.g. 1, 2, 3, 4
-  semesterTaken: integer("program_semester"), // e.g. 1, 2 (within program year)
-  wasSummerSemester: boolean("is_summer"),
+  yearTaken: integer("year_taken"), // e.g. 1, 2, 3, 4
+  semesterTaken: integer("semester_taken"), // e.g. 1, 2 (within program year)
+  wasSummerSemester: boolean("was_summer_semester"),
 
   courseCode: varchar("course_code").notNull(),
   categoryName: text("category_name").notNull(),
@@ -69,6 +72,7 @@ course_category AS (
   SELECT 
     cc.course_code,
     sp.student_id,
+\tsp.auth_id,
     COALESCE(cc.category_name, 'Non-Major Electives') AS category_name,
     ROW_NUMBER() OVER (
       PARTITION BY cc.course_code, sp.student_id
@@ -99,6 +103,7 @@ prerequisite_courses AS (
 SELECT
   -- 1. Identifiers
   sc.id AS student_course_id,
+  sp.auth_id,
   sc.student_id,
   sc.semester_id,
 

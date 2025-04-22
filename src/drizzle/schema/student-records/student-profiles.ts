@@ -13,9 +13,11 @@ import {
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-import { capstoneOptions, majors, mathTracks } from "@/drizzle/schema";
 import { authUsers } from "@/drizzle/schema/auth";
 import { createdAt, updatedAt } from "@/drizzle/schema/helpers";
+
+import { capstoneOptions, mathTracks } from "../academic-structure";
+import { majors } from "../institution";
 
 export const studentProfiles = pgTable("student_profiles", {
   // Keep the existing school-issued ID as the primary key
@@ -23,9 +25,9 @@ export const studentProfiles = pgTable("student_profiles", {
 
   // Reference to BetterAuth user
   authId: uuid("auth_id")
-    .primaryKey()
     .notNull()
-    .references(() => authUsers.id, { onDelete: "cascade" }),
+    .references(() => authUsers.id, { onDelete: "cascade" })
+    .primaryKey(),
 
   // Domain-specific fields
   majorCode: varchar("major_code").references(() => majors.code, {

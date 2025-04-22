@@ -15,7 +15,7 @@ export const departmentHeads = pgTable("department_heads", {
     .references(() => departments.code, { onDelete: "cascade" }),
   staffId: varchar("staff_id")
     .notNull()
-    .references(() => staffProfiles.staff_id, { onDelete: "cascade" }),
+    .references(() => staffProfiles.staffId, { onDelete: "cascade" }),
   startDate: date("start_date"),
   endDate: date("end_date"),
   isCurrent: boolean("is_current").default(true),

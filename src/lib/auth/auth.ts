@@ -192,6 +192,22 @@ const options = {
         columns: { role: true, userType: true, onboardingCompleted: true },
       });
 
+      // let ashesiId: string | null | undefined = null;
+
+      // if (userWithRole?.userType === userTypes.student) {
+      //   const studentProfile = await db.query.studentProfiles.findFirst({
+      //     where: eq(studentProfiles.authId, user.id),
+      //     columns: { studentId: true },
+      //   });
+      //   ashesiId = studentProfile?.studentId;
+      // } else if (userWithRole?.userType === userTypes.staff) {
+      //   const staffProfile = await db.query.staffProfiles.findFirst({
+      //     where: eq(staffProfiles.authId, user.id),
+      //     columns: { staffId: true },
+      //   });
+      //   ashesiId = staffProfile?.staffId;
+      // }
+
       if (!userWithRole) {
         return { user, session };
       }
@@ -205,6 +221,7 @@ const options = {
           createdAt: user.createdAt,
           updatedAt: user.updatedAt,
           image: user.image,
+          // ashesiId: ashesiId,
           userType: userWithRole.userType,
           role: userWithRole.role,
           onboardingCompleted: userWithRole.onboardingCompleted,

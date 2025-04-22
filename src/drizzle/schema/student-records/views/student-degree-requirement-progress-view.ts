@@ -11,7 +11,8 @@ import {
 export const studentDegreeRequirementProgressView = pgView(
   "student_degree_requirement_progress_view",
   {
-    studentId: varchar("student_id").primaryKey(),
+    authId: varchar("auth_id").primaryKey(),
+    studentId: varchar("student_id"),
     parentCategory: text("parent_category"),
     categoryName: text("category_name"),
     subCategory: text("sub_category"),
@@ -31,6 +32,7 @@ export const studentDegreeRequirementProgressView = pgView(
   sql`
   WITH student_info AS (
     SELECT 
+\t  sp.auth_id,
       sp.student_id, 
       sp.major_code, 
       sp.math_track_name, 
@@ -41,6 +43,7 @@ export const studentDegreeRequirementProgressView = pgView(
   category_requirements AS (
     SELECT
       src.student_id,
+\t  src.auth_id,
       src.parent_category,
       CASE
         WHEN src.category_name IN ('Major Electives', 'Non-Major Electives')
@@ -57,6 +60,7 @@ export const studentDegreeRequirementProgressView = pgView(
     JOIN student_info si ON src.student_id = si.student_id
     GROUP BY
       src.student_id,
+\t  src.auth_id,
       src.parent_category,
       CASE
         WHEN src.category_name IN ('Major Electives', 'Non-Major Electives')
@@ -115,6 +119,7 @@ export const studentDegreeRequirementProgressView = pgView(
   category_progress AS (
     SELECT
       cr.student_id,
+\t  cr.auth_id,
       cr.parent_category,
       CASE
         WHEN cr.original_category IN ('Major Electives', 'Non-Major Electives')
@@ -137,6 +142,7 @@ export const studentDegreeRequirementProgressView = pgView(
       AND cr.requirement_category = ac.assigned_category
     GROUP BY
       cr.student_id,
+\t  cr.auth_id,
       cr.parent_category,
       cr.original_category,
       cr.requirement_category,
@@ -147,6 +153,7 @@ export const studentDegreeRequirementProgressView = pgView(
   final_progress AS (
     SELECT
       student_id,
+\t  auth_id,
       parent_category,
       category_name,
       sub_category,
@@ -177,6 +184,7 @@ export const studentDegreeRequirementProgressView = pgView(
   )
   SELECT 
     fp.student_id,
+\tfp.auth_id,
     fp.parent_category,
     fp.category_name,
     CASE 
@@ -192,7 +200,8 @@ export const studentDegreeRequirementProgressView = pgView(
     fp.progress_percentage,
     fp.requirement_met
   FROM final_progress fp
-  `
+
+`
 );
 
 export type StudentDegreeRequirementProgressRecord = InferModelFromColumns<

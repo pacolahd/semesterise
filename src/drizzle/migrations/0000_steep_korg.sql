@@ -237,7 +237,8 @@ CREATE TABLE "academic_warnings" (
 --> statement-breakpoint
 CREATE TABLE "student_courses" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"student_id" varchar(20) NOT NULL,
+	"auth_id" uuid NOT NULL,
+	"student_id" varchar(20),
 	"course_code" varchar(20) NOT NULL,
 	"semester_id" uuid NOT NULL,
 	"status" "student_course_status" NOT NULL,
@@ -271,6 +272,7 @@ CREATE TABLE "student_profiles" (
 CREATE TABLE "student_semester_mappings" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"student_id" varchar(20) NOT NULL,
+	"auth_id" uuid NOT NULL,
 	"academic_semester_id" uuid NOT NULL,
 	"program_year" integer,
 	"program_semester" integer,
@@ -329,7 +331,181 @@ CREATE TABLE "transcript_verifications" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
-
+--> statement-breakpoint
+CREATE TABLE "petition_courses" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"petition_id" uuid NOT NULL,
+	"course_code" varchar(20) NOT NULL,
+	"action" varchar(50) NOT NULL,
+	"reason" text,
+	"current_grade" varchar(5),
+	"target_semester_id" uuid,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "petition_documents" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"petition_id" uuid NOT NULL,
+	"document_type" varchar(50) NOT NULL,
+	"document_url" varchar(255) NOT NULL,
+	"file_name" varchar(255) NOT NULL,
+	"uploaded_by" varchar(255) NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "petition_messages" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"petition_id" uuid NOT NULL,
+	"user_id" varchar(255) NOT NULL,
+	"message" text NOT NULL,
+	"is_admin_only" boolean DEFAULT false,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "petition_participants" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"petition_id" uuid NOT NULL,
+	"user_id" varchar(255) NOT NULL,
+	"role" "participant_role" NOT NULL,
+	"is_notified" boolean DEFAULT false,
+	"added_by" varchar(255),
+	"last_viewed_at" timestamp with time zone,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "petition_types" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"code" varchar(20) NOT NULL,
+	"name" varchar(100) NOT NULL,
+	"description" text,
+	"requires_parent_signature" boolean DEFAULT true,
+	"requires_lecturer_signature" boolean DEFAULT false,
+	"requires_academic_plan" boolean DEFAULT true,
+	"custom_fields" jsonb,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "petition_types_code_unique" UNIQUE("code"),
+	CONSTRAINT "petition_types_name_unique" UNIQUE("name")
+);
+--> statement-breakpoint
+CREATE TABLE "petition_workflow_steps" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"petition_id" uuid NOT NULL,
+	"role" "participant_role" NOT NULL,
+	"order_index" integer NOT NULL,
+	"is_mandatory" boolean DEFAULT true,
+	"is_current" boolean DEFAULT false,
+	"status" varchar(20),
+	"action_user_id" varchar(255),
+	"action_date" timestamp with time zone,
+	"comments" text,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "petitions" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"reference_number" varchar(20) NOT NULL,
+	"student_id" varchar(20) NOT NULL,
+	"petition_type_id" uuid NOT NULL,
+	"semester_id" uuid NOT NULL,
+	"status" "petition_status" DEFAULT 'draft' NOT NULL,
+	"title" varchar(255) NOT NULL,
+	"description" text,
+	"academic_plan_included" boolean DEFAULT false,
+	"primary_department_id" varchar NOT NULL,
+	"secondary_department_id" varchar,
+	"signed_document_url" varchar(255),
+	"custom_data" jsonb,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "petitions_reference_number_unique" UNIQUE("reference_number")
+);
+--> statement-breakpoint
+CREATE TABLE "account" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid NOT NULL,
+	"account_id" varchar NOT NULL,
+	"provider_id" varchar NOT NULL,
+	"access_token" varchar,
+	"refresh_token" varchar,
+	"id_token" text,
+	"access_token_expires_at" timestamp with time zone,
+	"refresh_token_expires_at" timestamp with time zone,
+	"scope" varchar,
+	"password" text,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "session" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid NOT NULL,
+	"token" varchar NOT NULL,
+	"expires_at" timestamp with time zone NOT NULL,
+	"ip_address" varchar,
+	"user_agent" text,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "user" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"name" varchar NOT NULL,
+	"email" varchar NOT NULL,
+	"email_verified" boolean DEFAULT false NOT NULL,
+	"image" varchar,
+	"user_type" varchar(20) DEFAULT 'student' NOT NULL,
+	"role" varchar(50) DEFAULT 'student' NOT NULL,
+	"onboarding_completed" boolean DEFAULT false,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "user_email_unique" UNIQUE("email")
+);
+--> statement-breakpoint
+CREATE TABLE "verification" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"identifier" varchar NOT NULL,
+	"value" varchar NOT NULL,
+	"expires_at" timestamp with time zone NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "activities" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"type" varchar(50) NOT NULL,
+	"description" text,
+	"actor_id" varchar(255) NOT NULL,
+	"actor_type" varchar(50),
+	"actor_role" varchar(50),
+	"resource_type" varchar(50),
+	"resource_id" varchar(255),
+	"ip_address" varchar(50),
+	"user_agent" text,
+	"location" varchar(100),
+	"status" varchar DEFAULT 'started' NOT NULL,
+	"metadata" jsonb,
+	"is_sensitive" boolean DEFAULT false,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"completed_at" timestamp
+);
+--> statement-breakpoint
+CREATE TABLE "error_logs" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"activity_id" uuid,
+	"name" varchar(100),
+	"message" text NOT NULL,
+	"stack" text,
+	"code" varchar,
+	"status" varchar DEFAULT 'unhandled',
+	"context" jsonb,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
 --> statement-breakpoint
 CREATE TABLE "system_configurations" (
 	"key" varchar(50) PRIMARY KEY NOT NULL,
@@ -362,6 +538,7 @@ ALTER TABLE "academic_warnings" ADD CONSTRAINT "academic_warnings_student_id_stu
 ALTER TABLE "academic_warnings" ADD CONSTRAINT "academic_warnings_course_code_courses_code_fk" FOREIGN KEY ("course_code") REFERENCES "public"."courses"("code") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "academic_warnings" ADD CONSTRAINT "academic_warnings_semester_id_academic_semesters_id_fk" FOREIGN KEY ("semester_id") REFERENCES "public"."academic_semesters"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "academic_warnings" ADD CONSTRAINT "academic_warnings_category_name_course_categories_name_fk" FOREIGN KEY ("category_name") REFERENCES "public"."course_categories"("name") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "student_courses" ADD CONSTRAINT "student_courses_auth_id_user_id_fk" FOREIGN KEY ("auth_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "student_courses" ADD CONSTRAINT "student_courses_student_id_student_profiles_student_id_fk" FOREIGN KEY ("student_id") REFERENCES "public"."student_profiles"("student_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "student_courses" ADD CONSTRAINT "student_courses_course_code_courses_code_fk" FOREIGN KEY ("course_code") REFERENCES "public"."courses"("code") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "student_courses" ADD CONSTRAINT "student_courses_semester_id_academic_semesters_id_fk" FOREIGN KEY ("semester_id") REFERENCES "public"."academic_semesters"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
@@ -373,6 +550,7 @@ ALTER TABLE "student_profiles" ADD CONSTRAINT "student_profiles_major_code_major
 ALTER TABLE "student_profiles" ADD CONSTRAINT "student_profiles_math_track_name_math_tracks_name_fk" FOREIGN KEY ("math_track_name") REFERENCES "public"."math_tracks"("name") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "student_profiles" ADD CONSTRAINT "student_profiles_capstone_option_name_capstone_options_name_fk" FOREIGN KEY ("capstone_option_name") REFERENCES "public"."capstone_options"("name") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "student_semester_mappings" ADD CONSTRAINT "student_semester_mappings_student_id_student_profiles_student_id_fk" FOREIGN KEY ("student_id") REFERENCES "public"."student_profiles"("student_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "student_semester_mappings" ADD CONSTRAINT "student_semester_mappings_auth_id_student_profiles_auth_id_fk" FOREIGN KEY ("auth_id") REFERENCES "public"."student_profiles"("auth_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "student_semester_mappings" ADD CONSTRAINT "student_semester_mappings_academic_semester_id_academic_semesters_id_fk" FOREIGN KEY ("academic_semester_id") REFERENCES "public"."academic_semesters"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "transcript_processing_steps" ADD CONSTRAINT "transcript_processing_steps_import_id_transcript_imports_id_fk" FOREIGN KEY ("import_id") REFERENCES "public"."transcript_imports"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "transcript_verifications" ADD CONSTRAINT "transcript_verifications_import_id_transcript_imports_id_fk" FOREIGN KEY ("import_id") REFERENCES "public"."transcript_imports"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -418,6 +596,7 @@ course_category AS (
   SELECT 
     cc.course_code,
     sp.student_id,
+	sp.auth_id,
     COALESCE(cc.category_name, 'Non-Major Electives') AS category_name,
     ROW_NUMBER() OVER (
       PARTITION BY cc.course_code, sp.student_id
@@ -448,6 +627,7 @@ prerequisite_courses AS (
 SELECT
   -- 1. Identifiers
   sc.id AS student_course_id,
+  sp.auth_id,
   sc.student_id,
   sc.semester_id,
 
@@ -564,12 +744,13 @@ CREATE VIEW "public"."student_required_courses_view" AS (
 WITH student_info AS (
   SELECT
     student_id, major_code, cohort_year,
-    math_track_name, capstone_option_name
+    math_track_name, capstone_option_name, auth_id
   FROM student_profiles
 ),
 required_courses_base AS (
   SELECT
     sp.student_id,
+	sp.auth_id,
     cc.course_code,
     CASE
       WHEN cc.category_name IN (
@@ -607,6 +788,7 @@ required_courses_base AS (
 major_electives AS (
   SELECT
     si.student_id,
+	si.auth_id,
     NULL::TEXT AS course_code,
     'MAJOR' AS parent_category,
     'Major Electives' AS category_name,
@@ -636,6 +818,7 @@ major_electives AS (
 non_major_electives AS (
   SELECT
     si.student_id,
+	si.auth_id,
     NULL::TEXT AS course_code,
     'LIBERAL ARTS & SCIENCES CORE' AS parent_category,
     'Non-Major Electives' AS category_name,
@@ -672,6 +855,7 @@ non_major_electives AS (
 africana_electives AS (
   SELECT
     si.student_id,
+	si.auth_id,
     NULL::TEXT AS course_code,
     'LIBERAL ARTS & SCIENCES CORE' AS parent_category,
     'Non-Major Electives' AS category_name,
@@ -694,6 +878,7 @@ africana_electives AS (
 free_electives AS (
   SELECT
     si.student_id,
+	si.auth_id,
     NULL::TEXT AS course_code,
     'LIBERAL ARTS & SCIENCES CORE' AS parent_category,
     'Non-Major Electives' AS category_name,
@@ -726,6 +911,7 @@ combined_required AS (
 )
 SELECT
   cr.student_id,
+  cr.auth_id,
   cr.parent_category,
   cr.category_name,
   cr.sub_category,
@@ -737,10 +923,12 @@ SELECT
   cr.recommended_semester,  -- Included in final select
   cr.is_required
 FROM combined_required cr
+
 );--> statement-breakpoint
 CREATE VIEW "public"."student_degree_requirement_progress_view" AS (
   WITH student_info AS (
     SELECT 
+	  sp.auth_id,
       sp.student_id, 
       sp.major_code, 
       sp.math_track_name, 
@@ -751,6 +939,7 @@ CREATE VIEW "public"."student_degree_requirement_progress_view" AS (
   category_requirements AS (
     SELECT
       src.student_id,
+	  src.auth_id,
       src.parent_category,
       CASE
         WHEN src.category_name IN ('Major Electives', 'Non-Major Electives')
@@ -767,6 +956,7 @@ CREATE VIEW "public"."student_degree_requirement_progress_view" AS (
     JOIN student_info si ON src.student_id = si.student_id
     GROUP BY
       src.student_id,
+	  src.auth_id,
       src.parent_category,
       CASE
         WHEN src.category_name IN ('Major Electives', 'Non-Major Electives')
@@ -825,6 +1015,7 @@ CREATE VIEW "public"."student_degree_requirement_progress_view" AS (
   category_progress AS (
     SELECT
       cr.student_id,
+	  cr.auth_id,
       cr.parent_category,
       CASE
         WHEN cr.original_category IN ('Major Electives', 'Non-Major Electives')
@@ -847,6 +1038,7 @@ CREATE VIEW "public"."student_degree_requirement_progress_view" AS (
       AND cr.requirement_category = ac.assigned_category
     GROUP BY
       cr.student_id,
+	  cr.auth_id,
       cr.parent_category,
       cr.original_category,
       cr.requirement_category,
@@ -857,6 +1049,7 @@ CREATE VIEW "public"."student_degree_requirement_progress_view" AS (
   final_progress AS (
     SELECT
       student_id,
+	  auth_id,
       parent_category,
       category_name,
       sub_category,
@@ -887,6 +1080,7 @@ CREATE VIEW "public"."student_degree_requirement_progress_view" AS (
   )
   SELECT 
     fp.student_id,
+	fp.auth_id,
     fp.parent_category,
     fp.category_name,
     CASE 
@@ -902,4 +1096,5 @@ CREATE VIEW "public"."student_degree_requirement_progress_view" AS (
     fp.progress_percentage,
     fp.requirement_met
   FROM final_progress fp
-  );
+
+);

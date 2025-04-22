@@ -1,9 +1,13 @@
-// src/lib/academic-plan/actions.ts
+"use server";
+
+// src/lib/academic-plan/academic-plan-actions.ts
 import { and, eq, isNull, or, sql } from "drizzle-orm";
 
 import { db } from "@/drizzle";
 import {
   academicSemesters,
+  authUsers,
+  // Add this import for the auth mapping
   courses,
   prerequisiteCourses,
   prerequisiteGroups,
@@ -20,9 +24,13 @@ import { serializeError } from "@/lib/errors/error-converter";
 import { ActionResponse } from "@/lib/types/common";
 
 import {
+  CourseAvailability,
+  CoursePlacementValidationResponse,
   CourseWithStatus,
   PrerequisiteCheckResult,
   Semester,
+  SemesterAvailableCourses,
+  SemesterCreditsResponse,
   YearPlan,
 } from "./types";
 
@@ -45,15 +53,35 @@ const MAX_CREDITS_PER_SEMESTER = 5;
 const MAX_RECOMMENDED_YEARS = 4;
 
 /**
+ * Helper function to get the student ID from auth ID
+ */
+async function getStudentIdFromAuthId(authId: string): Promise<string> {
+  const user = await db.query.studentProfiles.findFirst({
+    where: eq(studentProfiles.authId, authId),
+    columns: { studentId: true },
+  });
+
+  if (!user || !user.studentId) {
+    throw new AppError({
+      message: `No student record associated with this user account`,
+      code: "AUTH_ERROR",
+    });
+  }
+
+  return user.studentId;
+}
+
+/**
  * Get student's 4-year academic plan
+ * Now accepts studentId directly from the auth store
  */
 export async function getStudentAcademicPlan(
-  studentId: string
+  authId: string
 ): Promise<ActionResponse<YearPlan>> {
   try {
     // 1. Get student profile information
     const profileData = await db.query.studentProfiles.findFirst({
-      where: eq(studentProfiles.studentId, studentId),
+      where: eq(studentProfiles.authId, authId),
     });
 
     if (!profileData) {
@@ -61,7 +89,7 @@ export async function getStudentAcademicPlan(
         success: false,
         error: serializeError(
           new AppError({
-            message: `Student not found: ${studentId}`,
+            message: `Student not found: ${authId}`,
             code: "STUDENT_NOT_FOUND",
           })
         ),
@@ -72,17 +100,17 @@ export async function getStudentAcademicPlan(
     const coursesWithStatus = await db
       .select()
       .from(studentCourseStatusView)
-      .where(eq(studentCourseStatusView.studentId, studentId));
+      .where(eq(studentCourseStatusView.authId, authId));
 
     // 3. Get progress information by category
     const progressByCategory = await db
       .select()
       .from(studentDegreeRequirementProgressView)
-      .where(eq(studentDegreeRequirementProgressView.studentId, studentId));
+      .where(eq(studentDegreeRequirementProgressView.authId, authId));
 
     // 4. Initialize empty plan structure
     const plan: YearPlan = {
-      studentId,
+      studentId: profileData.studentId!,
       majorCode: profileData.majorCode || "",
       mathTrack: profileData.mathTrackName || undefined,
       capstoneOption: profileData.capstoneOptionName || undefined,
@@ -223,23 +251,17 @@ export async function getStudentAcademicPlan(
  * Centralizes validation logic used by multiple course planning functions
  */
 async function validateCoursePlacement(
-  studentId: string,
+  authId: string,
   courseCode: string,
   year: number,
   semester: number
-): Promise<{
-  isValid: boolean;
-  studentProfile?: any;
-  semesterMapping?: StudentSemesterMappingRecord | null;
-  errors: string[];
-  warnings: string[];
-}> {
+): Promise<CoursePlacementValidationResponse> {
   const errors: string[] = [];
   const warnings: string[] = [];
 
   // 1. Get student profile for validations
   const studentProfile = await db.query.studentProfiles.findFirst({
-    where: eq(studentProfiles.studentId, studentId),
+    where: eq(studentProfiles.authId, authId),
   });
 
   if (!studentProfile?.cohortYear) {
@@ -252,7 +274,7 @@ async function validateCoursePlacement(
 
   // 2. Check prerequisites
   const prerequisiteCheck = await checkPrerequisitesMet(
-    studentId,
+    studentProfile.studentId!,
     courseCode,
     year,
     semester
@@ -281,7 +303,7 @@ async function validateCoursePlacement(
 
   // 4. Check credit load for the semester
   const semesterCredits = await getSemesterCredits(
-    studentId,
+    studentProfile.studentId!,
     year,
     semester,
     courseCode
@@ -311,7 +333,8 @@ async function validateCoursePlacement(
   let semesterMapping = null;
   if (errors.length === 0) {
     semesterMapping = await addStudentSemesterMappingIfNotExists(
-      studentId,
+      studentProfile.studentId!,
+      authId,
       studentProfile.cohortYear,
       year,
       semester,
@@ -336,7 +359,7 @@ async function validateCoursePlacement(
  * Add a planned course to a student's academic plan
  */
 export async function addPlannedCourse(
-  studentId: string,
+  authId: string,
   courseCode: string,
   year: number,
   semester: number
@@ -348,7 +371,7 @@ export async function addPlannedCourse(
       .from(studentCourseStatusView)
       .where(
         and(
-          eq(studentCourseStatusView.studentId, studentId),
+          eq(studentCourseStatusView.authId, authId),
           eq(studentCourseStatusView.courseCode, courseCode),
           eq(studentCourseStatusView.isLatestAttempt, true)
         )
@@ -375,7 +398,7 @@ export async function addPlannedCourse(
 
     // 2. Use shared validation logic
     const validation = await validateCoursePlacement(
-      studentId,
+      authId,
       courseCode,
       year,
       semester
@@ -399,7 +422,8 @@ export async function addPlannedCourse(
     const [newCourse] = await db
       .insert(studentCourses)
       .values({
-        studentId,
+        authId,
+        studentId: await getStudentIdFromAuthId(authId),
         courseCode,
         semesterId: validation.semesterMapping!.academicSemesterId,
         status: "planned",
@@ -427,7 +451,7 @@ export async function addPlannedCourse(
  * Move a planned course to a different semester
  */
 export async function movePlannedCourse(
-  studentId: string,
+  authId: string,
   courseId: string,
   newYear: number,
   newSemester: number
@@ -437,7 +461,7 @@ export async function movePlannedCourse(
     const courseRecord = await db.query.studentCourses.findFirst({
       where: and(
         eq(studentCourses.id, courseId),
-        eq(studentCourses.studentId, studentId),
+        eq(studentCourses.authId, authId),
         eq(studentCourses.status, "planned")
       ),
     });
@@ -456,7 +480,7 @@ export async function movePlannedCourse(
 
     // 2. Use shared validation logic
     const validation = await validateCoursePlacement(
-      studentId,
+      authId,
       courseRecord.courseCode,
       newYear,
       newSemester
@@ -500,7 +524,7 @@ export async function movePlannedCourse(
  * Remove a planned course from a student's plan
  */
 export async function removePlannedCourse(
-  studentId: string,
+  authId: string,
   courseId: string
 ): Promise<ActionResponse<void>> {
   const warnings: string[] = [];
@@ -510,7 +534,7 @@ export async function removePlannedCourse(
     const courseRecord = await db.query.studentCourses.findFirst({
       where: and(
         eq(studentCourses.id, courseId),
-        eq(studentCourses.studentId, studentId),
+        eq(studentCourses.authId, authId),
         eq(studentCourses.status, "planned")
       ),
     });
@@ -533,7 +557,7 @@ export async function removePlannedCourse(
       .from(studentRequiredCoursesView)
       .where(
         and(
-          eq(studentRequiredCoursesView.studentId, studentId),
+          eq(studentRequiredCoursesView.authId, authId),
           eq(studentRequiredCoursesView.courseCode, courseRecord.courseCode)
         )
       );
@@ -565,18 +589,14 @@ export async function removePlannedCourse(
  * Get available courses a student can add to a specific semester
  */
 export async function getAvailableCoursesForSemester(
-  studentId: string,
+  authId: string,
   year: number,
   semester: number
-): Promise<
-  ActionResponse<
-    { code: string; title: string; credits: number; category: string }[]
-  >
-> {
+): Promise<ActionResponse<SemesterAvailableCourses>> {
   try {
     // 1. Get student profile
     const profile = await db.query.studentProfiles.findFirst({
-      where: eq(studentProfiles.studentId, studentId),
+      where: eq(studentProfiles.authId, authId),
     });
 
     if (!profile) {
@@ -584,7 +604,7 @@ export async function getAvailableCoursesForSemester(
         success: false,
         error: serializeError(
           new AppError({
-            message: `Student not found: ${studentId}`,
+            message: `Student not found: ${authId}`,
             code: "STUDENT_NOT_FOUND",
           })
         ),
@@ -599,7 +619,7 @@ export async function getAvailableCoursesForSemester(
       .from(studentCourseStatusView)
       .where(
         and(
-          eq(studentCourseStatusView.studentId, studentId),
+          eq(studentCourseStatusView.authId, authId),
           eq(studentCourseStatusView.passed, true)
         )
       );
@@ -618,7 +638,7 @@ export async function getAvailableCoursesForSemester(
       .from(studentRequiredCoursesView)
       .where(
         and(
-          eq(studentRequiredCoursesView.studentId, studentId),
+          eq(studentRequiredCoursesView.authId, authId),
           // Only include actual courses, not placeholders
           sql`course_code IS NOT NULL`
         )
@@ -641,7 +661,7 @@ export async function getAvailableCoursesForSemester(
 
       // Check prerequisites
       const prerequisiteCheck = await checkPrerequisitesMet(
-        studentId,
+        authId,
         course.courseCode,
         year,
         semester
@@ -700,7 +720,7 @@ async function checkCourseAvailability(
   courseCode: string,
   programSemester: number,
   isSummer: boolean
-): Promise<{ isOffered: boolean; warning?: string }> {
+): Promise<CourseAvailability> {
   // Get course offering information
   const course = await db.query.courses.findFirst({
     where: eq(courses.code, courseCode),
@@ -733,11 +753,11 @@ async function checkCourseAvailability(
  * Helper function to calculate semester credits
  */
 async function getSemesterCredits(
-  studentId: string,
+  authId: string,
   year: number,
   semester: number,
   additionalCourseCode?: string
-): Promise<{ existing: number; new: number; total: number }> {
+): Promise<SemesterCreditsResponse> {
   // Get existing credits in the semester
   const semesterCourses = await db
     .select({
@@ -746,7 +766,7 @@ async function getSemesterCredits(
     .from(studentCourseStatusView)
     .where(
       and(
-        eq(studentCourseStatusView.studentId, studentId),
+        eq(studentCourseStatusView.authId, authId),
         eq(studentCourseStatusView.yearTaken, year),
         eq(studentCourseStatusView.semesterTaken, semester)
       )
@@ -777,7 +797,7 @@ async function getSemesterCredits(
  * Check if prerequisites are met for a course in a specific semester
  */
 export async function checkPrerequisitesMet(
-  studentId: string,
+  authId: string,
   courseCode: string,
   year: number,
   semester: number
@@ -807,7 +827,7 @@ export async function checkPrerequisitesMet(
     .from(studentCourseStatusView)
     .where(
       and(
-        eq(studentCourseStatusView.studentId, studentId),
+        eq(studentCourseStatusView.authId, authId),
         eq(studentCourseStatusView.passed, true)
       )
     );
@@ -817,16 +837,19 @@ export async function checkPrerequisitesMet(
     .select({
       courseCode: studentCourses.courseCode,
       semesterId: studentCourses.semesterId,
+      authId: studentCourses.authId,
     })
     .from(studentCourses)
     .where(
       and(
-        eq(studentCourses.studentId, studentId),
+        eq(studentCourses.authId, authId),
         eq(studentCourses.status, "planned")
       )
     );
 
   // 4. Get semester mappings for planned courses
+  const semesterIds = plannedCourses.map((c) => c.semesterId);
+
   const plannedSemesters = await db
     .select({
       semesterId: academicSemesters.id,
@@ -838,12 +861,13 @@ export async function checkPrerequisitesMet(
       studentSemesterMappings,
       and(
         eq(studentSemesterMappings.academicSemesterId, academicSemesters.id),
-        eq(studentSemesterMappings.studentId, studentId)
+        eq(studentSemesterMappings.authId, authId)
       )
     )
     .where(
-      sql`academic_semesters.id = ANY(${plannedCourses.map((c) => c.semesterId)})`
-    );
+      sql`${academicSemesters.id} = ANY(${sql.placeholder("semesterIds")})`
+    )
+    .execute({ semesterIds });
 
   // Create a map for semester information
   const semesterMap = new Map();
@@ -1023,6 +1047,7 @@ function getCategoryParent(categoryName?: string): string {
 /**
  * Adds a student semester mapping if it doesn't already exist
  * @param studentId The student ID
+ * @param authId The student's auth ID
  * @param cohortYear The student's cohort year (graduation year)
  * @param programYear The program year (1-4)
  * @param programSemester The semester number within the year (1-2, null for summer)
@@ -1031,6 +1056,7 @@ function getCategoryParent(categoryName?: string): string {
  */
 export async function addStudentSemesterMappingIfNotExists(
   studentId: string,
+  authId: string,
   cohortYear: number,
   programYear: number,
   programSemester: number,
@@ -1079,6 +1105,7 @@ export async function addStudentSemesterMappingIfNotExists(
     .insert(studentSemesterMappings)
     .values({
       studentId,
+      authId: authId,
       academicSemesterId: semester.id,
       programYear,
       programSemester,

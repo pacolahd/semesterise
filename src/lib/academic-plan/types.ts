@@ -1,4 +1,5 @@
 // src/lib/academic-plan/types.ts
+import { StudentSemesterMappingRecord } from "@/drizzle/schema/student-records/student-semester-mappings";
 
 export type CourseStatus = "completed" | "failed" | "planned";
 
@@ -79,4 +80,33 @@ export type PrerequisiteCheckResult = {
     satisfiedCount: number;
   }[];
   infoMessage?: string;
+};
+
+// New response types with "Response" prefix
+
+export type SemesterAvailableCourses = {
+  code: string;
+  title: string;
+  credits: number;
+  category: string;
+  offeredInSemester?: boolean;
+}[];
+
+export type CourseAvailability = {
+  isOffered: boolean;
+  warning?: string;
+};
+
+export type SemesterCreditsResponse = {
+  existing: number;
+  new: number;
+  total: number;
+};
+
+export type CoursePlacementValidationResponse = {
+  isValid: boolean;
+  studentProfile?: any;
+  semesterMapping?: StudentSemesterMappingRecord | null;
+  errors: string[];
+  warnings: string[];
 };

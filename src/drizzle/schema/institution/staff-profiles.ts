@@ -10,7 +10,7 @@ import { departments } from "@/drizzle/schema/institution/departments";
 
 export const staffProfiles = pgTable("staff_profiles", {
   // Keep the existing school-issued ID as the primary key
-  staff_id: varchar("staff_id", { length: 20 }).unique(),
+  staffId: varchar("staff_id", { length: 20 }).unique(),
 
   // Auth user reference - links to BetterAuth user table
   authId: uuid("auth_id")

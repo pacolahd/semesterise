@@ -33,6 +33,7 @@ async function getOptimizedSession(
   // Check cache first
   const cached = sessionCache.get(sessionCookie);
   if (cached && Date.now() - cached.timestamp < SESSION_CACHE_TTL) {
+    // console.log(`\n\n\nSession: ${cached.session}\n\n\n`);
     return cached.session;
   }
 
@@ -49,6 +50,7 @@ async function getOptimizedSession(
     const session: ServerSession | null = data;
     // Update cache
     sessionCache.set(sessionCookie, { session, timestamp: Date.now() });
+    // console.log(`\n\n\nSession: ${session}\n\n\n`);
     return session as ServerSession;
   } catch (error) {
     console.error("Session fetch error:", error);
