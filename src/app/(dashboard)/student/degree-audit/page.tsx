@@ -61,8 +61,8 @@ export default function DegreeAuditPage() {
           No Plan Available
         </h2>
         <p className="text-amber-600 dark:text-amber-300">
-          You don't have an academic plan yet. Please contact your academic
-          advisor.
+          Chale it seems you don't have an academic plan yet. Please Import your
+          transcript again.
         </p>
         {user?.id && (
           <Button

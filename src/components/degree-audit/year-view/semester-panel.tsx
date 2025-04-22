@@ -1,6 +1,7 @@
 // src/components/degree-audit/year-view/semester-panel.tsx
-import { Plus } from "lucide-react";
+import { Info, Plus } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Semester } from "@/lib/academic-plan/types";
 import { cn } from "@/lib/utils";
@@ -22,42 +23,59 @@ export function SemesterPanel({
   const { onAddCourse, semesterIds } = useDndContext();
   const semesterId = `${year}-${semester}`;
 
+  // for each course in the semester, check if any of them has a status of "planned" and if so then isImportedSemester is false
+  const importedSemester = courses.every(
+    (course) => course.status !== "planned"
+  );
+
   return (
     <div
       className={cn(
-        "relative flex h-auto min-h-[12rem] flex-col rounded-lg border bg-card shadow-sm",
+        "relative flex h-auto min-h-[12rem] flex-col rounded-2xl border bg-surface-50 dark:bg-background shadow-sm p-1",
         hasCreditWarning && "border-danger-600"
       )}
       id={semesterId}
       data-semester-id={semesterId}
     >
       {/* Header */}
-      <div className="flex items-center justify-between border-b p-2">
-        <div className="flex items-center gap-2">
-          <h4 className="font-medium">{name}</h4>
-          {!isSummer && totalCredits > 0 && (
-            <span className="rounded bg-muted px-1.5 py-0.5 text-xs">
+      <div className="mb-2">
+        <div className="flex justify-between items-center  px-2 pt-2">
+          <div>
+            <h3 className="body1-medium">{name}</h3>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge
+              variant="outline"
+              className={cn(
+                "mx-1 body2-regular bg-surface-500 dark:bg-transparent text-tcol-500 dark:text-tcol-100 rounded-[25px] px-[7px] py-[4px]",
+                courses.length == 0 && "hidden"
+              )}
+            >
               {totalCredits} credits
-            </span>
-          )}
+            </Badge>
+            <Button
+              variant="outline"
+              size="sm"
+              className={cn(
+                "h-8 w-8 p-0 bg-surface-500 dark:bg-transparent text-tcol-500 dark:text-tcol-100 rounded-full",
+                importedSemester && "hidden"
+              )}
+              onClick={() => onAddCourse(year, semester)}
+            >
+              <Plus className="h-4 w-4" />
+              <span className="sr-only">Add course</span>
+            </Button>
+          </div>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 w-7 rounded-full p-0"
-          onClick={() => onAddCourse(year, semester)}
-        >
-          <Plus className="h-4 w-4" />
-          <span className="sr-only">Add course</span>
-        </Button>
-      </div>
+        {/* Credit warning */}
+        {hasCreditWarning && (
+          <div className="px-2 flex items-center gap-1">
+            <Info className="h-3 w-3 text-danger-700" />
 
-      {/* Credit warning */}
-      {hasCreditWarning && (
-        <div className="px-2 py-1 text-xs text-danger-600">
-          Credit load warning
-        </div>
-      )}
+            <p className="text-xs text-danger-700">Credit load warning</p>
+          </div>
+        )}
+      </div>
 
       {/* Course cards */}
       <div
@@ -74,14 +92,16 @@ export function SemesterPanel({
           </div>
         ) : (
           <div className="text-center">
-            <p className="mb-2 text-xs text-muted-foreground">
+            <p className="mb-2 text-md text-muted-foreground mb-3">
               No courses added to this semester yet!
             </p>
             <Button
+              className="text-md py-5"
               variant="outline"
               size="sm"
               onClick={() => onAddCourse(year, semester)}
             >
+              <Plus className="h-4 w-4" />
               Add course
             </Button>
           </div>

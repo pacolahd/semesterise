@@ -48,8 +48,8 @@ export function YearByYearPlanView({ plan }: YearByYearPlanViewProps) {
 
       {/* Plan grid with drag and drop */}
       <DragDropProvider plan={plan} refreshPlan={handleRefreshPlan}>
-        <div className="overflow-x-auto pb-4">
-          <div className="flex min-w-[900px] gap-4">
+        <div className="pb-4 overflow-x-visible custom-scrollbar">
+          <div className="flex gap-4">
             {Object.keys(plan.years).map((yearNum) => (
               <YearColumn
                 key={yearNum}
@@ -57,6 +57,8 @@ export function YearByYearPlanView({ plan }: YearByYearPlanViewProps) {
                 fall={plan.years[parseInt(yearNum)].fall}
                 spring={plan.years[parseInt(yearNum)].spring}
                 summer={plan.years[parseInt(yearNum)].summer}
+                currentYear={plan.currentYear}
+                currentSemester={plan.currentSemester}
               />
             ))}
           </div>

@@ -5,6 +5,7 @@ import { and, eq, isNull, or, sql } from "drizzle-orm";
 
 import { db } from "@/drizzle";
 import {
+  StudentCourseStatusRecord,
   academicSemesters,
   authUsers,
   // Add this import for the auth mapping
@@ -18,6 +19,7 @@ import {
   studentRequiredCoursesView,
   studentSemesterMappings,
 } from "@/drizzle/schema";
+import { StudentProfileRecord } from "@/drizzle/schema/student-records/student-profiles";
 import { StudentSemesterMappingRecord } from "@/drizzle/schema/student-records/student-semester-mappings";
 import { AppError } from "@/lib/errors/app-error-classes";
 import { serializeError } from "@/lib/errors/error-converter";
@@ -80,9 +82,10 @@ export async function getStudentAcademicPlan(
 ): Promise<ActionResponse<YearPlan>> {
   try {
     // 1. Get student profile information
-    const profileData = await db.query.studentProfiles.findFirst({
-      where: eq(studentProfiles.authId, authId),
-    });
+    const profileData: StudentProfileRecord | undefined =
+      await db.query.studentProfiles.findFirst({
+        where: eq(studentProfiles.authId, authId),
+      });
 
     if (!profileData) {
       return {
@@ -114,6 +117,10 @@ export async function getStudentAcademicPlan(
       majorCode: profileData.majorCode || "",
       mathTrack: profileData.mathTrackName || undefined,
       capstoneOption: profileData.capstoneOptionName || undefined,
+      currentYear: profileData.currentYear || 1,
+      currentSemester: profileData.currentSemester
+        ? parseInt(profileData.currentSemester, 10)
+        : 1,
       years: {},
       totalCreditsCompleted: 0,
       totalCreditsRemaining: 0,
@@ -151,13 +158,14 @@ export async function getStudentAcademicPlan(
       } else {
         targetSemester = plan.years[year].summer;
       }
+      ``;
 
       // Create course object with status from the view
       const courseWithStatus: CourseWithStatus = {
         id: course.studentCourseId,
         courseCode: course.courseCode,
         courseTitle: course.courseTitle || "",
-        credits: Number(course.credits) || 0,
+        credits: course.credits ? parseFloat(course.credits) : 1,
         category: {
           name: course.categoryName || "General",
           parentName: getCategoryParent(course.categoryName),

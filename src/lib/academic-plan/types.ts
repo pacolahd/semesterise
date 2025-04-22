@@ -55,6 +55,8 @@ export type YearPlan = {
   majorCode: string;
   mathTrack?: string;
   capstoneOption?: string;
+  currentYear: number;
+  currentSemester: number;
 
   years: {
     [year: number]: {

@@ -8,6 +8,7 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+import { flatten } from "valibot";
 
 export const studentCourseStatusView = pgView("student_course_status_view", {
   studentCourseId: varchar("student_course_id").primaryKey(),
@@ -22,7 +23,7 @@ export const studentCourseStatusView = pgView("student_course_status_view", {
 
   courseCode: varchar("course_code").notNull(),
   categoryName: text("category_name").notNull(),
-  credits: integer("credits"),
+  credits: decimal("credits"),
 
   grade: varchar("grade"),
   gradeNumericValue: decimal("grade_numeric_value", {

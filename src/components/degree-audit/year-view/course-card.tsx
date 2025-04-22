@@ -62,13 +62,13 @@ export function CourseCard({ course, isOverlay = false }: CourseCardProps) {
 
   // Determine background color based on status
   const cardBackground = cn(
-    "relative flex flex-col rounded-md border p-2 shadow-sm transition-colors",
+    "relative flex flex-col rounded-md border-[0.5px] p-2 shadow-sm transition-colors",
     {
       // Failed course
       "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800":
         course.status === "failed",
       // Passed course
-      "bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800":
+      "bg-green-50 dark:bg-green-950/30  dark:border-green-800":
         course.status === "completed" && !course.retakeNeeded,
       // // Enrolled course
       // "bg-surface-500 dark:bg-card border-primary/30 dark:border-primary/30":
@@ -79,6 +79,73 @@ export function CourseCard({ course, isOverlay = false }: CourseCardProps) {
       "cursor-grabbing": isOverlay,
     }
   );
+
+  // Determine status display text and color
+  const getStatusDisplay = () => {
+    if (course.status === "failed") {
+      return (
+        <span className=" flex flex-col items-end">
+          <div className="w-7 h-7 flex items-center justify-center rounded-full bg-danger-600 text-surface-50 dark:bg-danger-700 text-sm font-medium">
+            {course.grade}
+          </div>
+
+          <span className="caption-regular ml-1 text-danger-600 dark:text-danger-400 mt-0.5">
+            Min {course.minGradeRequired}
+          </span>
+        </span>
+      );
+    }
+
+    // if (course.status === "enrolled") {
+    //   return (
+    //     <div className="flex items-center justify-center rounded-[25px] p-2 bg-primary-50 text-primary-500 dark:text-tcol-100 dark:bg-primary-500 caption-regular">
+    //       Enrolled
+    //     </div>
+    //   );
+    // }
+
+    if (course.status === "planned") {
+      return (
+        <div className="flex items-center justify-center rounded-[25px] p-2 bg-surface-50 dark:bg-transparent text-tcol-300 dark:text-tcol-100 caption-regular border">
+          Planned
+        </div>
+      );
+    }
+
+    // meaning the status is completed
+    return (
+      <div
+        className={cn(
+          "w-7 h-7 flex items-center justify-around rounded-full bg-green-400 dark:bg-green-500 text-surface-50  caption-regular mr-1",
+          course.grade!.length > 1 ? "pl-0.5" : ""
+        )}
+      >
+        {course.grade}
+      </div>
+    );
+  };
+
+  // Determine the course grade colors
+  const getGradeDisplay = () => {
+    if (course.status === "failed") {
+      return "text-danger-600 dark:text-danger-400";
+    }
+
+    if (course.status === "completed" && course.retakeNeeded) {
+      return "text-warning-600 dark:text-warning-400";
+    }
+
+    return (
+      <div
+        className={cn(
+          "w-7 h-7 flex items-center justify-around rounded-full bg-green-400 dark:bg-green-500 text-surface-50  caption-regular",
+          course.grade!.length > 1 ? "pl-0.5" : ""
+        )}
+      >
+        {course.grade}
+      </div>
+    );
+  };
 
   // Handle course actions
   const handleRemove = () => {
@@ -91,35 +158,63 @@ export function CourseCard({ course, isOverlay = false }: CourseCardProps) {
       ref={isDraggable ? setNodeRef : undefined}
       style={isDraggable ? style : undefined}
       {...(isDraggable ? attributes : {})}
-      className={cardBackground}
+      className={cn(
+        cardBackground,
+        "transition-all rounded-md",
+        course.status === "planned" && "cursor-move"
+      )}
     >
-      {/* Course header with code and actions */}
-      <div className="mb-0.5 flex items-start justify-between">
-        <h5 className="body2-medium truncate">{course.courseCode}</h5>
-        <div className="flex items-center gap-1">
-          {/* Credits badge */}
-          <Badge variant="outline" className="px-1.5 py-0 text-xs font-normal">
-            {course.credits} cr
-          </Badge>
+      <div className="flex justify-between items-center gap-1">
+        <div className="flex-1 min-w-0">
+          {/* Course code, credits, info tooltip */}
+          <div className="flex items-center mb-1 gap-1">
+            <span className="font-semibold text-[15px] truncate">
+              {course.courseCode}
+            </span>
+            <Badge
+              variant="outline"
+              className="mx-1 text-xs bg-surface-50 dark:bg-transparent text-tcol-300 dark:text-tcol-100 rounded-[25px] px-2.5 py-1
+              "
+            >
+              {course.credits} cr
+            </Badge>
+            {/* Info tooltip */}
+            <TooltipProvider>
+              <Tooltip delayDuration={300}>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 p-0 text-muted-foreground"
+                  >
+                    <Info className="h-3.5 w-3.5" />
+                    <span className="sr-only">Course info</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right" align="start" className="max-w-xs">
+                  <p>{course.infoMessage || "Course information"}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
 
-          {/* Info tooltip */}
-          <TooltipProvider>
-            <Tooltip delayDuration={300}>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 p-0 text-muted-foreground"
-                >
-                  <Info className="h-3.5 w-3.5" />
-                  <span className="sr-only">Course info</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="right" align="start" className="max-w-xs">
-                <p>{course.infoMessage || "Course information"}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          {/* Course title */}
+          <p className="text-[14px] font-medium mb-1 text-muted-foreground truncate  ">
+            {course.courseTitle}
+          </p>
+
+          {/* Category with colored dot */}
+          <div className="flex items-center gap-1">
+            <span
+              className="inline-block h-2 w-2 rounded-full"
+              style={{ backgroundColor: course.category.color }}
+            ></span>
+            <span className="caption-regular">{course.category.name}</span>
+          </div>
+        </div>
+
+        <div className="flex items-center">
+          {getStatusDisplay()}
 
           {/* Actions menu - only for planned courses */}
           {course.status === "planned" && (
@@ -143,70 +238,6 @@ export function CourseCard({ course, isOverlay = false }: CourseCardProps) {
           )}
         </div>
       </div>
-
-      {/* Course title */}
-      <p className="caption-regular mb-1 truncate text-muted-foreground">
-        {course.courseTitle}
-      </p>
-
-      {/* Category with colored dot */}
-      <div className="mb-1 flex items-center gap-1">
-        <span
-          className="inline-block h-2 w-2 rounded-full"
-          style={{ backgroundColor: course.category.color }}
-        ></span>
-        <span className="caption-regular">{course.category.name}</span>
-      </div>
-
-      {/* Status indicator */}
-      <div className="mt-auto">
-        {course.status === "completed" && (
-          <Badge
-            variant="outline"
-            className="bg-green-50 text-green-500 dark:bg-green-500 dark:text-tcol-100"
-          >
-            {course.grade}
-          </Badge>
-        )}
-
-        {course.status === "failed" && (
-          <div className="flex items-center gap-1">
-            <Badge
-              variant="outline"
-              className="bg-red-50 text-red-500 dark:bg-red-500 dark:text-tcol-100"
-            >
-              {course.grade}
-            </Badge>
-            <span className="caption-regular text-muted-foreground">
-              Min {course.minGradeRequired}
-            </span>
-          </div>
-        )}
-
-        {/*{course.status === "enrolled" && (*/}
-        {/*  <Badge className="bg-primary-50 text-primary-500 dark:bg-primary-500 dark:text-tcol-100">*/}
-        {/*    Enrolled*/}
-        {/*  </Badge>*/}
-        {/*)}*/}
-
-        {course.status === "planned" && (
-          <Badge
-            variant="outline"
-            className="bg-surface-50 border text-tcol-300 dark:bg-transparent dark:text-tcol-100"
-          >
-            Planned
-          </Badge>
-        )}
-      </div>
-
-      {/* Drag handle for planned courses */}
-      {isDraggable && (
-        <div
-          className="absolute inset-0 cursor-grab"
-          {...listeners}
-          onClick={(e) => e.stopPropagation()}
-        />
-      )}
     </div>
   );
 }
