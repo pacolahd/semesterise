@@ -22,6 +22,7 @@ export const studentCourseStatusView = pgView("student_course_status_view", {
   wasSummerSemester: boolean("was_summer_semester"),
 
   courseCode: varchar("course_code").notNull(),
+  status: varchar("status").notNull(),
   categoryName: text("category_name").notNull(),
   credits: decimal("credits"),
 
@@ -115,6 +116,7 @@ SELECT
 
   -- 3. Course Info
   sc.course_code,
+  sc.status,
   COALESCE(cc.category_name, 'Non-Major Electives') AS category_name,
   c.credits,
 

@@ -24,6 +24,11 @@ export {
   type StudentDegreeRequirementProgressRecord,
 } from "./views/student-degree-requirement-progress-view";
 
+export {
+  studentCourseCategorizedStatusView,
+  type StudentCourseCategorizedStatusRecord,
+} from "./views/student_course_categorized_status_view";
+
 // Relations
 export * from "./relations";
 
