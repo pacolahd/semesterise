@@ -47,7 +47,7 @@ category_requirements AS (
     src.parent_category,
     CASE
       WHEN src.category_name IN ('Major Electives', 'Non-Major Electives')
-      THEN src.sub_category
+      THEN COALESCE(src.sub_category, src.category_name)
       ELSE src.category_name
     END AS requirement_category,
     src.category_name AS original_category,
@@ -64,7 +64,7 @@ category_requirements AS (
     src.parent_category,
     CASE
       WHEN src.category_name IN ('Major Electives', 'Non-Major Electives')
-      THEN src.sub_category
+      THEN COALESCE(src.sub_category, src.category_name)
       ELSE src.category_name
     END,
     src.category_name
@@ -85,7 +85,7 @@ category_progress AS (
     cr.student_id,
     cr.auth_id,
     cr.parent_category,
-    cr.requirement_category AS category_name,  -- Directly use requirement category
+    cr.original_category AS category_name,  -- Directly use original category
     CASE
       WHEN cr.original_category = 'Non-Major Electives' 
       THEN cr.requirement_category  -- Show sub-category for electives
@@ -163,7 +163,6 @@ SELECT
   fp.progress_percentage,
   fp.requirement_met
 FROM final_progress fp
-
 `
 );
 

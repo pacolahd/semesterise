@@ -29,6 +29,11 @@ export {
   type StudentCourseCategorizedStatusRecord,
 } from "./views/student_course_categorized_status_view";
 
+export {
+  studentRemainingRequirementsView,
+  type StudentRemainingRequirementsRecord,
+} from "./views/student_remaining_requirements_view";
+
 // Relations
 export * from "./relations";
 
