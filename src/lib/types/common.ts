@@ -137,6 +137,7 @@ export type ActionResponse<dataT = null, errorT = SerializedAppError> = {
   data?: dataT;
   status?: number;
   error?: errorT;
+  message?: string;
   warnings?: string[];
 };
 

@@ -185,6 +185,13 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
               });
               return;
             }
+            if (appError.message?.includes("summer")) {
+              toast.error("Chale, SUMMER!!", {
+                description: `${appError.status} ${appError.originalError} ${appError.details} ${appError.source}`,
+              });
+              console.log("\n\n\n" + appError);
+              return;
+            }
 
             // Show appropriate toast message
             toast.error(formatErrorForDisplay(error));

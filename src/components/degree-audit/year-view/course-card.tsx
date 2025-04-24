@@ -33,8 +33,10 @@ export function CourseCard({ course, isOverlay = false }: CourseCardProps) {
   const { removeCourse } = useDndContext();
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const isPlaceholder = !course.courseCode;
+
   // Only enable drag for planned courses
-  const isDraggable = course.status === "planned";
+  const isDraggable = course.status === "planned" || isPlaceholder;
 
   const {
     attributes,
@@ -68,13 +70,14 @@ export function CourseCard({ course, isOverlay = false }: CourseCardProps) {
       "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800":
         course.status === "failed",
       // Passed course
-      "bg-green-50 dark:bg-green-950/30  dark:border-green-800":
+      "bg-green-50 dark:bg-green-950/30 dark:border-green-800":
         course.status === "completed" && !course.retakeNeeded,
-      // // Enrolled course
-      // "bg-surface-500 dark:bg-card border-primary/30 dark:border-primary/30":
-      //   course.status === "enrolled",
+      // Placeholder course
+      "bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800":
+        isPlaceholder,
       // Planned course
-      "bg-surface-500 dark:bg-card border-border": course.status === "planned",
+      "bg-surface-500 dark:bg-card border-border":
+        course.status === "planned" && !isPlaceholder,
       // When being dragged as overlay
       "cursor-grabbing": isOverlay,
     }
@@ -84,7 +87,7 @@ export function CourseCard({ course, isOverlay = false }: CourseCardProps) {
   const getStatusDisplay = () => {
     if (course.status === "failed") {
       return (
-        <span className=" flex flex-col items-end">
+        <span className="flex flex-col items-end">
           <div className="w-7 h-7 flex items-center justify-center rounded-full bg-danger-600 text-surface-50 dark:bg-danger-700 text-sm font-medium">
             {course.grade}
           </div>
@@ -96,15 +99,7 @@ export function CourseCard({ course, isOverlay = false }: CourseCardProps) {
       );
     }
 
-    // if (course.status === "enrolled") {
-    //   return (
-    //     <div className="flex items-center justify-center rounded-[25px] p-2 bg-primary-50 text-primary-500 dark:text-tcol-100 dark:bg-primary-500 caption-regular">
-    //       Enrolled
-    //     </div>
-    //   );
-    // }
-
-    if (course.status === "planned") {
+    if (course.status === "planned" || isPlaceholder) {
       return (
         <div className="flex items-center justify-center rounded-[25px] p-2 bg-surface-50 dark:bg-transparent text-tcol-300 dark:text-tcol-100 caption-regular border">
           Planned
@@ -116,29 +111,7 @@ export function CourseCard({ course, isOverlay = false }: CourseCardProps) {
     return (
       <div
         className={cn(
-          "w-7 h-7 flex items-center justify-around rounded-full bg-green-400 dark:bg-green-500 text-surface-50  caption-regular mr-1",
-          course.grade!.length > 1 ? "pl-0.5" : ""
-        )}
-      >
-        {course.grade}
-      </div>
-    );
-  };
-
-  // Determine the course grade colors
-  const getGradeDisplay = () => {
-    if (course.status === "failed") {
-      return "text-danger-600 dark:text-danger-400";
-    }
-
-    if (course.status === "completed" && course.retakeNeeded) {
-      return "text-warning-600 dark:text-warning-400";
-    }
-
-    return (
-      <div
-        className={cn(
-          "w-7 h-7 flex items-center justify-around rounded-full bg-green-400 dark:bg-green-500 text-surface-50  caption-regular",
+          "w-7 h-7 flex items-center justify-around rounded-full bg-green-400 dark:bg-green-500 text-surface-50 caption-regular mr-1",
           course.grade!.length > 1 ? "pl-0.5" : ""
         )}
       >
@@ -158,10 +131,12 @@ export function CourseCard({ course, isOverlay = false }: CourseCardProps) {
       ref={isDraggable ? setNodeRef : undefined}
       style={isDraggable ? style : undefined}
       {...(isDraggable ? attributes : {})}
+      {...(isDraggable ? listeners : {})}
       className={cn(
         cardBackground,
         "transition-all rounded-md",
-        course.status === "planned" && "cursor-move"
+        isDragging && "cursor-grabbing",
+        course.status === "planned" && !isDragging && "cursor-move"
       )}
     >
       <div className="flex justify-between items-center gap-1">
@@ -169,12 +144,11 @@ export function CourseCard({ course, isOverlay = false }: CourseCardProps) {
           {/* Course code, credits, info tooltip */}
           <div className="flex items-center mb-1 gap-1">
             <span className="font-semibold text-[15px] truncate">
-              {course.courseCode}
+              {isPlaceholder ? "Elective" : course.courseCode}
             </span>
             <Badge
               variant="outline"
-              className="mx-1 text-xs bg-surface-50 dark:bg-transparent text-tcol-300 dark:text-tcol-100 rounded-[25px] px-2.5 py-1
-              "
+              className="mx-1 text-xs bg-surface-50 dark:bg-transparent text-tcol-300 dark:text-tcol-100 rounded-[25px] px-2.5 py-1"
             >
               {course.credits} cr
             </Badge>
@@ -199,7 +173,7 @@ export function CourseCard({ course, isOverlay = false }: CourseCardProps) {
           </div>
 
           {/* Course title */}
-          <p className="text-[14px] font-medium mb-1 text-muted-foreground truncate  ">
+          <p className="text-[14px] font-medium mb-1 text-muted-foreground truncate">
             {course.courseTitle}
           </p>
 

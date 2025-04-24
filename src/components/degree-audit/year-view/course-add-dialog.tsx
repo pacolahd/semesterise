@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
+import { ElectivePlaceholderDialog } from "@/components/degree-audit/year-view/elective-placeholder-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -24,6 +25,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   useAddCourse,
   useAvailableCourses,
@@ -109,7 +111,7 @@ export function CourseAddDialog({
       }
     );
   };
-
+  const [activeTab, setActiveTab] = useState("course");
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -125,113 +127,137 @@ export function CourseAddDialog({
             <span className="ml-2">Loading courses...</span>
           </div>
         ) : (
-          <>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={openCombobox}
-                      className="w-full justify-between"
-                    >
-                      {selectedCourse
-                        ? `${selectedCourse.code} - ${selectedCourse.title}`
-                        : "Select a course"}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[400px] p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder="Search for a course..." />
-                      <CommandList>
-                        <CommandEmpty>No courses found.</CommandEmpty>
-                        <CommandGroup>
-                          {courses.map((course) => (
-                            <CommandItem
-                              key={course.code}
-                              value={`${course.code} ${course.title}`}
-                              onSelect={() => {
-                                setSelectedCourse(course);
-                                setOpenCombobox(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  selectedCourse?.code === course.code
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              <span className="mr-2 font-medium">
-                                {course.code}
-                              </span>
-                              <span className="truncate text-sm text-muted-foreground">
-                                {course.title}
-                              </span>
-                              {!course.offeredInSemester && isSummer && (
-                                <span className="ml-2 text-xs text-amber-500">
-                                  !
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="course">Course</TabsTrigger>
+              <TabsTrigger value="placeholder">
+                Elective Placeholder
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="course">
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openCombobox}
+                        className="w-full justify-between"
+                      >
+                        {selectedCourse
+                          ? `${selectedCourse.code} - ${selectedCourse.title}`
+                          : "Select a course"}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[400px] p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Search for a course..." />
+                        <CommandList>
+                          <CommandEmpty>No courses found.</CommandEmpty>
+                          <CommandGroup>
+                            {courses.map((course) => (
+                              <CommandItem
+                                key={course.code}
+                                value={`${course.code} ${course.title}`}
+                                onSelect={() => {
+                                  setSelectedCourse(course);
+                                  setOpenCombobox(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    selectedCourse?.code === course.code
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                <span className="mr-2 font-medium">
+                                  {course.code}
                                 </span>
-                              )}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                                <span className="truncate text-sm text-muted-foreground">
+                                  {course.title}
+                                </span>
+                                {!course.offeredInSemester && isSummer && (
+                                  <span className="ml-2 text-xs text-amber-500">
+                                    !
+                                  </span>
+                                )}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
 
-                {selectedCourse && (
-                  <div className="mt-4 rounded-md border bg-muted p-3">
-                    <div className="mb-1 flex items-center justify-between">
-                      <span className="font-medium">{selectedCourse.code}</span>
-                      <span className="text-sm">
-                        {selectedCourse.credits} credits
-                      </span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {selectedCourse.title}
-                    </p>
-                    <div className="mt-2 text-xs">
-                      Category: {selectedCourse.category}
-                    </div>
-                    {!selectedCourse.offeredInSemester && isSummer && (
-                      <p className="mt-2 text-xs text-amber-500">
-                        Note: This course may not be typically offered in Summer
+                  {selectedCourse && (
+                    <div className="mt-4 rounded-md border bg-muted p-3">
+                      <div className="mb-1 flex items-center justify-between">
+                        <span className="font-medium">
+                          {selectedCourse.code}
+                        </span>
+                        <span className="text-sm">
+                          {selectedCourse.credits} credits
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {selectedCourse.title}
                       </p>
-                    )}
-                  </div>
-                )}
+                      <div className="mt-2 text-xs">
+                        Category: {selectedCourse.category}
+                      </div>
+                      {!selectedCourse.offeredInSemester && isSummer && (
+                        <p className="mt-2 text-xs text-amber-500">
+                          Note: This course may not be typically offered in
+                          Summer
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
 
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={!selectedCourse || addCourseMutation.isPending}
-                onClick={handleAddCourse}
-              >
-                {addCourseMutation.isPending ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Adding...
-                  </>
-                ) : (
-                  "Add Course"
-                )}
-              </Button>
-            </DialogFooter>
-          </>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={!selectedCourse || addCourseMutation.isPending}
+                  onClick={handleAddCourse}
+                >
+                  {addCourseMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Adding...
+                    </>
+                  ) : (
+                    "Add Course"
+                  )}
+                </Button>
+              </DialogFooter>
+            </TabsContent>
+
+            <TabsContent value="placeholder">
+              <ElectivePlaceholderDialog
+                open={activeTab === "placeholder"}
+                onOpenChange={(isOpen) => {
+                  if (!isOpen) setActiveTab("course");
+                }}
+                year={year}
+                semester={semester}
+                onSuccess={onSuccess}
+              />
+            </TabsContent>
+          </Tabs>
         )}
       </DialogContent>
     </Dialog>

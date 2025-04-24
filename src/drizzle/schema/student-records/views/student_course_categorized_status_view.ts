@@ -59,8 +59,7 @@ WITH all_courses AS (
   SELECT 
     scsv.*,
     CASE
-      WHEN scsv.department_name = 'Humanities and Social Sciences'
-        AND (scsv.course_title ILIKE '%africa%' OR scsv.course_title ILIKE '%ghana%')
+      When(scsv.course_title ILIKE '%africa%' OR scsv.course_title ILIKE '%ghana%')
         THEN 'Africana'
       ELSE scsv.category_name
     END AS detailed_category
@@ -107,7 +106,7 @@ assigned_courses AS (
   SELECT DISTINCT ON (student_course_id)
     *,
     FIRST_VALUE(requirement_category) OVER (
-      PARTITION BY student_id, course_code
+      PARTITION BY student_id, course_title
       ORDER BY assignment_priority
     ) AS final_sub_category  -- This is the critical rename
   FROM prioritized_courses
@@ -189,7 +188,7 @@ SELECT
   END AS category_name,
   
   CASE
-    WHEN ac.final_sub_category IN ('Africana', 'Free Elective')
+    WHEN ac.final_sub_category IN ('Africana', 'Free Elective', 'Non-Major Electives')
     THEN ac.final_sub_category
     ELSE NULL
   END AS sub_category

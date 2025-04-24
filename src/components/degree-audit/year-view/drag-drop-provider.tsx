@@ -33,8 +33,7 @@ import { useAuthStore } from "@/lib/auth/auth-store";
 import { CourseAddDialog } from "./course-add-dialog";
 import { CourseCard } from "./course-card";
 
-// src/components/degree-audit/year-view/drag-drop-provider.tsx
-
+// Context type definition
 type DndContextType = {
   onAddCourse: (year: number, semester: number) => void;
   removeCourse: (courseId: string) => void;
@@ -42,6 +41,7 @@ type DndContextType = {
   findCourse: (courseId: string) => CourseWithStatus | undefined;
 };
 
+// Create the context
 const DndContextValue = createContext<DndContextType>({
   onAddCourse: () => {},
   removeCourse: () => {},
@@ -49,6 +49,7 @@ const DndContextValue = createContext<DndContextType>({
   findCourse: () => undefined,
 });
 
+// Export hook to use the context
 export const useDndContext = () => useContext(DndContextValue);
 
 interface DragDropProviderProps {
@@ -78,13 +79,13 @@ export function DragDropProvider({
   const sensors = useSensors(
     useSensor(MouseSensor, {
       activationConstraint: {
-        distance: 8, // 8px of movement required before drag starts
+        distance: 3, // 3px of movement required before drag starts
       },
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 200, // 200ms delay for touch
-        tolerance: 8, // 8px of tolerance
+        delay: 100, // 100ms delay for touch
+        tolerance: 5, // 5px of tolerance
       },
     })
   );
@@ -100,9 +101,13 @@ export function DragDropProvider({
   // Find course by ID
   const findCourse = useCallback(
     (courseId: string): CourseWithStatus | undefined => {
+      // Search through all years and semesters to find the course
       for (const yearNum in plan.years) {
         const year = plan.years[parseInt(yearNum)];
         for (const semesterKey of ["fall", "spring", "summer"] as const) {
+          // Skip if the semester doesn't exist (e.g., summer might be undefined)
+          if (!year[semesterKey]) continue;
+
           const course = year[semesterKey].courses.find(
             (c) => c.id === courseId
           );
@@ -123,7 +128,7 @@ export function DragDropProvider({
   // Handle removing a course
   const handleRemoveCourse = async (courseId: string) => {
     if (!user?.id) {
-      toast.error("Chale, Session not found. Please Log out and Log in again.");
+      toast.error("Session not found. Please log out and log in again.");
       return;
     }
 
@@ -146,7 +151,6 @@ export function DragDropProvider({
   // Drag end handler
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
-
     setActiveId(null);
 
     if (!over || !user?.id) {
@@ -163,18 +167,67 @@ export function DragDropProvider({
 
     // Get target semester info from the over.id (which is semester-id)
     const overSemesterId = over.id as string;
-    const [targetYear, targetSemester] = overSemesterId.split("-").map(Number);
+
+    // More robust parsing of semester IDs
+    const targetParts = overSemesterId.split("-");
+    if (targetParts.length !== 2) {
+      toast.error("Invalid target semester format");
+      return;
+    }
+
+    const targetYear = parseInt(targetParts[0], 10);
+    const targetSemester = parseInt(targetParts[1], 10);
+
+    if (isNaN(targetYear) || isNaN(targetSemester)) {
+      toast.error("Invalid semester values");
+      return;
+    }
 
     // Get source semester info
     const sourceSemesterId = courseData?.semester;
-    if (!sourceSemesterId) return;
+    if (!sourceSemesterId) {
+      toast.error("Source semester information missing");
+      return;
+    }
 
-    const [sourceYear, sourceSemester] = sourceSemesterId
-      .split("-")
-      .map(Number);
+    const sourceParts = sourceSemesterId.split("-");
+    if (sourceParts.length !== 2) {
+      toast.error("Invalid source semester format");
+      return;
+    }
+
+    const sourceYear = parseInt(sourceParts[0], 10);
+    const sourceSemester = parseInt(sourceParts[1], 10);
+
+    if (isNaN(sourceYear) || isNaN(sourceSemester)) {
+      toast.error("Invalid source semester values");
+      return;
+    }
 
     // If not moving to a different semester, do nothing
     if (sourceYear === targetYear && sourceSemester === targetSemester) {
+      return;
+    }
+
+    // Check if target semester is in the past
+    if (
+      targetYear < plan.currentYear ||
+      (targetYear === plan.currentYear && targetSemester < plan.currentSemester)
+    ) {
+      toast.error(
+        "Cannot move courses to past semesters. Only current and future semesters are valid targets."
+      );
+      return;
+    }
+
+    // Validate that the years exist in the plan
+    if (!plan.years[sourceYear]) {
+      toast.error(`Source year ${sourceYear} not found in plan`);
+      return;
+    }
+
+    if (!plan.years[targetYear]) {
+      toast.error(`Target year ${targetYear} not found in plan`);
       return;
     }
 

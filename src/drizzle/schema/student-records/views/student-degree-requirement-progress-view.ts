@@ -74,11 +74,12 @@ completed_courses AS (
     sccsv.student_id,
     sccsv.course_code,
     sccsv.credits,
+\tsccsv.course_title,
     sccsv.parent_category,
     sccsv.category_name,
     sccsv.sub_category
   FROM student_course_categorized_status_view sccsv
-  WHERE sccsv.passed = true AND sccsv.is_latest_attempt = true
+  WHERE sccsv.status = 'planned' or sccsv.passed = true AND sccsv.is_latest_attempt = true
 ),
 category_progress AS (
   SELECT
@@ -93,7 +94,7 @@ category_progress AS (
     END AS sub_category,
     cr.courses_required,
     cr.credits_required,
-    COUNT(DISTINCT cc.course_code) AS raw_courses_completed,
+\tCOUNT(DISTINCT cc.course_title) AS raw_courses_completed,
     COALESCE(SUM(cc.credits), 0) AS raw_credits_completed,
     cr.enforce_max
   FROM category_requirements cr

@@ -4,8 +4,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import {
+  addPlaceholderElective,
   addPlannedCourse,
+  generateAutomaticPlan,
   getAvailableCoursesForSemester,
+  getAvailableElectiveCategories,
   getStudentAcademicPlan,
   movePlannedCourse,
   removePlannedCourse,
@@ -310,15 +313,36 @@ export function useOptimisticMoveCourse() {
         // Remove the course from its original position
         const originalYear = course.year;
         const originalSemester = course.semester;
-        const semesterKey =
+        const sourceSemesterKey =
           originalSemester === 1
             ? "fall"
             : originalSemester === 2
               ? "spring"
               : "summer";
 
+        // Check if the year and semester exist
+        if (!updatedPlan.years[originalYear]) {
+          console.error(`Original year ${originalYear} not found in plan`);
+          return { previousPlan };
+        }
+
+        // Initialize semester if it doesn't exist (for summer)
+        if (!updatedPlan.years[originalYear][sourceSemesterKey]) {
+          updatedPlan.years[originalYear][sourceSemesterKey] = {
+            year: originalYear,
+            semester: originalSemester,
+            name:
+              sourceSemesterKey.charAt(0).toUpperCase() +
+              sourceSemesterKey.slice(1),
+            isSummer: sourceSemesterKey === "summer",
+            courses: [],
+            totalCredits: 0,
+            hasCreditWarning: false,
+          };
+        }
+
         const originalSemesterCourses =
-          updatedPlan.years[originalYear][semesterKey].courses;
+          updatedPlan.years[originalYear][sourceSemesterKey].courses;
         const courseIndex = originalSemesterCourses.findIndex(
           (c) => c.id === courseId
         );
@@ -328,8 +352,14 @@ export function useOptimisticMoveCourse() {
             courseIndex,
             1
           );
-          updatedPlan.years[originalYear][semesterKey].totalCredits -=
-            removedCourse.credits;
+
+          // Update total credits for original semester
+          updatedPlan.years[originalYear][sourceSemesterKey].totalCredits =
+            Math.max(
+              0,
+              updatedPlan.years[originalYear][sourceSemesterKey].totalCredits -
+                removedCourse.credits
+            );
 
           // Update the course with new position
           removedCourse.year = newYear;
@@ -337,23 +367,56 @@ export function useOptimisticMoveCourse() {
           removedCourse.isSummer = newSemester === 3;
 
           // Add to new position
-          const newSemesterKey =
+          const targetSemesterKey =
             newSemester === 1
               ? "fall"
               : newSemester === 2
                 ? "spring"
                 : "summer";
-          updatedPlan.years[newYear][newSemesterKey].courses.push(
+
+          // Check if the target year exists
+          if (!updatedPlan.years[newYear]) {
+            console.error(`Target year ${newYear} not found in plan`);
+            return { previousPlan };
+          }
+
+          // Initialize semester if it doesn't exist (for summer)
+          if (!updatedPlan.years[newYear][targetSemesterKey]) {
+            updatedPlan.years[newYear][targetSemesterKey] = {
+              year: newYear,
+              semester: newSemester,
+              name:
+                targetSemesterKey.charAt(0).toUpperCase() +
+                targetSemesterKey.slice(1),
+              isSummer: targetSemesterKey === "summer",
+              courses: [],
+              totalCredits: 0,
+              hasCreditWarning: false,
+            };
+          }
+
+          // Add course to target semester
+          updatedPlan.years[newYear][targetSemesterKey].courses.push(
             removedCourse
           );
-          updatedPlan.years[newYear][newSemesterKey].totalCredits +=
+
+          // Update total credits for target semester
+          updatedPlan.years[newYear][targetSemesterKey].totalCredits +=
             removedCourse.credits;
 
           // Update credit warnings
-          updatedPlan.years[originalYear][semesterKey].hasCreditWarning =
-            updatedPlan.years[originalYear][semesterKey].totalCredits > 5;
-          updatedPlan.years[newYear][newSemesterKey].hasCreditWarning =
-            updatedPlan.years[newYear][newSemesterKey].totalCredits > 5;
+          const sourceSemester =
+            updatedPlan.years[originalYear][sourceSemesterKey];
+          const targetSemester = updatedPlan.years[newYear][targetSemesterKey];
+
+          // Use a credit threshold of 18 for regular semesters, 6 for summer
+          const sourceThreshold = sourceSemester.isSummer ? 6 : 18;
+          const targetThreshold = targetSemester.isSummer ? 6 : 18;
+
+          sourceSemester.hasCreditWarning =
+            sourceSemester.totalCredits > sourceThreshold;
+          targetSemester.hasCreditWarning =
+            targetSemester.totalCredits > targetThreshold;
         }
 
         // Update the cache with our optimistic update
@@ -384,6 +447,111 @@ export function useOptimisticMoveCourse() {
     meta: {
       skipGlobalErrorHandler: false,
       errorContext: "move-course-optimistic",
+    },
+  });
+}
+
+export function useAddPlaceholderElective() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      authId,
+      title,
+      credits,
+      year,
+      semester,
+      category = "Non-Major Electives",
+    }: {
+      authId: string;
+      title: string;
+      credits: number;
+      year: number;
+      semester: number;
+      category?: string;
+    }) => {
+      const result = await addPlaceholderElective(
+        authId,
+        title,
+        credits,
+        year,
+        semester,
+        category
+      );
+
+      processWarnings(result.warnings);
+
+      return handleActionResponse(result);
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: academicPlanKeys.plan(variables.authId),
+      });
+
+      toast.success(`Added elective placeholder to your plan`);
+    },
+    meta: {
+      skipGlobalErrorHandler: false,
+      errorContext: "add-elective-placeholder",
+    },
+  });
+}
+
+export function useAvailableElectiveCategories(authId?: string) {
+  return useQuery({
+    queryKey: [...academicPlanKeys.all, "electiveCategories", authId || ""],
+    queryFn: async () => {
+      if (!authId) {
+        throw new Error("User ID is required");
+      }
+
+      const result = await getAvailableElectiveCategories(authId);
+      return handleActionResponse(result);
+    },
+    enabled: !!authId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+// Updated hook for automatic planning
+export function useGenerateAutomaticPlan() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      authId,
+      options,
+    }: {
+      authId: string;
+      options?: {
+        startYear?: number;
+        startSemester?: number;
+        balanceCredits?: boolean;
+      };
+    }) => {
+      const result = await generateAutomaticPlan(authId, options);
+
+      // Process any warnings
+      processWarnings(result.warnings);
+
+      return handleActionResponse(result);
+    },
+    // onSuccess: (data, variables, context, result) => {
+    //   // Invalidate the plan query to refresh the data
+    //   queryClient.invalidateQueries({
+    //     queryKey: academicPlanKeys.plan(variables.authId),
+    //   });
+    //
+    //   // Show success message from the response
+    //   if (result.message) {
+    //     toast.success(result.message);
+    //   } else {
+    //     toast.success("Your degree plan has been automatically generated!");
+    //   }
+    // },
+    meta: {
+      skipGlobalErrorHandler: false,
+      errorContext: "generate-automatic-plan",
     },
   });
 }

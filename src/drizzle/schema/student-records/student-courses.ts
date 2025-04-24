@@ -2,6 +2,7 @@
 import { InferSelectModel, sql } from "drizzle-orm";
 import {
   boolean,
+  decimal,
   index,
   pgTable,
   text,
@@ -34,9 +35,7 @@ export const studentCourses = pgTable(
       () => studentProfiles.studentId,
       { onDelete: "cascade" }
     ),
-    courseCode: varchar("course_code", { length: 20 })
-      .notNull()
-      .references(() => courses.code, { onDelete: "restrict" }),
+    courseCode: varchar("course_code", { length: 20 }),
     semesterId: uuid("semester_id")
       .notNull()
       .references(() => academicSemesters.id, { onDelete: "restrict" }),
@@ -53,6 +52,11 @@ export const studentCourses = pgTable(
       { onDelete: "set null" }
     ),
     notes: text("notes"),
+    placeholderTitle: varchar("placeholder_title", { length: 255 }),
+    placeholderCredits: decimal("placeholder_credits", {
+      precision: 3,
+      scale: 1,
+    }),
     createdAt,
     updatedAt,
   },
@@ -74,7 +78,7 @@ export const studentCourses = pgTable(
 export const studentCourseSchema = createInsertSchema(studentCourses).extend({
   studentId: z.string().min(1).max(20),
   authId: z.string().uuid(),
-  courseCode: z.string().min(2).max(20),
+  courseCode: z.string().min(2).max(20).nullable(),
   semesterId: z.string().uuid(),
   status: z.enum(studentCourseStatusValues),
   grade: z.string().max(5).optional().nullable(),

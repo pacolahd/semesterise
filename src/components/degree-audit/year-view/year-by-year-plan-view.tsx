@@ -5,12 +5,9 @@ import { useAcademicPlan } from "@/lib/academic-plan/academic-plan-hooks";
 import { YearPlan } from "@/lib/academic-plan/types";
 import { useAuthStore } from "@/lib/auth/auth-store";
 
-// Updated import path
-
+import { AutoPlanButton } from "./auto-plan-button";
 import { DragDropProvider } from "./drag-drop-provider";
 import { YearColumn } from "./year-column";
-
-// src/components/degree-audit/year-view/year-by-year-plan-view.tsx
 
 interface YearByYearPlanViewProps {
   plan: YearPlan;
@@ -35,7 +32,10 @@ export function YearByYearPlanView({ plan }: YearByYearPlanViewProps) {
     <div className="flex flex-col space-y-6">
       {/* Progress section */}
       <div className="rounded-lg border bg-card p-4 shadow-sm">
-        <h2 className="mb-2 font-semibold">Degree Progress</h2>
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="font-semibold">Degree Progress</h2>
+          <AutoPlanButton />
+        </div>
         <div className="mb-1 flex justify-between text-sm">
           <span>{plan.totalCreditsCompleted} credits completed</span>
           <span>{plan.percentageComplete}% complete</span>
@@ -50,17 +50,22 @@ export function YearByYearPlanView({ plan }: YearByYearPlanViewProps) {
       <DragDropProvider plan={plan} refreshPlan={handleRefreshPlan}>
         <div className="pb-4 overflow-x-visible custom-scrollbar">
           <div className="flex gap-4">
-            {Object.keys(plan.years).map((yearNum) => (
-              <YearColumn
-                key={yearNum}
-                year={parseInt(yearNum)}
-                fall={plan.years[parseInt(yearNum)].fall}
-                spring={plan.years[parseInt(yearNum)].spring}
-                summer={plan.years[parseInt(yearNum)].summer}
-                currentYear={plan.currentYear}
-                currentSemester={plan.currentSemester}
-              />
-            ))}
+            {Object.keys(plan.years).map((yearNum) => {
+              const yearKey = parseInt(yearNum);
+              const yearData = plan.years[yearKey];
+
+              return (
+                <YearColumn
+                  key={yearNum}
+                  year={yearKey}
+                  fall={yearData.fall}
+                  spring={yearData.spring}
+                  summer={yearData.summer}
+                  currentYear={plan.currentYear}
+                  currentSemester={plan.currentSemester}
+                />
+              );
+            })}
           </div>
         </div>
       </DragDropProvider>

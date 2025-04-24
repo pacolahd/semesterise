@@ -25,7 +25,8 @@ export const studentRemainingRequirementsView = pgView(
     requirementType: varchar("requirement_type", { length: 20 }),
     priorityOrder: integer("priority_order"),
   }
-).as(sql`
+).as(
+  sql`
 WITH requirement_base AS (
   SELECT 
     req.auth_id,
@@ -66,6 +67,7 @@ completed_courses AS (
     cat.category_name,
     cat.sub_category,
     cat.course_code,
+\tcat.course_title,
     cat.status,
     cat.passed,
     cat.retake_needed
@@ -104,32 +106,38 @@ remaining_concrete_courses AS (
 ),
 
 remaining_electives AS (
-  SELECT
-    rb.auth_id,
-    rb.student_id,
-    rb.parent_category,
-    rb.category_name,
-    rb.sub_category,
-    NULL AS course_code,
-    rb.course_title,
-    rb.credits,
-    NULL::integer AS recommended_year,
-    NULL::integer AS recommended_semester,
-    NULL::semester_offering[] AS offered_in_semesters,  -- Fixed type casting
-    'elective_placeholder' AS requirement_type,
-    ROW_NUMBER() OVER (
-      PARTITION BY rb.parent_category, rb.category_name, rb.sub_category 
-      ORDER BY rb.course_title
-    ) AS priority_order
-  FROM requirement_base rb
-  JOIN progress_data pd 
-    ON rb.auth_id = pd.auth_id
-    AND rb.parent_category = pd.parent_category
-    AND rb.category_name = pd.category_name
-    AND COALESCE(rb.sub_category, '') = COALESCE(pd.sub_category, '')
-  WHERE rb.course_type = 'elective_placeholder'
-    AND pd.courses_remaining > 0
+  SELECT *
+  FROM (
+    SELECT
+      rb.auth_id,
+      rb.student_id,
+      rb.parent_category,
+      rb.category_name,
+      rb.sub_category,
+      NULL AS course_code,
+      rb.course_title,
+      rb.credits,
+      NULL::integer AS recommended_year,
+      NULL::integer AS recommended_semester,
+      NULL::semester_offering[] AS offered_in_semesters,
+      'elective_placeholder' AS requirement_type,
+      pd.courses_remaining,
+      ROW_NUMBER() OVER (
+        PARTITION BY rb.auth_id, rb.parent_category, rb.category_name, rb.sub_category 
+        ORDER BY rb.course_title
+      ) AS priority_order
+    FROM requirement_base rb
+    JOIN progress_data pd 
+      ON rb.auth_id = pd.auth_id
+      AND rb.parent_category = pd.parent_category
+      AND rb.category_name = pd.category_name
+      AND COALESCE(rb.sub_category, '') = COALESCE(pd.sub_category, '')
+    WHERE rb.course_type = 'elective_placeholder'
+      AND pd.courses_remaining > 0
+  ) sub
+  WHERE priority_order <= courses_remaining
 ),
+
 
 retake_requirements AS (
   SELECT 
@@ -157,13 +165,27 @@ retake_requirements AS (
         AND rb.is_required = true
     )
 )
-
+-- select * from progress_data
 -- Combine all requirement types
 SELECT * FROM retake_requirements
 UNION ALL
 SELECT * FROM remaining_concrete_courses
 UNION ALL
-SELECT * FROM remaining_electives
+SELECT 
+  auth_id,
+  student_id,
+  parent_category,
+  category_name,
+  sub_category,
+  course_code,
+  course_title,
+  credits,
+  recommended_year,
+  recommended_semester,
+  offered_in_semesters,
+  requirement_type,
+  priority_order
+FROM remaining_electives -- Listing all attributes and ommitting courses_remaining
 ORDER BY
   priority_order,
   recommended_year NULLS LAST,
@@ -171,7 +193,8 @@ ORDER BY
   parent_category,
   category_name,
   sub_category
-`);
+`
+);
 
 export type StudentRemainingRequirementsRecord = InferModelFromColumns<
   (typeof studentRemainingRequirementsView)["_"]["selectedFields"]

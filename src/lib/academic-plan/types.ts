@@ -12,7 +12,8 @@ export type CourseCategory = {
 export type CourseWithStatus = {
   // Core identifiers
   id: string;
-  courseCode: string;
+  courseCode: string | null; // Can be null for placeholders
+
   courseTitle: string;
 
   // Academic info
@@ -38,16 +39,19 @@ export type CourseWithStatus = {
   // UI specific data
   infoMessage?: string;
   hasWarning: boolean;
+
+  // Flag for placeholder electives
+  isPlaceholder?: boolean;
 };
 
 export type Semester = {
   year: number;
   semester: number;
-  isSummer: boolean;
-  name: string;
+  isSummer?: boolean;
+  name?: string;
   courses: CourseWithStatus[];
   totalCredits: number;
-  hasCreditWarning: boolean;
+  hasCreditWarning?: boolean;
 };
 
 export type YearPlan = {
@@ -62,7 +66,7 @@ export type YearPlan = {
     [year: number]: {
       fall: Semester;
       spring: Semester;
-      summer: Semester;
+      summer?: Semester;
     };
   };
 
@@ -83,8 +87,6 @@ export type PrerequisiteCheckResult = {
   }[];
   infoMessage?: string;
 };
-
-// New response types with "Response" prefix
 
 export type SemesterAvailableCourses = {
   code: string;
@@ -111,4 +113,39 @@ export type CoursePlacementValidationResponse = {
   semesterMapping?: StudentSemesterMappingRecord | null;
   errors: string[];
   warnings: string[];
+};
+
+// Type definition for the placement summary
+export interface PlacementSummary {
+  totalPlaced: number;
+  retakesPlaced: number;
+  requiredPlaced: number;
+  electivesPlaced: number;
+  semesterPlacements: Record<
+    string,
+    {
+      year: number;
+      semester: number;
+      semesterName: string;
+      credits: number;
+      courses: {
+        code: string | null;
+        title: string;
+        credits: number;
+        type: "Retake" | "Required" | "Elective";
+      }[];
+    }
+  >;
+  unplacedCourses: {
+    code?: string;
+    title: string;
+    reason: string;
+  }[];
+}
+
+// New type for elective placeholders
+export type ElectivePlaceholder = {
+  title: string;
+  credits: number;
+  category?: string;
 };

@@ -23,7 +23,7 @@ async function seedStudentRecords() {
     // await seedStudentProfiles(dataDirectory);
 
     // 2. Seed student_semester_mappings
-    await seedSemesterMappings(dataDirectory);
+    // await seedSemesterMappings(dataDirectory);
 
     // 3. Seed student_courses
     await seedStudentCourses(dataDirectory);
@@ -77,47 +77,48 @@ async function seedStudentRecords() {
 /**
  * Seed semester_mappings
  */
-async function seedSemesterMappings(dataDirectory: string) {
-  try {
-    const mappingsData = JSON.parse(
-      fs.readFileSync(
-        path.join(dataDirectory, "student-semester-mappings.json"),
-        "utf8"
-      )
-    );
-
-    for (const mapping of mappingsData) {
-      // Find academic semester ID from name
-      const [semester] = await db
-        .select({ id: academicSemesters.id })
-        .from(academicSemesters)
-        .where(eq(academicSemesters.name, mapping.academic_semester_name));
-
-      if (semester) {
-        const { ...mappingValues } = mapping;
-
-        await db
-          .insert(studentSemesterMappings)
-          .values({
-            studentId: mappingValues.student_id,
-            programYear: mappingValues.program_year,
-            programSemester: mappingValues.programSemester,
-            isSummer: mappingValues.is_summer,
-            isVerified: mappingValues.is_verified,
-            academicSemesterId: semester.id,
-          })
-          .onConflictDoNothing();
-      } else {
-        console.error(
-          `Academic semester not found for name: ${mapping.academic_semester_name}`
-        );
-      }
-    }
-    console.log("✅ Student semester mappings seeded successfully");
-  } catch (error) {
-    console.error("❌ Error seeding student semester mappings:", error);
-  }
-}
+// async function seedSemesterMappings(dataDirectory: string) {
+//   try {
+//     const mappingsData = JSON.parse(
+//       fs.readFileSync(
+//         path.join(dataDirectory, "student-semester-mappings.json"),
+//         "utf8"
+//       )
+//     );
+//
+//     for (const mapping of mappingsData) {
+//       // Find academic semester ID from name
+//       const [semester] = await db
+//         .select({ id: academicSemesters.id })
+//         .from(academicSemesters)
+//         .where(eq(academicSemesters.name, mapping.academic_semester_name));
+//
+//       if (semester) {
+//         const { ...mappingValues } = mapping;
+//
+//         await db
+//           .insert(studentSemesterMappings)
+//           .values({
+//             authId: null,
+//             studentId: mappingValues.student_id,
+//             programYear: mappingValues.program_year,
+//             programSemester: mappingValues.programSemester,
+//             isSummer: mappingValues.is_summer,
+//             isVerified: mappingValues.is_verified,
+//             academicSemesterId: semester.id,
+//           })
+//           .onConflictDoNothing();
+//       } else {
+//         console.error(
+//           `Academic semester not found for name: ${mapping.academic_semester_name}`
+//         );
+//       }
+//     }
+//     console.log("✅ Student semester mappings seeded successfully");
+//   } catch (error) {
+//     console.error("❌ Error seeding student semester mappings:", error);
+//   }
+// }
 
 /**
  * Seed student_courses

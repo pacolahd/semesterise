@@ -8,6 +8,27 @@
       "when": 1745314192571,
       "tag": "0000_steep_korg",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1745427828665,
+      "tag": "0001_dark_longshot",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1745431510710,
+      "tag": "0002_little_vulture",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1745443392011,
+      "tag": "0003_spicy_shotgun",
+      "breakpoints": true
     }
   ]
 }
