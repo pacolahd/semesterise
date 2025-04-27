@@ -768,7 +768,7 @@ async function validateCoursePlacement(
 
   if (totalCredits > MAX_CREDITS_PER_SEMESTER) {
     warnings.push(
-      `This will exceed the recommended credit limit of ${MAX_CREDITS_PER_SEMESTER} credits per semester. Current: ${result.existingCredits}, New: ${newCredits}, Total would be: ${totalCredits}`
+      `This will exceed the recommended credit limit of ${MAX_CREDITS_PER_SEMESTER} credits per semester. Current: ${result.existingCredits - 1}, New: ${newCredits}, Total would be: ${totalCredits - 1}`
     );
   }
 
@@ -998,7 +998,7 @@ async function validatePlaceholderPlacement(
 
   if (totalCredits > MAX_CREDITS_PER_SEMESTER) {
     warnings.push(
-      `This will exceed the recommended credit limit of ${MAX_CREDITS_PER_SEMESTER} credits per semester. Current: ${result.existingCredits}, New: ${credits}, Total would be: ${totalCredits}`
+      `This will exceed the recommended credit limit of ${MAX_CREDITS_PER_SEMESTER} credits per semester. Current: ${result.existingCredits - 1}, New: ${credits}, Total would be: ${totalCredits - 1}`
     );
   }
 
@@ -1069,7 +1069,7 @@ export async function addPlannedCourse(
         };
       } else {
         additionalWarnings.push(
-          "You've already passed this course but retaking may improve your grade."
+          `You've already passed ${courseStatus[0].courseTitle} but retaking may improve your grade.`
         );
       }
     }

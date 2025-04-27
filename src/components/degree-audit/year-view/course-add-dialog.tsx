@@ -1,17 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
+import { AlertCircle, BookOpen, Loader2, PlusCircle } from "lucide-react";
 import { toast } from "sonner";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
 import {
   Dialog,
   DialogContent,
@@ -21,11 +14,11 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import MultipleSelector, {
+  MultipleSelectorRef,
+  Option,
+} from "@/components/ui/multiple-selector";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -33,14 +26,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   useAddCourse,
   useAddPlaceholderElective,
   useAvailableCourses,
   useAvailableElectiveCategories,
 } from "@/lib/academic-plan/academic-plan-hooks";
-import { SemesterAvailableCourses } from "@/lib/academic-plan/types";
 import { useAuthStore } from "@/lib/auth/auth-store";
 import { cn } from "@/lib/utils";
 
@@ -60,14 +59,16 @@ export function CourseAddDialog({
   onSuccess,
 }: CourseAddDialogProps) {
   const { user } = useAuthStore();
-  const [openCombobox, setOpenCombobox] = useState(false);
-  const [selectedCourse, setSelectedCourse] = useState<
-    SemesterAvailableCourses[0] | null
-  >(null);
+  const [selectedCourses, setSelectedCourses] = useState<Option[]>([]);
+  const courseSelectorRef = useRef<MultipleSelectorRef>(null);
+
+  // State for placeholder tab
   const [title, setTitle] = useState("Elective Course");
   const [credits, setCredits] = useState("1");
   const [category, setCategory] = useState("Non-Major Electives");
   const [activeTab, setActiveTab] = useState("course");
+  const [isAddingCourses, setIsAddingCourses] = useState(false);
+  const [processingStatus, setProcessingStatus] = useState<string | null>(null);
 
   const semesterName =
     semester === 1 ? "Fall" : semester === 2 ? "Spring" : "Summer";
@@ -75,25 +76,41 @@ export function CourseAddDialog({
 
   // Course selection hooks
   const {
-    data: courses = [],
+    data: availableCourses = [],
     isLoading: isLoadingCourses,
     error: coursesError,
   } = useAvailableCourses(user?.id, year, semester);
+  interface CourseOption extends Option {
+    credits: string;
+    category: string;
+    offeredInSemester?: boolean;
+    isRetake?: boolean;
+    retakeReason?: string;
+  }
+  // Convert available courses to options for MultipleSelector - KEEPING THIS EXACTLY AS ORIGINAL
+  const courseOptions: CourseOption[] = availableCourses.map((course) => ({
+    value: course.code,
+    label: `${course.code} - ${course.title}`,
+    credits: course.credits.toString(),
+    category: course.category,
+    offeredInSemester: course.offeredInSemester,
+    isRetake: course.isRetake,
+    retakeReason: course.retakeReason,
+  }));
 
   const addCourseMutation = useAddCourse();
-
-  // Elective placeholder hooks
-  const { data: categoryOptions, isLoading: isLoadingCategories } =
+  const { data: categoryOptions = [], isLoading: isLoadingCategories } =
     useAvailableElectiveCategories(user?.id);
   const addPlaceholderMutation = useAddPlaceholderElective();
 
   useEffect(() => {
     if (!open) {
-      setSelectedCourse(null);
+      setSelectedCourses([]);
       setActiveTab("course");
       setTitle("Elective Course");
       setCredits("1");
       setCategory("Non-Major Electives");
+      setProcessingStatus(null);
     }
   }, [open]);
 
@@ -103,8 +120,17 @@ export function CourseAddDialog({
     }
   }, [coursesError]);
 
-  const handleAddCourse = async () => {
-    if (!selectedCourse || !user?.id) {
+  // Sync search function for MultipleSelector - KEEPING THIS EXACTLY AS ORIGINAL
+  const handleSyncSearch = (search: string) => {
+    if (!search) return courseOptions;
+
+    return courseOptions.filter((option) =>
+      option.label.toLowerCase().includes(search.toLowerCase())
+    );
+  };
+
+  const handleAddCourses = async () => {
+    if (!user?.id || selectedCourses.length === 0) {
       if (!user?.id) {
         toast.error(
           "Student ID not found. Please refresh the page or contact support."
@@ -113,29 +139,64 @@ export function CourseAddDialog({
       return;
     }
 
-    addCourseMutation.mutate(
-      {
-        authId: user.id,
-        courseCode: selectedCourse.code,
-        year,
-        semester,
-      },
-      {
-        onSuccess: async () => {
-          toast.success(
-            `Added ${selectedCourse.code} to ${semesterName} Year ${year}`
-          );
-          onOpenChange(false);
-          await onSuccess();
-        },
+    setIsAddingCourses(true);
+    let successCount = 0;
+    let failCount = 0;
+    const totalCourses = selectedCourses.length;
+
+    try {
+      // Process courses one by one
+      for (let i = 0; i < selectedCourses.length; i++) {
+        const course = selectedCourses[i];
+        setProcessingStatus(
+          `Adding ${course.value}... (${i + 1}/${totalCourses})`
+        );
+
+        try {
+          await addCourseMutation.mutateAsync({
+            authId: user.id,
+            courseCode: course.value,
+            year,
+            semester,
+          });
+          successCount++;
+        } catch (error) {
+          failCount++;
+          console.error(`Failed to add course ${course.value}:`, error);
+        }
       }
-    );
+
+      // Show appropriate message
+      if (successCount > 0 && failCount === 0) {
+        toast.success(
+          `Added ${successCount} course${successCount > 1 ? "s" : ""} to ${semesterName} Year ${year}`
+        );
+      } else if (successCount > 0 && failCount > 0) {
+        toast.warning(
+          `Added ${successCount} course${successCount > 1 ? "s" : ""}, but ${failCount} failed. Check for conflicts or prerequisites.`
+        );
+      } else {
+        toast.error("Failed to add any courses. Please try again.");
+      }
+
+      if (successCount > 0) {
+        onOpenChange(false);
+        await onSuccess();
+      }
+    } catch (error) {
+      toast.error("An error occurred while adding courses");
+      console.error(error);
+    } finally {
+      setIsAddingCourses(false);
+      setProcessingStatus(null);
+    }
   };
 
   const handleAddPlaceholder = async () => {
     if (!user?.id) return;
 
     try {
+      setIsAddingCourses(true);
       await addPlaceholderMutation.mutateAsync({
         authId: user.id,
         title,
@@ -145,223 +206,359 @@ export function CourseAddDialog({
         category,
       });
 
+      toast.success(
+        `Added "${title}" placeholder to ${semesterName} Year ${year}`
+      );
       onOpenChange(false);
       await onSuccess();
     } catch (error) {
       console.error("Error adding placeholder:", error);
+      toast.error("Failed to add placeholder");
+    } finally {
+      setIsAddingCourses(false);
     }
   };
 
+  // Generate a summary of selected courses
+  const getTotalCredits = () => {
+    return selectedCourses.reduce((total, course) => {
+      return total + parseFloat((course.credits as string) || "0");
+    }, 0);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>
+    <Dialog
+      open={open}
+      onOpenChange={(open) => !isAddingCourses && onOpenChange(open)}
+    >
+      <DialogContent className="sm:max-w-lg max-h-[90vh] flex flex-col overflow-hidden ">
+        <DialogHeader className="px-1">
+          <DialogTitle className="text-xl">
             Add to {semesterName} Year {year}
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="course">Course</TabsTrigger>
-            <TabsTrigger value="placeholder">Elective Placeholder</TabsTrigger>
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="flex-1 flex flex-col overflow-hidden"
+        >
+          <TabsList className="grid w-full grid-cols-2 mb-2">
+            <TabsTrigger value="course" disabled={isAddingCourses}>
+              <BookOpen className="h-4 w-4 mr-2" />
+              Courses
+            </TabsTrigger>
+            <TabsTrigger value="placeholder" disabled={isAddingCourses}>
+              <div className="w-4 h-4 border-dashed border-2 border-muted-foreground rounded-sm mr-2" />
+              Elective Placeholder
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="course">
-            <div className="space-y-4 py-4">
-              {isLoadingCourses ? (
-                <div className="flex h-40 items-center justify-center">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  <span className="ml-2">Loading courses...</span>
-                </div>
-              ) : (
-                <>
-                  <div className="space-y-2">
-                    <Popover
-                      open={openCombobox}
-                      onOpenChange={setOpenCombobox}
-                      modal
+          <TabsContent value="course" className="flex-1 flex flex-col">
+            <ScrollArea className="flex-1 pr-4 -mr-4  ">
+              <div className="space-y-4">
+                {isLoadingCourses ? (
+                  <div className="flex flex-col items-center justify-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
+                    <p className="text-sm text-muted-foreground">
+                      Loading available courses...
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <div
+                      className={cn(
+                        "space-y-2",
+                        selectedCourses.length === 0 && "min-h-[200px]"
+                      )}
                     >
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          aria-expanded={openCombobox}
-                          className="w-full justify-between"
-                        >
-                          {selectedCourse
-                            ? `${selectedCourse.code} - ${selectedCourse.title}`
-                            : "Select a course"}
-                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent
-                        className="w-[400px] p-0"
-                        align="start"
-                        onInteractOutside={(e) => e.preventDefault()}
-                      >
-                        <Command>
-                          <CommandInput placeholder="Search for a course..." />
-                          <CommandList>
-                            <CommandEmpty>No courses found.</CommandEmpty>
-                            <CommandGroup>
-                              {courses.map((course) => (
-                                <CommandItem
-                                  key={course.code}
-                                  value={`${course.code} ${course.title}`}
-                                  onSelect={() => {
-                                    setSelectedCourse(course);
-                                    setOpenCombobox(false);
-                                  }}
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      selectedCourse?.code === course.code
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                  <span className="mr-2 font-medium">
-                                    {course.code}
-                                  </span>
-                                  <span className="truncate text-sm text-muted-foreground">
-                                    {course.title}
-                                  </span>
-                                  {!course.offeredInSemester && isSummer && (
-                                    <span className="ml-2 text-xs text-amber-500">
-                                      !
-                                    </span>
-                                  )}
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-
-                    {selectedCourse && (
-                      <div className="mt-4 rounded-md border bg-muted p-3">
-                        <div className="mb-1 flex items-center justify-between">
-                          <span className="font-medium">
-                            {selectedCourse.code}
-                          </span>
-                          <span className="text-sm">
-                            {selectedCourse.credits} credits
-                          </span>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          {selectedCourse.title}
-                        </p>
-                        <div className="mt-2 text-xs">
-                          Category: {selectedCourse.category}
-                        </div>
-                        {!selectedCourse.offeredInSemester && isSummer && (
-                          <p className="mt-2 text-xs text-amber-500">
-                            Note: This course may not be typically offered in
-                            Summer
-                          </p>
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-medium">
+                          Select courses to add
+                        </Label>
+                        {selectedCourses.length > 0 && (
+                          <Badge variant="outline" className="font-normal">
+                            {selectedCourses.length} selected (
+                            {getTotalCredits()} credits)
+                          </Badge>
                         )}
                       </div>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
 
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={!selectedCourse || addCourseMutation.isPending}
-                onClick={handleAddCourse}
-              >
-                {addCourseMutation.isPending ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Adding...
+                      {/* IMPORTANT: Keep the MultipleSelector exactly as it was originally */}
+                      <MultipleSelector
+                        maxSelected={3}
+                        onMaxSelected={(maxLimit) => {
+                          toast.warning(
+                            `You can only add ${maxLimit} courses at a time!`
+                          );
+                        }}
+                        ref={courseSelectorRef}
+                        options={courseOptions}
+                        onSearchSync={handleSyncSearch}
+                        placeholder="Search and select courses..."
+                        onChange={setSelectedCourses}
+                        value={selectedCourses}
+                        emptyIndicator={
+                          <p className="text-center text-muted-foreground p-2">
+                            No matching courses found
+                          </p>
+                        }
+                      />
+                    </div>
+
+                    {selectedCourses.length > 0 && (
+                      <div className="space-y-2 mt-4">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-sm font-medium">
+                            Selected courses
+                          </h4>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => courseSelectorRef.current?.reset()}
+                            disabled={isAddingCourses}
+                          >
+                            Clear all
+                          </Button>
+                        </div>
+
+                        <div className="max-h-[230px] overflow-y-auto pr-2">
+                          {selectedCourses.map((course) => {
+                            const originalCourse = courseOptions.find(
+                              (c) => c.value === course.value
+                            );
+                            return (
+                              <div
+                                key={course.value}
+                                className="rounded-md border bg-muted p-3"
+                              >
+                                <div className="mb-1 flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium">
+                                      {course.value}
+                                    </span>
+                                    {originalCourse?.isRetake && (
+                                      <TooltipProvider>
+                                        <Tooltip>
+                                          <TooltipTrigger>
+                                            <Badge
+                                              variant={
+                                                originalCourse.retakeReason?.includes(
+                                                  "needs"
+                                                )
+                                                  ? "destructive"
+                                                  : "default"
+                                              }
+                                              className="h-5 px-1.5"
+                                            >
+                                              {originalCourse.retakeReason?.includes(
+                                                "needs"
+                                              )
+                                                ? "Compulsory Retake"
+                                                : "Voluntary Retake"}
+                                            </Badge>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p className="max-w-xs">
+                                              {originalCourse.retakeReason}
+                                            </p>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      </TooltipProvider>
+                                    )}
+                                    {originalCourse?.offeredInSemester ===
+                                      false &&
+                                      isSummer && (
+                                        <TooltipProvider>
+                                          <Tooltip>
+                                            <TooltipTrigger>
+                                              <AlertCircle className="h-4 w-4 text-amber-500" />
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                              <p>
+                                                This course may not be typically
+                                                offered in Summer
+                                              </p>
+                                            </TooltipContent>
+                                          </Tooltip>
+                                        </TooltipProvider>
+                                      )}
+                                  </div>
+                                  <span className="text-sm">
+                                    {originalCourse?.credits} credits
+                                  </span>
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                  {course.label.split(" - ")[1]}
+                                </p>
+                                <div className="mt-2 text-xs">
+                                  Category: {originalCourse?.category}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {courseOptions.length === 0 && !isLoadingCourses && (
+                      <div className="flex flex-col items-center justify-center py-8 text-center">
+                        <BookOpen className="h-10 w-10 text-muted-foreground mb-4 opacity-50" />
+                        <h3 className="font-medium mb-1">
+                          No available courses
+                        </h3>
+                        <p className="text-sm text-muted-foreground max-w-xs">
+                          There are no courses available for this semester that
+                          meet your requirements.
+                        </p>
+                      </div>
+                    )}
                   </>
-                ) : (
-                  "Add Course"
                 )}
-              </Button>
-            </DialogFooter>
+              </div>
+            </ScrollArea>
+
+            <div className="pt-4 mt-auto">
+              {isAddingCourses && processingStatus && (
+                <div className="flex items-center justify-center mb-3">
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <span className="text-sm text-muted-foreground">
+                    {processingStatus}
+                  </span>
+                </div>
+              )}
+
+              <Separator className="mb-4" />
+
+              <DialogFooter className="gap-2 sm:gap-0">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                  disabled={isAddingCourses}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={selectedCourses.length === 0 || isAddingCourses}
+                  onClick={handleAddCourses}
+                  className="gap-2"
+                >
+                  {isAddingCourses ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : null}
+                  {isAddingCourses
+                    ? "Adding..."
+                    : `Add ${selectedCourses.length} Course${selectedCourses.length !== 1 ? "s" : ""}`}
+                </Button>
+              </DialogFooter>
+            </div>
           </TabsContent>
 
-          <TabsContent value="placeholder">
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="category">Elective Category</Label>
-                {isLoadingCategories ? (
-                  <div className="flex items-center">
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    <span>Loading categories...</span>
+          <TabsContent value="placeholder" className="flex-1 flex flex-col">
+            <ScrollArea className="flex-1 pr-4 -mr-4">
+              <div className="space-y-4">
+                <div className="rounded-lg border border-dashed p-4">
+                  <h3 className="text-base font-medium mb-1">
+                    Elective Placeholder
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Add a placeholder for an elective course you plan to take in
+                    the future
+                  </p>
+
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="category" className="text-sm">
+                        Elective Category
+                      </Label>
+                      {isLoadingCategories ? (
+                        <div className="flex items-center h-10">
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          <span className="text-sm text-muted-foreground">
+                            Loading categories...
+                          </span>
+                        </div>
+                      ) : (
+                        <Select value={category} onValueChange={setCategory}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categoryOptions?.map((cat) => (
+                              <SelectItem key={cat} value={cat}>
+                                {cat}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="title" className="text-sm">
+                        Title/Description
+                      </Label>
+                      <Input
+                        id="title"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="e.g., Major Elective, Humanities Course"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="credits" className="text-sm">
+                        Credits
+                      </Label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          id="credits"
+                          type="number"
+                          min="0.5"
+                          max="5"
+                          step="0.5"
+                          value={credits}
+                          onChange={(e) => setCredits(e.target.value)}
+                          className="w-24"
+                        />
+                        <span className="text-sm text-muted-foreground">
+                          credit hours
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                ) : (
-                  <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categoryOptions?.map((cat) => (
-                        <SelectItem key={cat} value={cat}>
-                          {cat}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
+                </div>
               </div>
+            </ScrollArea>
 
-              <div className="space-y-2">
-                <Label htmlFor="title">Elective Title</Label>
-                <Input
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g., Major Elective"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="credits">Credits</Label>
-                <Input
-                  id="credits"
-                  type="number"
-                  min="0.5"
-                  max="5"
-                  step="0.5"
-                  value={credits}
-                  onChange={(e) => setCredits(e.target.value)}
-                />
-              </div>
+            <div className="pt-4 mt-auto">
+              <Separator className="mb-4" />
+              <DialogFooter className="gap-2 sm:gap-0">
+                <Button
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                  disabled={addPlaceholderMutation.isPending}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleAddPlaceholder}
+                  disabled={
+                    !title || !credits || addPlaceholderMutation.isPending
+                  }
+                  className="gap-2"
+                >
+                  {addPlaceholderMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : null}
+                  {addPlaceholderMutation.isPending
+                    ? "Adding..."
+                    : "Add Placeholder"}
+                </Button>
+              </DialogFooter>
             </div>
-
-            <DialogFooter>
-              <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
-              </Button>
-              <Button
-                onClick={handleAddPlaceholder}
-                disabled={addPlaceholderMutation.isPending}
-              >
-                {addPlaceholderMutation.isPending ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Adding...
-                  </>
-                ) : (
-                  "Add Placeholder"
-                )}
-              </Button>
-            </DialogFooter>
           </TabsContent>
         </Tabs>
       </DialogContent>

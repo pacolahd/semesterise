@@ -488,7 +488,7 @@ export function useAddPlaceholderElective() {
         queryKey: academicPlanKeys.plan(variables.authId),
       });
 
-      toast.success(`Added elective placeholder to your plan`);
+      // toast.success(`Added elective placeholder to your plan`);
     },
     meta: {
       skipGlobalErrorHandler: false,
