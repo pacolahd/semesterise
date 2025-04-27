@@ -255,7 +255,7 @@ export function CourseAddDialog({
           </TabsList>
 
           <TabsContent value="course" className="flex-1 flex flex-col">
-            <ScrollArea className="flex-1 pr-4 -mr-4  ">
+            <ScrollArea className="flex-1 pr-4 -mr-4 ">
               <div className="space-y-4">
                 {isLoadingCourses ? (
                   <div className="flex flex-col items-center justify-center py-8">
@@ -269,7 +269,10 @@ export function CourseAddDialog({
                     <div
                       className={cn(
                         "space-y-2",
-                        selectedCourses.length === 0 && "min-h-[200px]"
+                        selectedCourses.length === 0 &&
+                          !isLoadingCourses &&
+                          courseOptions.length !== 0 &&
+                          "min-h-[200px]"
                       )}
                     >
                       <div className="flex items-center justify-between">
@@ -322,7 +325,7 @@ export function CourseAddDialog({
                           </Button>
                         </div>
 
-                        <div className="max-h-[230px] overflow-y-auto pr-2">
+                        <div className="max-h-[200px] overflow-y-auto pr-2">
                           {selectedCourses.map((course) => {
                             const originalCourse = courseOptions.find(
                               (c) => c.value === course.value
@@ -330,7 +333,7 @@ export function CourseAddDialog({
                             return (
                               <div
                                 key={course.value}
-                                className="rounded-md border bg-muted p-3"
+                                className="rounded-md border bg-muted p-3 mt-1"
                               >
                                 <div className="mb-1 flex items-center justify-between">
                                   <div className="flex items-center gap-2">
@@ -418,9 +421,9 @@ export function CourseAddDialog({
               </div>
             </ScrollArea>
 
-            <div className="pt-4 mt-auto">
+            <div className="pt-1 mt-1">
               {isAddingCourses && processingStatus && (
-                <div className="flex items-center justify-center mb-3">
+                <div className="flex items-center justify-center mb-1">
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   <span className="text-sm text-muted-foreground">
                     {processingStatus}
@@ -428,7 +431,7 @@ export function CourseAddDialog({
                 </div>
               )}
 
-              <Separator className="mb-4" />
+              <Separator className="mb-2" />
 
               <DialogFooter className="gap-2 sm:gap-0">
                 <Button
@@ -446,7 +449,7 @@ export function CourseAddDialog({
                   className="gap-2"
                 >
                   {isAddingCourses ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    <Loader2 className="h-1 w-1 animate-spin mr-2" />
                   ) : null}
                   {isAddingCourses
                     ? "Adding..."
