@@ -8,7 +8,6 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
-import { flatten } from "valibot";
 
 export const studentCourseStatusView = pgView("student_course_status_view", {
   studentCourseId: varchar("student_course_id").primaryKey(),
@@ -79,18 +78,22 @@ course_category AS (
     ROW_NUMBER() OVER (
       PARTITION BY cc.course_code, sp.student_id
       ORDER BY 
-        CASE 
+        CASE
           WHEN cc.major_group = sp.major_code THEN 1
-          WHEN cc.major_group IN ('ENG', 'NON-ENG') AND (
-            (sp.major_code IN ('CE', 'EE', 'ME') AND cc.major_group = 'ENG') OR
-            (sp.major_code NOT IN ('CE', 'EE', 'ME') AND cc.major_group = 'NON-ENG')
-          ) THEN 2
-          WHEN cc.major_group = 'ALL' THEN 3
-          ELSE 4
+          WHEN cc.major_group = 'ALL' THEN 2
+          ELSE 3
         END
     ) AS row_priority
   FROM student_profiles sp
-  JOIN course_categorization cc ON true
+  JOIN course_categorization cc 
+    ON cc.major_group IN (
+      CASE 
+        WHEN sp.major_code IN ('CE','EE','ME') THEN 'ENG'
+        ELSE 'NON-ENG'
+      END,
+      sp.major_code,
+      'ALL'
+    )
   WHERE cc.course_code IS NOT NULL
 ),
 categorized_course AS (
