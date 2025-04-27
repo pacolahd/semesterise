@@ -84,20 +84,20 @@ export function YearByYearPlanView({ plan }: YearByYearPlanViewProps) {
   return (
     <div className="flex flex-col space-y-6">
       {/* Progress section */}
-      <div className="rounded-lg border bg-card p-4 shadow-sm">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="font-semibold">Degree Progress</h2>
-          <AutoPlanButton />
-        </div>
-        <div className="mb-1 flex justify-between text-sm">
-          <span>{plan.totalCreditsCompleted} credits completed</span>
-          <span>{plan.percentageComplete}% complete</span>
-        </div>
-        <Progress value={plan.percentageComplete} className="h-2" />
-        <div className="mt-2 text-xs text-muted-foreground">
-          {plan.totalCreditsRemaining} credits remaining to complete your degree
-        </div>
-      </div>
+      {/*<div className="rounded-lg border bg-card p-4 shadow-sm">*/}
+      {/*  <div className="flex items-center justify-between mb-2">*/}
+      {/*    <h2 className="font-semibold">Degree Progress</h2>*/}
+      {/*    <AutoPlanButton />*/}
+      {/*  </div>*/}
+      {/*  <div className="mb-1 flex justify-between text-sm">*/}
+      {/*    <span>{plan.totalCreditsCompleted} credits completed</span>*/}
+      {/*    <span>{plan.percentageComplete}% complete</span>*/}
+      {/*  </div>*/}
+      {/*  <Progress value={plan.percentageComplete} className="h-2" />*/}
+      {/*  <div className="mt-2 text-xs text-muted-foreground">*/}
+      {/*    {plan.totalCreditsRemaining} credits remaining to complete your degree*/}
+      {/*  </div>*/}
+      {/*</div>*/}
 
       {/* Plan grid with drag and drop */}
       <DragDropProvider plan={plan} refreshPlan={handleRefreshPlan}>

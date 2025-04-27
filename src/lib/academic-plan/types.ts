@@ -152,3 +152,35 @@ export type ElectivePlaceholder = {
   credits: number;
   category?: string;
 };
+
+// Define types for the response
+export type RemainingRequirementSummary = {
+  totalRequirements: number;
+  totalCredits: number;
+  retakesNeeded: number;
+  categories: {
+    [category: string]: {
+      name: string;
+      remainingCourses: number;
+      remainingCredits: number;
+      highPriority: RemainingRequirement[];
+    };
+  };
+  highPriorityRequirements: RemainingRequirement[];
+  allRequirements: RemainingRequirement[];
+};
+
+export type RemainingRequirement = {
+  courseCode: string | null;
+  courseTitle: string;
+  credits: number;
+  parentCategory: string;
+  categoryName: string;
+  subCategory: string | null;
+  recommendedYear: number | null;
+  recommendedSemester: number | null;
+  offeredInSemesters: string[] | null;
+  requirementType: string;
+  priorityOrder: number;
+  isRetake: boolean;
+};

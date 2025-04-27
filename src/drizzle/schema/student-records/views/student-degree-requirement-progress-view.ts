@@ -1,32 +1,29 @@
 import { InferModelFromColumns, sql } from "drizzle-orm";
-import {
-  boolean,
-  decimal,
-  integer,
-  pgView,
-  text,
-  varchar,
-} from "drizzle-orm/pg-core";
+import { boolean, decimal, integer, pgView, text, varchar } from "drizzle-orm/pg-core";
+
+
+
+
 
 export const studentDegreeRequirementProgressView = pgView(
   "student_degree_requirement_progress_view",
   {
     authId: varchar("auth_id").primaryKey(),
-    studentId: varchar("student_id"),
-    parentCategory: text("parent_category"),
-    categoryName: text("category_name"),
+    studentId: varchar("student_id").notNull(),
+    parentCategory: text("parent_category").notNull(),
+    categoryName: text("category_name").notNull(),
     subCategory: text("sub_category"),
-    coursesRequired: integer("courses_required"),
-    creditsRequired: integer("credits_required"),
-    coursesCompleted: integer("courses_completed"),
-    creditsCompleted: integer("credits_completed"),
-    coursesRemaining: integer("courses_remaining"),
-    creditsRemaining: integer("credits_remaining"),
+    coursesRequired: integer("courses_required").notNull(),
+    creditsRequired: integer("credits_required").notNull(),
+    coursesCompleted: integer("courses_completed").notNull(),
+    creditsCompleted: integer("credits_completed").notNull(),
+    coursesRemaining: integer("courses_remaining").notNull(),
+    creditsRemaining: integer("credits_remaining").notNull(),
     progressPercentage: decimal("progress_percentage", {
       precision: 5,
       scale: 2,
     }),
-    requirementMet: boolean("requirement_met"),
+    requirementMet: boolean("requirement_met").notNull(),
   }
 ).as(
   sql`

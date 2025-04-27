@@ -10,6 +10,7 @@ import {
   getAvailableCoursesForSemester,
   getAvailableElectiveCategories,
   getStudentAcademicPlan,
+  getStudentRemainingRequirements,
   movePlannedCourse,
   removePlannedCourse,
 } from "@/lib/academic-plan/academic-plan-actions";
@@ -30,6 +31,9 @@ const academicPlanKeys = {
       year,
       semester,
     ] as const,
+  // Add this new key for remaining requirements
+  remainingRequirements: (authId: string) =>
+    [...academicPlanKeys.all, "remainingRequirements", authId] as const,
 };
 
 /**
@@ -103,6 +107,30 @@ export function useAcademicPlan(authId?: string) {
 }
 
 /**
+ * Hook to fetch remaining requirements for a student
+ */
+export function useRemainingRequirements(authId?: string) {
+  return useQuery({
+    queryKey: academicPlanKeys.remainingRequirements(authId || ""),
+    queryFn: async () => {
+      if (!authId) {
+        throw new Error("User ID is required to fetch remaining requirements");
+      }
+
+      const result = await getStudentRemainingRequirements(authId);
+      processWarnings(result.warnings);
+      return handleActionResponse(result);
+    },
+    enabled: !!authId,
+    staleTime: 2 * 60 * 1000, // Match the stale time of the plan query
+    meta: {
+      skipGlobalErrorHandler: false,
+      errorContext: "get-remaining-requirements",
+    },
+  });
+}
+
+/**
  * Hook to fetch available courses for a specific semester
  */
 export function useAvailableCourses(
@@ -168,6 +196,10 @@ export function useAddCourse() {
       queryClient.invalidateQueries({
         queryKey: academicPlanKeys.plan(variables.authId),
       });
+      // Also invalidate remaining requirements
+      queryClient.invalidateQueries({
+        queryKey: academicPlanKeys.remainingRequirements(variables.authId),
+      });
 
       // // Show success toast
       // toast.success(`Added course to your plan`);
@@ -214,6 +246,10 @@ export function useMoveCourse() {
       queryClient.invalidateQueries({
         queryKey: academicPlanKeys.plan(variables.authId),
       });
+      // Also invalidate remaining requirements
+      queryClient.invalidateQueries({
+        queryKey: academicPlanKeys.remainingRequirements(variables.authId),
+      });
     },
     meta: {
       skipGlobalErrorHandler: false,
@@ -247,6 +283,10 @@ export function useRemoveCourse() {
       // Invalidate the academic plan query to refresh the data
       queryClient.invalidateQueries({
         queryKey: academicPlanKeys.plan(variables.authId),
+      });
+      // Also invalidate remaining requirements
+      queryClient.invalidateQueries({
+        queryKey: academicPlanKeys.remainingRequirements(variables.authId),
       });
 
       toast.success("Course removed from your plan");
@@ -443,6 +483,10 @@ export function useOptimisticMoveCourse() {
       queryClient.invalidateQueries({
         queryKey: academicPlanKeys.plan(authId),
       });
+      // Also invalidate remaining requirements
+      queryClient.invalidateQueries({
+        queryKey: academicPlanKeys.remainingRequirements(authId),
+      });
     },
     meta: {
       skipGlobalErrorHandler: false,
@@ -486,6 +530,10 @@ export function useAddPlaceholderElective() {
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({
         queryKey: academicPlanKeys.plan(variables.authId),
+      });
+      // Also invalidate remaining requirements
+      queryClient.invalidateQueries({
+        queryKey: academicPlanKeys.remainingRequirements(variables.authId),
       });
 
       // toast.success(`Added elective placeholder to your plan`);
@@ -541,6 +589,10 @@ export function useGenerateAutomaticPlan() {
     //   queryClient.invalidateQueries({
     //     queryKey: academicPlanKeys.plan(variables.authId),
     //   });
+    // Also invalidate remaining requirements
+    // queryClient.invalidateQueries({
+    //   queryKey: academicPlanKeys.remainingRequirements(variables.authId),
+    // });
     //
     //   // Show success message from the response
     //   if (result.message) {

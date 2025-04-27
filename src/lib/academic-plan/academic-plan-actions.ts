@@ -5,6 +5,7 @@ import { and, eq, inArray, isNull, lt, or, sql } from "drizzle-orm";
 
 import { db } from "@/drizzle";
 import {
+  StudentCourseCategorizedStatusRecord,
   StudentCourseStatusRecord,
   academicSemesters,
   authUsers,
@@ -33,6 +34,8 @@ import {
   ElectivePlaceholder,
   PlacementSummary,
   PrerequisiteCheckResult,
+  RemainingRequirement,
+  RemainingRequirementSummary,
   Semester,
   SemesterAvailableCourses,
   SemesterCreditsResponse,
@@ -107,6 +110,117 @@ async function getStudentIdFromAuthId(authId: string): Promise<string> {
   return user.studentId;
 }
 
+/**
+ * Fetches the remaining requirements for a student
+ */
+export async function getStudentRemainingRequirements(
+  authId: string
+): Promise<ActionResponse<RemainingRequirementSummary>> {
+  try {
+    // Fetch all remaining requirements
+    const requirements = await db
+      .select()
+      .from(studentRemainingRequirementsView)
+      .where(eq(studentRemainingRequirementsView.authId, authId))
+      .orderBy(studentRemainingRequirementsView.priorityOrder);
+
+    if (!requirements || requirements.length === 0) {
+      return {
+        success: true,
+        data: {
+          totalRequirements: 0,
+          totalCredits: 0,
+          retakesNeeded: 0,
+          categories: {},
+          highPriorityRequirements: [],
+          allRequirements: [],
+        },
+      };
+    }
+
+    // Transform the data for better consumption by the UI
+    const formattedRequirements: RemainingRequirement[] = requirements.map(
+      (req) => ({
+        courseCode: req.courseCode || null,
+        courseTitle: req.courseTitle || "Unknown Course",
+        credits: parseFloat(req.credits?.toString() || "0"),
+        parentCategory: req.parentCategory || "General",
+        categoryName: req.categoryName || "Uncategorized",
+        subCategory: req.subCategory || null,
+        recommendedYear: req.recommendedYear || null,
+        recommendedSemester: req.recommendedSemester || null,
+        offeredInSemesters: req.offeredInSemesters || null,
+        requirementType: req.requirementType || "required_course",
+        priorityOrder: req.priorityOrder || 999,
+        isRetake: req.requirementType === "retake_required",
+      })
+    );
+
+    // Identify high-priority requirements (retakes, specific courses, etc.)
+    const highPriorityRequirements = formattedRequirements.filter(
+      (req) => req.isRetake || req.priorityOrder <= 10
+    );
+
+    // Calculate statistics and organize by category
+    const categories: Record<
+      string,
+      {
+        name: string;
+        remainingCourses: number;
+        remainingCredits: number;
+        highPriority: RemainingRequirement[];
+      }
+    > = {};
+
+    let totalCredits = 0;
+    let retakesNeeded = 0;
+
+    for (const req of formattedRequirements) {
+      totalCredits += req.credits;
+
+      if (req.isRetake) {
+        retakesNeeded++;
+      }
+
+      // Use parent category as the key
+      const categoryKey = req.parentCategory;
+
+      if (!categories[categoryKey]) {
+        categories[categoryKey] = {
+          name: req.parentCategory,
+          remainingCourses: 0,
+          remainingCredits: 0,
+          highPriority: [],
+        };
+      }
+
+      categories[categoryKey].remainingCourses++;
+      categories[categoryKey].remainingCredits += req.credits;
+
+      if (req.isRetake || req.priorityOrder <= 10) {
+        categories[categoryKey].highPriority.push(req);
+      }
+    }
+
+    return {
+      success: true,
+      data: {
+        totalRequirements: formattedRequirements.length,
+        totalCredits,
+        retakesNeeded,
+        categories,
+        highPriorityRequirements,
+        allRequirements: formattedRequirements,
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching remaining requirements:", error);
+    return {
+      success: false,
+      error: serializeError(error),
+    };
+  }
+}
 /**
  * Get student's academic plan
  * Optimized to use a transaction and reduce the number of queries
@@ -633,7 +747,7 @@ async function validateCoursePlacement(
     // 2. Get course information
     const courseInfo = await tx.query.courses.findFirst({
       where: eq(courses.code, courseCode),
-      columns: { credits: true, offeredInSemesters: true },
+      columns: { credits: true, offeredInSemesters: true, title: true },
     });
 
     // 3. Calculate existing credits
@@ -753,7 +867,7 @@ async function validateCoursePlacement(
 
     if (!isOffered) {
       warnings.push(
-        `This course is typically not offered in ${semesterType} semester. You may need to adjust your planning if this course isn't available`
+        `${result.courseInfo.title} is typically not offered in ${semesterType} semester. You may need to adjust your planning if this course isn't available`
       );
     }
   } else {
@@ -1448,6 +1562,11 @@ async function validatePrerequisiteMove(
  * Remove a planned course from a student's plan
  * Works with both regular courses and placeholder electives
  */
+
+/**
+ * Remove a planned course from a student's plan
+ * Works with both regular courses and placeholder electives
+ */
 export async function removePlannedCourse(
   authId: string,
   courseId: string
@@ -1455,69 +1574,107 @@ export async function removePlannedCourse(
   const warnings: string[] = [];
 
   try {
-    // 1. Check if student course exists and is planned
-    const courseRecord = await db.query.studentCourses.findFirst({
-      where: and(
-        eq(studentCourses.id, courseId),
-        eq(studentCourses.authId, authId),
-        eq(studentCourses.status, "planned")
-      ),
-    });
+    // 1. Get course details from the categorized view
+    const courseResults = await db
+      .select()
+      .from(studentCourseCategorizedStatusView)
+      .where(
+        and(
+          eq(studentCourseCategorizedStatusView.studentCourseId, courseId),
+          eq(studentCourseCategorizedStatusView.authId, authId),
+          eq(studentCourseCategorizedStatusView.status, "planned")
+        )
+      )
+      .limit(1);
 
-    if (!courseRecord) {
-      return {
-        success: false,
-        error: serializeError(
-          new AppError({
-            message: "Course not found or not a planned course",
-            code: "INVALID_COURSE",
-          })
-        ),
-      };
-    }
+    let courseRecord = courseResults[0];
 
-    // 2. Check if course is required (only for real courses, not placeholders)
-    if (courseRecord.courseCode) {
-      const requiredCourses = await db
-        .select()
-        .from(studentRequiredCoursesView)
-        .where(
-          and(
-            eq(studentRequiredCoursesView.authId, authId),
-            eq(studentRequiredCoursesView.courseCode, courseRecord.courseCode)
+    // 2. Check remaining requirements in this category using the degree progress view
+    const categoryRequirements = await db
+      .select()
+      .from(studentDegreeRequirementProgressView)
+      .where(
+        and(
+          eq(studentDegreeRequirementProgressView.authId, authId),
+          eq(
+            studentDegreeRequirementProgressView.categoryName,
+            courseRecord.categoryName
           )
-        );
+        )
+      )
+      .limit(1);
 
-      if (requiredCourses.length > 0) {
-        warnings.push(
-          "This is a required course for your degree. You will need to plan it in a future semester to meet graduation requirements"
-        );
-      }
-    } else {
-      // For placeholders, check if student needs more electives
-      const electiveRequirements = await db
-        .select()
-        .from(studentRemainingRequirementsView)
-        .where(
-          and(
-            eq(studentRemainingRequirementsView.authId, authId),
-            isNull(studentRemainingRequirementsView.courseCode),
-            eq(
-              studentRemainingRequirementsView.requirementType,
-              "elective_placeholder"
-            )
-          )
-        );
+    if (categoryRequirements.length > 0) {
+      const requirement = categoryRequirements[0];
 
-      if (electiveRequirements.length > 0) {
-        warnings.push(
-          "You still need to complete elective credits for your degree. You may need to add electives back to your plan."
-        );
+      // Check if removing this course would leave unfulfilled requirements
+      if (
+        !requirement.requirementMet ||
+        (requirement.requirementMet &&
+          requirement.creditsCompleted === requirement.creditsRequired)
+      ) {
+        // Special handling for required courses vs electives
+        if (
+          courseRecord.courseCode &&
+          courseRecord.categoryName !== "Major Electives" &&
+          courseRecord.categoryName !== "Non-Major Electives"
+        ) {
+          // Remove the course
+          await db
+            .delete(studentCourses)
+            .where(eq(studentCourses.id, courseId));
+
+          // Compute the possible warning
+          const requiredCourses = await db
+            .select({
+              categoryName: studentRemainingRequirementsView.categoryName,
+              requirementType: studentRemainingRequirementsView.requirementType,
+            })
+            .from(studentRemainingRequirementsView)
+            .where(
+              and(
+                eq(studentRemainingRequirementsView.authId, authId),
+                eq(
+                  studentRemainingRequirementsView.courseCode,
+                  courseRecord.courseCode
+                )
+              )
+            );
+
+          if (requiredCourses.length > 0) {
+            const category = requiredCourses[0].categoryName;
+            const requirementType = requiredCourses[0].requirementType;
+            // This is a specific required course
+            if (requirementType === "retake_required") {
+              warnings.push(
+                `You must retake "${courseRecord.courseCode} - ${courseRecord.courseTitle}" because it is a required course for your degree. You will need to schedule it in a future semester to meet graduation requirements.`
+              );
+            } else {
+              warnings.push(
+                `"${courseRecord.courseCode} - ${courseRecord.courseTitle}"  is a required course for your degree. You will need to schedule it in a future semester to meet graduation requirements.`
+              );
+            }
+          }
+        } else {
+          // This is an elective or placeholder
+          // Remove the course
+          await db
+            .delete(studentCourses)
+            .where(eq(studentCourses.id, courseId));
+
+          // Computer the warning
+          warnings.push(
+            `"${courseRecord.courseTitle}" is ${
+              courseRecord.subCategory
+                ? courseRecord.subCategory === "Africana"
+                  ? ` an ${courseRecord.subCategory}`
+                  : ` a ${courseRecord.subCategory.slice(0, -1)}`
+                : `${courseRecord.categoryName.slice(0, -1)}`
+            } and you still need ${requirement.creditsRemaining + 1} more credits in this category. Make sure to add another course to meet this requirement.`
+          );
+        }
       }
     }
-
-    // 3. Remove the course
-    await db.delete(studentCourses).where(eq(studentCourses.id, courseId));
 
     return {
       success: true,
@@ -1971,10 +2128,10 @@ async function checkCourseAvailability(
   // Get course offering information
   const course = await db.query.courses.findFirst({
     where: eq(courses.code, courseCode),
-    columns: { offeredInSemesters: true },
+    columns: { offeredInSemesters: true, title: true },
   });
 
-  if (!course) {
+  if (!course?.offeredInSemesters) {
     return { isOffered: false, warning: "Course not found" };
   }
 
@@ -1984,7 +2141,7 @@ async function checkCourseAvailability(
       ? "fall"
       : "spring";
 
-  const isOffered = course.offeredInSemesters.includes(
+  const isOffered = course?.offeredInSemesters.includes(
     semesterType as "fall" | "spring" | "summer"
   );
 
@@ -1992,7 +2149,7 @@ async function checkCourseAvailability(
     isOffered,
     warning: isOffered
       ? undefined
-      : `This course is typically not offered in ${semesterType} semester. You may need to adjust your planning if this course isn't available`,
+      : `"${course.title}" is typically not offered in "${semesterType}" semester. You may need to adjust your planning if this course isn't available`,
   };
 }
 
