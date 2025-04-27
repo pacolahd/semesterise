@@ -169,8 +169,8 @@ export function useAddCourse() {
         queryKey: academicPlanKeys.plan(variables.authId),
       });
 
-      // Show success toast
-      toast.success(`Added course to your plan`);
+      // // Show success toast
+      // toast.success(`Added course to your plan`);
     },
     meta: {
       skipGlobalErrorHandler: false,
@@ -286,7 +286,7 @@ export function useOptimisticMoveCourse() {
         newSemester
       );
 
-      // Process warnings right away
+      // // Process warnings right away
       processWarnings(result.warnings);
 
       return handleActionResponse(result);

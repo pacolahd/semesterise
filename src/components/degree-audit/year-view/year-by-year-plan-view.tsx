@@ -1,5 +1,10 @@
 "use client";
 
+import { useState } from "react";
+
+import { Plus } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useAcademicPlan } from "@/lib/academic-plan/academic-plan-hooks";
 import { YearPlan } from "@/lib/academic-plan/types";
@@ -15,10 +20,52 @@ interface YearByYearPlanViewProps {
 
 export function YearByYearPlanView({ plan }: YearByYearPlanViewProps) {
   const { user } = useAuthStore();
-
-  // We get both the plan as a prop and access to the query client via our hooks
   const { refetch, isRefetching } = useAcademicPlan(user?.id);
+  // Helpers
+  function calculateOriginalMaxYear(plan: YearPlan): number {
+    const yearsWithCourses = Object.keys(plan.years)
+      .filter((yearNum) => {
+        const yearKey = parseInt(yearNum);
+        const yearData = plan.years[yearKey];
+        return (
+          yearData.fall.courses.length > 0 ||
+          yearData.spring.courses.length > 0 ||
+          (yearData.summer?.courses.length || 0) > 0
+        );
+      })
+      .map((y) => parseInt(y));
 
+    return Math.max(
+      4,
+      yearsWithCourses.length ? Math.max(...yearsWithCourses) : 4
+    );
+  }
+
+  function isYearEmpty(yearData: YearPlan["years"][number]): boolean {
+    return (
+      yearData.fall.courses.length === 0 &&
+      yearData.spring.courses.length === 0 &&
+      (yearData.summer?.courses.length || 0) === 0
+    );
+  }
+  const [originalMaxYear] = useState(() => calculateOriginalMaxYear(plan));
+  const [maxVisibleYear, setMaxVisibleYear] = useState(originalMaxYear);
+
+  const handleAddYear = () => {
+    if (maxVisibleYear < 8) setMaxVisibleYear((prev) => prev + 1);
+  };
+
+  const handleRemoveYear = (year: number) => {
+    if (canRemoveYear(year)) setMaxVisibleYear(year - 1);
+  };
+
+  const canRemoveYear = (year: number) => {
+    return (
+      year > originalMaxYear &&
+      year === maxVisibleYear &&
+      isYearEmpty(plan.years[year])
+    );
+  };
   // Handle plan refresh
   const handleRefreshPlan = async () => {
     try {
@@ -27,6 +74,12 @@ export function YearByYearPlanView({ plan }: YearByYearPlanViewProps) {
       console.error("Error refreshing plan:", error);
     }
   };
+
+  // Get sorted year numbers to display
+  const visibleYears = Object.keys(plan.years)
+    .map((y) => parseInt(y))
+    .filter((y) => y <= maxVisibleYear)
+    .sort((a, b) => a - b);
 
   return (
     <div className="flex flex-col space-y-6">
@@ -50,26 +103,25 @@ export function YearByYearPlanView({ plan }: YearByYearPlanViewProps) {
       <DragDropProvider plan={plan} refreshPlan={handleRefreshPlan}>
         <div className="pb-4 overflow-x-visible custom-scrollbar">
           <div className="flex gap-4">
-            {Object.keys(plan.years).map((yearNum) => {
-              const yearKey = parseInt(yearNum);
-              const yearData = plan.years[yearKey];
-
-              return (
-                <YearColumn
-                  key={yearNum}
-                  year={yearKey}
-                  fall={yearData.fall}
-                  spring={yearData.spring}
-                  summer={yearData.summer}
-                  currentYear={plan.currentYear}
-                  currentSemester={plan.currentSemester}
-                />
-              );
-            })}
+            {visibleYears.map((yearKey) => (
+              <YearColumn
+                key={yearKey}
+                year={yearKey}
+                fall={plan.years[yearKey].fall}
+                spring={plan.years[yearKey].spring}
+                summer={plan.years[yearKey].summer}
+                currentYear={plan.currentYear}
+                currentSemester={plan.currentSemester}
+                canAddYear={maxVisibleYear < 8}
+                canRemoveYear={canRemoveYear(yearKey)}
+                onAddYear={handleAddYear}
+                onRemoveYear={() => handleRemoveYear(yearKey)}
+                isLastYear={yearKey === maxVisibleYear}
+              />
+            ))}
           </div>
         </div>
       </DragDropProvider>
-
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <div>Last updated: {new Date(plan.lastUpdated).toLocaleString()}</div>
         {isRefetching && <div className="text-primary">Refreshing plan...</div>}

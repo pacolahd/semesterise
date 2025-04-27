@@ -15,6 +15,7 @@ export function handleActionResponse<T>(result: ActionResponse<T>): T {
     // Handle serialized error from server component
     if (isSerializedAppError(result.error)) {
       // Convert serialized error to an AppError instance
+
       throw AppError.fromSerialized(result.error);
     } else {
       // Fallback to generic conversion

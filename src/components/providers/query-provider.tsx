@@ -175,6 +175,9 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
 
             // Skip toasts for errors with validation details
             if (appError.hasValidationDetails()) {
+              if (appError.details!.errors) {
+                appError.details!.errors.forEach((error) => toast.error(error));
+              }
               return;
             }
 

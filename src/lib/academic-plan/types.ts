@@ -47,8 +47,8 @@ export type CourseWithStatus = {
 export type Semester = {
   year: number;
   semester: number;
-  isSummer?: boolean;
-  name?: string;
+  isSummer: boolean;
+  name: string;
   courses: CourseWithStatus[];
   totalCredits: number;
   hasCreditWarning?: boolean;
@@ -66,7 +66,7 @@ export type YearPlan = {
     [year: number]: {
       fall: Semester;
       spring: Semester;
-      summer?: Semester;
+      summer: Semester;
     };
   };
 
@@ -82,6 +82,7 @@ export type PrerequisiteCheckResult = {
   missingPrerequisites?: {
     groupName: string;
     courses: string[];
+    internalLogicOperator: string;
     requiredCount: number;
     satisfiedCount: number;
   }[];
@@ -94,6 +95,8 @@ export type SemesterAvailableCourses = {
   credits: number;
   category: string;
   offeredInSemester?: boolean;
+  isRetake?: boolean;
+  retakeReason?: string;
 }[];
 
 export type CourseAvailability = {

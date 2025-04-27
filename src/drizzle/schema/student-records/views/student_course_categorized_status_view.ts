@@ -25,9 +25,9 @@ export const studentCourseCategorizedStatusView = pgView(
 
     courseCode: varchar("course_code").notNull(),
     status: varchar("status").notNull(),
-    parentCategory: text("parent_category ").notNull(),
+    parentCategory: text("parent_category").notNull(),
     categoryName: text("category_name").notNull(),
-    subCategory: text("sub_category ").notNull(),
+    subCategory: text("sub_category").notNull(),
     credits: decimal("credits"),
 
     grade: varchar("grade"),

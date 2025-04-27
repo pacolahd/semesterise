@@ -137,7 +137,10 @@ export function SemesterPanel({
           >
             <div className="space-y-2">
               {courses.map((course) => (
-                <CourseCard key={course.id} course={course} />
+                <CourseCard
+                  key={`${course.id}-${course.year}-${course.semester}`}
+                  course={course}
+                />
               ))}
             </div>
           </SortableContext>

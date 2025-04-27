@@ -1,7 +1,7 @@
 "use server";
 
 // src/lib/academic-plan/academic-plan-actions.ts
-import { and, eq, inArray, isNull, or, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull, lt, or, sql } from "drizzle-orm";
 
 import { db } from "@/drizzle";
 import {
@@ -12,7 +12,6 @@ import {
   prerequisiteCourses,
   prerequisiteGroups,
   studentCourseCategorizedStatusView,
-  studentCourseStatusView,
   studentCourses,
   studentDegreeRequirementProgressView,
   studentProfiles,
@@ -20,6 +19,7 @@ import {
   studentRequiredCoursesView,
   studentSemesterMappings,
 } from "@/drizzle/schema";
+import { PrerequisiteGroupRecord } from "@/drizzle/schema/curriculum/prerequisite-groups";
 import { StudentProfileRecord } from "@/drizzle/schema/student-records/student-profiles";
 import { StudentSemesterMappingRecord } from "@/drizzle/schema/student-records/student-semester-mappings";
 import { AppError } from "@/lib/errors/app-error-classes";
@@ -56,6 +56,37 @@ const CATEGORY_COLORS = {
 // Constants for validation
 const MAX_CREDITS_PER_SEMESTER = 5;
 const MAX_RECOMMENDED_YEARS = 4;
+const MAX_TOTAL_YEARS = 8;
+
+// Add this cache at the top level of your file (outside any functions)
+const hasCoursesAboveMaxYearCache = new Map<string, boolean>();
+
+// Efficient function to check if student has courses above MAX_RECOMMENDED_YEARS
+async function hasCoursesAboveMaxYear(authId: string): Promise<boolean> {
+  // Check cache first
+  if (hasCoursesAboveMaxYearCache.has(authId)) {
+    return hasCoursesAboveMaxYearCache.get(authId)!;
+  }
+
+  // If not in cache, query the database
+  const result = await db
+    .select({ count: sql`count(*)` })
+    .from(studentCourseCategorizedStatusView)
+    .where(
+      and(
+        eq(studentCourseCategorizedStatusView.authId, authId),
+        sql`year_taken > ${MAX_RECOMMENDED_YEARS}`
+      )
+    )
+    .limit(1);
+
+  const hasCoursesAbove = result.length > 0 && Number(result[0].count) > 0;
+
+  // Cache the result
+  hasCoursesAboveMaxYearCache.set(authId, hasCoursesAbove);
+
+  return hasCoursesAbove;
+}
 
 /**
  * Helper function to get the student ID from auth ID
@@ -78,41 +109,47 @@ async function getStudentIdFromAuthId(authId: string): Promise<string> {
 
 /**
  * Get student's academic plan
- * Now accepts authId directly from the auth store
+ * Optimized to use a transaction and reduce the number of queries
  */
 export async function getStudentAcademicPlan(
   authId: string
 ): Promise<ActionResponse<YearPlan>> {
   try {
-    // 1. Get student profile information
-    const profileData: StudentProfileRecord | undefined =
-      await db.query.studentProfiles.findFirst({
+    // Run all queries in a single transaction to reduce database roundtrips
+    const result = await db.transaction(async (tx) => {
+      // 1. Get student profile information
+      const profileData = await tx.query.studentProfiles.findFirst({
         where: eq(studentProfiles.authId, authId),
       });
 
-    if (!profileData) {
+      if (!profileData) {
+        throw new AppError({
+          message: `Student not found: ${authId}`,
+          code: "STUDENT_NOT_FOUND",
+        });
+      }
+
+      // 2. Get all student courses with statuses from the view
+      const coursesWithStatus = await tx
+        .select()
+        .from(studentCourseCategorizedStatusView)
+        .where(eq(studentCourseCategorizedStatusView.authId, authId));
+
+      // 4. Get progress information by category
+      const progressByCategory = await tx
+        .select()
+        .from(studentDegreeRequirementProgressView)
+        .where(eq(studentDegreeRequirementProgressView.authId, authId));
+
       return {
-        success: false,
-        error: serializeError(
-          new AppError({
-            message: `Student not found: ${authId}`,
-            code: "STUDENT_NOT_FOUND",
-          })
-        ),
+        profileData,
+        coursesWithStatus,
+        progressByCategory,
       };
-    }
+    });
 
-    // 2. Get all student courses with statuses from the view
-    const coursesWithStatus = await db
-      .select()
-      .from(studentCourseStatusView)
-      .where(eq(studentCourseStatusView.authId, authId));
-
-    // 4. Get progress information by category
-    const progressByCategory = await db
-      .select()
-      .from(studentDegreeRequirementProgressView)
-      .where(eq(studentDegreeRequirementProgressView.authId, authId));
+    // Build the plan from the transaction results
+    const { profileData, coursesWithStatus, progressByCategory } = result;
 
     // 5. Initialize empty plan structure
     const plan: YearPlan = {
@@ -130,11 +167,9 @@ export async function getStudentAcademicPlan(
       percentageComplete: 0,
       lastUpdated: new Date(),
     };
-    // In year-by-year-plan-view.tsx
-    console.log("\n\n\nPlan data:", JSON.stringify(plan, null, 2));
 
     // Initialize all years and semesters
-    for (let year = 1; year <= 5; year++) {
+    for (let year = 1; year <= MAX_TOTAL_YEARS; year++) {
       plan.years[year] = {
         fall: createEmptySemester(year, 1, "Fall"),
         spring: createEmptySemester(year, 2, "Spring"),
@@ -154,8 +189,17 @@ export async function getStudentAcademicPlan(
       const isSummer = course.wasSummerSemester || false;
       const semester = isSummer ? 3 : course.semesterTaken || 1;
 
+      // Ensure the year exists in the plan
+      if (!plan.years[year]) {
+        plan.years[year] = {
+          fall: createEmptySemester(year, 1, "Fall"),
+          spring: createEmptySemester(year, 2, "Spring"),
+          summer: createEmptySemester(year, 3, "Summer", true),
+        };
+      }
+
       // Get the appropriate semester object
-      let targetSemester: Semester | undefined;
+      let targetSemester: Semester;
       if (semester === 1) {
         targetSemester = plan.years[year].fall;
       } else if (semester === 2) {
@@ -206,28 +250,21 @@ export async function getStudentAcademicPlan(
       };
 
       // Add to appropriate semester
-      if (targetSemester) {
-        targetSemester.courses.push(courseWithStatus);
-
-        // Initialize totalCredits if undefined
-        if (targetSemester.totalCredits === undefined) {
-          targetSemester.totalCredits = 0;
-        }
-        // Add credits to semester total
-        targetSemester.totalCredits += courseWithStatus.credits;
-      }
+      targetSemester.courses.push(courseWithStatus);
+      targetSemester.totalCredits += courseWithStatus.credits;
     }
 
     // 8. Add warning for semesters with too many credits
-    for (let year = 1; year <= 8; year++) {
-      if (!plan.years[year]) continue;
-
-      const yearObj = plan.years[year];
+    for (const yearNum in plan.years) {
+      const yearObj = plan.years[parseInt(yearNum)];
       yearObj.fall.hasCreditWarning =
         yearObj.fall.totalCredits > MAX_CREDITS_PER_SEMESTER;
       yearObj.spring.hasCreditWarning =
         yearObj.spring.totalCredits > MAX_CREDITS_PER_SEMESTER;
-      // No warning for summer
+      if (yearObj.summer) {
+        yearObj.summer.hasCreditWarning =
+          yearObj.summer.totalCredits > MAX_CREDITS_PER_SEMESTER;
+      }
     }
 
     // 9. Calculate overall progress statistics
@@ -255,8 +292,7 @@ export async function getStudentAcademicPlan(
             Math.round((totalProgress.completed / totalProgress.required) * 100)
           )
         : 0;
-    // In year-by-year-plan-view.tsx
-    console.log("\n\nPlan data Comp:", JSON.stringify(plan, null, 2));
+
     return {
       success: true,
       data: plan,
@@ -271,30 +307,528 @@ export async function getStudentAcademicPlan(
 }
 
 /**
- * Helper function to get total credits in a semester
- * Used by multiple functions for credit load validation
+ * Cached prerequisite data for faster repeated checks
+ * This helps avoid multiple database queries for the same prerequisite data
+ */
+const prerequisiteCache = new Map<
+  string,
+  {
+    groups: any[];
+    coursesMap: Map<string, string[]>;
+    timestamp: number;
+  }
+>();
+
+/**
+ * Optimized helper function to get total credits in a semester
+ * Uses a single query instead of separate queries for courses and placeholders
  */
 async function getSemesterTotalCredits(
   authId: string,
   year: number,
   semester: number
 ): Promise<number> {
-  // Get courses from the view (real courses)
-  const semesterCourses = await db
-    .select({
-      credits: studentCourseStatusView.credits,
+  // Get all courses in this semester with a single query
+  const results = await db.transaction(async (tx) => {
+    // Get regular courses
+    const regularCourses = await tx
+      .select({
+        credits: studentCourseCategorizedStatusView.credits,
+      })
+      .from(studentCourseCategorizedStatusView)
+      .where(
+        and(
+          eq(studentCourseCategorizedStatusView.authId, authId),
+          eq(studentCourseCategorizedStatusView.yearTaken, year),
+          eq(studentCourseCategorizedStatusView.semesterTaken, semester)
+        )
+      );
+
+    // Get placeholders
+    const placeholders = await tx
+      .select({
+        credits: studentCourses.placeholderCredits,
+      })
+      .from(studentCourses)
+      .leftJoin(
+        studentSemesterMappings,
+        eq(
+          studentCourses.semesterId,
+          studentSemesterMappings.academicSemesterId
+        )
+      )
+      .where(
+        and(
+          eq(studentCourses.authId, authId),
+          eq(studentCourses.status, "planned"),
+          isNull(studentCourses.courseCode),
+          eq(studentSemesterMappings.programYear, year),
+          eq(studentSemesterMappings.programSemester, semester)
+        )
+      );
+
+    return { regularCourses, placeholders };
+  });
+
+  // Calculate total credits
+  const regularCredits = results.regularCourses.reduce(
+    (sum: number, course: { credits: any }) =>
+      sum + parseFloat(course.credits?.toString() || "0"),
+    0
+  );
+
+  const placeholderCredits = results.placeholders.reduce(
+    (sum: number, course: { credits: any }) =>
+      sum + parseFloat(course.credits?.toString() || "0"),
+    0
+  );
+
+  return regularCredits + placeholderCredits;
+}
+
+/**
+ * Optimized prerequisite checking that can leverage a cache or preloaded data
+ * Much faster when checking prerequisites for multiple courses
+ */
+async function loadPrerequisiteData(
+  courseCode: string,
+  forceRefresh = false
+): Promise<{
+  groups: PrerequisiteGroupRecord[];
+  coursesMap: Map<string, string[]>;
+}> {
+  // Check if we have cached data that's less than 5 minutes old
+  const cacheKey = courseCode;
+  const cachedData = prerequisiteCache.get(cacheKey);
+  const now = Date.now();
+
+  if (
+    cachedData &&
+    !forceRefresh &&
+    now - cachedData.timestamp < 24 * 60 * 60 * 1000
+  ) {
+    return {
+      groups: cachedData.groups,
+      coursesMap: cachedData.coursesMap,
+    };
+  }
+
+  // Fetch prerequisite data with a single query
+  const groups: PrerequisiteGroupRecord[] = await db
+    .select()
+    .from(prerequisiteGroups)
+    .where(eq(prerequisiteGroups.courseCode, courseCode));
+
+  // Create a map for efficient lookups
+  const coursesMap = new Map<string, string[]>();
+
+  // If there are prerequisite groups, get all courses at once
+  if (groups.length > 0) {
+    const groupKeys = groups.map((g) => g.groupKey);
+
+    const prereqCourses = await db
+      .select({
+        groupKey: prerequisiteCourses.groupKey,
+        prereqCourseCode: prerequisiteCourses.prerequisiteCourseCode,
+      })
+      .from(prerequisiteCourses)
+      .where(inArray(prerequisiteCourses.groupKey, groupKeys));
+
+    // Organize courses by group
+    for (const prereq of prereqCourses) {
+      if (!coursesMap.has(prereq.groupKey)) {
+        coursesMap.set(prereq.groupKey, []);
+      }
+      const courseList = coursesMap.get(prereq.groupKey);
+      if (courseList && prereq.prereqCourseCode) {
+        courseList.push(prereq.prereqCourseCode);
+      }
+    }
+  }
+
+  // Cache the results
+  prerequisiteCache.set(cacheKey, {
+    groups,
+    coursesMap,
+    timestamp: now,
+  });
+
+  return { groups, coursesMap };
+}
+
+/**
+ * Completely optimized prerequisite check
+ * Uses cached data and performs fewer database queries
+ */
+export async function checkPrerequisitesMet(
+  authId: string,
+  courseCode: string,
+  year: number,
+  semester: number
+): Promise<PrerequisiteCheckResult> {
+  // Get prerequisite data, potentially from cache
+  const { groups, coursesMap } = await loadPrerequisiteData(courseCode);
+
+  // If no prerequisites, return true immediately
+  if (groups.length === 0) {
+    return {
+      courseCode,
+      isMet: true,
+    };
+  }
+
+  // Get available courses in a single query to avoid N+1 problem
+  const { passedCourses, plannedCourses } = await db.transaction(async (tx) => {
+    // Get passed courses
+    const passed = await tx
+      .select({
+        courseCode: studentCourseCategorizedStatusView.courseCode,
+      })
+      .from(studentCourseCategorizedStatusView)
+      .where(
+        and(
+          eq(studentCourseCategorizedStatusView.authId, authId),
+          eq(studentCourseCategorizedStatusView.passed, true),
+          eq(studentCourseCategorizedStatusView.isLatestAttempt, true)
+        )
+      );
+
+    // Get planned courses with their semester information directly from the view
+    // This avoids the need to join with studentSemesterMappings separately
+    const planned = await tx
+      .select({
+        courseCode: studentCourseCategorizedStatusView.courseCode,
+        yearTaken: studentCourseCategorizedStatusView.yearTaken,
+        semesterTaken: studentCourseCategorizedStatusView.semesterTaken,
+        status: studentCourseCategorizedStatusView.status,
+      })
+      .from(studentCourseCategorizedStatusView)
+      .where(
+        and(
+          eq(studentCourseCategorizedStatusView.authId, authId),
+          eq(studentCourseCategorizedStatusView.status, "planned"),
+          // Make sure courseCode is not null (exclude placeholders)
+          sql`course_code IS NOT NULL`
+        )
+      );
+
+    return {
+      passedCourses: passed,
+      plannedCourses: planned,
+    };
+  });
+
+  // Create a set of passed courses
+  const passedCourseSet = new Set(
+    passedCourses.map((c) => c.courseCode).filter(Boolean)
+  );
+
+  // Filter planned courses to only those that would be taken before current semester
+  // Now we can directly use the yearTaken and semesterTaken fields from the view
+  const validPlannedCourses = plannedCourses
+    .filter((course) => {
+      if (!course.courseCode || !course.yearTaken || !course.semesterTaken)
+        return false;
+
+      return (
+        course.yearTaken < year ||
+        (course.yearTaken === year && course.semesterTaken < semester)
+      );
     })
-    .from(studentCourseStatusView)
+    .map((c) => c.courseCode)
+    .filter(Boolean) as string[];
+
+  // Create a set of all available courses
+  const availableCourses = new Set([
+    ...passedCourseSet,
+    ...validPlannedCourses,
+  ]);
+
+  // Check each prerequisite group
+  const missingPrerequisites = [];
+  let allGroupsMet = true;
+
+  for (const group of groups) {
+    // Skip concurrent or recommended groups
+    if (group.isConcurrent || group.isRecommended) {
+      continue;
+    }
+
+    // Get courses in this group
+    const groupCourses = coursesMap.get(group.groupKey) || [];
+    let groupSatisfied = false;
+
+    // Check if group is satisfied based on the operator
+    if (group.internalLogicOperator === "AND") {
+      groupSatisfied = groupCourses.every((code) => availableCourses.has(code));
+    } else {
+      groupSatisfied = groupCourses.some((code) => availableCourses.has(code));
+    }
+
+    // If group is not satisfied, add to missing prerequisites
+    if (!groupSatisfied) {
+      allGroupsMet = false;
+
+      missingPrerequisites.push({
+        groupName: group.groupName,
+        courses: groupCourses,
+        internalLogicOperator: group.internalLogicOperator,
+        requiredCount:
+          group.internalLogicOperator === "AND" ? groupCourses.length : 1,
+        satisfiedCount: groupCourses.filter((code) =>
+          availableCourses.has(code)
+        ).length,
+      });
+    }
+  }
+
+  // Generate info message for UI
+  let infoMessage = "";
+  if (!allGroupsMet) {
+    infoMessage = missingPrerequisites
+      .map(
+        (g) =>
+          `${g.groupName}: ${g.requiredCount === 1 ? "You need this course" : `You need ${g.requiredCount} courses but have ${g.satisfiedCount}`}`
+      )
+      .join("; ");
+  }
+
+  return {
+    courseCode,
+    isMet: allGroupsMet,
+    missingPrerequisites: allGroupsMet ? undefined : missingPrerequisites,
+    infoMessage: allGroupsMet ? undefined : infoMessage,
+  };
+}
+
+/**
+ * Optimized validation that performs fewer queries by batching related checks
+ */
+async function validateCoursePlacement(
+  authId: string,
+  courseCode: string,
+  year: number,
+  semester: number
+): Promise<CoursePlacementValidationResponse> {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  const isSummer = semester === 3;
+
+  // Get all necessary data in a single transaction
+  const result = await db.transaction(async (tx) => {
+    // 1. Get student profile
+    const profile = await tx.query.studentProfiles.findFirst({
+      where: eq(studentProfiles.authId, authId),
+    });
+
+    if (!profile?.cohortYear) {
+      return {
+        profile: null,
+        courseInfo: null,
+        existingCredits: 0,
+        semesterMapping: null,
+      };
+    }
+
+    // 2. Get course information
+    const courseInfo = await tx.query.courses.findFirst({
+      where: eq(courses.code, courseCode),
+      columns: { credits: true, offeredInSemesters: true },
+    });
+
+    // 3. Calculate existing credits
+    const semesterCredits = await getSemesterCreditsInTransaction(
+      tx,
+      authId,
+      year,
+      semester
+    );
+
+    // 4. Create semester mapping if needed
+    const semesterMapping = !errors.length
+      ? await getOrCreateSemesterMapping(
+          tx,
+          profile.studentId!,
+          authId,
+          profile.cohortYear,
+          year,
+          semester,
+          isSummer
+        )
+      : null;
+
+    return {
+      profile,
+      courseInfo,
+      existingCredits: semesterCredits,
+      semesterMapping,
+    };
+  });
+
+  // Handle missing profile error
+  if (!result.profile) {
+    return {
+      isValid: false,
+      errors: ["Student profile incomplete or missing"],
+      warnings: [],
+    };
+  }
+
+  // Check prerequisites
+  const prerequisiteCheck = await checkPrerequisitesMet(
+    authId,
+    courseCode,
+    year,
+    semester
+  );
+
+  if (!prerequisiteCheck.isMet && prerequisiteCheck.missingPrerequisites) {
+    // Get course title for the course being added
+    const course = await db.query.courses.findFirst({
+      where: eq(courses.code, courseCode),
+      columns: { title: true },
+    });
+
+    const courseTitle = course?.title || courseCode;
+
+    // Get titles for missing prerequisite courses
+    const allMissingCourseCodes = [
+      ...new Set(
+        prerequisiteCheck.missingPrerequisites.flatMap((group) => group.courses)
+      ),
+    ];
+
+    const missingCourseTitles = await db
+      .select({
+        code: courses.code,
+        title: courses.title,
+      })
+      .from(courses)
+      .where(inArray(courses.code, allMissingCourseCodes));
+
+    // Create a map of course codes to titles
+    const courseTitleMap = new Map(
+      missingCourseTitles.map((c) => [c.code, c.title])
+    );
+
+    // Format enhanced error message
+    const enhancedMessage = prerequisiteCheck.missingPrerequisites
+      .map((group) => {
+        const courseList = group.courses
+          .map((code) => {
+            const title = courseTitleMap.get(code) || code;
+            return `${code} (${title})`;
+          })
+          .join(", ");
+
+        if (group.requiredCount === 1) {
+          return `${group.groupName}: You must complete ${courseList} before taking ${courseCode} (${courseTitle})`;
+        } else if (group.internalLogicOperator === "AND") {
+          return `${group.groupName}: You must complete all of these courses (${courseList}) before taking ${courseCode} (${courseTitle})`;
+        } else {
+          return `${group.groupName}: You must complete at least one of these courses (${courseList}) before taking ${courseCode} (${courseTitle})`;
+        }
+      })
+      .join("; ");
+
+    errors.push(`Prerequisites not met: ${enhancedMessage}`);
+  } else if (!prerequisiteCheck.isMet) {
+    // Fallback to the original message
+    errors.push(
+      `Prerequisites not met: ${prerequisiteCheck.infoMessage || "Missing prerequisites"}`
+    );
+  }
+
+  // Check course availability
+  if (result.courseInfo) {
+    const semesterType = isSummer
+      ? "summer"
+      : semester === 1
+        ? "fall"
+        : "spring";
+
+    const isOffered = result.courseInfo.offeredInSemesters.includes(
+      semesterType as "fall" | "spring" | "summer"
+    );
+
+    if (!isOffered) {
+      warnings.push(
+        `This course is typically not offered in ${semesterType} semester. You may need to adjust your planning if this course isn't available`
+      );
+    }
+  } else {
+    warnings.push("Course information not found");
+  }
+
+  // Check credit load
+  const newCredits = result.courseInfo
+    ? parseFloat(result.courseInfo.credits.toString())
+    : 0;
+  const totalCredits = result.existingCredits + newCredits;
+
+  if (totalCredits > MAX_CREDITS_PER_SEMESTER) {
+    warnings.push(
+      `This will exceed the recommended credit limit of ${MAX_CREDITS_PER_SEMESTER} credits per semester. Current: ${result.existingCredits}, New: ${newCredits}, Total would be: ${totalCredits}`
+    );
+  }
+
+  // Check year limit
+  if (year > MAX_RECOMMENDED_YEARS) {
+    // Only show warning if this is the first course above MAX_RECOMMENDED_YEARS
+    const alreadyHasCoursesAboveMax = await hasCoursesAboveMaxYear(authId);
+    if (!alreadyHasCoursesAboveMax) {
+      warnings.push(
+        `This extends your plan beyond the recommended ${MAX_RECOMMENDED_YEARS} years. Please consult with your academic advisor`
+      );
+    }
+  }
+
+  // Check summer semester
+  if (isSummer) {
+    warnings.push(
+      "Course offerings in summer semesters are not guaranteed and may change. Check with your advisor closer to the registration period"
+    );
+  }
+
+  // Check semester mapping
+  if (errors.length === 0 && !result.semesterMapping) {
+    errors.push("Could not find or create semester mapping");
+  }
+
+  return {
+    isValid: errors.length === 0,
+    studentProfile: result.profile,
+    semesterMapping: result.semesterMapping,
+    errors,
+    warnings,
+  };
+}
+
+/**
+ * Helper function for getting semester credits within a transaction
+ */
+async function getSemesterCreditsInTransaction(
+  tx: any,
+  authId: string,
+  year: number,
+  semester: number
+): Promise<number> {
+  // Get regular courses
+  const regularCourses = await tx
+    .select({
+      credits: studentCourseCategorizedStatusView.credits,
+    })
+    .from(studentCourseCategorizedStatusView)
     .where(
       and(
-        eq(studentCourseStatusView.authId, authId),
-        eq(studentCourseStatusView.yearTaken, year),
-        eq(studentCourseStatusView.semesterTaken, semester)
+        eq(studentCourseCategorizedStatusView.authId, authId),
+        eq(studentCourseCategorizedStatusView.yearTaken, year),
+        eq(studentCourseCategorizedStatusView.semesterTaken, semester)
       )
     );
 
-  // Get placeholders (which might not be in the view)
-  const semesterPlaceholders = await db
+  // Get placeholders
+  const placeholders = await tx
     .select({
       credits: studentCourses.placeholderCredits,
     })
@@ -314,132 +848,90 @@ async function getSemesterTotalCredits(
     );
 
   // Calculate total credits
-  const realCourseCredits = semesterCourses.reduce(
-    (sum, course) => sum + parseFloat(course.credits?.toString() || "0"),
+  const regularCredits = regularCourses.reduce(
+    (sum: number, course: { credits: any }) =>
+      sum + parseFloat(course.credits?.toString() || "0"),
     0
   );
 
-  const placeholderCredits = semesterPlaceholders.reduce(
-    (sum, course) => sum + parseFloat(course.credits?.toString() || "0"),
+  const placeholderCredits = placeholders.reduce(
+    (sum: number, course: { credits: any }) =>
+      sum + parseFloat(course.credits?.toString() || "0"),
     0
   );
 
-  return realCourseCredits + placeholderCredits;
+  return regularCredits + placeholderCredits;
 }
 
 /**
- * Validates course placement in a specific semester
- * Centralizes validation logic used by multiple course planning functions
+ * Helper function to get or create a semester mapping within a transaction
  */
-async function validateCoursePlacement(
+async function getOrCreateSemesterMapping(
+  tx: any,
+  studentId: string,
   authId: string,
-  courseCode: string,
-  year: number,
-  semester: number
-): Promise<CoursePlacementValidationResponse> {
-  const errors: string[] = [];
-  const warnings: string[] = [];
+  cohortYear: number,
+  programYear: number,
+  programSemester: number,
+  isSummer: boolean
+): Promise<any> {
+  // Calculate academic year based on cohort year and program year
+  const baseYear = cohortYear - 4; // Year student started
+  const startYear = baseYear + programYear - 1;
+  const academicYearName = `${startYear}-${startYear + 1}`;
 
-  // 1. Get student profile for validations
-  const studentProfile = await db.query.studentProfiles.findFirst({
-    where: eq(studentProfiles.authId, authId),
+  // Determine sequence number (1, 2, or 3 for summer)
+  const sequenceNumber = isSummer ? 3 : programSemester || 1;
+
+  // Find the academic semester
+  const semester = await tx.query.academicSemesters.findFirst({
+    where: and(
+      eq(academicSemesters.academicYearName, academicYearName),
+      eq(academicSemesters.sequenceNumber, sequenceNumber)
+    ),
   });
 
-  if (!studentProfile?.cohortYear) {
-    return {
-      isValid: false,
-      errors: ["Student profile incomplete or missing"],
-      warnings: [],
-    };
-  }
-
-  // 2. Check prerequisites
-  const prerequisiteCheck = await checkPrerequisitesMet(
-    studentProfile.studentId!,
-    courseCode,
-    year,
-    semester
-  );
-
-  if (!prerequisiteCheck.isMet) {
-    errors.push(
-      `Prerequisites not met: ${prerequisiteCheck.infoMessage || "Missing prerequisites"}`
+  if (!semester) {
+    console.error(
+      `Academic semester not found for ${academicYearName}, sequence ${sequenceNumber}`
     );
+    return null;
   }
 
-  // 3. Check if course is offered in the target semester
-  const isSummer = semester === 3;
-  const courseAvailability = await checkCourseAvailability(
-    courseCode,
-    semester,
-    isSummer
-  );
-
-  if (!courseAvailability.isOffered) {
-    warnings.push(
-      courseAvailability.warning ||
-        `This course may not be offered in ${getSemesterName(semester, isSummer)} semester`
-    );
-  }
-
-  // 4. Check credit load for the semester
-  const existingCredits = await getSemesterTotalCredits(authId, year, semester);
-  const courseInfo = await db.query.courses.findFirst({
-    where: eq(courses.code, courseCode),
-    columns: { credits: true },
+  // Check if mapping already exists
+  const existingMapping = await tx.query.studentSemesterMappings.findFirst({
+    where: and(
+      eq(studentSemesterMappings.studentId, studentId),
+      eq(studentSemesterMappings.academicSemesterId, semester.id),
+      eq(studentSemesterMappings.programYear, programYear),
+      eq(studentSemesterMappings.programSemester, programSemester),
+      eq(studentSemesterMappings.isSummer, isSummer)
+    ),
   });
-  const newCredits = courseInfo ? parseFloat(courseInfo.credits.toString()) : 0;
-  const totalCredits = existingCredits + newCredits;
 
-  if (totalCredits > MAX_CREDITS_PER_SEMESTER) {
-    warnings.push(
-      `This will exceed the recommended credit limit of ${MAX_CREDITS_PER_SEMESTER} credits per semester. Current: ${existingCredits}, New: ${newCredits}, Total would be: ${totalCredits}`
-    );
+  if (existingMapping) {
+    return existingMapping;
   }
 
-  // 5. Check if exceeding max recommended years
-  if (year > MAX_RECOMMENDED_YEARS) {
-    warnings.push(
-      `This extends your plan beyond the recommended ${MAX_RECOMMENDED_YEARS} years. Please consult with your academic advisor`
-    );
-  }
+  // Insert new mapping
+  const [newMapping] = await tx
+    .insert(studentSemesterMappings)
+    .values({
+      studentId,
+      authId: authId,
+      academicSemesterId: semester.id,
+      programYear,
+      programSemester,
+      isSummer,
+      isVerified: false,
+    })
+    .returning();
 
-  // 6. Special warning for summer courses
-  if (isSummer) {
-    warnings.push(
-      "Course offerings in summer semesters are not guaranteed and may change. Check with your advisor closer to the registration period"
-    );
-  }
-
-  // 7. Get semester ID and create mapping if necessary (only if no errors)
-  let semesterMapping = null;
-  if (errors.length === 0) {
-    semesterMapping = await addStudentSemesterMappingIfNotExists(
-      studentProfile.studentId!,
-      authId,
-      studentProfile.cohortYear,
-      year,
-      semester,
-      isSummer
-    );
-
-    if (!semesterMapping) {
-      errors.push("Could not find or create semester mapping");
-    }
-  }
-
-  return {
-    isValid: errors.length === 0,
-    studentProfile,
-    semesterMapping,
-    errors,
-    warnings,
-  };
+  return newMapping;
 }
 
 /**
- * Simpler validation for placeholder electives
- * Doesn't check prerequisites or course offerings
+ * Simplified validation for placeholder electives
  */
 async function validatePlaceholderPlacement(
   authId: string,
@@ -449,13 +941,51 @@ async function validatePlaceholderPlacement(
 ): Promise<CoursePlacementValidationResponse> {
   const errors: string[] = [];
   const warnings: string[] = [];
+  const isSummer = semester === 3;
 
-  // 1. Get student profile
-  const studentProfile = await db.query.studentProfiles.findFirst({
-    where: eq(studentProfiles.authId, authId),
+  // Get all necessary data in a single transaction
+  const result = await db.transaction(async (tx) => {
+    // 1. Get student profile
+    const profile = await tx.query.studentProfiles.findFirst({
+      where: eq(studentProfiles.authId, authId),
+    });
+
+    if (!profile?.cohortYear) {
+      return {
+        profile: null,
+        existingCredits: 0,
+        semesterMapping: null,
+      };
+    }
+
+    // 2. Calculate existing credits
+    const semesterCredits = await getSemesterCreditsInTransaction(
+      tx,
+      authId,
+      year,
+      semester
+    );
+
+    // 3. Create semester mapping if needed
+    const semesterMapping = await getOrCreateSemesterMapping(
+      tx,
+      profile.studentId!,
+      authId,
+      profile.cohortYear,
+      year,
+      semester,
+      isSummer
+    );
+
+    return {
+      profile,
+      existingCredits: semesterCredits,
+      semesterMapping,
+    };
   });
 
-  if (!studentProfile?.cohortYear) {
+  // Handle missing profile error
+  if (!result.profile) {
     return {
       isValid: false,
       errors: ["Student profile incomplete or missing"],
@@ -463,49 +993,41 @@ async function validatePlaceholderPlacement(
     };
   }
 
-  // 2. Check credit load
-  const existingCredits = await getSemesterTotalCredits(authId, year, semester);
-  const totalCredits = existingCredits + credits;
+  // Check credit load
+  const totalCredits = result.existingCredits + credits;
 
   if (totalCredits > MAX_CREDITS_PER_SEMESTER) {
     warnings.push(
-      `This will exceed the recommended credit limit of ${MAX_CREDITS_PER_SEMESTER} credits per semester. Current: ${existingCredits}, New: ${credits}, Total would be: ${totalCredits}`
+      `This will exceed the recommended credit limit of ${MAX_CREDITS_PER_SEMESTER} credits per semester. Current: ${result.existingCredits}, New: ${credits}, Total would be: ${totalCredits}`
     );
   }
 
-  // 3. Check if exceeding max recommended years
+  // Check year limit
   if (year > MAX_RECOMMENDED_YEARS) {
-    warnings.push(
-      `This extends your plan beyond the recommended ${MAX_RECOMMENDED_YEARS} years. Please consult with your academic advisor`
-    );
+    // Only show warning if this is the first course above MAX_RECOMMENDED_YEARS
+    const alreadyHasCoursesAboveMax = await hasCoursesAboveMaxYear(authId);
+    if (!alreadyHasCoursesAboveMax) {
+      warnings.push(
+        `This extends your plan beyond the recommended ${MAX_RECOMMENDED_YEARS} years. Please consult with your academic advisor`
+      );
+    }
   }
-
-  // 4. Special warning for summer courses
-  const isSummer = semester === 3;
+  // Check summer semester
   if (isSummer) {
     warnings.push(
       "Course offerings in summer semesters are not guaranteed and may change. Check with your advisor closer to the registration period"
     );
   }
 
-  // 5. Create semester mapping
-  const semesterMapping = await addStudentSemesterMappingIfNotExists(
-    studentProfile.studentId!,
-    authId,
-    studentProfile.cohortYear,
-    year,
-    semester,
-    isSummer
-  );
-
-  if (!semesterMapping) {
+  // Check semester mapping
+  if (!result.semesterMapping) {
     errors.push("Could not find or create semester mapping");
   }
 
   return {
     isValid: errors.length === 0,
-    studentProfile,
-    semesterMapping,
+    studentProfile: result.profile,
+    semesterMapping: result.semesterMapping,
     errors,
     warnings,
   };
@@ -524,12 +1046,12 @@ export async function addPlannedCourse(
     // 1. Check if student already passed this course (specific to add)
     const courseStatus = await db
       .select()
-      .from(studentCourseStatusView)
+      .from(studentCourseCategorizedStatusView)
       .where(
         and(
-          eq(studentCourseStatusView.authId, authId),
-          eq(studentCourseStatusView.courseCode, courseCode),
-          eq(studentCourseStatusView.isLatestAttempt, true)
+          eq(studentCourseCategorizedStatusView.authId, authId),
+          eq(studentCourseCategorizedStatusView.courseCode, courseCode),
+          eq(studentCourseCategorizedStatusView.isLatestAttempt, true)
         )
       );
 
@@ -704,6 +1226,7 @@ export async function movePlannedCourse(
 
     // 3A. For placeholders, use simpler validation
     if (isPlaceholder) {
+      // Placeholder validation unchanged...
       const credits = courseRecord.placeholderCredits
         ? parseFloat(courseRecord.placeholderCredits.toString())
         : 1;
@@ -742,7 +1265,7 @@ export async function movePlannedCourse(
       };
     }
 
-    // 3B. For real courses, use full validation
+    // 3B. For real courses, check regular validation and ALSO dependency validation
     const validation = await validateCoursePlacement(
       authId,
       courseRecord.courseCode!,
@@ -764,6 +1287,28 @@ export async function movePlannedCourse(
       };
     }
 
+    // NEW: Check if this course is a prerequisite for other planned courses
+    const reverseCheck = await validatePrerequisiteMove(
+      authId,
+      courseRecord.courseCode!,
+      newYear,
+      newSemester
+    );
+
+    if (!reverseCheck.isValid) {
+      return {
+        success: false,
+        error: serializeError(
+          new AppError({
+            message:
+              reverseCheck.error ||
+              "Cannot move this course to this semester because it is a prerequisite to other courses",
+            code: "PREREQUISITE_MOVE_ERROR",
+          })
+        ),
+      };
+    }
+
     // 4. Move the course
     await db
       .update(studentCourses)
@@ -782,6 +1327,121 @@ export async function movePlannedCourse(
       error: serializeError(error),
     };
   }
+}
+
+// New function to validate moving a prerequisite
+// Enhanced validation function with clear course titles
+async function validatePrerequisiteMove(
+  authId: string,
+  courseCode: string,
+  newYear: number,
+  newSemester: number
+): Promise<{ isValid: boolean; error?: string }> {
+  // First, get the name of the course being moved
+  const movingCourse = await db
+    .select({
+      title: courses.title,
+    })
+    .from(courses)
+    .where(eq(courses.code, courseCode))
+    .limit(1);
+
+  const courseTitle =
+    movingCourse.length > 0 ? movingCourse[0].title : courseCode;
+
+  // 1. Get all prerequisite relationships where this course is a prerequisite
+  const prereqRelationships = await db
+    .select({
+      courseCode: prerequisiteCourses.groupKey,
+      groupKey: prerequisiteCourses.groupKey,
+    })
+    .from(prerequisiteCourses)
+    .where(eq(prerequisiteCourses.prerequisiteCourseCode, courseCode));
+
+  // If this course isn't a prerequisite for anything, it's valid to move
+  if (prereqRelationships.length === 0) {
+    return { isValid: true };
+  }
+
+  // Get all unique group keys
+  const groupKeys = [...new Set(prereqRelationships.map((p) => p.groupKey))];
+
+  // 2. Get all prerequisite groups with their course codes
+  const prereqGroups = await db
+    .select()
+    .from(prerequisiteGroups)
+    .where(inArray(prerequisiteGroups.groupKey, groupKeys));
+
+  // Extract course codes of dependent courses
+  const dependentCourseCodes = prereqGroups.map((g) => g.courseCode);
+
+  // 3. Get all planned courses that might depend on this course with their titles
+  const plannedCourses = await db
+    .select({
+      courseCode: studentCourseCategorizedStatusView.courseCode,
+      courseTitle: studentCourseCategorizedStatusView.courseTitle,
+      year: studentCourseCategorizedStatusView.yearTaken,
+      semester: studentCourseCategorizedStatusView.semesterTaken,
+      status: studentCourseCategorizedStatusView.status,
+    })
+    .from(studentCourseCategorizedStatusView)
+    .where(
+      and(
+        eq(studentCourseCategorizedStatusView.authId, authId),
+        eq(studentCourseCategorizedStatusView.status, "planned"),
+        inArray(
+          studentCourseCategorizedStatusView.courseCode,
+          dependentCourseCodes
+        )
+      )
+    );
+
+  // 4. Check if we're moving a prerequisite to a semester after any dependent course
+  const dependentCourses = [];
+
+  for (const course of plannedCourses) {
+    // Skip if null values
+    if (!course.year || !course.semester || !course.courseCode) continue;
+
+    // Check if this course comes before the new position
+    const courseBeforeNewPosition =
+      course.year < newYear ||
+      (course.year === newYear && course.semester < newSemester);
+
+    if (courseBeforeNewPosition) {
+      // Add to list of dependent courses
+      dependentCourses.push({
+        code: course.courseCode,
+        title: course.courseTitle || course.courseCode,
+        year: course.year,
+        semester: course.semester,
+      });
+    }
+  }
+
+  // If we found any conflicts, return an error
+  if (dependentCourses.length > 0) {
+    // Format semester names
+    const getSemesterName = (sem: number) =>
+      sem === 1 ? "Fall" : sem === 2 ? "Spring" : "Summer";
+
+    // Format the dependent courses for the error message
+    const formattedDependents = dependentCourses
+      .map(
+        (c) =>
+          `${c.code} (${c.title}) in ${getSemesterName(c.semester)} Year ${c.year}`
+      )
+      .join(", ");
+
+    // Create a clear error message with course titles
+    return {
+      isValid: false,
+      error: `Cannot move ${courseCode} (${courseTitle}) to this semester because it's a prerequisite for: ${formattedDependents}`,
+    };
+  }
+
+  // No conflicts found
+  return { isValid: true };
 }
 
 /**
@@ -875,6 +1535,7 @@ export async function removePlannedCourse(
 
 /**
  * Get available courses a student can add to a specific semester
+ * Already optimized from your previous implementation
  */
 export async function getAvailableCoursesForSemester(
   authId: string,
@@ -882,58 +1543,6 @@ export async function getAvailableCoursesForSemester(
   semester: number
 ): Promise<ActionResponse<SemesterAvailableCourses>> {
   try {
-    // 1. Get student profile
-    const profile = await db.query.studentProfiles.findFirst({
-      where: eq(studentProfiles.authId, authId),
-    });
-
-    if (!profile) {
-      return {
-        success: false,
-        error: serializeError(
-          new AppError({
-            message: `Student not found: ${authId}`,
-            code: "STUDENT_NOT_FOUND",
-          })
-        ),
-      };
-    }
-
-    // 2. Get all courses the student has already passed from the view
-    const passedCourses = await db
-      .select({
-        courseCode: studentCourseCategorizedStatusView.courseCode,
-      })
-      .from(studentCourseCategorizedStatusView)
-      .where(
-        and(
-          eq(studentCourseCategorizedStatusView.authId, authId),
-          eq(studentCourseCategorizedStatusView.passed, true)
-        )
-      );
-
-    const passedCourseCodes = new Set(passedCourses.map((c) => c.courseCode));
-
-    // 3. Get required courses from the view
-    const requiredCourses = await db
-      .select({
-        courseCode: studentRequiredCoursesView.courseCode,
-        categoryName: studentRequiredCoursesView.categoryName,
-        credits: studentRequiredCoursesView.credits,
-        courseTitle: studentRequiredCoursesView.courseTitle,
-        offeredInSemesters: studentRequiredCoursesView.offeredInSemesters,
-      })
-      .from(studentRequiredCoursesView)
-      .where(
-        and(
-          eq(studentRequiredCoursesView.authId, authId),
-          // Only include actual courses, not placeholders
-          sql`course_code IS NOT NULL`
-        )
-      );
-
-    // 4. Filter courses based on prerequisites and other criteria
-    const availableCourses = [];
     const isSummer = semester === 3;
     const semesterType = isSummer
       ? "summer"
@@ -941,41 +1550,349 @@ export async function getAvailableCoursesForSemester(
         ? "fall"
         : "spring";
 
-    for (const course of requiredCourses) {
-      // Skip if already passed
-      if (passedCourseCodes.has(course.courseCode)) {
-        continue;
-      }
-
-      // Check prerequisites
-      const prerequisiteCheck = await checkPrerequisitesMet(
-        authId,
-        course.courseCode,
-        year,
-        semester
-      );
-
-      // Only include courses with prerequisites met
-      if (prerequisiteCheck.isMet) {
-        const isOfferedInSemester = course.offeredInSemesters?.includes(
-          semesterType as any
+    // Get data in a single transaction to improve performance
+    const [results] = await db.transaction(async (tx) => {
+      // 1. Get prerequisites for all courses in a single query
+      const allPrerequisites = await tx
+        .select({
+          courseCode: prerequisiteGroups.courseCode,
+          prereqCourseCode: prerequisiteCourses.prerequisiteCourseCode,
+          operator: prerequisiteGroups.internalLogicOperator,
+          isConcurrent: prerequisiteGroups.isConcurrent,
+          isRecommended: prerequisiteGroups.isRecommended,
+        })
+        .from(prerequisiteGroups)
+        .leftJoin(
+          prerequisiteCourses,
+          eq(prerequisiteGroups.groupKey, prerequisiteCourses.groupKey)
+        )
+        .where(
+          and(
+            eq(prerequisiteGroups.isConcurrent, false),
+            eq(prerequisiteGroups.isRecommended, false)
+          )
         );
 
-        availableCourses.push({
-          code: course.courseCode,
-          title: course.courseTitle,
-          credits: Number(course.credits),
-          category: course.categoryName,
-          offeredInSemester: isOfferedInSemester,
-        });
+      // 2. Get all passed courses in a single query
+      const passedCourses = await tx
+        .select({
+          courseCode: studentCourseCategorizedStatusView.courseCode,
+        })
+        .from(studentCourseCategorizedStatusView)
+        .where(
+          and(
+            eq(studentCourseCategorizedStatusView.authId, authId),
+            eq(studentCourseCategorizedStatusView.passed, true),
+            eq(studentCourseCategorizedStatusView.isLatestAttempt, true)
+          )
+        );
+
+      // 3. Get all planned courses before this semester
+      const plannedCourses = await tx
+        .select({
+          courseCode: studentCourses.courseCode,
+          year: studentSemesterMappings.programYear,
+          semester: studentSemesterMappings.programSemester,
+        })
+        .from(studentCourses)
+        .leftJoin(
+          studentSemesterMappings,
+          eq(
+            studentCourses.semesterId,
+            studentSemesterMappings.academicSemesterId
+          )
+        )
+        .where(
+          and(
+            eq(studentCourses.authId, authId),
+            eq(studentCourses.status, "planned"),
+            sql`course_code IS NOT NULL`,
+            or(
+              lt(studentSemesterMappings.programYear, year),
+              and(
+                eq(studentSemesterMappings.programYear, year),
+                lt(studentSemesterMappings.programSemester, semester)
+              )
+            )
+          )
+        );
+
+      // 4. Get course attempt information
+      const courseAttempts = await tx
+        .select({
+          courseCode: studentCourseCategorizedStatusView.courseCode,
+          passed: studentCourseCategorizedStatusView.passed,
+          voluntaryRetakePossible:
+            studentCourseCategorizedStatusView.voluntaryRetakePossible,
+          retakeNeeded: studentCourseCategorizedStatusView.retakeNeeded,
+          retakeLimitReached:
+            studentCourseCategorizedStatusView.retakeLimitReached,
+        })
+        .from(studentCourseCategorizedStatusView)
+        .where(
+          and(
+            eq(studentCourseCategorizedStatusView.authId, authId),
+            eq(studentCourseCategorizedStatusView.isLatestAttempt, true)
+          )
+        );
+
+      // 5. Get remaining requirements
+      const remainingReqs = await tx
+        .select({
+          courseCode: studentRemainingRequirementsView.courseCode,
+          courseTitle: studentRemainingRequirementsView.courseTitle,
+          credits: studentRemainingRequirementsView.credits,
+          categoryName: studentRemainingRequirementsView.categoryName,
+          offeredInSemesters:
+            studentRemainingRequirementsView.offeredInSemesters,
+          requirementType: studentRemainingRequirementsView.requirementType,
+        })
+        .from(studentRemainingRequirementsView)
+        .where(
+          and(
+            eq(studentRemainingRequirementsView.authId, authId),
+            sql`course_code IS NOT NULL`
+          )
+        );
+
+      // 6. Get basic info for all courses (for voluntary retakes and additional courses)
+      const allCourseInfo = await tx
+        .select({
+          code: courses.code,
+          title: courses.title,
+          credits: courses.credits,
+          offeredInSemesters: courses.offeredInSemesters,
+        })
+        .from(courses);
+
+      return [
+        {
+          allPrerequisites,
+          passedCourses,
+          plannedCourses,
+          courseAttempts,
+          remainingReqs,
+          allCourseInfo,
+        },
+      ];
+    });
+
+    // Create sets and maps for efficient lookups
+    const passedCourseSet = new Set(
+      results.passedCourses.map((c) => c.courseCode).filter(Boolean)
+    );
+    const plannedCourseSet = new Set(
+      results.plannedCourses.map((c) => c.courseCode).filter(Boolean)
+    );
+
+    // Build prerequisite map for efficient checks
+    const prerequisiteMap = new Map<string, Map<string, string[]>>();
+
+    for (const prereq of results.allPrerequisites) {
+      if (!prereq.courseCode || !prereq.prereqCourseCode) continue;
+
+      if (!prerequisiteMap.has(prereq.courseCode)) {
+        prerequisiteMap.set(prereq.courseCode, new Map());
+      }
+
+      const coursePrereqs = prerequisiteMap.get(prereq.courseCode)!;
+      if (!coursePrereqs.has(prereq.operator)) {
+        coursePrereqs.set(prereq.operator, []);
+      }
+
+      const operatorCourses = coursePrereqs.get(prereq.operator);
+      if (operatorCourses) {
+        operatorCourses.push(prereq.prereqCourseCode);
       }
     }
 
-    // Sort courses: offered in current semester first
+    // Create course attempt maps
+    const cantRetakeMap = new Map<string, boolean>();
+    const retakeNeededMap = new Map<string, boolean>();
+    const voluntaryRetakeMap = new Map<string, boolean>();
+
+    for (const attempt of results.courseAttempts) {
+      if (!attempt.courseCode) continue;
+
+      // Can't retake if passed and not eligible for voluntary retake OR if failed and reached limit
+      if (
+        (attempt.passed && !attempt.voluntaryRetakePossible) ||
+        (!attempt.passed && attempt.retakeLimitReached)
+      ) {
+        cantRetakeMap.set(attempt.courseCode, true);
+      }
+
+      if (attempt.retakeNeeded) {
+        retakeNeededMap.set(attempt.courseCode, true);
+      }
+
+      if (attempt.passed && attempt.voluntaryRetakePossible) {
+        voluntaryRetakeMap.set(attempt.courseCode, true);
+      }
+    }
+
+    // Course info map for easy access
+    const courseInfoMap = new Map(
+      results.allCourseInfo.map((course) => [course.code, course])
+    );
+
+    // Helper function to check prerequisites (much faster in memory)
+    function hasPrerequisitesMet(courseCode: string): boolean {
+      if (!prerequisiteMap.has(courseCode)) {
+        return true; // No prerequisites
+      }
+
+      const prereqGroups = prerequisiteMap.get(courseCode)!;
+
+      // Check AND groups (all prerequisites required)
+      if (prereqGroups.has("AND")) {
+        const andPrereqs = prereqGroups.get("AND");
+        if (andPrereqs) {
+          for (const prereq of andPrereqs) {
+            if (!passedCourseSet.has(prereq) && !plannedCourseSet.has(prereq)) {
+              return false;
+            }
+          }
+        }
+      }
+
+      // Check OR groups (at least one prerequisite required)
+      if (prereqGroups.has("OR")) {
+        const orPrereqs = prereqGroups.get("OR");
+        if (orPrereqs && orPrereqs.length > 0) {
+          let hasOnePrereq = false;
+          for (const prereq of orPrereqs) {
+            if (passedCourseSet.has(prereq) || plannedCourseSet.has(prereq)) {
+              hasOnePrereq = true;
+              break;
+            }
+          }
+          if (!hasOnePrereq) {
+            return false;
+          }
+        }
+      }
+
+      return true;
+    }
+
+    // Process remaining requirements first (highest priority)
+    const availableCourses: SemesterAvailableCourses = [];
+    const processedCourses = new Set<string>();
+
+    // Process required courses & retakes
+    for (const req of results.remainingReqs) {
+      if (!req.courseCode) continue;
+
+      // Skip if can't be retaken
+      if (cantRetakeMap.get(req.courseCode)) continue;
+
+      // Check prerequisites
+      if (!hasPrerequisitesMet(req.courseCode)) continue;
+
+      // Check if offered in this semester
+      const isOfferedInSemester =
+        req.offeredInSemesters?.includes(semesterType as any) ?? true;
+
+      availableCourses.push({
+        code: req.courseCode,
+        title: req.courseTitle || "",
+        credits: Number(req.credits || 1),
+        category: req.categoryName || "General",
+        offeredInSemester: isOfferedInSemester,
+        isRetake: req.requirementType === "retake_required",
+        retakeReason:
+          req.requirementType === "retake_required"
+            ? "Course needs to be retaken to meet requirements"
+            : undefined,
+      });
+
+      processedCourses.add(req.courseCode);
+    }
+
+    // Process voluntary retakes
+    for (const [courseCode, canRetake] of voluntaryRetakeMap.entries()) {
+      if (processedCourses.has(courseCode)) continue;
+
+      const courseInfo = courseInfoMap.get(courseCode);
+      if (!courseInfo) continue;
+
+      if (!hasPrerequisitesMet(courseCode)) continue;
+
+      const isOfferedInSemester =
+        courseInfo.offeredInSemesters?.includes(semesterType as any) ?? true;
+
+      availableCourses.push({
+        code: courseCode,
+        title: courseInfo.title || "",
+        credits: Number(courseInfo.credits || 1),
+        category: "Voluntary Retake",
+        offeredInSemester: isOfferedInSemester,
+        isRetake: true,
+        retakeReason: "Can be retaken to improve grade",
+      });
+
+      processedCourses.add(courseCode);
+    }
+
+    // Add all other available courses
+    for (const course of results.allCourseInfo) {
+      if (processedCourses.has(course.code)) continue;
+      if (cantRetakeMap.get(course.code)) continue;
+
+      if (!hasPrerequisitesMet(course.code)) continue;
+
+      const isOfferedInSemester =
+        course.offeredInSemesters?.includes(semesterType as any) ?? true;
+
+      availableCourses.push({
+        code: course.code,
+        title: course.title || "",
+        credits: Number(course.credits || 1),
+        category: "Elective",
+        offeredInSemester: isOfferedInSemester,
+        isRetake: false,
+      });
+    }
+
+    // Sort courses
     availableCourses.sort((a, b) => {
+      // Required retakes first
+      if (
+        a.isRetake &&
+        a.retakeReason?.includes("needs to be retaken") &&
+        (!b.isRetake || !b.retakeReason?.includes("needs to be retaken"))
+      ) {
+        return -1;
+      }
+      if (
+        b.isRetake &&
+        b.retakeReason?.includes("needs to be retaken") &&
+        (!a.isRetake || !a.retakeReason?.includes("needs to be retaken"))
+      ) {
+        return 1;
+      }
+
+      // Required courses second
+      if (
+        a.category === "Required Major Classes" &&
+        b.category !== "Required Major Classes"
+      ) {
+        return -1;
+      }
+      if (
+        b.category === "Required Major Classes" &&
+        a.category !== "Required Major Classes"
+      ) {
+        return 1;
+      }
+
+      // Sort by whether offered in this semester
       if (a.offeredInSemester && !b.offeredInSemester) return -1;
       if (!a.offeredInSemester && b.offeredInSemester) return 1;
-      return 0;
+
+      // Lastly sort by course code
+      return a.code.localeCompare(b.code);
     });
 
     return {
@@ -1041,181 +1958,6 @@ export async function getAvailableElectiveCategories(
       error: serializeError(error),
     };
   }
-}
-
-/**
- * Check if prerequisites are met for a course in a specific semester
- */
-export async function checkPrerequisitesMet(
-  authId: string,
-  courseCode: string,
-  year: number,
-  semester: number
-): Promise<PrerequisiteCheckResult> {
-  // 1. Get all prerequisite groups for this course
-  const prereqGroups = await db
-    .select()
-    .from(prerequisiteGroups)
-    .where(eq(prerequisiteGroups.courseCode, courseCode));
-
-  // If no prerequisites, return true immediately
-  if (prereqGroups.length === 0) {
-    return {
-      courseCode,
-      isMet: true,
-    };
-  }
-
-  // 2. Get passed courses for this student from the view
-  const passedCourses = await db
-    .select({
-      courseCode: studentCourseCategorizedStatusView.courseCode,
-      passed: studentCourseCategorizedStatusView.passed,
-      year: studentCourseCategorizedStatusView.yearTaken,
-      semester: studentCourseCategorizedStatusView.semesterTaken,
-    })
-    .from(studentCourseCategorizedStatusView)
-    .where(
-      and(
-        eq(studentCourseCategorizedStatusView.authId, authId),
-        eq(studentCourseCategorizedStatusView.passed, true)
-      )
-    );
-
-  // 3. Get planned courses
-  const plannedCourses = await db
-    .select({
-      courseCode: studentCourses.courseCode,
-      semesterId: studentCourses.semesterId,
-      authId: studentCourses.authId,
-    })
-    .from(studentCourses)
-    .where(
-      and(
-        eq(studentCourses.authId, authId),
-        eq(studentCourses.status, "planned"),
-        // Only include non-placeholder courses
-        sql`course_code IS NOT NULL`
-      )
-    );
-
-  // 4. Get semester mappings for planned courses
-  const semesterIds = plannedCourses.map((c) => c.semesterId);
-
-  const plannedSemesters = await db
-    .select({
-      semesterId: academicSemesters.id,
-      programYear: studentSemesterMappings.programYear,
-      programSemester: studentSemesterMappings.programSemester,
-    })
-    .from(academicSemesters)
-    .leftJoin(
-      studentSemesterMappings,
-      and(
-        eq(studentSemesterMappings.academicSemesterId, academicSemesters.id),
-        eq(studentSemesterMappings.authId, authId)
-      )
-    )
-    .where(
-      sql`${academicSemesters.id} = ANY(${sql.placeholder("semesterIds")})`
-    )
-    .execute({ semesterIds });
-
-  // Create a map for semester information
-  const semesterMap = new Map();
-  plannedSemesters.forEach((s) => {
-    semesterMap.set(s.semesterId, {
-      year: s.programYear,
-      semester: s.programSemester,
-    });
-  });
-
-  // 5. Filter planned courses to only those that would be taken before current semester
-  const validPlannedCourses = plannedCourses
-    .filter((course) => {
-      const semInfo = semesterMap.get(course.semesterId);
-      if (!semInfo) return false;
-
-      return (
-        semInfo.year < year ||
-        (semInfo.year === year && semInfo.semester < semester)
-      );
-    })
-    .map((c) => c.courseCode);
-
-  // 6. Set of all courses that could be used to satisfy prerequisites
-  const availableCourses = new Set([
-    ...passedCourses.map((c) => c.courseCode),
-    ...validPlannedCourses,
-  ]);
-
-  // 7. Check each prerequisite group
-  const missingPrerequisites = [];
-  let allGroupsMet = true;
-
-  for (const group of prereqGroups) {
-    // Skip concurrent or recommended groups
-    if (group.isConcurrent || group.isRecommended) {
-      continue;
-    }
-
-    // Get all courses in this prerequisite group
-    const prereqCourses = await db
-      .select({
-        prereqCourseCode: prerequisiteCourses.prerequisiteCourseCode,
-      })
-      .from(prerequisiteCourses)
-      .where(eq(prerequisiteCourses.groupKey, group.groupKey));
-
-    let groupSatisfied = false;
-
-    // AND logic requires all courses in the group
-    if (group.internalLogicOperator === "AND") {
-      groupSatisfied = prereqCourses.every((c) =>
-        availableCourses.has(c.prereqCourseCode)
-      );
-    }
-    // OR logic requires at least one course in the group
-    else {
-      groupSatisfied = prereqCourses.some((c) =>
-        availableCourses.has(c.prereqCourseCode)
-      );
-    }
-
-    // Check if group is satisfied
-    if (!groupSatisfied) {
-      allGroupsMet = false;
-
-      // Add to missing prerequisites
-      missingPrerequisites.push({
-        groupName: group.groupName,
-        courses: prereqCourses.map((c) => c.prereqCourseCode),
-        requiredCount:
-          group.internalLogicOperator === "AND" ? prereqCourses.length : 1,
-        satisfiedCount: prereqCourses.filter((c) =>
-          availableCourses.has(c.prereqCourseCode)
-        ).length,
-      });
-    }
-  }
-
-  // 8. Generate info message for UI
-  let infoMessage = "";
-  if (!allGroupsMet) {
-    infoMessage = missingPrerequisites
-      .map(
-        (g) =>
-          `${g.groupName}: need ${g.requiredCount} course(s), have ${g.satisfiedCount}`
-      )
-      .join("; ");
-  }
-
-  return {
-    courseCode,
-    isMet: allGroupsMet,
-    missingPrerequisites: allGroupsMet ? undefined : missingPrerequisites,
-    infoMessage: allGroupsMet ? undefined : infoMessage,
-  };
 }
 
 /**
@@ -1333,7 +2075,7 @@ function createEmptySemester(
 /**
  * Helper function to get parent category
  */
-function getCategoryParent(categoryName?: string): string {
+function getCategoryParent(categoryName: string | null): string {
   if (!categoryName) return "GENERAL";
 
   if (
