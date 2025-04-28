@@ -1,7 +1,7 @@
 "use server";
 
 // src/lib/academic-plan/academic-plan-actions.ts
-import { and, eq, inArray, isNull, lt, or, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull, lt, or, sql } from "drizzle-orm";
 
 import { db } from "@/drizzle";
 import {
@@ -27,6 +27,11 @@ import { AppError } from "@/lib/errors/app-error-classes";
 import { serializeError } from "@/lib/errors/error-converter";
 import { ActionResponse } from "@/lib/types/common";
 
+import {
+  checkPrerequisites,
+  getAvailableCourses,
+  loadAllPrerequisiteData,
+} from "./prerequisite-utility";
 import {
   CourseAvailability,
   CoursePlacementValidationResponse,
@@ -574,22 +579,17 @@ async function loadPrerequisiteData(
  * Completely optimized prerequisite check
  * Uses cached data and performs fewer database queries
  */
+/**
+ * Check prerequisites using the centralized utility
+ */
 export async function checkPrerequisitesMet(
   authId: string,
   courseCode: string,
   year: number,
   semester: number
 ): Promise<PrerequisiteCheckResult> {
-  // Get prerequisite data, potentially from cache
-  const { groups, coursesMap } = await loadPrerequisiteData(courseCode);
-
-  // If no prerequisites, return true immediately
-  if (groups.length === 0) {
-    return {
-      courseCode,
-      isMet: true,
-    };
-  }
+  // Get all prerequisite data from the centralized utility
+  const prereqData = await loadAllPrerequisiteData();
 
   // Get available courses in a single query to avoid N+1 problem
   const { passedCourses, plannedCourses } = await db.transaction(async (tx) => {
@@ -608,7 +608,6 @@ export async function checkPrerequisitesMet(
       );
 
     // Get planned courses with their semester information directly from the view
-    // This avoids the need to join with studentSemesterMappings separately
     const planned = await tx
       .select({
         courseCode: studentCourseCategorizedStatusView.courseCode,
@@ -637,86 +636,32 @@ export async function checkPrerequisitesMet(
     passedCourses.map((c) => c.courseCode).filter(Boolean)
   );
 
-  // Filter planned courses to only those that would be taken before current semester
-  // Now we can directly use the yearTaken and semesterTaken fields from the view
-  const validPlannedCourses = plannedCourses
-    .filter((course) => {
-      if (!course.courseCode || !course.yearTaken || !course.semesterTaken)
-        return false;
+  // Convert planned courses to the expected format
+  const plannedCoursesFormatted = plannedCourses
+    .filter((c) => c.courseCode && c.yearTaken && c.semesterTaken)
+    .map((c) => ({
+      courseCode: c.courseCode!,
+      year: c.yearTaken || 0,
+      semester: c.semesterTaken || 0,
+    }));
 
-      return (
-        course.yearTaken < year ||
-        (course.yearTaken === year && course.semesterTaken < semester)
-      );
-    })
-    .map((c) => c.courseCode)
-    .filter(Boolean) as string[];
+  // Get all available courses for this check
+  const availableCourses = getAvailableCourses(
+    passedCourseSet,
+    plannedCoursesFormatted,
+    year,
+    semester
+  );
 
-  // Create a set of all available courses
-  const availableCourses = new Set([
-    ...passedCourseSet,
-    ...validPlannedCourses,
-  ]);
-
-  // Check each prerequisite group
-  const missingPrerequisites = [];
-  let allGroupsMet = true;
-
-  for (const group of groups) {
-    // Skip concurrent or recommended groups
-    if (group.isConcurrent || group.isRecommended) {
-      continue;
-    }
-
-    // Get courses in this group
-    const groupCourses = coursesMap.get(group.groupKey) || [];
-    let groupSatisfied = false;
-
-    // Check if group is satisfied based on the operator
-    if (group.internalLogicOperator === "AND") {
-      groupSatisfied = groupCourses.every((code) => availableCourses.has(code));
-    } else {
-      groupSatisfied = groupCourses.some((code) => availableCourses.has(code));
-    }
-
-    // If group is not satisfied, add to missing prerequisites
-    if (!groupSatisfied) {
-      allGroupsMet = false;
-
-      missingPrerequisites.push({
-        groupName: group.groupName,
-        courses: groupCourses,
-        internalLogicOperator: group.internalLogicOperator,
-        requiredCount:
-          group.internalLogicOperator === "AND" ? groupCourses.length : 1,
-        satisfiedCount: groupCourses.filter((code) =>
-          availableCourses.has(code)
-        ).length,
-      });
-    }
-  }
-
-  // Generate info message for UI
-  let infoMessage = "";
-  if (!allGroupsMet) {
-    infoMessage = missingPrerequisites
-      .map(
-        (g) =>
-          `${g.groupName}: ${g.requiredCount === 1 ? "You need this course" : `You need ${g.requiredCount} courses but have ${g.satisfiedCount}`}`
-      )
-      .join("; ");
-  }
-
-  return {
-    courseCode,
-    isMet: allGroupsMet,
-    missingPrerequisites: allGroupsMet ? undefined : missingPrerequisites,
-    infoMessage: allGroupsMet ? undefined : infoMessage,
-  };
+  // Check prerequisites using the utility
+  return checkPrerequisites(courseCode, availableCourses, prereqData);
 }
 
 /**
  * Optimized validation that performs fewer queries by batching related checks
+ */
+/**
+ * Validate course placement using the centralized prerequisite utility
  */
 async function validateCoursePlacement(
   authId: string,
@@ -788,7 +733,7 @@ async function validateCoursePlacement(
     };
   }
 
-  // Check prerequisites
+  // Check prerequisites using our centralized utility
   const prerequisiteCheck = await checkPrerequisitesMet(
     authId,
     courseCode,
@@ -796,7 +741,7 @@ async function validateCoursePlacement(
     semester
   );
 
-  if (!prerequisiteCheck.isMet && prerequisiteCheck.missingPrerequisites) {
+  if (!prerequisiteCheck.isMet) {
     // Get course title for the course being added
     const course = await db.query.courses.findFirst({
       where: eq(courses.code, courseCode),
@@ -804,52 +749,29 @@ async function validateCoursePlacement(
     });
 
     const courseTitle = course?.title || courseCode;
+    // // Format enhanced error message
+    // const enhancedMessage = prerequisiteCheck.missingPrerequisites
+    //   .map((group) => {
+    //     const courseList = group.courses
+    //       .map((code) => {
+    //         const title = courseTitleMap.get(code) || code;
+    //         return `${code} (${title})`;
+    //       })
+    //       .join(", ");
+    //
+    //     if (group.requiredCount === 1) {
+    //       return `${group.groupName}: You must complete ${courseList} before taking ${courseCode} (${courseTitle})`;
+    //     } else if (group.internalLogicOperator === "AND") {
+    //       return `${group.groupName}: You must complete all of these courses (${courseList}) before taking ${courseCode} (${courseTitle})`;
+    //     } else {
+    //       return `${group.groupName}: You must complete at least one of these courses (${courseList}) before taking ${courseCode} (${courseTitle})`;
+    //     }
+    //   })
+    //   .join("; ");
 
-    // Get titles for missing prerequisite courses
-    const allMissingCourseCodes = [
-      ...new Set(
-        prerequisiteCheck.missingPrerequisites.flatMap((group) => group.courses)
-      ),
-    ];
-
-    const missingCourseTitles = await db
-      .select({
-        code: courses.code,
-        title: courses.title,
-      })
-      .from(courses)
-      .where(inArray(courses.code, allMissingCourseCodes));
-
-    // Create a map of course codes to titles
-    const courseTitleMap = new Map(
-      missingCourseTitles.map((c) => [c.code, c.title])
-    );
-
-    // Format enhanced error message
-    const enhancedMessage = prerequisiteCheck.missingPrerequisites
-      .map((group) => {
-        const courseList = group.courses
-          .map((code) => {
-            const title = courseTitleMap.get(code) || code;
-            return `${code} (${title})`;
-          })
-          .join(", ");
-
-        if (group.requiredCount === 1) {
-          return `${group.groupName}: You must complete ${courseList} before taking ${courseCode} (${courseTitle})`;
-        } else if (group.internalLogicOperator === "AND") {
-          return `${group.groupName}: You must complete all of these courses (${courseList}) before taking ${courseCode} (${courseTitle})`;
-        } else {
-          return `${group.groupName}: You must complete at least one of these courses (${courseList}) before taking ${courseCode} (${courseTitle})`;
-        }
-      })
-      .join("; ");
-
-    errors.push(`Prerequisites not met: ${enhancedMessage}`);
-  } else if (!prerequisiteCheck.isMet) {
-    // Fallback to the original message
     errors.push(
-      `Prerequisites not met: ${prerequisiteCheck.infoMessage || "Missing prerequisites"}`
+      prerequisiteCheck.infoMessage ||
+        `Prerequisites not met for ${courseTitle}`
     );
   }
 
@@ -1445,12 +1367,18 @@ export async function movePlannedCourse(
 
 // New function to validate moving a prerequisite
 // Enhanced validation function with clear course titles
+/**
+ * Enhanced validation function for moving prerequisites using the centralized utility
+ */
 async function validatePrerequisiteMove(
   authId: string,
   courseCode: string,
   newYear: number,
   newSemester: number
 ): Promise<{ isValid: boolean; error?: string }> {
+  // Load all prerequisite data
+  const prereqData = await loadAllPrerequisiteData();
+
   // First, get the name of the course being moved
   const movingCourse = await db
     .select({
@@ -1463,34 +1391,39 @@ async function validatePrerequisiteMove(
   const courseTitle =
     movingCourse.length > 0 ? movingCourse[0].title : courseCode;
 
-  // 1. Get all prerequisite relationships where this course is a prerequisite
-  const prereqRelationships = await db
-    .select({
-      courseCode: prerequisiteCourses.groupKey,
-      groupKey: prerequisiteCourses.groupKey,
-    })
-    .from(prerequisiteCourses)
-    .where(eq(prerequisiteCourses.prerequisiteCourseCode, courseCode));
+  // Find all courses that have this as a prerequisite
+  const dependentCourses = new Set<string>();
 
-  // If this course isn't a prerequisite for anything, it's valid to move
-  if (prereqRelationships.length === 0) {
+  // For each course in the prereqData
+  for (const [
+    potentialDependentCourse,
+    groups,
+  ] of prereqData.courseToGroups.entries()) {
+    // Skip if it's the same course
+    if (potentialDependentCourse === courseCode) continue;
+
+    // Check if this course is a prerequisite for any group
+    for (const group of groups) {
+      // Skip concurrent or recommended groups
+      if (group.isConcurrent || group.isRecommended) continue;
+
+      const prereqCourses = prereqData.groupToCourses.get(group.groupKey) || [];
+
+      // If this course is a prerequisite for this group
+      if (prereqCourses.some((pc) => pc.courseCode === courseCode)) {
+        dependentCourses.add(potentialDependentCourse);
+        break;
+      }
+    }
+  }
+
+  // If no course depends on this (this course isn't a prerequisite for anything), it's valid to move
+  if (dependentCourses.size === 0) {
     return { isValid: true };
   }
 
-  // Get all unique group keys
-  const groupKeys = [...new Set(prereqRelationships.map((p) => p.groupKey))];
-
-  // 2. Get all prerequisite groups with their course codes
-  const prereqGroups = await db
-    .select()
-    .from(prerequisiteGroups)
-    .where(inArray(prerequisiteGroups.groupKey, groupKeys));
-
-  // Extract course codes of dependent courses
-  const dependentCourseCodes = prereqGroups.map((g) => g.courseCode);
-
-  // 3. Get all planned courses that might depend on this course with their titles
-  const plannedCourses = await db
+  // Check if any dependent course is planned before the new position
+  const plannedDependentCourses = await db
     .select({
       courseCode: studentCourseCategorizedStatusView.courseCode,
       courseTitle: studentCourseCategorizedStatusView.courseTitle,
@@ -1505,15 +1438,15 @@ async function validatePrerequisiteMove(
         eq(studentCourseCategorizedStatusView.status, "planned"),
         inArray(
           studentCourseCategorizedStatusView.courseCode,
-          dependentCourseCodes
+          Array.from(dependentCourses)
         )
       )
     );
 
-  // 4. Check if we're moving a prerequisite to a semester after any dependent course
-  const dependentCourses = [];
+  // Find dependent courses that would now come before their prerequisite
+  const problematicCourses = [];
 
-  for (const course of plannedCourses) {
+  for (const course of plannedDependentCourses) {
     // Skip if null values
     if (!course.year || !course.semester || !course.courseCode) continue;
 
@@ -1524,7 +1457,7 @@ async function validatePrerequisiteMove(
 
     if (courseBeforeNewPosition) {
       // Add to list of dependent courses
-      dependentCourses.push({
+      problematicCourses.push({
         code: course.courseCode,
         title: course.courseTitle || course.courseCode,
         year: course.year,
@@ -1534,13 +1467,13 @@ async function validatePrerequisiteMove(
   }
 
   // If we found any conflicts, return an error
-  if (dependentCourses.length > 0) {
+  if (problematicCourses.length > 0) {
     // Format semester names
     const getSemesterName = (sem: number) =>
       sem === 1 ? "Fall" : sem === 2 ? "Spring" : "Summer";
 
     // Format the dependent courses for the error message
-    const formattedDependents = dependentCourses
+    const formattedDependents = problematicCourses
       .map(
         (c) =>
           `${c.code} (${c.title}) in ${getSemesterName(c.semester)} Year ${c.year}`
@@ -1557,11 +1490,6 @@ async function validatePrerequisiteMove(
   // No conflicts found
   return { isValid: true };
 }
-
-/**
- * Remove a planned course from a student's plan
- * Works with both regular courses and placeholder electives
- */
 
 /**
  * Remove a planned course from a student's plan
@@ -1694,6 +1622,10 @@ export async function removePlannedCourse(
  * Get available courses a student can add to a specific semester
  * Already optimized from your previous implementation
  */
+/**
+ * Get available courses a student can add to a specific semester
+ * Now using the centralized prerequisite utility
+ */
 export async function getAvailableCoursesForSemester(
   authId: string,
   year: number,
@@ -1707,30 +1639,12 @@ export async function getAvailableCoursesForSemester(
         ? "fall"
         : "spring";
 
+    // Preload prerequisite data for all courses
+    const prereqData = await loadAllPrerequisiteData();
+
     // Get data in a single transaction to improve performance
     const [results] = await db.transaction(async (tx) => {
-      // 1. Get prerequisites for all courses in a single query
-      const allPrerequisites = await tx
-        .select({
-          courseCode: prerequisiteGroups.courseCode,
-          prereqCourseCode: prerequisiteCourses.prerequisiteCourseCode,
-          operator: prerequisiteGroups.internalLogicOperator,
-          isConcurrent: prerequisiteGroups.isConcurrent,
-          isRecommended: prerequisiteGroups.isRecommended,
-        })
-        .from(prerequisiteGroups)
-        .leftJoin(
-          prerequisiteCourses,
-          eq(prerequisiteGroups.groupKey, prerequisiteCourses.groupKey)
-        )
-        .where(
-          and(
-            eq(prerequisiteGroups.isConcurrent, false),
-            eq(prerequisiteGroups.isRecommended, false)
-          )
-        );
-
-      // 2. Get all passed courses in a single query
+      // Get all passed courses in a single query
       const passedCourses = await tx
         .select({
           courseCode: studentCourseCategorizedStatusView.courseCode,
@@ -1744,7 +1658,7 @@ export async function getAvailableCoursesForSemester(
           )
         );
 
-      // 3. Get all planned courses before this semester
+      // Get all planned courses before this semester
       const plannedCourses = await tx
         .select({
           courseCode: studentCourses.courseCode,
@@ -1774,7 +1688,7 @@ export async function getAvailableCoursesForSemester(
           )
         );
 
-      // 4. Get course attempt information
+      // Get course attempt information
       const courseAttempts = await tx
         .select({
           courseCode: studentCourseCategorizedStatusView.courseCode,
@@ -1793,7 +1707,7 @@ export async function getAvailableCoursesForSemester(
           )
         );
 
-      // 5. Get remaining requirements
+      // Get remaining requirements
       const remainingReqs = await tx
         .select({
           courseCode: studentRemainingRequirementsView.courseCode,
@@ -1812,7 +1726,7 @@ export async function getAvailableCoursesForSemester(
           )
         );
 
-      // 6. Get basic info for all courses (for voluntary retakes and additional courses)
+      // Get basic info for all courses (for voluntary retakes and additional courses)
       const allCourseInfo = await tx
         .select({
           code: courses.code,
@@ -1824,7 +1738,6 @@ export async function getAvailableCoursesForSemester(
 
       return [
         {
-          allPrerequisites,
           passedCourses,
           plannedCourses,
           courseAttempts,
@@ -1838,30 +1751,15 @@ export async function getAvailableCoursesForSemester(
     const passedCourseSet = new Set(
       results.passedCourses.map((c) => c.courseCode).filter(Boolean)
     );
-    const plannedCourseSet = new Set(
-      results.plannedCourses.map((c) => c.courseCode).filter(Boolean)
-    );
 
-    // Build prerequisite map for efficient checks
-    const prerequisiteMap = new Map<string, Map<string, string[]>>();
-
-    for (const prereq of results.allPrerequisites) {
-      if (!prereq.courseCode || !prereq.prereqCourseCode) continue;
-
-      if (!prerequisiteMap.has(prereq.courseCode)) {
-        prerequisiteMap.set(prereq.courseCode, new Map());
-      }
-
-      const coursePrereqs = prerequisiteMap.get(prereq.courseCode)!;
-      if (!coursePrereqs.has(prereq.operator)) {
-        coursePrereqs.set(prereq.operator, []);
-      }
-
-      const operatorCourses = coursePrereqs.get(prereq.operator);
-      if (operatorCourses) {
-        operatorCourses.push(prereq.prereqCourseCode);
-      }
-    }
+    // Convert planned courses to the format expected by the utility function
+    const plannedCoursesFormatted = results.plannedCourses
+      .filter((c) => c.courseCode)
+      .map((c) => ({
+        courseCode: c.courseCode!,
+        year: c.year || 0,
+        semester: c.semester || 0,
+      }));
 
     // Create course attempt maps
     const cantRetakeMap = new Map<string, boolean>();
@@ -1893,46 +1791,6 @@ export async function getAvailableCoursesForSemester(
       results.allCourseInfo.map((course) => [course.code, course])
     );
 
-    // Helper function to check prerequisites (much faster in memory)
-    function hasPrerequisitesMet(courseCode: string): boolean {
-      if (!prerequisiteMap.has(courseCode)) {
-        return true; // No prerequisites
-      }
-
-      const prereqGroups = prerequisiteMap.get(courseCode)!;
-
-      // Check AND groups (all prerequisites required)
-      if (prereqGroups.has("AND")) {
-        const andPrereqs = prereqGroups.get("AND");
-        if (andPrereqs) {
-          for (const prereq of andPrereqs) {
-            if (!passedCourseSet.has(prereq) && !plannedCourseSet.has(prereq)) {
-              return false;
-            }
-          }
-        }
-      }
-
-      // Check OR groups (at least one prerequisite required)
-      if (prereqGroups.has("OR")) {
-        const orPrereqs = prereqGroups.get("OR");
-        if (orPrereqs && orPrereqs.length > 0) {
-          let hasOnePrereq = false;
-          for (const prereq of orPrereqs) {
-            if (passedCourseSet.has(prereq) || plannedCourseSet.has(prereq)) {
-              hasOnePrereq = true;
-              break;
-            }
-          }
-          if (!hasOnePrereq) {
-            return false;
-          }
-        }
-      }
-
-      return true;
-    }
-
     // Process remaining requirements first (highest priority)
     const availableCourses: SemesterAvailableCourses = [];
     const processedCourses = new Set<string>();
@@ -1944,8 +1802,22 @@ export async function getAvailableCoursesForSemester(
       // Skip if can't be retaken
       if (cantRetakeMap.get(req.courseCode)) continue;
 
-      // Check prerequisites
-      if (!hasPrerequisitesMet(req.courseCode)) continue;
+      // Create available courses set for prerequisite checking
+      const availableCoursesForCheck = getAvailableCourses(
+        passedCourseSet,
+        plannedCoursesFormatted,
+        year,
+        semester
+      );
+
+      // Check prerequisites using our utility
+      const prereqResult = checkPrerequisites(
+        req.courseCode,
+        availableCoursesForCheck,
+        prereqData
+      );
+
+      if (!prereqResult.isMet) continue;
 
       // Check if offered in this semester
       const isOfferedInSemester =
@@ -1974,7 +1846,22 @@ export async function getAvailableCoursesForSemester(
       const courseInfo = courseInfoMap.get(courseCode);
       if (!courseInfo) continue;
 
-      if (!hasPrerequisitesMet(courseCode)) continue;
+      // Create available courses set for prerequisite checking
+      const availableCoursesForCheck = getAvailableCourses(
+        passedCourseSet,
+        plannedCoursesFormatted,
+        year,
+        semester
+      );
+
+      // Check prerequisites using our utility
+      const prereqResult = checkPrerequisites(
+        courseCode,
+        availableCoursesForCheck,
+        prereqData
+      );
+
+      if (!prereqResult.isMet) continue;
 
       const isOfferedInSemester =
         courseInfo.offeredInSemesters?.includes(semesterType as any) ?? true;
@@ -1997,7 +1884,22 @@ export async function getAvailableCoursesForSemester(
       if (processedCourses.has(course.code)) continue;
       if (cantRetakeMap.get(course.code)) continue;
 
-      if (!hasPrerequisitesMet(course.code)) continue;
+      // Create available courses set for prerequisite checking
+      const availableCoursesForCheck = getAvailableCourses(
+        passedCourseSet,
+        plannedCoursesFormatted,
+        year,
+        semester
+      );
+
+      // Check prerequisites using our utility
+      const prereqResult = checkPrerequisites(
+        course.code,
+        availableCoursesForCheck,
+        prereqData
+      );
+
+      if (!prereqResult.isMet) continue;
 
       const isOfferedInSemester =
         course.offeredInSemesters?.includes(semesterType as any) ?? true;
@@ -2064,7 +1966,6 @@ export async function getAvailableCoursesForSemester(
     };
   }
 }
-
 /**
  * Get available elective categories for placeholders
  */
@@ -2373,7 +2274,15 @@ export async function generateAutomaticPlan(
         ? parseInt(studentProfile.currentSemester, 10)
         : 1);
 
-    // 2. Clear any existing planned courses (keep completed/failed courses)
+    console.log(
+      "\n\n\n\nCurrent Year and Semester = " + currentYear,
+      currentSemester + "\n\n\n\n"
+    );
+    console.error(
+      "\n\n\n\nCurrent Year and Semester = " + currentYear,
+      currentSemester + "\n\n\n\n"
+    );
+    // 2. Clear any existing planned courses
     await db
       .delete(studentCourses)
       .where(
@@ -2383,43 +2292,100 @@ export async function generateAutomaticPlan(
         )
       );
 
-    // 3. Get remaining requirements from the specialized view
+    // 3. Get remaining requirements in order of priority
     const remainingRequirements = await db
       .select()
       .from(studentRemainingRequirementsView)
-      .where(eq(studentRemainingRequirementsView.authId, authId));
+      .where(eq(studentRemainingRequirementsView.authId, authId))
+      .orderBy(
+        // First by requirement type (retakes first, then required courses, then electives)
+        sql`CASE 
+          WHEN requirement_type = 'retake_required' THEN 1
+          WHEN requirement_type = 'required_course' THEN 2
+          ELSE 3
+        END`,
+        // Then by recommended year and semester if available
+        asc(studentRemainingRequirementsView.recommendedYear),
+        asc(studentRemainingRequirementsView.recommendedSemester),
+        // Finally by priority_order from the view
+        asc(studentRemainingRequirementsView.priorityOrder)
+      );
 
-    // 4. Gather prerequisite information for all courses
-    const prerequisiteMap = await buildPrerequisiteMap(
-      authId,
-      remainingRequirements
+    // 4. Fetch passed courses for prerequisite checking
+    const passedCourses = await db
+      .select({
+        courseCode: studentCourseCategorizedStatusView.courseCode,
+      })
+      .from(studentCourseCategorizedStatusView)
+      .where(
+        and(
+          eq(studentCourseCategorizedStatusView.authId, authId),
+          eq(studentCourseCategorizedStatusView.passed, true),
+          eq(studentCourseCategorizedStatusView.isLatestAttempt, true)
+        )
+      );
+
+    const passedCourseCodes = new Set(
+      passedCourses.map((c) => c.courseCode).filter(Boolean)
     );
 
-    // 5. Process and organize courses for placement
-    const coursesForPlacement = organizeCoursesForPlacement(
-      remainingRequirements,
-      prerequisiteMap
-    );
+    // 5. Prepare to track placements
+    let placementYear = currentYear;
+    let placementSemester = currentSemester;
+    const placedCourses = new Map(); // courseCode -> {year, semester}
+    const semesterLoads = new Map(); // "year-semester" -> creditTotal
 
-    // 6. Place courses semester by semester
-    const planSummary = await placeCourses(
-      authId,
-      studentProfile.studentId,
-      studentProfile.cohortYear || new Date().getFullYear() + 4, // Default graduation year
-      coursesForPlacement,
-      prerequisiteMap,
-      currentYear,
-      currentSemester,
-      options?.balanceCredits ?? true
-    );
+    // Track summary for result message
+    const summary = {
+      totalPlaced: 0,
+      retakesPlaced: 0,
+      requiredPlaced: 0,
+      electivesPlaced: 0,
+      semesterPlacements: {},
+      unplacedCourses: [],
+    };
 
-    // 7. Return the updated plan with placement summary
-    const plan = (await getStudentAcademicPlan(authId)).data!;
+    // 6. Process each requirement in order
+    for (const req of remainingRequirements) {
+      // For concrete courses with course codes
+      if (req.courseCode) {
+        await placeRequiredCourse(
+          req,
+          authId,
+          studentProfile.studentId,
+          studentProfile.cohortYear || new Date().getFullYear() - 18, // Default to current year - 18
+          placementYear,
+          placementSemester,
+          passedCourseCodes,
+          placedCourses,
+          semesterLoads,
+          summary,
+          options?.balanceCredits ?? true
+        );
+      }
+      // For elective placeholders
+      else if (req.requirementType === "elective_placeholder") {
+        await placeElectivePlaceholder(
+          req,
+          authId,
+          studentProfile.studentId,
+          studentProfile.cohortYear || new Date().getFullYear() - 18,
+          placementYear,
+          placementSemester,
+          semesterLoads,
+          summary,
+          options?.balanceCredits ?? true
+        );
+      }
+    }
+
+    // 7. Get the updated plan
+    const updatedPlan = await getStudentAcademicPlan(authId);
 
     return {
       success: true,
-      data: plan,
-      message: generateSummaryMessage(planSummary),
+      data: updatedPlan.data!,
+      message: generateSummaryMessage(summary),
     };
   } catch (error) {
     console.error("Error generating automatic plan:", error);
@@ -2430,538 +2396,470 @@ export async function generateAutomaticPlan(
   }
 }
 
-// Helper function to build prerequisite map
-async function buildPrerequisiteMap(
+/**
+ * Check if a course's prerequisites are met
+ */
+// Update arePrerequisitesMet in placeRequiredCourse
+async function arePrerequisitesMet(
+  courseCode: string,
   authId: string,
-  remainingRequirements: any[]
-): Promise<Map<string, string[]>> {
-  const prereqMap = new Map<string, string[]>();
-  const coursesToPlace = remainingRequirements
-    .filter((req) => req.course_code) // Only courses with actual codes (not placeholders)
-    .map((req) => req.course_code);
+  year: number,
+  semester: number,
+  passedCourses: Set<string>,
+  placedCourses: Map<string, { year: number; semester: number }>
+): Promise<boolean> {
+  // Load prerequisite data
+  const prereqData = await loadAllPrerequisiteData();
 
-  // Get all prerequisite groups for these courses
-  const prereqGroups = await db
-    .select()
-    .from(prerequisiteGroups)
-    .where(inArray(prerequisiteGroups.courseCode, coursesToPlace));
-  // Get completed courses to exclude them from prerequisites
-  const completedCourses = await db
-    .select({
-      courseCode: studentCourseCategorizedStatusView.courseCode,
-    })
-    .from(studentCourseCategorizedStatusView)
-    .where(
-      and(
-        eq(studentCourseCategorizedStatusView.authId, authId),
-        eq(studentCourseCategorizedStatusView.passed, true),
-        eq(studentCourseCategorizedStatusView.isLatestAttempt, true)
-      )
-    );
+  // Calculate available courses
+  const availableCourses = new Set([...passedCourses]);
 
-  const completedCourseCodes = new Set(
-    completedCourses.map((c) => c.courseCode)
-  );
-
-  // Process each course for prerequisites
-  for (const courseCode of coursesToPlace) {
-    const prereqsNeeded: string[] = [];
-
-    // Find all prerequisite groups for this course
-    const groupsForCourse = prereqGroups.filter(
-      (group) =>
-        group.courseCode === courseCode &&
-        !group.isConcurrent &&
-        !group.isRecommended
-    );
-
-    // For each group
-    for (const group of groupsForCourse) {
-      // Get all courses in this prerequisite group
-      const prereqCourses = await db
-        .select({
-          prereqCourseCode: prerequisiteCourses.prerequisiteCourseCode,
-        })
-        .from(prerequisiteCourses)
-        .where(eq(prerequisiteCourses.groupKey, group.groupKey));
-
-      // Filter out already completed prerequisites
-      const activePrereqs = prereqCourses
-        .filter((p) => !completedCourseCodes.has(p.prereqCourseCode))
-        .map((p) => p.prereqCourseCode);
-
-      // Handle the logic operator (AND/OR)
-      if (activePrereqs.length > 0) {
-        if (group.internalLogicOperator === "AND") {
-          // All courses in group are required
-          activePrereqs.forEach((p) => prereqsNeeded.push(p));
-        } else {
-          // OR logic - just need one, so add the first one
-          // (ideally we'd choose the best one, but for now just take the first)
-          if (activePrereqs.length > 0) {
-            prereqsNeeded.push(activePrereqs[0]);
-          }
-        }
-      }
-    }
-
-    // Store prerequisites for this course
-    prereqMap.set(courseCode, prereqsNeeded);
-  }
-
-  return prereqMap;
-}
-
-// Organize courses for placement by priority and prerequisites
-function organizeCoursesForPlacement(
-  remainingRequirements: any[],
-  prerequisiteMap: Map<string, string[]>
-): any[] {
-  // First, separate by requirement type
-  const retakeCourses = remainingRequirements.filter(
-    (req) => req.requirement_type === "retake_required"
-  );
-
-  const requiredCourses = remainingRequirements.filter(
-    (req) => req.requirement_type === "required_course"
-  );
-
-  const electivePlaceholders = remainingRequirements.filter(
-    (req) => req.requirement_type === "elective_placeholder"
-  );
-
-  // For required courses, perform topological sort based on prerequisites
-  const sortedRequired = topologicalSortCourses(
-    requiredCourses,
-    prerequisiteMap
-  );
-
-  // Return in priority order
-  return [
-    ...retakeCourses, // Highest priority: retakes
-    ...sortedRequired, // Second priority: required courses in dependency order
-    ...electivePlaceholders, // Lowest priority: elective placeholders
-  ];
-}
-
-// Perform topological sort on courses based on prerequisites
-function topologicalSortCourses(
-  courses: any[],
-  prerequisiteMap: Map<string, string[]>
-): any[] {
-  const result: any[] = [];
-  const visited = new Set<string>();
-  const temp = new Set<string>();
-
-  // Build an adjacency map of course codes to course objects
-  const courseMap = new Map<string, any>();
-  courses.forEach((course) => {
-    if (course.course_code) {
-      courseMap.set(course.course_code, course);
-    }
-  });
-
-  // Recursive DFS function for topological sort
-  function visit(courseCode: string) {
-    // Skip if already processed
-    if (visited.has(courseCode)) return;
-
-    // Check for cycles (this shouldn't happen in a valid curriculum)
-    if (temp.has(courseCode)) {
-      console.warn(
-        `Cycle detected in course prerequisites involving ${courseCode}`
-      );
-      return;
-    }
-
-    // Mark as temporarily visited
-    temp.add(courseCode);
-
-    // Visit all prerequisites first
-    const prereqs = prerequisiteMap.get(courseCode) || [];
-    for (const prereq of prereqs) {
-      if (courseMap.has(prereq)) {
-        visit(prereq);
-      }
-    }
-
-    // Mark as visited and add to result
-    temp.delete(courseCode);
-    visited.add(courseCode);
-
-    // Add the actual course object to the result
-    const course = courseMap.get(courseCode);
-    if (course) {
-      result.push(course);
+  // Add planned courses that come before this semester
+  for (const [course, placement] of placedCourses.entries()) {
+    // Only include courses that would be taken before the target semester
+    if (
+      placement.year < year ||
+      (placement.year === year && placement.semester < semester)
+    ) {
+      availableCourses.add(course);
     }
   }
 
-  // Try to visit each course
-  for (const course of courses) {
-    if (course.course_code && !visited.has(course.course_code)) {
-      visit(course.course_code);
-    }
-  }
-
-  return result;
+  // Use the utility to check prerequisites
+  return checkPrerequisites(courseCode, availableCourses, prereqData).isMet;
 }
 
-// Place courses into semesters
-async function placeCourses(
+/**
+ * Place a required course in the plan
+ */
+/**
+ * The place required course function now using the centralized prerequisite utility
+ */
+async function placeRequiredCourse(
+  course: any,
   authId: string,
   studentId: string,
   cohortYear: number,
-  coursesForPlacement: any[],
-  prerequisiteMap: Map<string, string[]>,
   startYear: number,
   startSemester: number,
+  passedCourses: Set<string>,
+  placedCourses: Map<string, { year: number; semester: number }>,
+  semesterLoads: Map<string, number>,
+  summary: any,
   balanceCredits: boolean
-): Promise<PlacementSummary> {
-  // Track what we've placed for returning a summary
-  const placementSummary: PlacementSummary = {
-    totalPlaced: 0,
-    retakesPlaced: 0,
-    requiredPlaced: 0,
-    electivesPlaced: 0,
-    semesterPlacements: {},
-    unplacedCourses: [],
-  };
+): Promise<boolean> {
+  const isRetake = course.requirementType === "retake_required";
+  const courseCredits = parseFloat(course.credits?.toString() || "1");
+  const MAX_CREDITS = 5;
 
-  // Track semester credit loads
-  const semesterCredits: Record<string, number> = {};
+  // Preload prerequisite data
+  const prereqData = await loadAllPrerequisiteData();
 
-  // Track which courses have been placed
-  const placedCourses = new Set<string>();
+  // Start from the suggested year/semester if available
+  let placementYear = startYear;
+  let placementSemester = startSemester;
 
-  // Track which prerequisites have been placed and where
-  const prerequisitePlacements: Record<
-    string,
-    { year: number; semester: number }
-  > = {};
+  // For non-retakes, try to use recommended year/semester if it's in the future
+  if (!isRetake && course.recommendedYear && course.recommendedSemester) {
+    const isInFuture =
+      course.recommendedYear > startYear ||
+      (course.recommendedYear === startYear &&
+        course.recommendedSemester >= startSemester);
 
-  // Start with current semester
-  let currentYear = startYear;
-  let currentSemester = startSemester;
-
-  // Helper to advance to next non-summer semester
-  function advanceSemester() {
-    if (currentSemester === 1) {
-      // Fall -> Spring
-      currentSemester = 2;
-    } else {
-      // Spring -> Fall of next year (skip summer)
-      currentSemester = 1;
-      currentYear++;
+    if (isInFuture) {
+      placementYear = course.recommendedYear;
+      placementSemester = course.recommendedSemester;
     }
   }
 
-  // Helper to get semester key for tracking
-  function getSemesterKey(year: number, semester: number) {
-    return `${year}-${semester}`;
-  }
+  // Try to place the course
+  let placed = false;
+  let maxAttempts = 32; // 8 years × 2 semesters × 2 safety factor
 
-  // Check if prerequisites are satisfied by previous placements
-  function prerequisitesMet(
-    courseCode: string,
-    year: number,
-    semester: number
-  ): boolean {
-    const prereqs = prerequisiteMap.get(courseCode) || [];
+  while (!placed && placementYear <= 8 && maxAttempts > 0) {
+    maxAttempts--;
 
-    // If no prerequisites, return true
-    if (prereqs.length === 0) return true;
+    // Check if course is offered in this semester
+    const semesterType = placementSemester === 1 ? "fall" : "spring";
+    const isOffered =
+      !course.offeredInSemesters ||
+      !Array.isArray(course.offeredInSemesters) ||
+      course.offeredInSemesters.length === 0 ||
+      course.offeredInSemesters.includes(semesterType);
 
-    // Check each prerequisite
-    for (const prereq of prereqs) {
-      // If prerequisite hasn't been placed yet, can't place this course
-      if (!placedCourses.has(prereq)) return false;
-
-      // Check the semester the prerequisite was placed in
-      const prereqPlacement = prerequisitePlacements[prereq];
-      if (!prereqPlacement) return false;
-
-      // Prerequisite must come before this course
-      if (prereqPlacement.year > year) return false;
-      if (prereqPlacement.year === year && prereqPlacement.semester >= semester)
-        return false;
+    if (!isOffered) {
+      // Advance to next semester
+      if (placementSemester === 1) {
+        placementSemester = 2;
+      } else {
+        placementSemester = 1;
+        placementYear++;
+      }
+      continue;
     }
 
-    return true;
-  }
+    // Convert passed and placed courses to the format expected by the utility
+    const placedCoursesFormatted = Array.from(placedCourses.entries()).map(
+      ([code, info]) => ({
+        courseCode: code,
+        year: info.year,
+        semester: info.semester,
+      })
+    );
 
-  // Check if course is offered in a semester
-  function isOfferedInSemester(course: any, semester: number): boolean {
-    // If no offering info, assume it's offered in all regular semesters
+    const availableCoursesSet = getAvailableCourses(
+      passedCourses,
+      placedCoursesFormatted,
+      placementYear,
+      placementSemester
+    );
+
+    // Check prerequisites using the utility
+    const prereqsMet = checkPrerequisites(
+      course.courseCode,
+      availableCoursesSet,
+      prereqData
+    ).isMet;
+
+    if (!prereqsMet) {
+      // Advance to next semester
+      if (placementSemester === 1) {
+        placementSemester = 2;
+      } else {
+        placementSemester = 1;
+        placementYear++;
+      }
+      continue;
+    }
+
+    // Check credit load
+    const semesterKey = `${placementYear}-${placementSemester}`;
+    const currentCredits = semesterLoads.get(semesterKey) || 0;
+
+    // Determine if we should place here or move to next semester
+    let shouldPlace = true;
+
+    // For retakes, always place immediately
+    // For regular courses, try to balance credits if requested
     if (
-      !course.offered_in_semesters ||
-      course.offered_in_semesters.length === 0
+      !isRetake &&
+      currentCredits + courseCredits > MAX_CREDITS &&
+      balanceCredits &&
+      maxAttempts > 10
     ) {
-      return true;
+      shouldPlace = false;
     }
 
-    const semesterName = semester === 1 ? "fall" : "spring";
-    return course.offered_in_semesters.includes(semesterName);
-  }
+    if (shouldPlace) {
+      try {
+        // Get or create semester mapping
+        const semesterMapping = await getSemesterMapping(
+          authId,
+          studentId,
+          cohortYear,
+          placementYear,
+          placementSemester,
+          false // Not summer
+        );
 
-  // Process each course for placement
-  for (const course of coursesForPlacement) {
-    // For courses with real course codes
-    if (course.course_code) {
-      let placed = false;
-      let placeYear = currentYear;
-      let placeSemester = currentSemester;
+        if (!semesterMapping) {
+          throw new Error(
+            `Failed to create semester mapping for ${placementYear}-${placementSemester}`
+          );
+        }
 
-      const isRetake = course.requirement_type === "retake_required";
+        // Add course to plan
+        const [newCourse] = await db
+          .insert(studentCourses)
+          .values({
+            authId,
+            studentId,
+            courseCode: course.courseCode,
+            semesterId: semesterMapping.academicSemesterId,
+            status: "planned",
+          })
+          .returning();
 
-      // If not a retake and has recommended placement, try to use that
-      if (!isRetake && course.recommended_year && course.recommended_semester) {
-        // Only use recommendation if it's in the future from our current position
-        const recommendedIsAfterCurrent =
-          course.recommended_year > currentYear ||
-          (course.recommended_year === currentYear &&
-            course.recommended_semester >= currentSemester);
+        // Update tracking
+        placedCourses.set(course.courseCode, {
+          year: placementYear,
+          semester: placementSemester,
+        });
 
-        if (recommendedIsAfterCurrent) {
-          placeYear = course.recommended_year;
-          placeSemester = course.recommended_semester;
+        semesterLoads.set(semesterKey, currentCredits + courseCredits);
+
+        // Update summary
+        summary.totalPlaced++;
+
+        if (isRetake) {
+          summary.retakesPlaced++;
+        } else {
+          summary.requiredPlaced++;
+        }
+
+        // Add to semester placements
+        if (!summary.semesterPlacements[semesterKey]) {
+          summary.semesterPlacements[semesterKey] = {
+            year: placementYear,
+            semester: placementSemester,
+            semesterName: placementSemester === 1 ? "Fall" : "Spring",
+            credits: 0,
+            courses: [],
+          };
+        }
+
+        summary.semesterPlacements[semesterKey].credits += courseCredits;
+        summary.semesterPlacements[semesterKey].courses.push({
+          code: course.courseCode,
+          title: course.courseTitle,
+          credits: courseCredits,
+          type: isRetake ? "Retake" : "Required",
+        });
+
+        placed = true;
+      } catch (error) {
+        console.error(`Error placing course ${course.courseCode}:`, error);
+
+        // Advance to next semester on error
+        if (placementSemester === 1) {
+          placementSemester = 2;
+        } else {
+          placementSemester = 1;
+          placementYear++;
         }
       }
+    } else {
+      // Advance to next semester for credit balancing
+      if (placementSemester === 1) {
+        placementSemester = 2;
+      } else {
+        placementSemester = 1;
+        placementYear++;
+      }
+    }
+  }
 
-      // Try to place the course
-      while (!placed && placeYear <= 8) {
-        // Skip if not offered in this semester
-        if (!isOfferedInSemester(course, placeSemester)) {
-          advanceSemester();
-          if (placeSemester === 1) {
-            // We advanced to a new year
-            placeYear++;
-          }
-          continue;
-        }
+  // If we couldn't place the course
+  if (!placed) {
+    console.warn(
+      `Could not place course ${course.courseCode} after ${32 - maxAttempts} attempts`
+    );
 
-        // Check prerequisites
-        if (!prerequisitesMet(course.course_code, placeYear, placeSemester)) {
-          advanceSemester();
-          if (placeSemester === 1) {
-            placeYear++;
-          }
-          continue;
-        }
+    summary.unplacedCourses.push({
+      code: course.courseCode,
+      title: course.courseTitle,
+      reason:
+        maxAttempts <= 0
+          ? "Maximum placement attempts reached"
+          : "Could not find a suitable semester within 8 years",
+    });
+  }
 
-        // Check credit load if balancing
-        const semKey = getSemesterKey(placeYear, placeSemester);
-        const currentCredits = semesterCredits[semKey] || 0;
-        const courseCredits = parseFloat(course.credits?.toString() || "1");
+  return placed;
+}
 
-        // If adding would exceed limit and we're balancing loads, and it's not a retake
-        if (currentCredits + courseCredits > 5 && balanceCredits && !isRetake) {
-          advanceSemester();
-          if (placeSemester === 1) {
-            placeYear++;
-          }
-          continue;
-        }
+/**
+ * Place an elective placeholder in the plan
+ */
+async function placeElectivePlaceholder(
+  elective: any,
+  authId: string,
+  studentId: string,
+  cohortYear: number,
+  startYear: number,
+  startSemester: number,
+  semesterLoads: Map<string, number>,
+  summary: any,
+  balanceCredits: boolean
+): Promise<boolean> {
+  const electiveCredits = parseFloat(elective.credits?.toString() || "1");
+  const MAX_CREDITS = 5;
 
-        // We can place the course here
+  // For electives, start from year 2 or current year, whichever is later
+  let placementYear = Math.max(startYear, 2);
+
+  // Try to place the elective
+  let placed = false;
+  let maxAttempts = 32;
+
+  while (!placed && placementYear <= 8 && maxAttempts > 0) {
+    maxAttempts--;
+
+    // Try both semesters in the current year
+    for (let semester = startSemester; semester <= 2; semester++) {
+      const semesterKey = `${placementYear}-${semester}`;
+      const currentCredits = semesterLoads.get(semesterKey) || 0;
+
+      // Check if credits would be under the limit or we're not balancing
+      if (
+        currentCredits + electiveCredits <= MAX_CREDITS ||
+        !balanceCredits ||
+        maxAttempts < 10
+      ) {
         try {
-          // Create semester mapping if needed
-          const semesterMapping = await addStudentSemesterMappingIfNotExists(
-            studentId,
+          // Get or create semester mapping
+          const semesterMapping = await getSemesterMapping(
             authId,
+            studentId,
             cohortYear,
-            placeYear,
-            placeSemester,
+            placementYear,
+            semester,
             false // Not summer
           );
 
           if (!semesterMapping) {
-            console.error(
-              `Failed to create semester mapping for ${placeYear}-${placeSemester}`
+            throw new Error(
+              `Failed to create semester mapping for ${placementYear}-${semester}`
             );
-            advanceSemester();
-            continue;
           }
 
-          // Add course to plan
-          await db.insert(studentCourses).values({
-            studentId,
-            authId,
-            courseCode: course.course_code,
-            semesterId: semesterMapping.academicSemesterId,
-            status: "planned",
-          });
+          // Add elective placeholder to plan
+          const [newPlaceholder] = await db
+            .insert(studentCourses)
+            .values({
+              authId,
+              studentId,
+              courseCode: null, // No course code for placeholders
+              semesterId: semesterMapping.academicSemesterId,
+              status: "planned",
+              placeholderTitle: elective.courseTitle,
+              placeholderCredits: electiveCredits.toString(),
+              categoryName: elective.categoryName,
+            })
+            .returning();
 
-          // Update our tracking
-          placedCourses.add(course.course_code);
-          prerequisitePlacements[course.course_code] = {
-            year: placeYear,
-            semester: placeSemester,
-          };
+          // Update credit tracking
+          semesterLoads.set(semesterKey, currentCredits + electiveCredits);
 
-          // Update credit count
-          semesterCredits[semKey] =
-            (semesterCredits[semKey] || 0) + courseCredits;
+          // Update summary
+          summary.totalPlaced++;
+          summary.electivesPlaced++;
 
-          // Update placement summary
-          placementSummary.totalPlaced++;
-          if (isRetake) {
-            placementSummary.retakesPlaced++;
-          } else {
-            placementSummary.requiredPlaced++;
-          }
-
-          // Add to semester placement summary
-          if (!placementSummary.semesterPlacements[semKey]) {
-            placementSummary.semesterPlacements[semKey] = {
-              year: placeYear,
-              semester: placeSemester,
-              semesterName: placeSemester === 1 ? "Fall" : "Spring",
+          // Add to semester placements
+          if (!summary.semesterPlacements[semesterKey]) {
+            summary.semesterPlacements[semesterKey] = {
+              year: placementYear,
+              semester,
+              semesterName: semester === 1 ? "Fall" : "Spring",
               credits: 0,
               courses: [],
             };
           }
 
-          placementSummary.semesterPlacements[semKey].credits += courseCredits;
-          placementSummary.semesterPlacements[semKey].courses.push({
-            code: course.course_code,
-            title: course.course_title,
-            credits: courseCredits,
-            type: isRetake ? "Retake" : "Required",
+          summary.semesterPlacements[semesterKey].credits += electiveCredits;
+          summary.semesterPlacements[semesterKey].courses.push({
+            code: null,
+            title: elective.courseTitle,
+            credits: electiveCredits,
+            type: "Elective",
           });
 
           placed = true;
-
-          // If this was a retake, we need to advance semester for the next placement
-          if (isRetake) {
-            advanceSemester();
-          }
+          break;
         } catch (error) {
-          console.error(`Failed to place course ${course.course_code}:`, error);
-          advanceSemester();
+          console.error(
+            `Error placing elective ${elective.courseTitle}:`,
+            error
+          );
+          // Continue to next semester
         }
-      }
-
-      // If we couldn't place even after trying all semesters up to year 8
-      if (!placed) {
-        console.warn(
-          `Could not place course ${course.course_code} within 8 years`
-        );
-        placementSummary.unplacedCourses.push({
-          code: course.course_code,
-          title: course.course_title,
-          reason: "Could not find a suitable semester within 8 years",
-        });
       }
     }
-    // For elective placeholders
-    else if (course.requirement_type === "elective_placeholder") {
-      // For elective placeholders, we'll try to place them evenly starting from year 2
-      let placeYear = Math.max(currentYear, 2);
-      let placeSemester = 1; // Start with Fall
-      let placed = false;
 
-      // Get elective credits
-      const electiveCredits = parseFloat(course.credits?.toString() || "1");
-
-      // Find the least loaded semester to place this elective
-      while (!placed && placeYear <= 8) {
-        // Try both semesters in the current year
-        for (let sem = 1; sem <= 2; sem++) {
-          const semKey = getSemesterKey(placeYear, sem);
-          const currentCredits = semesterCredits[semKey] || 0;
-
-          // If this semester has space, use it
-          if (currentCredits + electiveCredits <= 5 || !balanceCredits) {
-            try {
-              // Create semester mapping
-              const semesterMapping =
-                await addStudentSemesterMappingIfNotExists(
-                  studentId,
-                  authId,
-                  cohortYear,
-                  placeYear,
-                  sem,
-                  false // Not summer
-                );
-
-              if (!semesterMapping) {
-                console.error(
-                  `Failed to create semester mapping for ${placeYear}-${sem}`
-                );
-                continue;
-              }
-
-              // Add placeholder course to plan with placeholder name
-              await db.insert(studentCourses).values({
-                studentId,
-                authId,
-                courseCode: null, // No real course code for placeholder
-                semesterId: semesterMapping.academicSemesterId,
-                status: "planned",
-                placeholderTitle: course.course_title,
-                placeholderCredits: electiveCredits.toString(),
-                categoryName: course.category_name,
-              });
-
-              // Update credit count
-              semesterCredits[semKey] =
-                (semesterCredits[semKey] || 0) + electiveCredits;
-
-              // Update placement summary
-              placementSummary.totalPlaced++;
-              placementSummary.electivesPlaced++;
-
-              // Add to semester placement summary
-              if (!placementSummary.semesterPlacements[semKey]) {
-                placementSummary.semesterPlacements[semKey] = {
-                  year: placeYear,
-                  semester: sem,
-                  semesterName: sem === 1 ? "Fall" : "Spring",
-                  credits: 0,
-                  courses: [],
-                };
-              }
-
-              placementSummary.semesterPlacements[semKey].credits +=
-                electiveCredits;
-              placementSummary.semesterPlacements[semKey].courses.push({
-                code: null,
-                title: course.course_title,
-                credits: electiveCredits,
-                type: "Elective",
-              });
-
-              placed = true;
-              break;
-            } catch (error) {
-              console.error(`Failed to place elective placeholder`, error);
-            }
-          }
-        }
-
-        // If not placed in this year, try next year
-        if (!placed) {
-          placeYear++;
-        }
-      }
-
-      // If we couldn't place the elective
-      if (!placed) {
-        console.warn(
-          `Could not place elective ${course.course_title} within 8 years`
-        );
-        placementSummary.unplacedCourses.push({
-          title: course.course_title,
-          reason: "Could not find a suitable semester for this elective",
-        });
-      }
+    // If not placed in this year, move to next year
+    if (!placed) {
+      placementYear++;
+      startSemester = 1; // Reset semester to Fall for next year
     }
   }
 
-  return placementSummary;
+  // If we couldn't place the elective
+  if (!placed) {
+    console.warn(
+      `Could not place elective ${elective.courseTitle} after ${32 - maxAttempts} attempts`
+    );
+
+    summary.unplacedCourses.push({
+      title: elective.courseTitle,
+      reason:
+        maxAttempts <= 0
+          ? "Maximum placement attempts reached"
+          : "Could not find a suitable semester within 8 years",
+    });
+  }
+
+  return placed;
 }
 
-// Generate a human-readable summary of what was placed
+/**
+ * Helper to get or create a semester mapping
+ */
+async function getSemesterMapping(
+  authId: string,
+  studentId: string,
+  cohortYear: number,
+  programYear: number,
+  programSemester: number,
+  isSummer: boolean
+): Promise<any> {
+  // Calculate academic year based on cohort year and program year
+  const baseYear = cohortYear - 4; // Year student started
+  const startYear = baseYear + programYear - 1;
+  const academicYearName = `${startYear}-${startYear + 1}`;
+
+  // Determine sequence number (1, 2, or 3 for summer)
+  const sequenceNumber = isSummer ? 3 : programSemester;
+
+  // Find the academic semester
+  const semester = await db.query.academicSemesters.findFirst({
+    where: and(
+      eq(academicSemesters.academicYearName, academicYearName),
+      eq(academicSemesters.sequenceNumber, sequenceNumber)
+    ),
+  });
+
+  if (!semester) {
+    console.error(
+      `Academic semester not found for ${academicYearName}, sequence ${sequenceNumber}`
+    );
+    return null;
+  }
+
+  // Check if mapping already exists
+  const existingMapping = await db.query.studentSemesterMappings.findFirst({
+    where: and(
+      eq(studentSemesterMappings.studentId, studentId),
+      eq(studentSemesterMappings.academicSemesterId, semester.id),
+      eq(studentSemesterMappings.programYear, programYear),
+      eq(studentSemesterMappings.programSemester, programSemester),
+      eq(studentSemesterMappings.isSummer, isSummer)
+    ),
+  });
+
+  if (existingMapping) {
+    return existingMapping;
+  }
+
+  // Insert new mapping
+  const [newMapping] = await db
+    .insert(studentSemesterMappings)
+    .values({
+      studentId,
+      authId,
+      academicSemesterId: semester.id,
+      programYear,
+      programSemester,
+      isSummer,
+      isVerified: false,
+    })
+    .returning();
+
+  return newMapping;
+}
+
+/**
+ * Generate a human-readable summary of what was placed
+ */
 function generateSummaryMessage(summary: PlacementSummary): string {
   // Count how many semesters
   const semesterCount = Object.keys(summary.semesterPlacements).length;
@@ -2971,16 +2869,25 @@ function generateSummaryMessage(summary: PlacementSummary): string {
 
   // Add details about types
   if (summary.retakesPlaced > 0) {
-    message += ` ${summary.retakesPlaced} are courses you need to retake.`;
+    message += ` ${summary.retakesPlaced} ${summary.retakesPlaced === 1 ? "is a course" : "are courses"} you need to retake.`;
   }
 
   if (summary.electivesPlaced > 0) {
-    message += ` ${summary.electivesPlaced} are elective placeholders that you'll need to replace with actual courses.`;
+    message += ` ${summary.electivesPlaced} ${summary.electivesPlaced === 1 ? "is an elective placeholder" : "are elective placeholders"} that you'll need to replace with actual courses.`;
   }
 
   // Add unplaced warning if any
   if (summary.unplacedCourses.length > 0) {
-    message += ` ${summary.unplacedCourses.length} required courses could not be placed - you may need to adjust your plan manually.`;
+    message += ` ${summary.unplacedCourses.length} required ${summary.unplacedCourses.length === 1 ? "course" : "courses"} could not be placed - you may need to adjust your plan manually.`;
+  }
+
+  // Add warning about overloaded semesters
+  const overloadedSemesters = Object.entries(summary.semesterPlacements).filter(
+    ([_, data]) => data.credits > 5
+  );
+
+  if (overloadedSemesters.length > 0) {
+    message += ` Note: ${overloadedSemesters.length} ${overloadedSemesters.length === 1 ? "semester has" : "semesters have"} more than 5 credits.`;
   }
 
   return message;

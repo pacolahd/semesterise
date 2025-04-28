@@ -76,19 +76,6 @@ export type YearPlan = {
   lastUpdated: Date;
 };
 
-export type PrerequisiteCheckResult = {
-  courseCode: string;
-  isMet: boolean;
-  missingPrerequisites?: {
-    groupName: string;
-    courses: string[];
-    internalLogicOperator: string;
-    requiredCount: number;
-    satisfiedCount: number;
-  }[];
-  infoMessage?: string;
-};
-
 export type SemesterAvailableCourses = {
   code: string;
   title: string;
@@ -184,3 +171,50 @@ export type RemainingRequirement = {
   priorityOrder: number;
   isRetake: boolean;
 };
+
+/**
+ * Structures for prerequisite data
+ */
+export interface PrerequisiteData {
+  // Maps course codes to their prerequisite group keys
+  courseToGroups: Map<string, PrerequisiteGroup[]>;
+  // Maps group keys to prerequisite course information
+  groupToCourses: Map<string, PrerequisiteCourse[]>;
+  // All group information indexed by group key
+  groups: Map<string, PrerequisiteGroup>;
+  // All courses with name information for better error messages
+  courseTitles: Map<string, string>;
+}
+
+export interface PrerequisiteGroup {
+  groupKey: string;
+  courseCode: string;
+  groupName: string;
+  description: string | null;
+  externalLogicOperator: "AND" | "OR";
+  internalLogicOperator: "AND" | "OR";
+  isConcurrent: boolean;
+  isRecommended: boolean;
+}
+
+export interface PrerequisiteCourse {
+  groupKey: string;
+  courseCode: string;
+  title?: string;
+}
+
+export interface MissingPrerequisite {
+  groupName: string;
+  groupKey: string;
+  courses: PrerequisiteCourse[];
+  internalLogicOperator: "AND" | "OR";
+  requiredCount: number;
+  satisfiedCount: number;
+}
+
+export interface PrerequisiteCheckResult {
+  courseCode: string;
+  isMet: boolean;
+  missingPrerequisites?: MissingPrerequisite[];
+  infoMessage?: string;
+}

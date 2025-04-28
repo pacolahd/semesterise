@@ -15,7 +15,10 @@ import {
   removePlannedCourse,
 } from "@/lib/academic-plan/academic-plan-actions";
 import { CourseWithStatus, YearPlan } from "@/lib/academic-plan/types";
-import { handleActionResponse } from "@/lib/errors/action-response-handler";
+import {
+  handleActionResponse,
+  handleActionResponseWithMessage,
+} from "@/lib/errors/action-response-handler";
 import { AppError } from "@/lib/errors/app-error-classes";
 import { ActionResponse } from "@/lib/types/common";
 
@@ -561,7 +564,9 @@ export function useAvailableElectiveCategories(authId?: string) {
   });
 }
 
-// Updated hook for automatic planning
+/**
+ * Hook for generating an automatic academic plan
+ */
 export function useGenerateAutomaticPlan() {
   const queryClient = useQueryClient();
 
@@ -582,25 +587,31 @@ export function useGenerateAutomaticPlan() {
       // Process any warnings
       processWarnings(result.warnings);
 
-      return handleActionResponse(result);
+      return handleActionResponseWithMessage(result);
     },
-    // onSuccess: (data, variables, context, result) => {
-    //   // Invalidate the plan query to refresh the data
-    //   queryClient.invalidateQueries({
-    //     queryKey: academicPlanKeys.plan(variables.authId),
-    //   });
-    // Also invalidate remaining requirements
-    // queryClient.invalidateQueries({
-    //   queryKey: academicPlanKeys.remainingRequirements(variables.authId),
-    // });
-    //
-    //   // Show success message from the response
-    //   if (result.message) {
-    //     toast.success(result.message);
-    //   } else {
-    //     toast.success("Your degree plan has been automatically generated!");
-    //   }
-    // },
+    onSuccess: (handledResult, variables, context) => {
+      // Invalidate the plan query to refresh the data
+      queryClient.invalidateQueries({
+        queryKey: academicPlanKeys.plan(variables.authId),
+      });
+
+      // Invalidate available courses queries that might be affected
+      queryClient.invalidateQueries({
+        queryKey: [...academicPlanKeys.all, "availableCourses"],
+        predicate: (query) => query.queryKey[2] === variables.authId,
+      });
+      // Also invalidate remaining requirements
+      queryClient.invalidateQueries({
+        queryKey: academicPlanKeys.remainingRequirements(variables.authId),
+      });
+
+      // Show success message
+      if (handledResult?.message) {
+        toast.success(handledResult?.message);
+      } else {
+        toast.success("Your degree plan has been automatically generated!");
+      }
+    },
     meta: {
       skipGlobalErrorHandler: false,
       errorContext: "generate-automatic-plan",
