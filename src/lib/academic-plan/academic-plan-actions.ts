@@ -1516,6 +1516,19 @@ export async function removePlannedCourse(
       )
       .limit(1);
 
+    // Check if course exists
+    if (courseResults.length === 0) {
+      return {
+        success: false,
+        error: serializeError(
+          new AppError({
+            message: "Course not found",
+            code: "COURSE_NOT_FOUND",
+          })
+        ),
+      };
+    }
+
     let courseRecord = courseResults[0];
 
     // 2. Check remaining requirements in this category using the degree progress view
@@ -1548,11 +1561,6 @@ export async function removePlannedCourse(
           courseRecord.categoryName !== "Major Electives" &&
           courseRecord.categoryName !== "Non-Major Electives"
         ) {
-          // Remove the course
-          await db
-            .delete(studentCourses)
-            .where(eq(studentCourses.id, courseId));
-
           // Compute the possible warning
           const requiredCourses = await db
             .select({
@@ -1587,9 +1595,6 @@ export async function removePlannedCourse(
         } else {
           // This is an elective or placeholder
           // Remove the course
-          await db
-            .delete(studentCourses)
-            .where(eq(studentCourses.id, courseId));
 
           // Computer the warning
           warnings.push(
@@ -1604,6 +1609,9 @@ export async function removePlannedCourse(
         }
       }
     }
+
+    // 3. ALWAYS delete the course, regardless of warnings
+    await db.delete(studentCourses).where(eq(studentCourses.id, courseId));
 
     return {
       success: true,
