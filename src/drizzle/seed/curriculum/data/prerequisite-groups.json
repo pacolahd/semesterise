@@ -697,7 +697,7 @@
     "groupKey": "BUSA224-MATH-1",
     "courseCode": "BUSA224",
     "groupName": "Math Foundation",
-    "externalLogicOperator": "AND",
+    "externalLogicOperator": "OR",
     "internalLogicOperator": "OR",
     "sortOrder": 1,
     "description": "Mathematics requirement"
@@ -706,7 +706,7 @@
     "groupKey": "BUSA224-PRECALC-2",
     "courseCode": "BUSA224",
     "groupName": "Pre-Calculus Sequence",
-    "externalLogicOperator": "AND",
+    "externalLogicOperator": "OR",
     "internalLogicOperator": "AND",
     "sortOrder": 2,
     "description": "Both Pre-Calculus courses"
@@ -715,7 +715,7 @@
     "groupKey": "BUSA224-ECON-3",
     "courseCode": "BUSA224",
     "groupName": "Economics Requirement",
-    "externalLogicOperator": "AND",
+    "externalLogicOperator": "OR",
     "internalLogicOperator": "AND",
     "isConcurrent": true,
     "sortOrder": 3,

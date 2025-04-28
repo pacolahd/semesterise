@@ -29,6 +29,34 @@
       "when": 1745443392011,
       "tag": "0003_spicy_shotgun",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1745792023771,
+      "tag": "0004_powerful_sleepwalker",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1745792043090,
+      "tag": "0005_bent_human_fly",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1745792103307,
+      "tag": "0006_sad_magus",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1745792113297,
+      "tag": "0007_last_robbie_robertson",
+      "breakpoints": true
     }
   ]
 }
