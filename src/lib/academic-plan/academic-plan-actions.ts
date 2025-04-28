@@ -708,8 +708,11 @@ async function validateCoursePlacement(
 
   if (totalCredits > maxCredits) {
     warnings.push(
-      `This will exceed the recommended credit limit of ${maxCredits} credits per semester. Current: ${result.existingCredits - 1}, New: ${newCredits}, Total would be: ${totalCredits - 1}`
+      `This will exceed the recommended credit limit of ${maxCredits} credits per  ${isSummer ? "summer" : ""} semester. Total would be ${totalCredits - 1}`
     );
+    // warnings.push(
+    //   `This will exceed the recommended credit limit of ${maxCredits} credits per semester. Current: ${result.existingCredits - 1}, New: ${newCredits}, Total would be: ${totalCredits - 1}`
+    // );
   }
 
   // Check year limit
@@ -726,7 +729,7 @@ async function validateCoursePlacement(
   // Check summer semester
   if (isSummer) {
     warnings.push(
-      "Course offerings in summer semesters are not guaranteed and may change. Check with your advisor closer to the registration period"
+      "Course offerings in summer semesters are not guaranteed and may change. Double check an confirm when closer to the registration period"
     );
   }
 
@@ -940,8 +943,11 @@ async function validatePlaceholderPlacement(
 
   if (totalCredits > maxCredits) {
     warnings.push(
-      `This will exceed the recommended credit limit of ${maxCredits} credits per semester. Current: ${result.existingCredits - 1}, New: ${credits}, Total would be: ${totalCredits - 1}`
+      `This will exceed the recommended credit limit of ${maxCredits} credits per  ${isSummer ? "summer" : ""} semester. Total would be ${totalCredits - 1}`
     );
+    // warnings.push(
+    //   `This will exceed the recommended credit limit of ${maxCredits} credits per semester. Current: ${result.existingCredits - 1}, New: ${credits}, Total would be: ${totalCredits - 1}`
+    // );
   }
 
   // Check year limit
