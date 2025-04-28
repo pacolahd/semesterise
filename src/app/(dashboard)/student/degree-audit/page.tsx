@@ -48,9 +48,6 @@ export default function DegreeAuditPage() {
     isRefetching: isRefetchingRequirements,
   } = useRemainingRequirements(user?.id);
 
-  // Auto-plan mutation
-  const generatePlanMutation = useGenerateAutomaticPlan();
-
   const isLoading = isPlanLoading || isRequirementsLoading;
   const isError = isPlanError;
 

@@ -1525,7 +1525,12 @@ export async function removePlannedCourse(
                   ? ` an ${courseRecord.subCategory}`
                   : ` a ${courseRecord.subCategory.slice(0, -1)}`
                 : `${courseRecord.categoryName.slice(0, -1)}`
-            } and you still need ${requirement.creditsRemaining} more credits in this category. Make sure to add another course to meet this requirement.`
+            } and you still need ${
+              requirement.requirementMet &&
+              requirement.creditsCompleted === requirement.creditsRequired
+                ? requirement.creditsRemaining + 1
+                : requirement.creditsRemaining
+            } more credits in this category. Make sure to add another course to meet this requirement.`
           );
         }
       }

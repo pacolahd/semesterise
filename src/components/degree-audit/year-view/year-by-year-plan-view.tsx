@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Plus } from "lucide-react";
 
@@ -48,8 +48,15 @@ export function YearByYearPlanView({ plan }: YearByYearPlanViewProps) {
       (yearData.summer?.courses.length || 0) === 0
     );
   }
-  const [originalMaxYear] = useState(() => calculateOriginalMaxYear(plan));
+  const originalMaxYear = calculateOriginalMaxYear(plan);
   const [maxVisibleYear, setMaxVisibleYear] = useState(originalMaxYear);
+
+  // Sync maxVisibleYear if plan adds more years
+  useEffect(() => {
+    if (originalMaxYear > maxVisibleYear) {
+      setMaxVisibleYear(originalMaxYear);
+    }
+  }, [originalMaxYear]);
 
   const handleAddYear = () => {
     if (maxVisibleYear < 8) setMaxVisibleYear((prev) => prev + 1);
