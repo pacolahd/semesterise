@@ -18,6 +18,8 @@ import {
 } from "@/drizzle/schema";
 import { PrerequisiteGroupRecord } from "@/drizzle/schema/curriculum/prerequisite-groups";
 import { StudentSemesterMappingRecord } from "@/drizzle/schema/student-records/student-semester-mappings";
+import { getStudentProfileCached } from "@/lib/academic-plan/cache-utils";
+import { CATEGORY_COLORS, YEAR_LIMITS } from "@/lib/academic-plan/constants";
 import { AppError } from "@/lib/errors/app-error-classes";
 import { serializeError } from "@/lib/errors/error-converter";
 import { ActionResponse } from "@/lib/types/common";
@@ -27,6 +29,7 @@ import {
   getAvailableCourses,
   loadAllPrerequisiteData,
 } from "./prerequisite-utility";
+import { getCreditLimit } from "./transaction-utils";
 import {
   CourseAvailability,
   CoursePlacementValidationResponse,
@@ -41,29 +44,10 @@ import {
   YearPlan,
 } from "./types";
 
-// Category color mapping for UI
-const CATEGORY_COLORS = {
-  "Required Major Classes": "#4A90E2",
-  "Major Electives": "#50E3C2",
-  "Humanities & Social Sciences": "#F5A623",
-  "Mathematics & Quantitative": "#7ED321",
-  Business: "#D0021B",
-  Computing: "#9013FE",
-  Science: "#BD10E0",
-  Capstone: "#8B572A",
-  "Non-Major Electives": "#9B9B9B",
-  "Research / Project Prep.": "#417505",
-};
-
-// Constants for validation
-const MAX_CREDITS_PER_SEMESTER = 5;
-const MAX_RECOMMENDED_YEARS = 4;
-const MAX_TOTAL_YEARS = 8;
-
 // Add this cache at the top level of your file (outside any functions)
 const hasCoursesAboveMaxYearCache = new Map<string, boolean>();
 
-// Efficient function to check if student has courses above MAX_RECOMMENDED_YEARS
+// Efficient function to check if student has courses above YEAR_LIMITS.RECOMMENDED_MAX
 async function hasCoursesAboveMaxYear(authId: string): Promise<boolean> {
   // Check cache first
   if (hasCoursesAboveMaxYearCache.has(authId)) {
@@ -77,7 +61,7 @@ async function hasCoursesAboveMaxYear(authId: string): Promise<boolean> {
     .where(
       and(
         eq(studentCourseCategorizedStatusView.authId, authId),
-        sql`year_taken > ${MAX_RECOMMENDED_YEARS}`
+        sql`year_taken > ${YEAR_LIMITS.RECOMMENDED_MAX}`
       )
     )
     .limit(1);
@@ -90,24 +74,24 @@ async function hasCoursesAboveMaxYear(authId: string): Promise<boolean> {
   return hasCoursesAbove;
 }
 
-/**
- * Helper function to get the student ID from auth ID
- */
-async function getStudentIdFromAuthId(authId: string): Promise<string> {
-  const user = await db.query.studentProfiles.findFirst({
-    where: eq(studentProfiles.authId, authId),
-    columns: { studentId: true },
-  });
-
-  if (!user || !user.studentId) {
-    throw new AppError({
-      message: `No student record associated with this user account`,
-      code: "AUTH_ERROR",
-    });
-  }
-
-  return user.studentId;
-}
+// /**
+//  * Helper function to get the student ID from auth ID
+//  */
+// async function getStudentIdFromAuthId(authId: string): Promise<string> {
+//   const user = await db.query.studentProfiles.findFirst({
+//     where: eq(studentProfiles.authId, authId),
+//     columns: { studentId: true },
+//   });
+//
+//   if (!user || !user.studentId) {
+//     throw new AppError({
+//       message: `No student record associated with this user account`,
+//       code: "AUTH_ERROR",
+//     });
+//   }
+//
+//   return user.studentId;
+// }
 
 /**
  * Fetches the remaining requirements for a student
@@ -231,9 +215,7 @@ export async function getStudentAcademicPlan(
     // Run all queries in a single transaction to reduce database roundtrips
     const result = await db.transaction(async (tx) => {
       // 1. Get student profile information
-      const profileData = await tx.query.studentProfiles.findFirst({
-        where: eq(studentProfiles.authId, authId),
-      });
+      const profileData = await getStudentProfileCached(authId, tx);
 
       if (!profileData) {
         throw new AppError({
@@ -282,7 +264,7 @@ export async function getStudentAcademicPlan(
     };
 
     // Initialize all years and semesters
-    for (let year = 1; year <= MAX_TOTAL_YEARS; year++) {
+    for (let year = 1; year <= YEAR_LIMITS.ABSOLUTE_MAX; year++) {
       plan.years[year] = {
         fall: createEmptySemester(year, 1, "Fall"),
         spring: createEmptySemester(year, 2, "Spring"),
@@ -371,12 +353,13 @@ export async function getStudentAcademicPlan(
     for (const yearNum in plan.years) {
       const yearObj = plan.years[parseInt(yearNum)];
       yearObj.fall.hasCreditWarning =
-        yearObj.fall.totalCredits > MAX_CREDITS_PER_SEMESTER;
+        yearObj.fall.totalCredits > getCreditLimit(profileData.majorCode);
       yearObj.spring.hasCreditWarning =
-        yearObj.spring.totalCredits > MAX_CREDITS_PER_SEMESTER;
+        yearObj.spring.totalCredits > getCreditLimit(profileData.majorCode);
       if (yearObj.summer) {
         yearObj.summer.hasCreditWarning =
-          yearObj.summer.totalCredits > MAX_CREDITS_PER_SEMESTER;
+          yearObj.summer.totalCredits >
+          getCreditLimit(profileData.majorCode, true);
       }
     }
 
@@ -500,76 +483,6 @@ async function getSemesterTotalCredits(
 }
 
 /**
- * Optimized prerequisite checking that can leverage a cache or preloaded data
- * Much faster when checking prerequisites for multiple courses
- */
-async function loadPrerequisiteData(
-  courseCode: string,
-  forceRefresh = false
-): Promise<{
-  groups: PrerequisiteGroupRecord[];
-  coursesMap: Map<string, string[]>;
-}> {
-  // Check if we have cached data that's less than 5 minutes old
-  const cacheKey = courseCode;
-  const cachedData = prerequisiteCache.get(cacheKey);
-  const now = Date.now();
-
-  if (
-    cachedData &&
-    !forceRefresh &&
-    now - cachedData.timestamp < 24 * 60 * 60 * 1000
-  ) {
-    return {
-      groups: cachedData.groups,
-      coursesMap: cachedData.coursesMap,
-    };
-  }
-
-  // Fetch prerequisite data with a single query
-  const groups: PrerequisiteGroupRecord[] = await db
-    .select()
-    .from(prerequisiteGroups)
-    .where(eq(prerequisiteGroups.courseCode, courseCode));
-
-  // Create a map for efficient lookups
-  const coursesMap = new Map<string, string[]>();
-
-  // If there are prerequisite groups, get all courses at once
-  if (groups.length > 0) {
-    const groupKeys = groups.map((g) => g.groupKey);
-
-    const prereqCourses = await db
-      .select({
-        groupKey: prerequisiteCourses.groupKey,
-        prereqCourseCode: prerequisiteCourses.prerequisiteCourseCode,
-      })
-      .from(prerequisiteCourses)
-      .where(inArray(prerequisiteCourses.groupKey, groupKeys));
-
-    // Organize courses by group
-    for (const prereq of prereqCourses) {
-      if (!coursesMap.has(prereq.groupKey)) {
-        coursesMap.set(prereq.groupKey, []);
-      }
-      const courseList = coursesMap.get(prereq.groupKey);
-      if (courseList && prereq.prereqCourseCode) {
-        courseList.push(prereq.prereqCourseCode);
-      }
-    }
-  }
-
-  // Cache the results
-  prerequisiteCache.set(cacheKey, {
-    groups,
-    coursesMap,
-    timestamp: now,
-  });
-
-  return { groups, coursesMap };
-}
-
-/**
  * Completely optimized prerequisite check
  * Uses cached data and performs fewer database queries
  */
@@ -583,10 +496,7 @@ export async function checkPrerequisitesMet(
   semester: number
 ): Promise<PrerequisiteCheckResult> {
   // Get student profile to access the major code
-  const studentProfile = await db.query.studentProfiles.findFirst({
-    where: eq(studentProfiles.authId, authId),
-    columns: { majorCode: true },
-  });
+  const studentProfile = await getStudentProfileCached(authId);
 
   const majorCode = studentProfile?.majorCode || undefined;
 
@@ -683,9 +593,7 @@ async function validateCoursePlacement(
   // Get all necessary data in a single transaction
   const result = await db.transaction(async (tx) => {
     // 1. Get student profile
-    const profile = await tx.query.studentProfiles.findFirst({
-      where: eq(studentProfiles.authId, authId),
-    });
+    const profile = await getStudentProfileCached(authId, tx);
 
     if (!profile?.cohortYear) {
       return {
@@ -710,6 +618,11 @@ async function validateCoursePlacement(
       semester
     );
 
+    const semesterCreditLimit: number = getCreditLimit(
+      profile.majorCode,
+      isSummer
+    );
+
     // 4. Create semester mapping if needed
     const semesterMapping = !errors.length
       ? await getOrCreateSemesterMapping(
@@ -728,6 +641,7 @@ async function validateCoursePlacement(
       courseInfo,
       existingCredits: semesterCredits,
       semesterMapping,
+      semesterCreditLimit,
     };
   });
 
@@ -761,7 +675,7 @@ async function validateCoursePlacement(
 
     errors.push(
       prerequisiteCheck.infoMessage ||
-        `Prerequisites not met: ${enhancedMessage} before taking ${courseCode} - ${courseTitle}`
+        `${enhancedMessage} before taking ${courseCode} - ${courseTitle}`
     );
   }
   // Check course availability
@@ -790,20 +704,21 @@ async function validateCoursePlacement(
     ? parseFloat(result.courseInfo.credits.toString())
     : 0;
   const totalCredits = result.existingCredits + newCredits;
+  const maxCredits = result.semesterCreditLimit || 5;
 
-  if (totalCredits > MAX_CREDITS_PER_SEMESTER) {
+  if (totalCredits > maxCredits) {
     warnings.push(
-      `This will exceed the recommended credit limit of ${MAX_CREDITS_PER_SEMESTER} credits per semester. Current: ${result.existingCredits - 1}, New: ${newCredits}, Total would be: ${totalCredits - 1}`
+      `This will exceed the recommended credit limit of ${maxCredits} credits per semester. Current: ${result.existingCredits - 1}, New: ${newCredits}, Total would be: ${totalCredits - 1}`
     );
   }
 
   // Check year limit
-  if (year > MAX_RECOMMENDED_YEARS) {
-    // Only show warning if this is the first course above MAX_RECOMMENDED_YEARS
+  if (year > YEAR_LIMITS.RECOMMENDED_MAX) {
+    // Only show warning if this is the first course above YEAR_LIMITS.RECOMMENDED_MAX
     const alreadyHasCoursesAboveMax = await hasCoursesAboveMaxYear(authId);
     if (!alreadyHasCoursesAboveMax) {
       warnings.push(
-        `This extends your plan beyond the recommended ${MAX_RECOMMENDED_YEARS} years. Please consult with your academic advisor`
+        `This extends your plan beyond the recommended ${YEAR_LIMITS.RECOMMENDED_MAX} years. Please consult with your academic advisor`
       );
     }
   }
@@ -971,9 +886,7 @@ async function validatePlaceholderPlacement(
   // Get all necessary data in a single transaction
   const result = await db.transaction(async (tx) => {
     // 1. Get student profile
-    const profile = await tx.query.studentProfiles.findFirst({
-      where: eq(studentProfiles.authId, authId),
-    });
+    const profile = await getStudentProfileCached(authId, tx);
 
     if (!profile?.cohortYear) {
       return {
@@ -991,6 +904,8 @@ async function validatePlaceholderPlacement(
       semester
     );
 
+    const semesterCreditLimit = getCreditLimit(profile.majorCode, isSummer);
+
     // 3. Create semester mapping if needed
     const semesterMapping = await getOrCreateSemesterMapping(
       tx,
@@ -1006,6 +921,7 @@ async function validatePlaceholderPlacement(
       profile,
       existingCredits: semesterCredits,
       semesterMapping,
+      semesterCreditLimit,
     };
   });
 
@@ -1020,20 +936,21 @@ async function validatePlaceholderPlacement(
 
   // Check credit load
   const totalCredits = result.existingCredits + credits;
+  const maxCredits = result.semesterCreditLimit || 5;
 
-  if (totalCredits > MAX_CREDITS_PER_SEMESTER) {
+  if (totalCredits > maxCredits) {
     warnings.push(
-      `This will exceed the recommended credit limit of ${MAX_CREDITS_PER_SEMESTER} credits per semester. Current: ${result.existingCredits - 1}, New: ${credits}, Total would be: ${totalCredits - 1}`
+      `This will exceed the recommended credit limit of ${maxCredits} credits per semester. Current: ${result.existingCredits - 1}, New: ${credits}, Total would be: ${totalCredits - 1}`
     );
   }
 
   // Check year limit
-  if (year > MAX_RECOMMENDED_YEARS) {
-    // Only show warning if this is the first course above MAX_RECOMMENDED_YEARS
+  if (year > YEAR_LIMITS.RECOMMENDED_MAX) {
+    // Only show warning if this is the first course above YEAR_LIMITS.RECOMMENDED_MAX
     const alreadyHasCoursesAboveMax = await hasCoursesAboveMaxYear(authId);
     if (!alreadyHasCoursesAboveMax) {
       warnings.push(
-        `This extends your plan beyond the recommended ${MAX_RECOMMENDED_YEARS} years. Please consult with your academic advisor`
+        `This extends your plan beyond the recommended ${YEAR_LIMITS.RECOMMENDED_MAX} years. Please consult with your academic advisor`
       );
     }
   }
@@ -1068,6 +985,8 @@ export async function addPlannedCourse(
   semester: number
 ): Promise<ActionResponse<{ courseId: string }>> {
   try {
+    const profile = await getStudentProfileCached(authId);
+
     // 1. Check if student already passed this course (specific to add)
     const courseStatus = await db
       .select()
@@ -1126,7 +1045,7 @@ export async function addPlannedCourse(
       .insert(studentCourses)
       .values({
         authId,
-        studentId: await getStudentIdFromAuthId(authId),
+        studentId: profile.studentId,
         courseCode,
         semesterId: validation.semesterMapping!.academicSemesterId,
         status: "planned",
@@ -1162,6 +1081,8 @@ export async function addPlaceholderElective(
   category: string = "Non-Major Electives"
 ): Promise<ActionResponse<{ courseId: string }>> {
   try {
+    const profile = await getStudentProfileCached(authId);
+
     // 1. Validate placeholder placement (simpler validation)
     const validation = await validatePlaceholderPlacement(
       authId,
@@ -1189,7 +1110,7 @@ export async function addPlaceholderElective(
       .insert(studentCourses)
       .values({
         authId,
-        studentId: await getStudentIdFromAuthId(authId),
+        studentId: profile.studentId,
         courseCode: null, // No course code for placeholders
         semesterId: validation.semesterMapping!.academicSemesterId,
         status: "planned",
@@ -1366,10 +1287,7 @@ async function validatePrerequisiteMove(
   newSemester: number
 ): Promise<{ isValid: boolean; error?: string }> {
   // Get student profile to access the major code
-  const studentProfile = await db.query.studentProfiles.findFirst({
-    where: eq(studentProfiles.authId, authId),
-    columns: { majorCode: true },
-  });
+  const studentProfile = await getStudentProfileCached(authId);
 
   const majorCode = studentProfile?.majorCode || null;
 
@@ -1531,7 +1449,10 @@ export async function removePlannedCourse(
 
     let courseRecord = courseResults[0];
 
-    // 2. Check remaining requirements in this category using the degree progress view
+    // 2. ALWAYS delete the course first - unconditionally
+    await db.delete(studentCourses).where(eq(studentCourses.id, courseId));
+
+    // 3. Now check requirements and generate warnings as needed
     const categoryRequirements = await db
       .select()
       .from(studentDegreeRequirementProgressView)
@@ -1604,14 +1525,11 @@ export async function removePlannedCourse(
                   ? ` an ${courseRecord.subCategory}`
                   : ` a ${courseRecord.subCategory.slice(0, -1)}`
                 : `${courseRecord.categoryName.slice(0, -1)}`
-            } and you still need ${requirement.creditsRemaining + 1} more credits in this category. Make sure to add another course to meet this requirement.`
+            } and you still need ${requirement.creditsRemaining} more credits in this category. Make sure to add another course to meet this requirement.`
           );
         }
       }
     }
-
-    // 3. ALWAYS delete the course, regardless of warnings
-    await db.delete(studentCourses).where(eq(studentCourses.id, courseId));
 
     return {
       success: true,
@@ -1649,12 +1567,9 @@ export async function getAvailableCoursesForSemester(
         : "spring";
 
     // Get student's major code first
-    const studentProfile = await db.query.studentProfiles.findFirst({
-      where: eq(studentProfiles.authId, authId),
-      columns: { majorCode: true },
-    });
+    const stdudentProfile = await getStudentProfileCached(authId);
 
-    const studentMajorCode = studentProfile?.majorCode || undefined;
+    const studentMajorCode = stdudentProfile.majorCode || undefined;
 
     // Preload prerequisite data for all courses
     const prereqData = await loadAllPrerequisiteData();
@@ -2192,72 +2107,6 @@ function getSemesterName(semester: number, isSummer: boolean): string {
 }
 
 /**
- * Adds a student semester mapping if it doesn't already exist
- */
-export async function addStudentSemesterMappingIfNotExists(
-  studentId: string,
-  authId: string,
-  cohortYear: number,
-  programYear: number,
-  programSemester: number,
-  isSummer: boolean
-): Promise<StudentSemesterMappingRecord | null> {
-  // Calculate academic year based on cohort year and program year
-  const baseYear = cohortYear - 4; // Year student started
-  const startYear = baseYear + programYear - 1;
-  const academicYearName = `${startYear}-${startYear + 1}`;
-
-  // Determine sequence number (1, 2, or 3 for summer)
-  const sequenceNumber = isSummer ? 3 : programSemester || 1;
-
-  // Find the academic semester
-  const semester = await db.query.academicSemesters.findFirst({
-    where: and(
-      eq(academicSemesters.academicYearName, academicYearName),
-      eq(academicSemesters.sequenceNumber, sequenceNumber)
-    ),
-  });
-
-  if (!semester) {
-    console.error(
-      `Academic semester not found for ${academicYearName}, sequence ${sequenceNumber}`
-    );
-    return null;
-  }
-
-  // Check if mapping already exists
-  const existingMapping = await db.query.studentSemesterMappings.findFirst({
-    where: and(
-      eq(studentSemesterMappings.studentId, studentId),
-      eq(studentSemesterMappings.academicSemesterId, semester.id),
-      eq(studentSemesterMappings.programYear, programYear),
-      eq(studentSemesterMappings.programSemester, programSemester),
-      eq(studentSemesterMappings.isSummer, isSummer)
-    ),
-  });
-
-  if (existingMapping) {
-    return existingMapping;
-  }
-
-  // Insert new mapping
-  const [newMapping] = await db
-    .insert(studentSemesterMappings)
-    .values({
-      studentId,
-      authId: authId,
-      academicSemesterId: semester.id,
-      programYear,
-      programSemester,
-      isSummer,
-      isVerified: false,
-    })
-    .returning();
-
-  return newMapping;
-}
-
-/**
  * Generate an automatic plan for a student
  */
 export async function generateAutomaticPlan(
@@ -2270,9 +2119,7 @@ export async function generateAutomaticPlan(
 ): Promise<ActionResponse<YearPlan>> {
   try {
     // Get student profile
-    const studentProfile = await db.query.studentProfiles.findFirst({
-      where: eq(studentProfiles.authId, authId),
-    });
+    const studentProfile = await getStudentProfileCached(authId);
 
     if (!studentProfile || !studentProfile.studentId) {
       return {
@@ -2421,10 +2268,7 @@ async function arePrerequisitesMet(
   placedCourses: Map<string, { year: number; semester: number }>
 ): Promise<boolean> {
   // Get student profile to access the major code
-  const studentProfile = await db.query.studentProfiles.findFirst({
-    where: eq(studentProfiles.authId, authId),
-    columns: { majorCode: true },
-  });
+  const studentProfile = await getStudentProfileCached(authId);
 
   const majorCode = studentProfile?.majorCode || undefined;
 
@@ -2470,16 +2314,13 @@ async function placeRequiredCourse(
   balanceCredits: boolean
 ): Promise<boolean> {
   // Get student profile to access the major code
-  const studentProfile = await db.query.studentProfiles.findFirst({
-    where: eq(studentProfiles.authId, authId),
-    columns: { majorCode: true },
-  });
+  const studentProfile = await getStudentProfileCached(authId);
 
   const majorCode = studentProfile?.majorCode || undefined;
 
   const isRetake = course.requirementType === "retake_required";
   const courseCredits = parseFloat(course.credits?.toString() || "1");
-  const MAX_CREDITS = 5;
+  const MAX_CREDITS = getCreditLimit(studentProfile.majorCode);
 
   // Preload prerequisite data
   const prereqData = await loadAllPrerequisiteData();
@@ -2703,7 +2544,8 @@ async function placeElectivePlaceholder(
   balanceCredits: boolean
 ): Promise<boolean> {
   const electiveCredits = parseFloat(elective.credits?.toString() || "1");
-  const MAX_CREDITS = 5;
+  const profile = await getStudentProfileCached(authId);
+  const MAX_CREDITS = getCreditLimit(profile.majorCode);
 
   // For electives, start from year 2 or current year, whichever is later
   let placementYear = Math.max(startYear, 2);
