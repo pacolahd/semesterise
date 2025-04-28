@@ -1,6 +1,4 @@
 // src/lib/academic-plan/prerequisite-utility.ts
-import { and, eq, inArray } from "drizzle-orm";
-
 import { db } from "@/drizzle";
 import {
   courses,
@@ -8,6 +6,7 @@ import {
   prerequisiteGroups,
 } from "@/drizzle/schema";
 
+import { CACHE_TTL } from "./constants";
 import {
   MissingPrerequisite,
   PrerequisiteCheckResult,
@@ -16,30 +15,30 @@ import {
   PrerequisiteGroup,
 } from "./types";
 
-// Cache for prerequisite data with 24-hour expiration
-const prerequsiteCache = new Map<
+// Global cache for prerequisite data
+const prerequisiteCache = new Map<
   string,
   {
     data: PrerequisiteData;
     timestamp: number;
   }
 >();
-const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
 
 /**
  * Load and cache ALL prerequisite data for the entire system
+ * This is the core optimization for prerequisite checking
  */
 export async function loadAllPrerequisiteData(): Promise<PrerequisiteData> {
   const cacheKey = "ALL_PREREQUISITES";
   const now = Date.now();
-  const cached = prerequsiteCache.get(cacheKey);
+  const cached = prerequisiteCache.get(cacheKey);
 
   // Return cached data if valid
-  if (cached && now - cached.timestamp < CACHE_TTL) {
+  if (cached && now - cached.timestamp < CACHE_TTL.PREREQUISITE_DATA) {
     return cached.data;
   }
 
-  // Load all data in a single transaction
+  // Load all data in a single transaction to reduce DB round trips
   const result = await db.transaction(async (tx) => {
     // Get all prerequisite groups
     const groups = await tx.query.prerequisiteGroups.findMany();
@@ -63,7 +62,7 @@ export async function loadAllPrerequisiteData(): Promise<PrerequisiteData> {
     return { groups, prereqCourses, allCourses };
   });
 
-  // Process the raw data into our optimized structure
+  // Process the raw data into optimized data structures for fast lookups
   const data: PrerequisiteData = {
     courseToGroups: new Map(),
     groupToCourses: new Map(),
@@ -86,7 +85,7 @@ export async function loadAllPrerequisiteData(): Promise<PrerequisiteData> {
         | "OR",
       isConcurrent: group.isConcurrent || false,
       isRecommended: group.isRecommended || false,
-      applicableMajorCode: group.applicableMajorCode, // Include applicable major code
+      applicableMajorCode: group.applicableMajorCode,
     };
 
     // Add to groups map
@@ -119,15 +118,14 @@ export async function loadAllPrerequisiteData(): Promise<PrerequisiteData> {
     data.courseTitles.set(course.code, course.title || course.code);
   }
 
-  // Cache the processed data
-  prerequsiteCache.set(cacheKey, { data, timestamp: now });
+  // Cache the processed data with timestamp
+  prerequisiteCache.set(cacheKey, { data, timestamp: now });
 
   return data;
 }
 
 /**
- * Core prerequisite checking function that handles both internal and external logic
- * Now accounts for major-specific prerequisites
+ * Core prerequisite checking function with enhanced major-specific logic
  */
 export function checkPrerequisites(
   courseCode: string,
@@ -139,9 +137,6 @@ export function checkPrerequisites(
   const allGroups = prereqData.courseToGroups.get(courseCode) || [];
 
   // Filter groups to only include those applicable to this student's major
-  // A group applies if:
-  // 1. It has no applicableMajorCode (applies to all majors), OR
-  // 2. Its applicableMajorCode matches the student's major
   const groups = allGroups.filter(
     (group) =>
       !group.applicableMajorCode ||
@@ -204,7 +199,7 @@ export function checkPrerequisites(
         satisfiedCount: prereqCourses.filter((course) =>
           availableCourses.has(course.courseCode)
         ).length,
-        applicableMajorCode: group.applicableMajorCode, // Include in missing prerequisites
+        applicableMajorCode: group.applicableMajorCode,
       });
     }
   }
@@ -251,7 +246,7 @@ export function checkPrerequisites(
         satisfiedCount: prereqCourses.filter((course) =>
           availableCourses.has(course.courseCode)
         ).length,
-        applicableMajorCode: group.applicableMajorCode, // Include in missing prerequisites
+        applicableMajorCode: group.applicableMajorCode,
       });
     }
 
@@ -281,8 +276,7 @@ export function checkPrerequisites(
 }
 
 /**
- * Generate a user-friendly message explaining missing prerequisites
- * Enhanced to include major-specific information when relevant
+ * Helper to generate user-friendly prerequisite error messages
  */
 function generatePrerequisiteMessage(
   missingPrereqs: MissingPrerequisite[],
@@ -299,42 +293,22 @@ function generatePrerequisiteMessage(
         return `"${c.courseCode} - ${title}"`;
       });
 
-      // Include major-specific information if applicable
       const majorInfo = group.applicableMajorCode
         ? ` [For ${group.applicableMajorCode} majors]`
         : "";
-
       if (group.requiredCount) {
-        return `${group.groupName}${majorInfo}: You must complete ${coursesWithTitles}`;
+        return `Prerequisite issue: You must complete ${coursesWithTitles}`;
       } else if (group.internalLogicOperator === "AND") {
-        return `${group.groupName}${majorInfo}: You need all of these courses: ${coursesWithTitles.join(", ")}`;
+        return `Prerequisite issue: You need all of these courses: ${coursesWithTitles.join(", ")}`;
       } else {
-        return `${group.groupName}${majorInfo}: You need at least one of these courses: ${coursesWithTitles.join(", ")}`;
+        return `Prerequisite issue: You need at least one of these courses: ${coursesWithTitles.join(", ")}`;
       }
     })
     .join("; ");
 }
 
 /**
- * Convenience function for when you just need a boolean result
- */
-export async function arePrerequisitesMet(
-  courseCode: string,
-  availableCourses: Set<string>,
-  studentMajorCode?: string
-): Promise<boolean> {
-  const prereqData = await loadAllPrerequisiteData();
-  return checkPrerequisites(
-    courseCode,
-    availableCourses,
-    prereqData,
-    studentMajorCode
-  ).isMet;
-}
-
-/**
  * Calculate available courses based on passed and planned courses
- * This is useful for multiple prerequisite checks
  */
 export function getAvailableCourses(
   passedCourses: Set<string>,
