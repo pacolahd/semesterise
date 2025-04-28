@@ -186,6 +186,7 @@ export interface PrerequisiteData {
   courseTitles: Map<string, string>;
 }
 
+// Update the PrerequisiteGroup and MissingPrerequisite interfaces to include applicableMajorCode
 export interface PrerequisiteGroup {
   groupKey: string;
   courseCode: string;
@@ -195,12 +196,7 @@ export interface PrerequisiteGroup {
   internalLogicOperator: "AND" | "OR";
   isConcurrent: boolean;
   isRecommended: boolean;
-}
-
-export interface PrerequisiteCourse {
-  groupKey: string;
-  courseCode: string;
-  title?: string;
+  applicableMajorCode: string | null; // Add this field for major-specific prerequisites
 }
 
 export interface MissingPrerequisite {
@@ -210,6 +206,13 @@ export interface MissingPrerequisite {
   internalLogicOperator: "AND" | "OR";
   requiredCount: number;
   satisfiedCount: number;
+  applicableMajorCode?: string | null; // Add this field to show which major this prerequisite applies to
+}
+
+export interface PrerequisiteCourse {
+  groupKey: string;
+  courseCode: string;
+  title?: string;
 }
 
 export interface PrerequisiteCheckResult {

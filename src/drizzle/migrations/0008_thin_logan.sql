@@ -1,0 +1,1 @@
+ALTER TABLE "prerequisite_groups" ADD COLUMN "applicable_major_code" varchar(10);

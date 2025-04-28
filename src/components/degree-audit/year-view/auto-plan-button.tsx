@@ -65,27 +65,30 @@ export function AutoPlanButton() {
         <div className="py-4 space-y-4">
           <Alert>
             <AlertDescription>
-              This will replace all your planned courses with a new
-              automatically generated plan. Completed and failed courses will
-              not be affected.
+              It will replace all your planned courses with a new automatically
+              generated plan. Completed and failed courses will not be affected.
             </AlertDescription>
           </Alert>
-
-          <div className="flex items-center justify-between space-y-2">
-            <Label htmlFor="balance-credits">
-              Balance credit load across semesters
-            </Label>
-            <Switch
-              id="balance-credits"
-              checked={balanceCredits}
-              onCheckedChange={setBalanceCredits}
-            />
-          </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            {balanceCredits
-              ? "Your plan will aim for a balanced credit load each semester (max 5 credits)."
-              : "Your plan will prioritize placing courses as early as possible, which may result in some semesters having more than 5 credits."}
+          <p className="text-sm">
+            Your plan will aim for a balanced credit load each semester
+            <span className="text-red-500 font-bold"> (max 5 credits)</span>
           </p>
+
+          {/*<div className="flex items-center justify-between space-y-2">*/}
+          {/*  <Label htmlFor="balance-credits">*/}
+          {/*    Balance credit load across semesters*/}
+          {/*  </Label>*/}
+          {/*  <Switch*/}
+          {/*    id="balance-credits"*/}
+          {/*    checked={balanceCredits}*/}
+          {/*    onCheckedChange={setBalanceCredits}*/}
+          {/*  />*/}
+          {/*</div>*/}
+          {/*<p className="text-xs text-muted-foreground mt-2">*/}
+          {/*  {balanceCredits*/}
+          {/*    ? "Your plan will aim for a balanced credit load each semester (max 5 credits)."*/}
+          {/*    : "Your plan will prioritize placing courses as early as possible, which may result in some semesters having more than 5 credits."}*/}
+          {/*</p>*/}
         </div>
 
         <DialogFooter>

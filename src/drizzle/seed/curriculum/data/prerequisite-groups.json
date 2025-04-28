@@ -232,6 +232,17 @@
     "sortOrder": 2,
     "description": "Concurrent theory course"
   },
+  {
+    "groupKey": "CS331-HARDWARE-1",
+    "courseCode": "CS331",
+    "groupName": "Hardware Background",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "isConcurrent": false,
+    "sortOrder": 3,
+    "description": "Hardware and Systems Fundamentals",
+    "applicableMajorCode": "CS"
+  },
 
   
   {
@@ -618,7 +629,6 @@
     "sortOrder": 1,
     "description": "Programming background"
   },
-
   
   {
     "groupKey": "CS254-ALGORITHMS-1",

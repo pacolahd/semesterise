@@ -223,6 +223,7 @@ async function seedPrerequisites(dataDirectory: string) {
           nonCourseRequirement: group.nonCourseRequirement || null,
           cohortYearStart: group.cohortYearStart || null,
           cohortYearEnd: group.cohortYearEnd || null,
+          applicableMajorCode: group.applicableMajorCode || null,
         })
         .onConflictDoNothing({ target: prerequisiteGroups.groupKey });
     }

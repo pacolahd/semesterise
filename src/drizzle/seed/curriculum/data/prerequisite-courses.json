@@ -187,6 +187,11 @@
     "prerequisiteCourseCode": "CS221",
     "description": "Discrete Structures and Theory"
   },
+  {
+    "groupKey": "CS331-HARDWARE-1",
+    "prerequisiteCourseCode": "CS330",
+    "description": "Hardware and Systems Fundamentals"
+  },
 
   
   {

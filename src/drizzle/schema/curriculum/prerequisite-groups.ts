@@ -41,6 +41,9 @@ export const prerequisiteGroups = pgTable("prerequisite_groups", {
   // For non-course requirements (e.g., "Junior standing")
   nonCourseRequirement: text("non_course_requirement"),
 
+  // major to which this requirement applies
+  applicableMajorCode: varchar("applicable_major_code", { length: 10 }),
+
   // For cohort-specific requirements
   cohortYearStart: integer("cohort_year_start"),
   cohortYearEnd: integer("cohort_year_end"),

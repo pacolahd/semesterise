@@ -5,10 +5,7 @@ import { and, asc, eq, inArray, isNull, lt, or, sql } from "drizzle-orm";
 
 import { db } from "@/drizzle";
 import {
-  StudentCourseCategorizedStatusRecord,
-  StudentCourseStatusRecord,
   academicSemesters,
-  authUsers,
   courses,
   prerequisiteCourses,
   prerequisiteGroups,
@@ -17,11 +14,9 @@ import {
   studentDegreeRequirementProgressView,
   studentProfiles,
   studentRemainingRequirementsView,
-  studentRequiredCoursesView,
   studentSemesterMappings,
 } from "@/drizzle/schema";
 import { PrerequisiteGroupRecord } from "@/drizzle/schema/curriculum/prerequisite-groups";
-import { StudentProfileRecord } from "@/drizzle/schema/student-records/student-profiles";
 import { StudentSemesterMappingRecord } from "@/drizzle/schema/student-records/student-semester-mappings";
 import { AppError } from "@/lib/errors/app-error-classes";
 import { serializeError } from "@/lib/errors/error-converter";
@@ -36,7 +31,6 @@ import {
   CourseAvailability,
   CoursePlacementValidationResponse,
   CourseWithStatus,
-  ElectivePlaceholder,
   PlacementSummary,
   PrerequisiteCheckResult,
   RemainingRequirement,
@@ -298,10 +292,10 @@ export async function getStudentAcademicPlan(
 
     // 6. Populate with actual courses
     for (const course of coursesWithStatus) {
-      // Skip if not latest attempt for completed/failed courses
-      if (!course.isLatestAttempt && course.grade !== null) {
-        continue;
-      }
+      // Skip if not latest attempt for completed/failed courses.
+      // if (!course.isLatestAttempt && course.grade !== null) {
+      //   continue;
+      // }
 
       // Determine which semester this belongs to
       const year = course.yearTaken || 1;
@@ -588,6 +582,14 @@ export async function checkPrerequisitesMet(
   year: number,
   semester: number
 ): Promise<PrerequisiteCheckResult> {
+  // Get student profile to access the major code
+  const studentProfile = await db.query.studentProfiles.findFirst({
+    where: eq(studentProfiles.authId, authId),
+    columns: { majorCode: true },
+  });
+
+  const majorCode = studentProfile?.majorCode || undefined;
+
   // Get all prerequisite data from the centralized utility
   const prereqData = await loadAllPrerequisiteData();
 
@@ -654,7 +656,12 @@ export async function checkPrerequisitesMet(
   );
 
   // Check prerequisites using the utility
-  return checkPrerequisites(courseCode, availableCourses, prereqData);
+  return checkPrerequisites(
+    courseCode,
+    availableCourses,
+    prereqData,
+    majorCode
+  );
 }
 
 /**
@@ -748,33 +755,15 @@ async function validateCoursePlacement(
       columns: { title: true },
     });
 
-    const courseTitle = course?.title || courseCode;
+    const courseTitle = course?.title || "";
     // // Format enhanced error message
-    // const enhancedMessage = prerequisiteCheck.missingPrerequisites
-    //   .map((group) => {
-    //     const courseList = group.courses
-    //       .map((code) => {
-    //         const title = courseTitleMap.get(code) || code;
-    //         return `${code} (${title})`;
-    //       })
-    //       .join(", ");
-    //
-    //     if (group.requiredCount === 1) {
-    //       return `${group.groupName}: You must complete ${courseList} before taking ${courseCode} (${courseTitle})`;
-    //     } else if (group.internalLogicOperator === "AND") {
-    //       return `${group.groupName}: You must complete all of these courses (${courseList}) before taking ${courseCode} (${courseTitle})`;
-    //     } else {
-    //       return `${group.groupName}: You must complete at least one of these courses (${courseList}) before taking ${courseCode} (${courseTitle})`;
-    //     }
-    //   })
-    //   .join("; ");
+    const enhancedMessage = prerequisiteCheck.infoMessage;
 
     errors.push(
       prerequisiteCheck.infoMessage ||
-        `Prerequisites not met for ${courseTitle}`
+        `Prerequisites not met: ${enhancedMessage} before taking ${courseCode} - ${courseTitle}`
     );
   }
-
   // Check course availability
   if (result.courseInfo) {
     const semesterType = isSummer
@@ -1376,6 +1365,14 @@ async function validatePrerequisiteMove(
   newYear: number,
   newSemester: number
 ): Promise<{ isValid: boolean; error?: string }> {
+  // Get student profile to access the major code
+  const studentProfile = await db.query.studentProfiles.findFirst({
+    where: eq(studentProfiles.authId, authId),
+    columns: { majorCode: true },
+  });
+
+  const majorCode = studentProfile?.majorCode || null;
+
   // Load all prerequisite data
   const prereqData = await loadAllPrerequisiteData();
 
@@ -1406,6 +1403,10 @@ async function validatePrerequisiteMove(
     for (const group of groups) {
       // Skip concurrent or recommended groups
       if (group.isConcurrent || group.isRecommended) continue;
+
+      // Skip groups that don't apply to this student's major
+      if (group.applicableMajorCode && majorCode !== group.applicableMajorCode)
+        continue;
 
       const prereqCourses = prereqData.groupToCourses.get(group.groupKey) || [];
 
@@ -1639,6 +1640,14 @@ export async function getAvailableCoursesForSemester(
         ? "fall"
         : "spring";
 
+    // Get student's major code first
+    const studentProfile = await db.query.studentProfiles.findFirst({
+      where: eq(studentProfiles.authId, authId),
+      columns: { majorCode: true },
+    });
+
+    const studentMajorCode = studentProfile?.majorCode || undefined;
+
     // Preload prerequisite data for all courses
     const prereqData = await loadAllPrerequisiteData();
 
@@ -1814,7 +1823,8 @@ export async function getAvailableCoursesForSemester(
       const prereqResult = checkPrerequisites(
         req.courseCode,
         availableCoursesForCheck,
-        prereqData
+        prereqData,
+        studentMajorCode
       );
 
       if (!prereqResult.isMet) continue;
@@ -1858,7 +1868,8 @@ export async function getAvailableCoursesForSemester(
       const prereqResult = checkPrerequisites(
         courseCode,
         availableCoursesForCheck,
-        prereqData
+        prereqData,
+        studentMajorCode
       );
 
       if (!prereqResult.isMet) continue;
@@ -1896,7 +1907,8 @@ export async function getAvailableCoursesForSemester(
       const prereqResult = checkPrerequisites(
         course.code,
         availableCoursesForCheck,
-        prereqData
+        prereqData,
+        studentMajorCode
       );
 
       if (!prereqResult.isMet) continue;
@@ -2274,14 +2286,6 @@ export async function generateAutomaticPlan(
         ? parseInt(studentProfile.currentSemester, 10)
         : 1);
 
-    console.log(
-      "\n\n\n\nCurrent Year and Semester = " + currentYear,
-      currentSemester + "\n\n\n\n"
-    );
-    console.error(
-      "\n\n\n\nCurrent Year and Semester = " + currentYear,
-      currentSemester + "\n\n\n\n"
-    );
     // 2. Clear any existing planned courses
     await db
       .delete(studentCourses)
@@ -2408,6 +2412,14 @@ async function arePrerequisitesMet(
   passedCourses: Set<string>,
   placedCourses: Map<string, { year: number; semester: number }>
 ): Promise<boolean> {
+  // Get student profile to access the major code
+  const studentProfile = await db.query.studentProfiles.findFirst({
+    where: eq(studentProfiles.authId, authId),
+    columns: { majorCode: true },
+  });
+
+  const majorCode = studentProfile?.majorCode || undefined;
+
   // Load prerequisite data
   const prereqData = await loadAllPrerequisiteData();
 
@@ -2426,7 +2438,8 @@ async function arePrerequisitesMet(
   }
 
   // Use the utility to check prerequisites
-  return checkPrerequisites(courseCode, availableCourses, prereqData).isMet;
+  return checkPrerequisites(courseCode, availableCourses, prereqData, majorCode)
+    .isMet;
 }
 
 /**
@@ -2448,6 +2461,14 @@ async function placeRequiredCourse(
   summary: any,
   balanceCredits: boolean
 ): Promise<boolean> {
+  // Get student profile to access the major code
+  const studentProfile = await db.query.studentProfiles.findFirst({
+    where: eq(studentProfiles.authId, authId),
+    columns: { majorCode: true },
+  });
+
+  const majorCode = studentProfile?.majorCode || undefined;
+
   const isRetake = course.requirementType === "retake_required";
   const courseCredits = parseFloat(course.credits?.toString() || "1");
   const MAX_CREDITS = 5;
@@ -2518,7 +2539,8 @@ async function placeRequiredCourse(
     const prereqsMet = checkPrerequisites(
       course.courseCode,
       availableCoursesSet,
-      prereqData
+      prereqData,
+      majorCode
     ).isMet;
 
     if (!prereqsMet) {
@@ -2869,11 +2891,11 @@ function generateSummaryMessage(summary: PlacementSummary): string {
 
   // Add details about types
   if (summary.retakesPlaced > 0) {
-    message += ` ${summary.retakesPlaced} ${summary.retakesPlaced === 1 ? "is a course" : "are courses"} you need to retake.`;
+    message += ` ${summary.retakesPlaced} ${summary.retakesPlaced === 1 ? "is a course" : "are courses"} you needed to retake.`;
   }
 
   if (summary.electivesPlaced > 0) {
-    message += ` ${summary.electivesPlaced} ${summary.electivesPlaced === 1 ? "is an elective placeholder" : "are elective placeholders"} that you'll need to replace with actual courses.`;
+    message += ` ${summary.electivesPlaced} ${summary.electivesPlaced === 1 ? "is an elective placeholder" : "are elective placeholders"} that you'll need to replace with actual elective courses (If you know the actual electives you want to do)`;
   }
 
   // Add unplaced warning if any

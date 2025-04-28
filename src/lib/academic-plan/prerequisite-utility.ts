@@ -86,6 +86,7 @@ export async function loadAllPrerequisiteData(): Promise<PrerequisiteData> {
         | "OR",
       isConcurrent: group.isConcurrent || false,
       isRecommended: group.isRecommended || false,
+      applicableMajorCode: group.applicableMajorCode, // Include applicable major code
     };
 
     // Add to groups map
@@ -126,14 +127,27 @@ export async function loadAllPrerequisiteData(): Promise<PrerequisiteData> {
 
 /**
  * Core prerequisite checking function that handles both internal and external logic
+ * Now accounts for major-specific prerequisites
  */
 export function checkPrerequisites(
   courseCode: string,
   availableCourses: Set<string>,
-  prereqData: PrerequisiteData
+  prereqData: PrerequisiteData,
+  studentMajorCode?: string
 ): PrerequisiteCheckResult {
-  // Get prerequisite groups for this course
-  const groups = prereqData.courseToGroups.get(courseCode) || [];
+  // Get all prerequisite groups for this course
+  const allGroups = prereqData.courseToGroups.get(courseCode) || [];
+
+  // Filter groups to only include those applicable to this student's major
+  // A group applies if:
+  // 1. It has no applicableMajorCode (applies to all majors), OR
+  // 2. Its applicableMajorCode matches the student's major
+  const groups = allGroups.filter(
+    (group) =>
+      !group.applicableMajorCode ||
+      !studentMajorCode ||
+      group.applicableMajorCode === studentMajorCode
+  );
 
   // If no prerequisites, return true immediately
   if (groups.length === 0) {
@@ -190,6 +204,7 @@ export function checkPrerequisites(
         satisfiedCount: prereqCourses.filter((course) =>
           availableCourses.has(course.courseCode)
         ).length,
+        applicableMajorCode: group.applicableMajorCode, // Include in missing prerequisites
       });
     }
   }
@@ -236,6 +251,7 @@ export function checkPrerequisites(
         satisfiedCount: prereqCourses.filter((course) =>
           availableCourses.has(course.courseCode)
         ).length,
+        applicableMajorCode: group.applicableMajorCode, // Include in missing prerequisites
       });
     }
 
@@ -266,6 +282,7 @@ export function checkPrerequisites(
 
 /**
  * Generate a user-friendly message explaining missing prerequisites
+ * Enhanced to include major-specific information when relevant
  */
 function generatePrerequisiteMessage(
   missingPrereqs: MissingPrerequisite[],
@@ -279,13 +296,20 @@ function generatePrerequisiteMessage(
     .map((group) => {
       const coursesWithTitles = group.courses.map((c) => {
         const title = prereqData.courseTitles.get(c.courseCode) || c.courseCode;
-        return `${c.courseCode} (${title})`;
+        return `"${c.courseCode} - ${title}"`;
       });
 
-      if (group.internalLogicOperator === "AND") {
-        return `${group.groupName}: You need all of these courses: ${coursesWithTitles.join(", ")}`;
+      // Include major-specific information if applicable
+      const majorInfo = group.applicableMajorCode
+        ? ` [For ${group.applicableMajorCode} majors]`
+        : "";
+
+      if (group.requiredCount) {
+        return `${group.groupName}${majorInfo}: You must complete ${coursesWithTitles}`;
+      } else if (group.internalLogicOperator === "AND") {
+        return `${group.groupName}${majorInfo}: You need all of these courses: ${coursesWithTitles.join(", ")}`;
       } else {
-        return `${group.groupName}: You need at least one of these courses: ${coursesWithTitles.join(", ")}`;
+        return `${group.groupName}${majorInfo}: You need at least one of these courses: ${coursesWithTitles.join(", ")}`;
       }
     })
     .join("; ");
@@ -296,10 +320,16 @@ function generatePrerequisiteMessage(
  */
 export async function arePrerequisitesMet(
   courseCode: string,
-  availableCourses: Set<string>
+  availableCourses: Set<string>,
+  studentMajorCode?: string
 ): Promise<boolean> {
   const prereqData = await loadAllPrerequisiteData();
-  return checkPrerequisites(courseCode, availableCourses, prereqData).isMet;
+  return checkPrerequisites(
+    courseCode,
+    availableCourses,
+    prereqData,
+    studentMajorCode
+  ).isMet;
 }
 
 /**
