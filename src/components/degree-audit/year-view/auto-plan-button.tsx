@@ -1,4 +1,3 @@
-// src/components/degree-audit/year-view/auto-plan-button.tsx
 "use client";
 
 import { useState } from "react";
@@ -20,8 +19,6 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useGenerateAutomaticPlan } from "@/lib/academic-plan/academic-plan-hooks";
 import { useAuthStore } from "@/lib/auth/auth-store";
-
-// src/components/degree-audit/year-view/auto-plan-button.tsx
 
 // src/components/degree-audit/year-view/auto-plan-button.tsx
 
@@ -51,7 +48,7 @@ export function AutoPlanButton() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
+        <Button size="sm" className="gap-2">
           <Wand2 className="h-4 w-4" />
           Auto-Plan
         </Button>

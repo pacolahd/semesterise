@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, Loader2, Sparkles, X } from "lucide-react";
 
+import { AutoPlanButton } from "@/components/degree-audit/year-view/auto-plan-button";
 import { YearByYearPlanView } from "@/components/degree-audit/year-view/year-by-year-plan-view";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -197,22 +198,22 @@ export default function DegreeAuditPage() {
                 "Refresh Plan"
               )}
             </Button>
-
-            <Button
-              size="sm"
-              className="gap-1 h-8"
-              onClick={() =>
-                generatePlanMutation.mutateAsync({ authId: user?.id || "" })
-              }
-              disabled={generatePlanMutation.isPending}
-            >
-              {generatePlanMutation.isPending ? (
-                <Loader2 className="h-3 w-3 animate-spin" />
-              ) : (
-                <Sparkles className="h-3 w-3" />
-              )}
-              Auto-Plan
-            </Button>
+            <AutoPlanButton />
+            {/*<Button*/}
+            {/*  size="sm"*/}
+            {/*  className="gap-1 h-8"*/}
+            {/*  onClick={() =>*/}
+            {/*    generatePlanMutation.mutateAsync({ authId: user?.id || "" })*/}
+            {/*  }*/}
+            {/*  disabled={generatePlanMutation.isPending}*/}
+            {/*>*/}
+            {/*  {generatePlanMutation.isPending ? (*/}
+            {/*    <Loader2 className="h-3 w-3 animate-spin" />*/}
+            {/*  ) : (*/}
+            {/*    <Sparkles className="h-3 w-3" />*/}
+            {/*  )}*/}
+            {/*  Auto-Plan*/}
+            {/*</Button>*/}
           </div>
         </div>
       </div>
