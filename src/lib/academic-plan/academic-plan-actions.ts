@@ -1530,7 +1530,13 @@ export async function removePlannedCourse(
               requirement.creditsCompleted === requirement.creditsRequired
                 ? requirement.creditsRemaining + 1
                 : requirement.creditsRemaining
-            } more credits in this category. Make sure to add another course to meet this requirement.`
+            } more credits in this category.  You will need to schedule another ${
+              courseRecord.subCategory
+                ? courseRecord.subCategory === "Africana"
+                  ? ` ${courseRecord.subCategory}`
+                  : ` ${courseRecord.subCategory.slice(0, -1)}`
+                : `${courseRecord.categoryName.slice(0, -1)}`
+            } course in order to meet graduation requirements.`
           );
         }
       }

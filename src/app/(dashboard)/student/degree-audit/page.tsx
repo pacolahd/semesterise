@@ -165,11 +165,17 @@ export default function DegreeAuditPage() {
                   onClick={() => setShowRemainingCourses(true)}
                   className="h-6 text-xs mx-2"
                 >
-                  {remainingRequirements.totalRequirements}
-                  {remainingRequirements.totalRequirements > 1
-                    ? " courses "
-                    : " course "}
-                  left
+                  {plan.totalCreditsRemaining === 0 ? (
+                    "No courses left"
+                  ) : (
+                    <>
+                      {remainingRequirements.totalRequirements}
+                      {remainingRequirements.totalRequirements > 1
+                        ? " courses "
+                        : " course "}
+                      left
+                    </>
+                  )}
                 </Button>
               )}
             </div>
@@ -208,7 +214,7 @@ export default function DegreeAuditPage() {
         open={showRemainingCourses}
         onOpenChange={setShowRemainingCourses}
       >
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-auto">
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-auto">
           <DialogHeader>
             <DialogTitle className="flex justify-between items-center">
               <div>Remaining Requirements</div>
@@ -219,6 +225,14 @@ export default function DegreeAuditPage() {
             <div className="flex justify-center items-center h-32">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
             </div>
+          ) : plan.totalCreditsRemaining === 0 ? (
+            <>
+              <h2 className="text-lg font-bold">🎉 Congratulations!</h2>
+              <p className=" mt-2">
+                Your plan meets all your degree requirements. You are now on
+                track to graduate if you follow your plan. All the best!
+              </p>
+            </>
           ) : (
             <>
               {/* Summary stats */}
