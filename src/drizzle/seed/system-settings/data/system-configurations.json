@@ -12,6 +12,14 @@
     "description": "Defines credit limits for different semester types"
   },
   {
+    "key": "year_limits",
+    "value":  {
+      "absolute_max": 8,
+      "recommended_max": 4
+    },
+    "description": "Defines year limits at Ashesi"
+  },
+  {
     "key": "prerequisite_validation",
     "value": {
       "enabled": true,

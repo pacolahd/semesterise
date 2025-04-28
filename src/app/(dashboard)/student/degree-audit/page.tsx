@@ -199,21 +199,6 @@ export default function DegreeAuditPage() {
               )}
             </Button>
             <AutoPlanButton />
-            {/*<Button*/}
-            {/*  size="sm"*/}
-            {/*  className="gap-1 h-8"*/}
-            {/*  onClick={() =>*/}
-            {/*    generatePlanMutation.mutateAsync({ authId: user?.id || "" })*/}
-            {/*  }*/}
-            {/*  disabled={generatePlanMutation.isPending}*/}
-            {/*>*/}
-            {/*  {generatePlanMutation.isPending ? (*/}
-            {/*    <Loader2 className="h-3 w-3 animate-spin" />*/}
-            {/*  ) : (*/}
-            {/*    <Sparkles className="h-3 w-3" />*/}
-            {/*  )}*/}
-            {/*  Auto-Plan*/}
-            {/*</Button>*/}
           </div>
         </div>
       </div>
@@ -230,14 +215,6 @@ export default function DegreeAuditPage() {
           <DialogHeader>
             <DialogTitle className="flex justify-between items-center">
               <div>Remaining Requirements</div>
-              {/*<Button*/}
-              {/*  variant="ghost"*/}
-              {/*  size="sm"*/}
-              {/*  className="h-8 w-8 p-0"*/}
-              {/*  onClick={() => setShowRemainingCourses(false)}*/}
-              {/*>*/}
-              {/*  <X className="h-4 w-4" />*/}
-              {/*</Button>*/}
             </DialogTitle>
           </DialogHeader>
 
