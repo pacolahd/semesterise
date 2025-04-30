@@ -22,7 +22,7 @@ const sessionCache = new Map<
   string,
   { session: ServerSession | null; timestamp: number }
 >();
-const SESSION_CACHE_TTL = 20000;
+const SESSION_CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
 
 async function getOptimizedSession(
   request: NextRequest

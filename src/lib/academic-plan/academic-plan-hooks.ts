@@ -10,6 +10,7 @@ import {
   getAvailableCoursesForSemester,
   getAvailableElectiveCategories,
   getStudentAcademicPlan,
+  getStudentDegreeRequirementProgress,
   getStudentRemainingRequirements,
   movePlannedCourse,
   removePlannedCourse,
@@ -37,6 +38,8 @@ const academicPlanKeys = {
   // Add this new key for remaining requirements
   remainingRequirements: (authId: string) =>
     [...academicPlanKeys.all, "remainingRequirements", authId] as const,
+  degreeRequirementProgress: (authId: string) =>
+    [...academicPlanKeys.all, "degreeRequirementProgress", authId] as const,
 };
 
 /**
@@ -129,6 +132,38 @@ export function useRemainingRequirements(authId?: string) {
     meta: {
       skipGlobalErrorHandler: false,
       errorContext: "get-remaining-requirements",
+    },
+  });
+}
+
+/**
+ * Hook to fetch degree requirement progress data
+ * This provides the authoritative credit requirements and completion data from the database
+ */
+export function useDegreeRequirementProgress(authId?: string) {
+  return useQuery({
+    queryKey: academicPlanKeys.degreeRequirementProgress(authId || ""),
+    queryFn: async () => {
+      if (!authId) {
+        throw new Error(
+          "User ID is required to fetch degree requirement progress"
+        );
+      }
+
+      const result = await getStudentDegreeRequirementProgress(authId);
+
+      // Process warnings if needed
+      if (result.warnings && result.warnings.length > 0) {
+        console.warn("Degree requirement progress warnings:", result.warnings);
+      }
+
+      return handleActionResponse(result);
+    },
+    enabled: !!authId,
+    staleTime: 2 * 60 * 1000, // Match the stale time of other academic plan queries
+    meta: {
+      skipGlobalErrorHandler: false,
+      errorContext: "get-degree-requirement-progress",
     },
   });
 }

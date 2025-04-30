@@ -173,6 +173,25 @@ export type RemainingRequirement = {
 };
 
 /**
+ * Interface for degree requirement progress data
+ */
+export interface DegreeRequirementProgress {
+  authId: string;
+  studentId: string;
+  parentCategory: string;
+  categoryName: string;
+  subCategory: string | null;
+  coursesRequired: number;
+  creditsRequired: number;
+  coursesCompleted: number;
+  creditsCompleted: number;
+  coursesRemaining: number;
+  creditsRemaining: number;
+  progressPercentage: number;
+  requirementMet: boolean;
+}
+
+/**
  * Structures for prerequisite data
  */
 export interface PrerequisiteData {

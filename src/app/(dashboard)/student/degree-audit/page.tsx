@@ -1,3 +1,4 @@
+//src/app/(dashboard)/student/degree-audit/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -25,6 +26,8 @@ import {
 } from "@/lib/academic-plan/academic-plan-hooks";
 import { useAuthStore } from "@/lib/auth/auth-store";
 import { handleActionResponse } from "@/lib/errors/action-response-handler";
+
+//src/app/(dashboard)/student/degree-audit/page.tsx
 
 export default function DegreeAuditPage() {
   const { user } = useAuthStore();

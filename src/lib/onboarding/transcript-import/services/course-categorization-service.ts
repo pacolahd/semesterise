@@ -1,5 +1,5 @@
 // src/lib/services/course-categorization-service.ts
-import { and, eq, isNull, or } from "drizzle-orm";
+import { and, eq, isNull, or, sql } from "drizzle-orm";
 
 import {
   courseCategories,
@@ -9,7 +9,7 @@ import {
 
 /**
  * Determine the appropriate category for a course based on the course code and student's major
- * by looking up the mapping in the course-categorizations table
+ * by looking up the mapping in the course-categorizations table with proper priority handling
  */
 export async function determineCategoryForCourse(
   courseCode: string,
@@ -19,80 +19,80 @@ export async function determineCategoryForCourse(
   // Clean the course code - remove any spaces
   const cleanCourseCode = courseCode.replace(/\s+/g, "");
 
-  // Look for a direct match with the student's major
+  // Determine the student's major group
+  const isEngineeringMajor = ["CE", "EE", "ME"].includes(majorCode);
+  const majorGroup = isEngineeringMajor ? "ENG" : "NON-ENG";
 
-  const engStatus =
-    majorCode === "CS" || majorCode === "MIS" || majorCode === "BA"
-      ? "ENG"
-      : "NON-ENG";
-  let categoryMapping = await tx.query.courseCategorization.findFirst({
+  // First try to find an exact categorization match with priority order
+  const categoryMapping = await tx.query.courseCategorization.findFirst({
     where: and(
       eq(courseCategorization.courseCode, cleanCourseCode),
       or(
-        eq(courseCategorization.majorGroup, majorCode),
-        eq(courseCategorization.majorGroup, engStatus),
-        eq(courseCategorization.majorGroup, "ALL")
+        eq(courseCategorization.majorGroup, majorCode), // Exact major match
+        eq(courseCategorization.majorGroup, "ALL"), // Universal requirements
+        eq(courseCategorization.majorGroup, majorGroup) // Major group (ENG/NON-ENG)
       )
     ),
+    orderBy: [
+      // Priority 1: Exact major match
+      sql`CASE WHEN ${courseCategorization.majorGroup} = ${majorCode} THEN 1 ELSE 2 END`,
+      // Priority 2: ALL requirements
+      sql`CASE WHEN ${courseCategorization.majorGroup} = 'ALL' THEN 1 ELSE 2 END`,
+      // Priority 3: Major group matches
+      sql`CASE WHEN ${courseCategorization.majorGroup} = ${majorGroup} THEN 1 ELSE 2 END`,
+    ],
   });
 
-  // If a specific mapping was found, use it
+  // Return found categorization if exists
   if (categoryMapping) {
     return categoryMapping.categoryName;
   }
 
-  // If still no mapping found, try to determine based on course prefix
-  // Extract the department code from the course code
-  const departmentCode = extractDepartmentCode(cleanCourseCode);
+  // Fallback to code-based heuristic categorization
+  const code = extractCode(cleanCourseCode);
 
-  // Map department code to appropriate categories based on provided info
-  switch (departmentCode) {
-    // Computer Science and Information Systems (CSIS) Department
-    case "CS":
-      return majorCode === "CS" ? "Required Major Classes" : "Computing";
-    case "IS":
-    case "CSIS":
-    case "AI":
-    case "MS":
-    case "SYS":
-      return "Computing";
-    case "MATH":
-      return "Mathematics & Quantitative";
+  // Enhanced code mapping with clearer logic
+  const codeCategories: Record<string, string> = {
+    // Computer Science and Information Systems
+    CS: isEngineeringMajor ? "Computing" : "Required Major Classes",
+    IS: "Computing",
+    CSIS: "Computing",
+    AI: "Computing",
+    MS: "Computing",
+    SYS: "Computing",
 
-    // Business Administration Department
-    case "BUSA":
-    case "ECON":
-      return "Business";
+    // Mathematics
+    MATH: "Mathematics & Quantitative",
 
-    // Engineering Department
-    case "ENGR":
-    case "CE":
-    case "EE":
-    case "ME":
-      return majorCode.includes("E")
-        ? "Required Major Classes"
-        : "Non-Major Electives";
-    case "CHEM":
-    case "SC":
-      return "Science";
+    // Business
+    BUSA: "Business",
+    ECON: "Business",
 
-    // Humanities and Social Sciences Department
-    case "AS":
-    case "ENGL":
-    case "FRENC":
-    case "POLS":
-    case "SOAN":
-      return "Humanities & Social Sciences";
+    // Engineering (only for engineering majors)
+    ENGR: isEngineeringMajor ? "Required Major Classes" : "Non-Major Electives",
+    CE: isEngineeringMajor ? "Required Major Classes" : "Non-Major Electives",
+    EE: isEngineeringMajor ? "Required Major Classes" : "Non-Major Electives",
+    ME: isEngineeringMajor ? "Required Major Classes" : "Non-Major Electives",
 
-    default:
-      return "Non-Major Electives"; // Default fallback
-  }
+    // Sciences
+    CHEM: "Science",
+    SC: "Science",
+
+    // Humanities
+    AS: "Humanities & Social Sciences",
+    ENGL: "Humanities & Social Sciences",
+    FRENC: "Humanities & Social Sciences",
+    POLS: "Humanities & Social Sciences",
+    SOAN: "Humanities & Social Sciences",
+  };
+
+  return codeCategories[code] || "Non-Major Electives";
 }
 
 /**
- * Extract department code from course code (e.g., "CS" from "CS101")
+ * Extract code from course code (e.g., "CS" from "CS101")
  */
-function extractDepartmentCode(courseCode: string): string {
+function extractCode(courseCode: string): string {
   // Match letters at the beginning of the course code
   const match = courseCode.match(/^([A-Za-z]+)/);
   return match ? match[1].toUpperCase() : "";

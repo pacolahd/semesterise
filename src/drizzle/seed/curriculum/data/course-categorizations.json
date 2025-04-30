@@ -403,6 +403,13 @@
     "isFlexible": true
   },
   {
+    "courseCode": "CS462",
+    "categoryName": "Major Electives",
+    "majorGroup": "CS",
+    "isRequired": false,
+    "isFlexible": true
+  },
+  {
     "courseCode": "CS453",
     "categoryName": "Major Electives",
     "majorGroup": "CS",

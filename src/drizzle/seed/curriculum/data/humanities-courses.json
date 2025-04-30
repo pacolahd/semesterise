@@ -91,6 +91,13 @@
     "semestersOffered": ["FALL"]
   },
   {
+    "code": "POLS234",
+    "title": "Comparative Politics",
+    "department": "Humanities and Social Sciences",
+    "credits": 1.0,
+    "description": "Comparing political systems is a central task of political science. This course introduces students to the comparative method and its application to the study of politics. It examines the major theoretical approaches to comparative politics, including structural-functionalism, behavioralism, and rational choice theory.",
+  },
+  {
     "code": "POLS231",
     "title": "Africa in International Settings: Africa Beyond Aid",
     "department": "Humanities and Social Sciences",
@@ -206,6 +213,15 @@
     "description": "This seminar asks the questions: 'What is the best way to organize the economic activity of a good society? 'What is the proper definition of 'best' in the issue? 'How do we best achieve a balance of liberty, efficiency, equality and community?",
     "prerequisites": "None",
     "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "SOAN332",
+    "title": "Sustainability and Systems Thinking",
+    "department": "Humanities and Social Sciences",
+    "credits": 1.0,
+    "description":" This course is designed to introduce students to the concept of sustainability and systems thinking. It will explore the interconnections between social, economic, and environmental systems, and how these systems can be managed for sustainable development. Students will learn about the principles of systems thinking and how they can be applied to real-world problems.",
+    "prerequisites": "None",
+    "semestersOffered": ["FALL"]
   },
   {
     "code": "SOAN325",

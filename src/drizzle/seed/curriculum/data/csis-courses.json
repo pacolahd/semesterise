@@ -100,6 +100,13 @@
     "semestersOffered": ["SPRING"]
   },
   {
+    "code": "CS462",
+    "title": "Cloud Computing",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "This course covers the design and analysis of computer algorithms. Topics include asymptotic analysis, divide-and-conquer algorithms, greedy algorithms, dynamic programming, and NP-completeness.",
+  },
+  {
     "code": "CS415",
     "title": "Software Engineering",
     "department": "CSIS",

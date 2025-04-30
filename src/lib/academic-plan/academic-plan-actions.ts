@@ -34,6 +34,7 @@ import {
   CourseAvailability,
   CoursePlacementValidationResponse,
   CourseWithStatus,
+  DegreeRequirementProgress,
   PlacementSummary,
   PrerequisiteCheckResult,
   RemainingRequirement,
@@ -73,25 +74,6 @@ async function hasCoursesAboveMaxYear(authId: string): Promise<boolean> {
 
   return hasCoursesAbove;
 }
-
-// /**
-//  * Helper function to get the student ID from auth ID
-//  */
-// async function getStudentIdFromAuthId(authId: string): Promise<string> {
-//   const user = await db.query.studentProfiles.findFirst({
-//     where: eq(studentProfiles.authId, authId),
-//     columns: { studentId: true },
-//   });
-//
-//   if (!user || !user.studentId) {
-//     throw new AppError({
-//       message: `No student record associated with this user account`,
-//       code: "AUTH_ERROR",
-//     });
-//   }
-//
-//   return user.studentId;
-// }
 
 /**
  * Fetches the remaining requirements for a student
@@ -204,6 +186,58 @@ export async function getStudentRemainingRequirements(
     };
   }
 }
+
+/**
+ * Fetches the degree requirement progress for a student
+ */
+export async function getStudentDegreeRequirementProgress(
+  authId: string
+): Promise<ActionResponse<DegreeRequirementProgress[]>> {
+  try {
+    // Fetch all degree requirement progress
+    const progress = await db
+      .select()
+      .from(studentDegreeRequirementProgressView)
+      .where(eq(studentDegreeRequirementProgressView.authId, authId));
+
+    if (!progress || progress.length === 0) {
+      return {
+        success: true,
+        data: [],
+        warnings: ["No degree requirement data found for this student."],
+      };
+    }
+
+    // Transform to a usable format with proper type conversions
+    const formattedProgress = progress.map((p) => ({
+      authId: p.authId,
+      studentId: p.studentId,
+      parentCategory: p.parentCategory,
+      categoryName: p.categoryName,
+      subCategory: p.subCategory || null,
+      coursesRequired: p.coursesRequired,
+      creditsRequired: p.creditsRequired,
+      coursesCompleted: p.coursesCompleted,
+      creditsCompleted: p.creditsCompleted,
+      coursesRemaining: p.coursesRemaining,
+      creditsRemaining: p.creditsRemaining,
+      progressPercentage: parseFloat(p.progressPercentage?.toString() || "0"),
+      requirementMet: p.requirementMet,
+    }));
+
+    return {
+      success: true,
+      data: formattedProgress,
+    };
+  } catch (error) {
+    console.error("Error fetching degree requirement progress:", error);
+    return {
+      success: false,
+      error: serializeError(error),
+    };
+  }
+}
+
 /**
  * Get student's academic plan
  * Optimized to use a transaction and reduce the number of queries
