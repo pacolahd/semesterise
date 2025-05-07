@@ -783,7 +783,7 @@ export const transcriptImportService = {
     // Create a lookup map for existing courses by code and semester
     const existingCoursesMap = new Map();
     existingCourses.forEach((course) => {
-      const key = `${course.courseCode.toUpperCase()}|${course.semesterId}`;
+      const key = `${course.courseCode !== null ? course.courseCode.toUpperCase() : null}|${course.semesterId}`;
       existingCoursesMap.set(key, course);
     });
 

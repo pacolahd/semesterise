@@ -95,14 +95,15 @@ remaining_concrete_courses AS (
         rb.recommended_year NULLS LAST, 
         rb.recommended_semester NULLS LAST
     ) AS priority_order
-  FROM requirement_base rb
+   FROM requirement_base rb
+  LEFT JOIN (
+    SELECT DISTINCT auth_id, student_id, course_code
+    FROM completed_courses
+  ) cc
+    ON cc.course_code IS NOT DISTINCT FROM rb.course_code
+   AND cc.student_id = rb.student_id
   WHERE rb.course_type = 'concrete_course'
-    AND NOT EXISTS (
-      SELECT 1
-      FROM completed_courses cc
-      WHERE cc.course_code = rb.course_code
-        -- AND cc.passed = true
-    )
+    AND cc.course_code IS NULL  -- means no match found
 ),
 
 remaining_electives AS (

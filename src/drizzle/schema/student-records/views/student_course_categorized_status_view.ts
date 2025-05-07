@@ -59,7 +59,7 @@ WITH all_courses AS (
   SELECT 
     scsv.*,
     CASE
-      When(scsv.course_title ILIKE '%africa%' OR scsv.course_title ILIKE '%ghana%')
+      When(scsv.course_title ILIKE '%africa%' OR scsv.course_title ILIKE '%ghana%'  OR scsv.course_title ILIKE '%politics%')
         THEN 'Africana'
       ELSE scsv.category_name
     END AS detailed_category
