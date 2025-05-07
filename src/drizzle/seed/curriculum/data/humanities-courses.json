@@ -96,6 +96,7 @@
     "department": "Humanities and Social Sciences",
     "credits": 1.0,
     "description": "Comparing political systems is a central task of political science. This course introduces students to the comparative method and its application to the study of politics. It examines the major theoretical approaches to comparative politics, including structural-functionalism, behavioralism, and rational choice theory.",
+    "semestersOffered": ["FALL", "SPRING"]
   },
   {
     "code": "POLS231",
