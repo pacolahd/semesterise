@@ -4,6 +4,7 @@ import { relations } from "drizzle-orm";
 import { academicSemesters } from "@/drizzle/schema/academic-structure/academic-semesters";
 import { courses } from "@/drizzle/schema/curriculum/courses";
 import { departments } from "@/drizzle/schema/institution/departments";
+import { petitionNotifications } from "@/drizzle/schema/petition-system/petition-notifications";
 import { studentProfiles } from "@/drizzle/schema/student-records/student-profiles";
 
 import { petitionCourses } from "./petition-courses";
@@ -106,6 +107,17 @@ export const petitionMessagesRelations = relations(
   ({ one }) => ({
     petition: one(petitions, {
       fields: [petitionMessages.petitionId],
+      references: [petitions.id],
+    }),
+  })
+);
+
+// Petition Notifications Relations
+export const petitionNotificationsRelations = relations(
+  petitionNotifications,
+  ({ one }) => ({
+    petition: one(petitions, {
+      fields: [petitionNotifications.petitionId],
       references: [petitions.id],
     }),
   })

@@ -20,20 +20,20 @@ async function seedAcademicStructure() {
   const dataDirectory = path.join(__dirname, "data");
 
   try {
-    // // 1. Seed Academic Years
-    // await seedAcademicYears(dataDirectory);
+    // 1. Seed Academic Years
+    await seedAcademicYears(dataDirectory);
 
     // 2. Seed Academic Semesters
     await seedAcademicSemesters(dataDirectory);
 
-    // // 3. Seed Math Tracks
-    // await seedMathTracks(dataDirectory);
-    //
-    // // 4. Seed Grade Types
-    // await seedGradeTypes(dataDirectory);
-    //
-    // // 5. Seed Capstone Options
-    // await seedCapstoneOptions(dataDirectory);
+    // 3. Seed Math Tracks
+    await seedMathTracks(dataDirectory);
+
+    // 4. Seed Grade Types
+    await seedGradeTypes(dataDirectory);
+
+    // 5. Seed Capstone Options
+    await seedCapstoneOptions(dataDirectory);
 
     console.log("✅ Academic structure seeded successfully");
   } catch (error) {

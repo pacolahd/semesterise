@@ -1,6 +1,10 @@
 // src/drizzle/schema/petition-system/index.ts
 // Enums
-export { petitionStatusEnum, participantRoleEnum } from "./enums";
+export {
+  petitionStatusEnum,
+  participantRoleEnum,
+  petitionCourseActionEnum,
+} from "./enums";
 
 // Tables
 export { petitionTypes, petitionTypeSchema } from "./petition-types";
@@ -19,6 +23,9 @@ export {
   petitionDocumentSchema,
 } from "./petition-documents";
 export { petitionMessages, petitionMessageSchema } from "./petition-messages";
-
+export {
+  petitionNotifications,
+  petitionNotificationSchema,
+} from "./petition-notifications";
 // Relations
 export * from "./relations";

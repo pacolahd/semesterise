@@ -1,4 +1,4 @@
-// src/drizzle/schema/petition-system/petition-courses.ts
+// src/drizzle/schema/petition-system/petition-courses.ts (updated)
 import { InferSelectModel } from "drizzle-orm";
 import { pgTable, text, uuid, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
@@ -7,6 +7,10 @@ import { z } from "zod";
 import { academicSemesters } from "@/drizzle/schema/academic-structure/academic-semesters";
 import { courses } from "@/drizzle/schema/curriculum/courses";
 import { createdAt, id, updatedAt } from "@/drizzle/schema/helpers";
+import {
+  petitionCourseActionEnum,
+  petitionCourseActionValues,
+} from "@/drizzle/schema/petition-system/enums";
 import { petitions } from "@/drizzle/schema/petition-system/petitions";
 
 export const petitionCourses = pgTable("petition_courses", {
@@ -17,7 +21,7 @@ export const petitionCourses = pgTable("petition_courses", {
   courseCode: varchar("course_code", { length: 20 })
     .notNull()
     .references(() => courses.code, { onDelete: "restrict" }),
-  action: varchar("action", { length: 50 }).notNull(), // 'add', 'drop', 'retake', 'audit', 'waive_prerequisite'
+  action: petitionCourseActionEnum("action").notNull(), // Changed to enum
   reason: text("reason"),
   currentGrade: varchar("current_grade", { length: 5 }),
   targetSemesterId: uuid("target_semester_id").references(
@@ -31,7 +35,7 @@ export const petitionCourses = pgTable("petition_courses", {
 export const petitionCourseSchema = createInsertSchema(petitionCourses).extend({
   petitionId: z.string().uuid(),
   courseCode: z.string().min(2).max(20),
-  action: z.enum(["add", "drop", "retake", "audit", "waive_prerequisite"]),
+  action: z.enum(petitionCourseActionValues),
   reason: z.string().optional().nullable(),
   currentGrade: z.string().max(5).optional().nullable(),
   targetSemesterId: z.string().uuid().optional().nullable(),

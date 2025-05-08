@@ -36,3 +36,18 @@ export const participantRoleEnum = pgEnum(
   "participant_role",
   participantRoleValues
 );
+
+export const petitionCourseActionValues = [
+  "add",
+  "drop",
+  "retake",
+  "audit",
+  "waive_prerequisite",
+  "substitute",
+] as const;
+
+export type PetitionCourseAction = (typeof petitionCourseActionValues)[number];
+export const petitionCourseActionEnum = pgEnum(
+  "petition_course_action",
+  petitionCourseActionValues
+);

@@ -110,7 +110,6 @@
   {
     "code": "CS415",
     "title": "Software Engineering",
-
     "department": "CSIS",
     "credits": 1.0,
     "description": "This course covers the fundamentals of software engineering with a focus on the software lifecycle and developing quality software as a team. Topics covered include requirements, specification, design, quality assurance and testing, process, as well as tools and environments.",

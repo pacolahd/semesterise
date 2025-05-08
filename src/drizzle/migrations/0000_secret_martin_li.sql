@@ -2,6 +2,19 @@ CREATE TYPE "public"."course_status" AS ENUM('active', 'archived', 'development'
 CREATE TYPE "public"."major_group" AS ENUM('ALL', 'CS', 'NON-ENG', 'MIS', 'BA', 'ENG', 'CE', 'EE', 'ME');--> statement-breakpoint
 CREATE TYPE "public"."semester_offering" AS ENUM('fall', 'spring', 'summer');--> statement-breakpoint
 CREATE TYPE "public"."student_course_status" AS ENUM('verified', 'enrolled', 'planned', 'retake_required', 'imported', 'dropped', 'failed');--> statement-breakpoint
+CREATE TYPE "public"."import_status" AS ENUM('pending', 'processing', 'extracting', 'mapping', 'verifying', 'importing', 'success', 'partial', 'failed', 'cancelled', 'awaiting_verification');--> statement-breakpoint
+CREATE TYPE "public"."processing_step" AS ENUM('file_validation', 'extraction', 'student_identification', 'semester_mapping', 'course_validation', 'categorization', 'grade_analysis', 'requirements_mapping', 'database_integration', 'verification', 'completion');--> statement-breakpoint
+CREATE TYPE "public"."step_status" AS ENUM('pending', 'in_progress', 'completed', 'failed', 'warning', 'skipped', 'awaiting_user_input');--> statement-breakpoint
+CREATE TYPE "public"."verification_status" AS ENUM('not_required', 'pending', 'approved', 'rejected', 'modified');--> statement-breakpoint
+CREATE TYPE "public"."participant_role" AS ENUM('student', 'academic_advisor', 'hod', 'provost', 'registry', 'invited_approver', 'observer');--> statement-breakpoint
+CREATE TYPE "public"."petition_course_action" AS ENUM('add', 'drop', 'retake', 'audit', 'waive_prerequisite', 'substitute');--> statement-breakpoint
+CREATE TYPE "public"."petition_status" AS ENUM('draft', 'submitted', 'advisor_approved', 'advisor_rejected', 'hod_approved', 'hod_rejected', 'provost_approved', 'provost_rejected', 'registry_processing', 'completed', 'cancelled');--> statement-breakpoint
+CREATE TYPE "public"."staff_role" AS ENUM('academic_advisor', 'hod', 'provost', 'registry', 'lecturer', 'student');--> statement-breakpoint
+CREATE TYPE "public"."user_type" AS ENUM('student', 'staff');--> statement-breakpoint
+CREATE TYPE "public"."user_activity_status" AS ENUM('started', 'succeeded', 'failed', 'partial');--> statement-breakpoint
+CREATE TYPE "public"."error_severity" AS ENUM('info', 'warning', 'error', 'critical', 'high', 'low', 'medium');--> statement-breakpoint
+CREATE TYPE "public"."error_source" AS ENUM('client', 'server', 'database', 'api', 'auth', 'unknown');--> statement-breakpoint
+CREATE TYPE "public"."error_status" AS ENUM('unhandled', 'handled', 'suppressed', 'critical');--> statement-breakpoint
 CREATE TABLE "department_heads" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"department_code" varchar NOT NULL,
@@ -201,6 +214,7 @@ CREATE TABLE "prerequisite_groups" (
 	"group_minimum_grade" varchar(2),
 	"sort_order" integer DEFAULT 0 NOT NULL,
 	"non_course_requirement" text,
+	"applicable_major_code" varchar(10),
 	"cohort_year_start" integer,
 	"cohort_year_end" integer,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
@@ -272,6 +286,249 @@ CREATE TABLE "student_semester_mappings" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "transcript_imports" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"student_id" text NOT NULL,
+	"file_name" text NOT NULL,
+	"file_url" text NOT NULL,
+	"file_type" text,
+	"file_size" integer,
+	"extracted_major" text,
+	"import_status" "import_status" DEFAULT 'pending' NOT NULL,
+	"verification_status" "verification_status" DEFAULT 'not_required' NOT NULL,
+	"requires_verification" boolean DEFAULT false NOT NULL,
+	"semester_count" integer,
+	"processed_courses_count" integer,
+	"successfully_imported_count" integer,
+	"failed_count" integer,
+	"import_data" jsonb,
+	"new_semesters_count" integer DEFAULT 0,
+	"updated_semesters_count" integer DEFAULT 0,
+	"new_courses_count" integer DEFAULT 0,
+	"updated_courses_count" integer DEFAULT 0,
+	"is_update" boolean DEFAULT false,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "transcript_processing_steps" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"import_id" uuid NOT NULL,
+	"step_name" "processing_step" NOT NULL,
+	"status" "step_status" NOT NULL,
+	"started_at" timestamp with time zone,
+	"completed_at" timestamp with time zone,
+	"details" jsonb,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "transcript_verifications" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"import_id" uuid NOT NULL,
+	"verification_token" varchar(100) NOT NULL,
+	"status" "verification_status" DEFAULT 'pending' NOT NULL,
+	"verified_at" timestamp with time zone,
+	"original_mappings" jsonb,
+	"updated_mappings" jsonb,
+	"user_notes" varchar(500),
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "petition_courses" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"petition_id" uuid NOT NULL,
+	"course_code" varchar(20) NOT NULL,
+	"action" "petition_course_action" NOT NULL,
+	"reason" text,
+	"current_grade" varchar(5),
+	"target_semester_id" uuid,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "petition_documents" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"petition_id" uuid NOT NULL,
+	"document_type" varchar(50) NOT NULL,
+	"file_key" varchar(255) NOT NULL,
+	"file_url" varchar(255) NOT NULL,
+	"file_name" varchar(255) NOT NULL,
+	"uploaded_by" varchar(255) NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "petition_messages" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"petition_id" uuid NOT NULL,
+	"user_id" varchar(255) NOT NULL,
+	"message" text NOT NULL,
+	"is_admin_only" boolean DEFAULT false,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "petition_notifications" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"recipient_user_id" varchar(255) NOT NULL,
+	"petition_id" uuid NOT NULL,
+	"type" varchar(50) NOT NULL,
+	"message" text NOT NULL,
+	"is_read" boolean DEFAULT false,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "petition_participants" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"petition_id" uuid NOT NULL,
+	"user_id" varchar(255) NOT NULL,
+	"role" "participant_role" NOT NULL,
+	"is_notified" boolean DEFAULT false,
+	"added_by" varchar(255),
+	"last_viewed_at" timestamp with time zone,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "petition_types" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"code" varchar(20) NOT NULL,
+	"name" varchar(100) NOT NULL,
+	"description" text,
+	"requires_parent_signature" boolean DEFAULT true,
+	"requires_lecturer_signature" boolean DEFAULT false,
+	"requires_academic_plan" boolean DEFAULT true,
+	"custom_fields" jsonb,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "petition_types_code_unique" UNIQUE("code"),
+	CONSTRAINT "petition_types_name_unique" UNIQUE("name")
+);
+--> statement-breakpoint
+CREATE TABLE "petition_workflow_steps" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"petition_id" uuid NOT NULL,
+	"role" "participant_role" NOT NULL,
+	"order_index" integer NOT NULL,
+	"is_mandatory" boolean DEFAULT true,
+	"is_current" boolean DEFAULT false,
+	"status" varchar(20),
+	"action_user_id" varchar(255),
+	"action_date" timestamp with time zone,
+	"comments" text,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "petitions" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"reference_number" varchar(20) NOT NULL,
+	"student_id" varchar(20) NOT NULL,
+	"petition_type_id" uuid NOT NULL,
+	"semester_id" uuid NOT NULL,
+	"status" "petition_status" DEFAULT 'draft' NOT NULL,
+	"title" varchar(255) NOT NULL,
+	"description" text,
+	"academic_plan_included" boolean DEFAULT false,
+	"primary_department_id" varchar NOT NULL,
+	"secondary_department_id" varchar,
+	"signed_document_url" varchar(255),
+	"custom_data" jsonb,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "petitions_reference_number_unique" UNIQUE("reference_number")
+);
+--> statement-breakpoint
+CREATE TABLE "account" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid NOT NULL,
+	"account_id" varchar NOT NULL,
+	"provider_id" varchar NOT NULL,
+	"access_token" varchar,
+	"refresh_token" varchar,
+	"id_token" text,
+	"access_token_expires_at" timestamp with time zone,
+	"refresh_token_expires_at" timestamp with time zone,
+	"scope" varchar,
+	"password" text,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "session" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid NOT NULL,
+	"token" varchar NOT NULL,
+	"expires_at" timestamp with time zone NOT NULL,
+	"ip_address" varchar,
+	"user_agent" text,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "user" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"name" varchar NOT NULL,
+	"email" varchar NOT NULL,
+	"email_verified" boolean DEFAULT false NOT NULL,
+	"image" varchar,
+	"user_type" varchar(20) DEFAULT 'student' NOT NULL,
+	"role" varchar(50) DEFAULT 'student' NOT NULL,
+	"onboarding_completed" boolean DEFAULT false,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "user_email_unique" UNIQUE("email")
+);
+--> statement-breakpoint
+CREATE TABLE "verification" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"identifier" varchar NOT NULL,
+	"value" varchar NOT NULL,
+	"expires_at" timestamp with time zone NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "activities" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"type" varchar(50) NOT NULL,
+	"description" text,
+	"actor_id" varchar(255) NOT NULL,
+	"actor_type" varchar(50),
+	"actor_role" varchar(50),
+	"resource_type" varchar(50),
+	"resource_id" varchar(255),
+	"ip_address" varchar(50),
+	"user_agent" text,
+	"location" varchar(100),
+	"status" varchar DEFAULT 'started' NOT NULL,
+	"metadata" jsonb,
+	"is_sensitive" boolean DEFAULT false,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"completed_at" timestamp
+);
+--> statement-breakpoint
+CREATE TABLE "error_logs" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"activity_id" uuid,
+	"name" varchar(100),
+	"message" text NOT NULL,
+	"stack" text,
+	"code" varchar,
+	"status" varchar DEFAULT 'unhandled',
+	"context" jsonb,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "system_configurations" (
+	"key" varchar(50) PRIMARY KEY NOT NULL,
+	"value" jsonb NOT NULL,
+	"description" text,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 ALTER TABLE "department_heads" ADD CONSTRAINT "department_heads_department_code_departments_code_fk" FOREIGN KEY ("department_code") REFERENCES "public"."departments"("code") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "department_heads" ADD CONSTRAINT "department_heads_staff_id_staff_profiles_staff_id_fk" FOREIGN KEY ("staff_id") REFERENCES "public"."staff_profiles"("staff_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "majors" ADD CONSTRAINT "majors_department_code_departments_code_fk" FOREIGN KEY ("department_code") REFERENCES "public"."departments"("code") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
@@ -309,15 +566,428 @@ ALTER TABLE "student_profiles" ADD CONSTRAINT "student_profiles_capstone_option_
 ALTER TABLE "student_semester_mappings" ADD CONSTRAINT "student_semester_mappings_student_id_student_profiles_student_id_fk" FOREIGN KEY ("student_id") REFERENCES "public"."student_profiles"("student_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "student_semester_mappings" ADD CONSTRAINT "student_semester_mappings_auth_id_student_profiles_auth_id_fk" FOREIGN KEY ("auth_id") REFERENCES "public"."student_profiles"("auth_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "student_semester_mappings" ADD CONSTRAINT "student_semester_mappings_academic_semester_id_academic_semesters_id_fk" FOREIGN KEY ("academic_semester_id") REFERENCES "public"."academic_semesters"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "transcript_processing_steps" ADD CONSTRAINT "transcript_processing_steps_import_id_transcript_imports_id_fk" FOREIGN KEY ("import_id") REFERENCES "public"."transcript_imports"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "transcript_verifications" ADD CONSTRAINT "transcript_verifications_import_id_transcript_imports_id_fk" FOREIGN KEY ("import_id") REFERENCES "public"."transcript_imports"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "petition_courses" ADD CONSTRAINT "petition_courses_petition_id_petitions_id_fk" FOREIGN KEY ("petition_id") REFERENCES "public"."petitions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "petition_courses" ADD CONSTRAINT "petition_courses_course_code_courses_code_fk" FOREIGN KEY ("course_code") REFERENCES "public"."courses"("code") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "petition_courses" ADD CONSTRAINT "petition_courses_target_semester_id_academic_semesters_id_fk" FOREIGN KEY ("target_semester_id") REFERENCES "public"."academic_semesters"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "petition_documents" ADD CONSTRAINT "petition_documents_petition_id_petitions_id_fk" FOREIGN KEY ("petition_id") REFERENCES "public"."petitions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "petition_messages" ADD CONSTRAINT "petition_messages_petition_id_petitions_id_fk" FOREIGN KEY ("petition_id") REFERENCES "public"."petitions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "petition_notifications" ADD CONSTRAINT "petition_notifications_petition_id_petitions_id_fk" FOREIGN KEY ("petition_id") REFERENCES "public"."petitions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "petition_participants" ADD CONSTRAINT "petition_participants_petition_id_petitions_id_fk" FOREIGN KEY ("petition_id") REFERENCES "public"."petitions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "petition_workflow_steps" ADD CONSTRAINT "petition_workflow_steps_petition_id_petitions_id_fk" FOREIGN KEY ("petition_id") REFERENCES "public"."petitions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "petitions" ADD CONSTRAINT "petitions_student_id_student_profiles_student_id_fk" FOREIGN KEY ("student_id") REFERENCES "public"."student_profiles"("student_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "petitions" ADD CONSTRAINT "petitions_petition_type_id_petition_types_id_fk" FOREIGN KEY ("petition_type_id") REFERENCES "public"."petition_types"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "petitions" ADD CONSTRAINT "petitions_semester_id_academic_semesters_id_fk" FOREIGN KEY ("semester_id") REFERENCES "public"."academic_semesters"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "petitions" ADD CONSTRAINT "petitions_primary_department_id_departments_code_fk" FOREIGN KEY ("primary_department_id") REFERENCES "public"."departments"("code") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "petitions" ADD CONSTRAINT "petitions_secondary_department_id_departments_code_fk" FOREIGN KEY ("secondary_department_id") REFERENCES "public"."departments"("code") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "idx_student_courses_student_semester" ON "student_courses" USING btree ("student_id","semester_id" DESC NULLS LAST) WITH (fillfactor=90);--> statement-breakpoint
 CREATE INDEX "idx_student_courses_category" ON "student_courses" USING btree ("category_name") WHERE "student_courses"."category_name" IS NOT NULL;--> statement-breakpoint
 CREATE INDEX "idx_student_courses_status" ON "student_courses" USING btree ("status") WHERE "student_courses"."status" <> 'dropped';--> statement-breakpoint
+--> statement-breakpoint
+CREATE VIEW "public"."student_course_status_view" AS (
+WITH attempt_ranking AS (
+  SELECT
+    sc.id AS student_course_id,
+    sc.student_id,
+    sc.course_code,
+    ROW_NUMBER() OVER (
+      PARTITION BY sc.student_id, sc.course_code
+      ORDER BY ac.start_date DESC
+    ) AS row_num
+  FROM student_courses sc
+  JOIN academic_semesters ac ON sc.semester_id = ac.id
+),
+course_attempts AS (
+  SELECT
+    sc.student_id,
+    sc.course_code,
+    COUNT(*) AS total_attempts
+  FROM student_courses sc
+  GROUP BY sc.student_id, sc.course_code
+),
+course_category AS (
+  SELECT
+    cc.course_code,
+    sp.student_id,
+    sp.auth_id,
+    COALESCE(cc.category_name, 'Non-Major Electives') AS category_name,
+    ROW_NUMBER() OVER (
+      PARTITION BY cc.course_code, sp.student_id
+      ORDER BY
+        CASE
+          WHEN cc.major_group = sp.major_code THEN 1
+          WHEN cc.major_group = 'ALL' THEN 2
+          ELSE 3
+        END
+    ) AS row_priority
+  FROM student_profiles sp
+  JOIN course_categorization cc
+    ON cc.major_group IN (
+      CASE
+        WHEN sp.major_code IN ('CE','EE','ME') THEN 'ENG'
+        ELSE 'NON-ENG'
+      END,
+      sp.major_code,
+      'ALL'
+    )
+  WHERE cc.course_code IS NOT NULL
+),
+categorized_course AS (
+  SELECT course_code, student_id, category_name
+  FROM course_category
+  WHERE row_priority = 1
+),
+prerequisite_courses AS (
+  SELECT DISTINCT prerequisite_course_code AS course_code
+  FROM prerequisite_courses
+)
+SELECT
+  -- 1. Identifiers
+  sc.id AS student_course_id,
+  sp.auth_id,
+  sc.student_id,
+  sc.semester_id,
+
+  -- 2. Program semester context
+  ssm.program_year as year_taken,
+  ssm.program_semester as semester_taken,
+  ssm.is_summer as was_summer_semester,
+
+  -- 3. Course Info (handle planned courses)
+  sc.course_code,
+  sc.status,
+  COALESCE(
+    sc.category_name,  -- Prioritize manually assigned category for planned courses
+    cc.category_name,
+    'Non-Major Electives'
+  ) AS category_name,
+  COALESCE(sc.placeholder_credits, c.credits) AS credits,  -- Default to placeholder_credits for planned courses
+
+  -- 4. Course fields (allow NULLs for planned courses)
+  c.department_code,
+  COALESCE(d.name,  'Planned') AS department_name,
+  COALESCE(c.title, sc.placeholder_title, 'Planned Course') AS course_title,
+
+  -- 5. Grade Info (null for planned courses)
+  sc.grade,
+  gt.numeric_value AS grade_numeric_value,
+  CASE
+
+    WHEN sc.grade = 'P' THEN 'P'
+    WHEN cgr.minimum_grade IS NOT NULL THEN cgr.minimum_grade
+    WHEN EXISTS (SELECT 1 FROM prerequisite_courses pc WHERE pc.course_code = sc.course_code)
+      OR COALESCE(
+        sc.category_name,  -- Check both student course category
+        cc.category_name,  -- and categorized course
+        ''
+      ) = 'Required Major Classes'
+      THEN 'D+'
+    ELSE 'D'
+  END AS minimum_grade_required,
+  CASE
+
+    WHEN sc.grade = 'P' THEN NULL
+    WHEN cgr.minimum_grade IS NOT NULL THEN
+      (SELECT numeric_value FROM grade_types WHERE grade = cgr.minimum_grade)
+    WHEN EXISTS (SELECT 1 FROM prerequisite_courses pc WHERE pc.course_code = sc.course_code)
+      OR COALESCE(
+        sc.category_name,
+        cc.category_name,
+        ''
+      ) = 'Required Major Classes'
+      THEN (SELECT numeric_value FROM grade_types WHERE grade = 'D+')
+    ELSE (SELECT numeric_value FROM grade_types WHERE grade = 'D')
+  END AS min_numeric_value_required,
+
+  -- 6. Pass/Retake Logic (always false for planned)
+  CASE
+    WHEN sc.status = 'planned' THEN NULL
+    ELSE NOT (
+      CASE
+        WHEN sc.grade = 'P' THEN false
+        WHEN cgr.minimum_grade IS NOT NULL THEN
+          COALESCE(gt.numeric_value, 0) < (
+            SELECT numeric_value FROM grade_types WHERE grade = cgr.minimum_grade
+          )
+        WHEN EXISTS (SELECT 1 FROM prerequisite_courses pc WHERE pc.course_code = sc.course_code)
+          OR COALESCE(
+            sc.category_name,
+            cc.category_name,
+            ''
+          ) = 'Required Major Classes'
+          THEN sc.grade IN ('D', 'E', 'I')
+        ELSE sc.grade IN ('E', 'I')
+      END
+    )
+  END AS passed,
+
+  CASE
+    WHEN sc.status = 'planned' THEN false
+    WHEN sc.grade = 'P' THEN false
+    WHEN cgr.minimum_grade IS NOT NULL THEN
+      COALESCE(gt.numeric_value, 0) < (
+        SELECT numeric_value FROM grade_types WHERE grade = cgr.minimum_grade
+      )
+    WHEN EXISTS (SELECT 1 FROM prerequisite_courses pc WHERE pc.course_code = sc.course_code)
+      OR COALESCE(
+        sc.category_name,
+        cc.category_name,
+        ''
+      ) = 'Required Major Classes'
+      THEN sc.grade IN ('D', 'E', 'I')
+    ELSE sc.grade IN ('E', 'I')
+  END AS retake_needed,
+
+  CASE
+    WHEN sc.status = 'planned' THEN false
+    WHEN COALESCE(ca.total_attempts, 0) >= 3 THEN false
+    WHEN sc.grade IN ('D+', 'D') AND NOT (
+      CASE
+        WHEN cgr.minimum_grade IS NOT NULL THEN
+          COALESCE(gt.numeric_value, 0) < (
+            SELECT numeric_value FROM grade_types WHERE grade = cgr.minimum_grade
+          )
+        WHEN EXISTS (SELECT 1 FROM prerequisite_courses pc WHERE pc.course_code = sc.course_code)
+          OR COALESCE(
+            sc.category_name,
+            cc.category_name,
+            ''
+          ) = 'Required Major Classes'
+          THEN sc.grade IN ('D', 'E', 'I')
+        ELSE sc.grade IN ('E', 'I')
+      END
+    ) THEN true
+    ELSE false
+  END AS voluntary_retake_possible,
+
+  -- 7. Attempt Info
+  COALESCE(ca.total_attempts, 1) AS total_attempts,
+  CASE
+   WHEN sc.course_code = null THEN true
+   ELSE (ar.row_num = 1)
+  END AS is_latest_attempt,
+  CASE
+    WHEN sc.course_code = null THEN NULL
+    ELSE COALESCE(ca.total_attempts, 0) >= 3 OR sc.grade IS NULL
+  END AS retake_limit_reached
+
+FROM student_courses sc
+LEFT JOIN student_semester_mappings ssm
+  ON sc.semester_id = ssm.academic_semester_id
+JOIN attempt_ranking ar
+  ON sc.id = ar.student_course_id
+LEFT JOIN courses c ON sc.course_code = c.code  -- Changed to LEFT JOIN
+LEFT JOIN departments d ON c.department_code = d.code  -- Changed to LEFT JOIN
+JOIN student_profiles sp ON sc.student_id = sp.student_id
+LEFT JOIN grade_types gt ON sc.grade = gt.grade
+LEFT JOIN course_grade_requirements cgr
+  ON sc.course_code = cgr.course_code
+  AND sp.major_code = cgr.major_code
+  AND (
+    sp.cohort_year BETWEEN cgr.applicable_from_cohort_year AND cgr.applicable_until_cohort_year
+    OR (cgr.applicable_from_cohort_year IS NULL AND cgr.applicable_until_cohort_year IS NULL)
+  )
+LEFT JOIN course_attempts ca
+  ON sc.student_id = ca.student_id
+  AND sc.course_code = ca.course_code
+LEFT JOIN categorized_course cc
+  ON cc.course_code = sc.course_code
+  AND cc.student_id = sc.student_id
+);--> statement-breakpoint
+CREATE VIEW "public"."student_required_courses_view" AS (
+WITH student_info AS (
+  SELECT
+    student_id, major_code, cohort_year,
+    math_track_name, capstone_option_name, auth_id
+  FROM student_profiles
+),
+required_courses_base AS (
+  SELECT
+    sp.student_id,
+	sp.auth_id,
+    cc.course_code,
+    CASE
+      WHEN cc.category_name IN (
+        'Humanities & Social Sciences', 'Business', 'Mathematics & Quantitative',
+        'Computing', 'Science', 'Research / Project Prep.', 'Non-Major Electives'
+      ) THEN 'LIBERAL ARTS & SCIENCES CORE'
+      WHEN cc.category_name IN ('Required Major Classes', 'Major Electives', 'Capstone') THEN 'MAJOR'
+    END AS parent_category,
+    cc.category_name AS category_name,
+    cc.category_name AS sub_category,
+    c.title AS course_title,
+    c.credits,
+    c.offered_in_semesters,  -- Added from courses table
+    cc.recommended_year,      -- Added from course_categorization
+    cc.recommended_semester,  -- Added from course_categorization
+    cc.is_required
+  FROM student_info sp
+  JOIN course_categorization cc
+    ON (
+      (cc.major_group IS NULL OR cc.major_group = sp.major_code OR cc.major_group = 'ALL' OR
+      cc.major_group = CASE
+                        WHEN sp.major_code IN ('CE', 'ME', 'EE') THEN 'ENG'
+                        ELSE 'NON-ENG'
+                      END
+      ) AND
+      (cc.applicable_from_cohort_year IS NULL OR sp.cohort_year >= cc.applicable_from_cohort_year) AND
+      (cc.applicable_until_cohort_year IS NULL OR sp.cohort_year <= cc.applicable_until_cohort_year) AND
+      (cc.math_track_name IS NULL OR cc.math_track_name = sp.math_track_name) AND
+      (cc.capstone_option_name IS NULL OR cc.capstone_option_name = sp.capstone_option_name)
+    )
+  JOIN courses c ON c.code = cc.course_code
+  WHERE cc.is_required = true
+),
+-- All elective CTEs updated with NULLs for new fields
+major_electives AS (
+  SELECT
+    si.student_id,
+	si.auth_id,
+    NULL::TEXT AS course_code,
+    'MAJOR' AS parent_category,
+    'Major Electives' AS category_name,
+    'Major Electives' AS sub_category,
+    'Major Elective ' || row_number() OVER (
+      PARTITION BY si.student_id
+      ORDER BY dr.min_courses
+    ) AS course_title,
+    1.0 AS credits,
+    NULL::semester_offering[] AS offered_in_semesters,  -- Cast to enum array type
+    NULL::INTEGER AS recommended_year,
+    NULL::INTEGER AS recommended_semester,
+    true AS is_required
+  FROM student_info si
+  JOIN degree_requirements dr
+    ON si.major_code = dr.major_code
+    AND dr.category_name = 'Major Electives'
+  CROSS JOIN LATERAL (
+    SELECT generate_series(1,
+      CASE
+        WHEN si.capstone_option_name = 'Applied Project' THEN dr.min_courses + 1
+        ELSE dr.min_courses
+      END
+    )
+  ) AS s(num)
+),
+non_major_electives AS (
+  SELECT
+    si.student_id,
+	si.auth_id,
+    NULL::TEXT AS course_code,
+    'LIBERAL ARTS & SCIENCES CORE' AS parent_category,
+    'Non-Major Electives' AS category_name,
+    'Non-Major Electives' AS sub_category,
+    'Non-Major Elective ' || row_number() OVER (
+      PARTITION BY si.student_id
+      ORDER BY dr.min_courses
+    ) AS course_title,
+    1.0 AS credits,
+    NULL::semester_offering[] AS offered_in_semesters,
+    NULL::INTEGER AS recommended_year,
+    NULL::INTEGER AS recommended_semester,
+    true AS is_required
+  FROM student_info si
+  JOIN (
+    SELECT major_code, SUM(min_courses) AS min_courses
+    FROM degree_requirements
+    WHERE category_name = 'Non-Major Electives'
+    GROUP BY major_code
+  ) dr ON si.major_code = dr.major_code
+  CROSS JOIN LATERAL (
+    SELECT generate_series(1,
+      GREATEST(
+        dr.min_courses -
+          CASE
+            WHEN si.major_code = 'MIS' THEN 2
+            ELSE 1
+          END,
+        0
+      )
+    )
+  ) AS s(num)
+),
+africana_electives AS (
+  SELECT
+    si.student_id,
+	si.auth_id,
+    NULL::TEXT AS course_code,
+    'LIBERAL ARTS & SCIENCES CORE' AS parent_category,
+    'Non-Major Electives' AS category_name,
+    'Africana' AS sub_category,
+    'Africana 1' AS course_title,
+    1.0 AS credits,
+    NULL::semester_offering[] AS offered_in_semesters,
+    NULL::INTEGER AS recommended_year,
+    NULL::INTEGER AS recommended_semester,
+    true AS is_required
+  FROM student_info si
+  JOIN (
+    SELECT major_code, SUM(min_courses) AS min_courses
+    FROM degree_requirements
+    WHERE category_name = 'Non-Major Electives'
+    GROUP BY major_code
+  ) dr ON si.major_code = dr.major_code
+  WHERE dr.min_courses >= 1
+),
+free_electives AS (
+  SELECT
+    si.student_id,
+	si.auth_id,
+    NULL::TEXT AS course_code,
+    'LIBERAL ARTS & SCIENCES CORE' AS parent_category,
+    'Non-Major Electives' AS category_name,
+    'Free Elective' AS sub_category,
+    'Free Elective 1' AS course_title,
+    1.0 AS credits,
+    NULL::semester_offering[] AS offered_in_semesters,
+    NULL::INTEGER AS recommended_year,
+    NULL::INTEGER AS recommended_semester,
+    true AS is_required
+  FROM student_info si
+  JOIN (
+    SELECT major_code, SUM(min_courses) AS min_courses
+    FROM degree_requirements
+    WHERE category_name = 'Non-Major Electives'
+    GROUP BY major_code
+  ) dr ON si.major_code = dr.major_code
+  WHERE si.major_code = 'MIS' AND dr.min_courses >= 2
+),
+combined_required AS (
+  SELECT * FROM required_courses_base
+  UNION ALL
+  SELECT * FROM major_electives
+  UNION ALL
+  SELECT * FROM non_major_electives
+  UNION ALL
+  SELECT * FROM africana_electives
+  UNION ALL
+  SELECT * FROM free_electives
+)
+SELECT
+  cr.student_id,
+  cr.auth_id,
+  cr.parent_category,
+  cr.category_name,
+  cr.sub_category,
+  cr.course_code,
+  cr.course_title,
+  cr.credits,
+  cr.offered_in_semesters,  -- Included in final select
+  cr.recommended_year,      -- Included in final select
+  cr.recommended_semester,  -- Included in final select
+  cr.is_required
+FROM combined_required cr
+
+);
 CREATE VIEW "public"."student_course_categorized_status_view" AS (
 WITH all_courses AS (
   SELECT 
     scsv.*,
     CASE
-      When(scsv.course_title ILIKE '%africa%' OR scsv.course_title ILIKE '%ghana%')
+      When(scsv.course_title ILIKE '%africa%' OR scsv.course_title ILIKE '%ghana%'  OR scsv.course_title ILIKE '%politics%')
         THEN 'Africana'
       ELSE scsv.category_name
     END AS detailed_category
@@ -455,217 +1125,7 @@ FROM assigned_courses ac
 LEFT JOIN free_elective_assignments fea
   ON ac.student_course_id = fea.student_course_id
 ORDER BY ac.student_id, ac.year_taken, ac.semester_taken
-);--> statement-breakpoint
-CREATE VIEW "public"."student_course_status_view" AS (
-WITH attempt_ranking AS (
-  SELECT 
-    sc.id AS student_course_id,
-    sc.student_id,
-    sc.course_code,
-    ROW_NUMBER() OVER (
-      PARTITION BY sc.student_id, sc.course_code 
-      ORDER BY ac.start_date DESC
-    ) AS row_num
-  FROM student_courses sc
-  JOIN academic_semesters ac ON sc.semester_id = ac.id
-),
-course_attempts AS (
-  SELECT
-    sc.student_id,
-    sc.course_code,
-    COUNT(*) AS total_attempts
-  FROM student_courses sc
-  GROUP BY sc.student_id, sc.course_code
-),
-course_category AS (
-  SELECT 
-    cc.course_code,
-    sp.student_id,
-    sp.auth_id,
-    COALESCE(cc.category_name, 'Non-Major Electives') AS category_name,
-    ROW_NUMBER() OVER (
-      PARTITION BY cc.course_code, sp.student_id
-      ORDER BY 
-        CASE
-          WHEN cc.major_group = sp.major_code THEN 1
-          WHEN cc.major_group = 'ALL' THEN 2
-          ELSE 3
-        END
-    ) AS row_priority
-  FROM student_profiles sp
-  JOIN course_categorization cc 
-    ON cc.major_group IN (
-      CASE 
-        WHEN sp.major_code IN ('CE','EE','ME') THEN 'ENG'
-        ELSE 'NON-ENG'
-      END,
-      sp.major_code,
-      'ALL'
-    )
-  WHERE cc.course_code IS NOT NULL
-),
-categorized_course AS (
-  SELECT course_code, student_id, category_name
-  FROM course_category
-  WHERE row_priority = 1
-),
-prerequisite_courses AS (
-  SELECT DISTINCT prerequisite_course_code AS course_code
-  FROM prerequisite_courses
-)
-SELECT
-  -- 1. Identifiers
-  sc.id AS student_course_id,
-  sp.auth_id,
-  sc.student_id,
-  sc.semester_id,
-
-  -- 2. Program semester context
-  ssm.program_year as year_taken,
-  ssm.program_semester as semester_taken,
-  ssm.is_summer as was_summer_semester,
-
-  -- 3. Course Info (handle planned courses)
-  sc.course_code,
-  sc.status,
-  COALESCE(
-    sc.category_name,  -- Prioritize manually assigned category for planned courses
-    cc.category_name, 
-    'Non-Major Electives'
-  ) AS category_name,
-  COALESCE(sc.placeholder_credits, c.credits) AS credits,  -- Default to placeholder_credits for planned courses
-
-  -- 4. Course fields (allow NULLs for planned courses)
-  c.department_code,
-  COALESCE(d.name,  'Planned') AS department_name,
-  COALESCE(c.title, sc.placeholder_title, 'Planned Course') AS course_title,
-
-  -- 5. Grade Info (null for planned courses)
-  sc.grade,
-  gt.numeric_value AS grade_numeric_value,
-  CASE
-   
-    WHEN sc.grade = 'P' THEN 'P'
-    WHEN cgr.minimum_grade IS NOT NULL THEN cgr.minimum_grade
-    WHEN EXISTS (SELECT 1 FROM prerequisite_courses pc WHERE pc.course_code = sc.course_code)
-      OR COALESCE(
-        sc.category_name,  -- Check both student course category
-        cc.category_name,  -- and categorized course
-        ''
-      ) = 'Required Major Classes'
-      THEN 'D+'
-    ELSE 'D'
-  END AS minimum_grade_required,
-  CASE
-   
-    WHEN sc.grade = 'P' THEN NULL
-    WHEN cgr.minimum_grade IS NOT NULL THEN 
-      (SELECT numeric_value FROM grade_types WHERE grade = cgr.minimum_grade)
-    WHEN EXISTS (SELECT 1 FROM prerequisite_courses pc WHERE pc.course_code = sc.course_code)
-      OR COALESCE(
-        sc.category_name,
-        cc.category_name, 
-        ''
-      ) = 'Required Major Classes'
-      THEN (SELECT numeric_value FROM grade_types WHERE grade = 'D+')
-    ELSE (SELECT numeric_value FROM grade_types WHERE grade = 'D')
-  END AS min_numeric_value_required,
-
-  -- 6. Pass/Retake Logic (always false for planned)
-  CASE
-    WHEN sc.status = 'planned' THEN NULL
-    ELSE NOT (
-      CASE
-        WHEN sc.grade = 'P' THEN false
-        WHEN cgr.minimum_grade IS NOT NULL THEN 
-          COALESCE(gt.numeric_value, 0) < (
-            SELECT numeric_value FROM grade_types WHERE grade = cgr.minimum_grade
-          )
-        WHEN EXISTS (SELECT 1 FROM prerequisite_courses pc WHERE pc.course_code = sc.course_code)
-          OR COALESCE(
-            sc.category_name,
-            cc.category_name,
-            ''
-          ) = 'Required Major Classes'
-          THEN sc.grade IN ('D', 'E', 'I')
-        ELSE sc.grade IN ('E', 'I')
-      END
-    )
-  END AS passed,
-
-  CASE
-    WHEN sc.status = 'planned' THEN false
-    WHEN sc.grade = 'P' THEN false
-    WHEN cgr.minimum_grade IS NOT NULL THEN 
-      COALESCE(gt.numeric_value, 0) < (
-        SELECT numeric_value FROM grade_types WHERE grade = cgr.minimum_grade
-      )
-    WHEN EXISTS (SELECT 1 FROM prerequisite_courses pc WHERE pc.course_code = sc.course_code)
-      OR COALESCE(
-        sc.category_name,
-        cc.category_name,
-        ''
-      ) = 'Required Major Classes'
-      THEN sc.grade IN ('D', 'E', 'I')
-    ELSE sc.grade IN ('E', 'I')
-  END AS retake_needed,
-
-  CASE
-    WHEN sc.status = 'planned' THEN false
-    WHEN COALESCE(ca.total_attempts, 0) >= 3 THEN false
-    WHEN sc.grade IN ('D+', 'D') AND NOT (
-      CASE
-        WHEN cgr.minimum_grade IS NOT NULL THEN 
-          COALESCE(gt.numeric_value, 0) < (
-            SELECT numeric_value FROM grade_types WHERE grade = cgr.minimum_grade
-          )
-        WHEN EXISTS (SELECT 1 FROM prerequisite_courses pc WHERE pc.course_code = sc.course_code)
-          OR COALESCE(
-            sc.category_name,
-            cc.category_name,
-            ''
-          ) = 'Required Major Classes'
-          THEN sc.grade IN ('D', 'E', 'I')
-        ELSE sc.grade IN ('E', 'I')
-      END
-    ) THEN true
-    ELSE false
-  END AS voluntary_retake_possible,
-
-  -- 7. Attempt Info
-  COALESCE(ca.total_attempts, 1) AS total_attempts,
-  CASE
-   WHEN sc.course_code = null THEN true
-   ELSE (ar.row_num = 1) 
-  END AS is_latest_attempt,
-  CASE
-    WHEN sc.course_code = null THEN NULL
-    ELSE COALESCE(ca.total_attempts, 0) >= 3 OR sc.grade IS NULL
-  END AS retake_limit_reached
-
-FROM student_courses sc
-LEFT JOIN student_semester_mappings ssm 
-  ON sc.semester_id = ssm.academic_semester_id
-JOIN attempt_ranking ar
-  ON sc.id = ar.student_course_id
-LEFT JOIN courses c ON sc.course_code = c.code  -- Changed to LEFT JOIN
-LEFT JOIN departments d ON c.department_code = d.code  -- Changed to LEFT JOIN
-JOIN student_profiles sp ON sc.student_id = sp.student_id
-LEFT JOIN grade_types gt ON sc.grade = gt.grade
-LEFT JOIN course_grade_requirements cgr 
-  ON sc.course_code = cgr.course_code 
-  AND sp.major_code = cgr.major_code
-  AND (
-    sp.cohort_year BETWEEN cgr.applicable_from_cohort_year AND cgr.applicable_until_cohort_year
-    OR (cgr.applicable_from_cohort_year IS NULL AND cgr.applicable_until_cohort_year IS NULL)
-  )
-LEFT JOIN course_attempts ca 
-  ON sc.student_id = ca.student_id 
-  AND sc.course_code = ca.course_code
-LEFT JOIN categorized_course cc 
-  ON cc.course_code = sc.course_code 
-  AND cc.student_id = sc.student_id;
-);--> statement-breakpoint
+);
 CREATE VIEW "public"."student_degree_requirement_progress_view" AS (
 WITH student_info AS (
   SELECT
@@ -871,14 +1331,15 @@ remaining_concrete_courses AS (
         rb.recommended_year NULLS LAST, 
         rb.recommended_semester NULLS LAST
     ) AS priority_order
-  FROM requirement_base rb
+   FROM requirement_base rb
+  LEFT JOIN (
+    SELECT DISTINCT auth_id, student_id, course_code
+    FROM completed_courses
+  ) cc
+    ON cc.course_code IS NOT DISTINCT FROM rb.course_code
+   AND cc.student_id = rb.student_id
   WHERE rb.course_type = 'concrete_course'
-    AND NOT EXISTS (
-      SELECT 1
-      FROM completed_courses cc
-      WHERE cc.course_code = rb.course_code
-        -- AND cc.passed = true
-    )
+    AND cc.course_code IS NULL  -- means no match found
 ),
 
 remaining_electives AS (
@@ -970,188 +1431,3 @@ ORDER BY
   category_name,
   sub_category
 );--> statement-breakpoint
-CREATE VIEW "public"."student_required_courses_view" AS (
-WITH student_info AS (
-  SELECT
-    student_id, major_code, cohort_year,
-    math_track_name, capstone_option_name, auth_id
-  FROM student_profiles
-),
-required_courses_base AS (
-  SELECT
-    sp.student_id,
-	sp.auth_id,
-    cc.course_code,
-    CASE
-      WHEN cc.category_name IN (
-        'Humanities & Social Sciences', 'Business', 'Mathematics & Quantitative',
-        'Computing', 'Science', 'Research / Project Prep.', 'Non-Major Electives'
-      ) THEN 'LIBERAL ARTS & SCIENCES CORE'
-      WHEN cc.category_name IN ('Required Major Classes', 'Major Electives', 'Capstone') THEN 'MAJOR'
-    END AS parent_category,
-    cc.category_name AS category_name,
-    cc.category_name AS sub_category,
-    c.title AS course_title,
-    c.credits,
-    c.offered_in_semesters,  -- Added from courses table
-    cc.recommended_year,      -- Added from course_categorization
-    cc.recommended_semester,  -- Added from course_categorization
-    cc.is_required
-  FROM student_info sp
-  JOIN course_categorization cc
-    ON (
-      (cc.major_group IS NULL OR cc.major_group = sp.major_code OR cc.major_group = 'ALL' OR
-      cc.major_group = CASE
-                        WHEN sp.major_code IN ('CE', 'ME', 'EE') THEN 'ENG'
-                        ELSE 'NON-ENG'
-                      END
-      ) AND
-      (cc.applicable_from_cohort_year IS NULL OR sp.cohort_year >= cc.applicable_from_cohort_year) AND
-      (cc.applicable_until_cohort_year IS NULL OR sp.cohort_year <= cc.applicable_until_cohort_year) AND
-      (cc.math_track_name IS NULL OR cc.math_track_name = sp.math_track_name) AND
-      (cc.capstone_option_name IS NULL OR cc.capstone_option_name = sp.capstone_option_name)
-    )
-  JOIN courses c ON c.code = cc.course_code
-  WHERE cc.is_required = true
-),
--- All elective CTEs updated with NULLs for new fields
-major_electives AS (
-  SELECT
-    si.student_id,
-	si.auth_id,
-    NULL::TEXT AS course_code,
-    'MAJOR' AS parent_category,
-    'Major Electives' AS category_name,
-    'Major Electives' AS sub_category,
-    'Major Elective ' || row_number() OVER (
-      PARTITION BY si.student_id
-      ORDER BY dr.min_courses
-    ) AS course_title,
-    1.0 AS credits,
-    NULL::semester_offering[] AS offered_in_semesters,  -- Cast to enum array type
-    NULL::INTEGER AS recommended_year,
-    NULL::INTEGER AS recommended_semester,
-    true AS is_required
-  FROM student_info si
-  JOIN degree_requirements dr
-    ON si.major_code = dr.major_code
-    AND dr.category_name = 'Major Electives'
-  CROSS JOIN LATERAL (
-    SELECT generate_series(1,
-      CASE
-        WHEN si.capstone_option_name = 'Applied Project' THEN dr.min_courses + 1
-        ELSE dr.min_courses
-      END
-    )
-  ) AS s(num)
-),
-non_major_electives AS (
-  SELECT
-    si.student_id,
-	si.auth_id,
-    NULL::TEXT AS course_code,
-    'LIBERAL ARTS & SCIENCES CORE' AS parent_category,
-    'Non-Major Electives' AS category_name,
-    'Non-Major Electives' AS sub_category,
-    'Non-Major Elective ' || row_number() OVER (
-      PARTITION BY si.student_id
-      ORDER BY dr.min_courses
-    ) AS course_title,
-    1.0 AS credits,
-    NULL::semester_offering[] AS offered_in_semesters,
-    NULL::INTEGER AS recommended_year,
-    NULL::INTEGER AS recommended_semester,
-    true AS is_required
-  FROM student_info si
-  JOIN (
-    SELECT major_code, SUM(min_courses) AS min_courses
-    FROM degree_requirements
-    WHERE category_name = 'Non-Major Electives'
-    GROUP BY major_code
-  ) dr ON si.major_code = dr.major_code
-  CROSS JOIN LATERAL (
-    SELECT generate_series(1,
-      GREATEST(
-        dr.min_courses -
-          CASE
-            WHEN si.major_code = 'MIS' THEN 2
-            ELSE 1
-          END,
-        0
-      )
-    )
-  ) AS s(num)
-),
-africana_electives AS (
-  SELECT
-    si.student_id,
-	si.auth_id,
-    NULL::TEXT AS course_code,
-    'LIBERAL ARTS & SCIENCES CORE' AS parent_category,
-    'Non-Major Electives' AS category_name,
-    'Africana' AS sub_category,
-    'Africana 1' AS course_title,
-    1.0 AS credits,
-    NULL::semester_offering[] AS offered_in_semesters,
-    NULL::INTEGER AS recommended_year,
-    NULL::INTEGER AS recommended_semester,
-    true AS is_required
-  FROM student_info si
-  JOIN (
-    SELECT major_code, SUM(min_courses) AS min_courses
-    FROM degree_requirements
-    WHERE category_name = 'Non-Major Electives'
-    GROUP BY major_code
-  ) dr ON si.major_code = dr.major_code
-  WHERE dr.min_courses >= 1
-),
-free_electives AS (
-  SELECT
-    si.student_id,
-	si.auth_id,
-    NULL::TEXT AS course_code,
-    'LIBERAL ARTS & SCIENCES CORE' AS parent_category,
-    'Non-Major Electives' AS category_name,
-    'Free Elective' AS sub_category,
-    'Free Elective 1' AS course_title,
-    1.0 AS credits,
-    NULL::semester_offering[] AS offered_in_semesters,
-    NULL::INTEGER AS recommended_year,
-    NULL::INTEGER AS recommended_semester,
-    true AS is_required
-  FROM student_info si
-  JOIN (
-    SELECT major_code, SUM(min_courses) AS min_courses
-    FROM degree_requirements
-    WHERE category_name = 'Non-Major Electives'
-    GROUP BY major_code
-  ) dr ON si.major_code = dr.major_code
-  WHERE si.major_code = 'MIS' AND dr.min_courses >= 2
-),
-combined_required AS (
-  SELECT * FROM required_courses_base
-  UNION ALL
-  SELECT * FROM major_electives
-  UNION ALL
-  SELECT * FROM non_major_electives
-  UNION ALL
-  SELECT * FROM africana_electives
-  UNION ALL
-  SELECT * FROM free_electives
-)
-SELECT
-  cr.student_id,
-  cr.auth_id,
-  cr.parent_category,
-  cr.category_name,
-  cr.sub_category,
-  cr.course_code,
-  cr.course_title,
-  cr.credits,
-  cr.offered_in_semesters,  -- Included in final select
-  cr.recommended_year,      -- Included in final select
-  cr.recommended_semester,  -- Included in final select
-  cr.is_required
-FROM combined_required cr
-
-);

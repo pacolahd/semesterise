@@ -78,7 +78,7 @@ major_electives AS (
     NULL::TEXT AS course_code,
     'MAJOR' AS parent_category,
     'Major Electives' AS category_name,
-    'Major Electives' AS sub_category,
+     Null AS sub_category,
     'Major Elective ' || row_number() OVER (
       PARTITION BY si.student_id
       ORDER BY dr.min_courses

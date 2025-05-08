@@ -18,7 +18,7 @@ async function main() {
     await seedInstitution();
 
     // // 4. Then seed curriculum data
-    // await seedCurriculum();
+    await seedCurriculum();
 
     // // 5. Finally, seed student-records data
     // await seedStudentRecords();
