@@ -22,6 +22,10 @@ export const env = createEnv({
     FLASK_API_URL: z.string().url(),
     UPLOADTHING_SECRET: z.string().min(1),
     UPLOADTHING_APP_ID: z.string().min(1),
+    PUSHER_APP_ID: z.string().min(1),
+    PUSHER_SECRET: z.string().min(1),
+    PUSHER_KEY: z.string().min(1),
+    PUSHER_CLUSTER: z.string().min(1),
   },
   onValidationError: (error: ZodError) => {
     console.error(

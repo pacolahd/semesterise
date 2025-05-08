@@ -2,6 +2,7 @@
 import { InferSelectModel } from "drizzle-orm";
 import {
   boolean,
+  integer,
   pgTable,
   text,
   timestamp,
@@ -23,6 +24,7 @@ export const petitionNotifications = pgTable("petition_notifications", {
   type: varchar("type", { length: 50 }).notNull(), // 'status_change', 'comment', 'invitation', etc.
   message: text("message").notNull(),
   isRead: boolean("is_read").default(false),
+  sequence: integer("sequence_number"), // Unique sequence for each notification
   createdAt,
 });
 
@@ -31,9 +33,16 @@ export const petitionNotificationSchema = createInsertSchema(
 ).extend({
   recipientUserId: z.string().min(1).max(255),
   petitionId: z.string().uuid(),
-  type: z.string().min(1).max(50),
+  type: z.enum([
+    "status_change",
+    "new_message",
+    "petition_approved",
+    "petition_rejected",
+    "petition_completed",
+  ]),
   message: z.string().min(1),
   isRead: z.boolean().default(false),
+  sequence: z.number().int().min(0).optional(),
 });
 
 export type PetitionNotificationInput = z.infer<

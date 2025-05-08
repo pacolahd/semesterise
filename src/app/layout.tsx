@@ -3,8 +3,8 @@ import React, { ReactNode } from "react";
 
 import { ErrorBoundary } from "@/components/error-boundary";
 import { Providers } from "@/components/providers/providers";
-import { useSession } from "@/lib/auth/auth-hooks";
 import { satoshi } from "@/lib/fonts";
+import { useRealtimeNotifications } from "@/lib/petition-system/use-realtime-notifications";
 
 import "./globals.css";
 
@@ -32,6 +32,8 @@ export const metadata: Metadata = {
 };
 
 const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
+  // Setup realtime notifications
+  useRealtimeNotifications();
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${satoshi.variable} antialiased`}>
