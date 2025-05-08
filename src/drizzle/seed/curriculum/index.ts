@@ -6,6 +6,7 @@ import { db } from "@/drizzle";
 import {
   courseCategories,
   courseCategorization,
+  courseCodeHistory,
   courseGradeRequirements,
   courses,
   degreeRequirements,
@@ -37,6 +38,9 @@ export async function seedCurriculum() {
 
     // 3. Prerequisites
     await seedPrerequisites(dataDirectory);
+
+    // 4. Course Code History
+    await seedCourseCodeHistory(dataDirectory);
 
     // 5. Degree Requirements
     await seedDegreeRequirements(dataDirectory);
@@ -182,6 +186,35 @@ async function seedCourses(dataDirectory: string) {
     console.log("✅ Courses seeded successfully");
   } catch (error) {
     console.error("❌ Error seeding courses:", error);
+    throw error;
+  }
+}
+
+/**
+ * Seed course code history
+ */
+async function seedCourseCodeHistory(dataDirectory: string) {
+  try {
+    const historyData = JSON.parse(
+      fs.readFileSync(
+        path.join(dataDirectory, "course-code-history.json"),
+        "utf8"
+      )
+    );
+
+    for (const record of historyData) {
+      await db
+        .insert(courseCodeHistory)
+        .values({
+          historicalCode: record.historicalCode,
+          currentCode: record.currentCode,
+        })
+        .onConflictDoNothing({ target: courseCodeHistory.historicalCode });
+    }
+
+    console.log("✅ Course code history seeded successfully");
+  } catch (error) {
+    console.error("❌ Error seeding course code history:", error);
     throw error;
   }
 }

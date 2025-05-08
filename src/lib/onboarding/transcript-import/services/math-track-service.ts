@@ -7,7 +7,12 @@ import { TranscriptCourse } from "@/lib/onboarding/transcript-import/transcript-
  * MATH141/MATH142 = Calculus track
  * MATH121/MATH122 = Pre-Calculus track
  */
-export function determineMathTrack(courses: TranscriptCourse[]): string {
+export function determineMathTrack(
+  courses: TranscriptCourse[],
+  majorCode: string
+): string | undefined {
+  const isEngineeringStudent = ["CE", "EE", "ME"].includes(majorCode || "");
+
   // Build a list of all course codes in uppercase for case-insensitive matching
   const courseCodes = courses.map((course) => course.code.toUpperCase().trim());
   const courseTitles = courses.map((course) =>
@@ -71,7 +76,9 @@ export function determineMathTrack(courses: TranscriptCourse[]): string {
   });
 
   // Determine the track based on courses taken
-  if (hasCalculusCourse) {
+  if (isEngineeringStudent) {
+    return undefined;
+  } else if (hasCalculusCourse) {
     return "Calculus";
   } else if (hasPreCalculusCourse) {
     return "Pre-Calculus";
@@ -79,5 +86,6 @@ export function determineMathTrack(courses: TranscriptCourse[]): string {
 
   // If no math courses are found, use the user's selection from onboarding
   // or default to Pre-Calculus as safer choice (student can change if needed)
+  // console.log("\n\n\n\n\nDefaulting to Pre-Calculus ohhh \n\n\n");
   return "Pre-Calculus";
 }

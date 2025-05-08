@@ -223,7 +223,7 @@
   {
     "courseCode": "CS111",
     "categoryName": "Computing",
-    "majorGroup": "ALL",
+    "majorGroup": "NON-ENG",
     "isRequired": true,
     "isFlexible": false,
     "recommendedYear": 1,
@@ -929,26 +929,6 @@
     "isFlexible": true
   },
   {
-    "courseCode": "BUSA161",
-    "categoryName": "Business",
-    "majorGroup": "ENG",
-    "isRequired": true,
-    "isFlexible": false,
-    "recommendedYear": 1,
-    "recommendedSemester": 1,
-    "notes": "Foundations of Design & Entrepreneurship I - core requirement for all engineering majors"
-  },
-  {
-    "courseCode": "BUSA162",
-    "categoryName": "Business",
-    "majorGroup": "ENG",
-    "isRequired": true,
-    "isFlexible": false,
-    "recommendedYear": 1,
-    "recommendedSemester": 2,
-    "notes": "Foundations of Design & Entrepreneurship II - core requirement for all engineering majors"
-  },
-  {
     "courseCode": "MATH161",
     "categoryName": "Mathematics & Quantitative",
     "majorGroup": "ENG",
@@ -1170,6 +1150,26 @@
     "notes": "Embedded Systems - required for Computer Engineering majors"
   },
   {
+    "courseCode": "EE331",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "CE",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 1,
+    "notes": "Signals & Systems - required for CE and EE majors"
+  },
+  {
+    "courseCode": "EE331",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "EE",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 1,
+    "notes": "Signals & Systems - required for CE and EE majors"
+  },
+  {
     "courseCode": "EE242",
     "categoryName": "Required Major Classes",
     "majorGroup": "EE",
@@ -1250,14 +1250,24 @@
     "notes": "Mechanics of Machines - required for ME majors"
   },
   {
-    "courseCode": "ME411",
+    "courseCode": "ME212",
     "categoryName": "Required Major Classes",
     "majorGroup": "ME",
     "isRequired": true,
     "isFlexible": false,
     "recommendedYear": 3,
     "recommendedSemester": 1,
-    "notes": "Thermodynamics - required for ME majors"
+    "notes": "Thermodynamics - required for EE and ME majors"
+  },
+  {
+    "courseCode": "ME212",
+    "categoryName": "Required Major Classes",
+    "majorGroup": "EE",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 3,
+    "recommendedSemester": 1,
+    "notes": "Thermodynamics - required for EE and ME majors"
   },
   {
     "courseCode": "ME421",

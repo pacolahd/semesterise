@@ -27,6 +27,11 @@ export {
   placeholderCourseSchema,
 } from "./placeholder-courses";
 
+export {
+  courseCodeHistory,
+  courseCodeHistorySchema,
+} from "./course_code_history";
+
 export * from "./relations";
 export {
   courseStatusEnum,

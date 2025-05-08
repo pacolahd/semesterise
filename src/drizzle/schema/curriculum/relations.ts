@@ -10,6 +10,7 @@ import { majors } from "@/drizzle/schema/institution/majors";
 import { courseCategories } from "./course-categories";
 import { courseCategorization } from "./course-categorization";
 import { courseGradeRequirements } from "./course-grade-requirements";
+import { courseCodeHistory } from "./course_code_history";
 import { courses } from "./courses";
 import { degreeRequirements } from "./degree-requirements";
 import { prerequisiteCourses } from "./prerequisite-courses";
@@ -27,6 +28,16 @@ export const coursesRelations = relations(courses, ({ many, one }) => ({
 
   gradeRequirements: many(courseGradeRequirements),
 }));
+
+export const courseCodeHistoryRelations = relations(
+  courseCodeHistory,
+  ({ one }) => ({
+    course: one(courses, {
+      fields: [courseCodeHistory.currentCode],
+      references: [courses.code],
+    }),
+  })
+);
 
 export const prerequisiteGroupsRelations = relations(
   prerequisiteGroups,

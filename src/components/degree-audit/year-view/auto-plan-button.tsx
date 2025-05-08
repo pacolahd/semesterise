@@ -18,6 +18,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useGenerateAutomaticPlan } from "@/lib/academic-plan/academic-plan-hooks";
+import { getCreditLimit } from "@/lib/academic-plan/transaction-utils";
 import { useAuthStore } from "@/lib/auth/auth-store";
 
 // src/components/degree-audit/year-view/auto-plan-button.tsx
@@ -27,6 +28,8 @@ export function AutoPlanButton() {
   const [open, setOpen] = useState(false);
   const [balanceCredits, setBalanceCredits] = useState(true);
 
+  //TODO: Add a way to get student's major code
+  const MAX_CREDITS = getCreditLimit("CS");
   const generatePlanMutation = useGenerateAutomaticPlan();
 
   const handleGeneratePlan = async () => {
@@ -71,7 +74,10 @@ export function AutoPlanButton() {
           </Alert>
           <p className="text-sm">
             Your plan will aim for a balanced credit load each semester
-            <span className="text-red-500 font-bold"> (max 5 credits)</span>
+            <span className="text-red-500 font-bold">
+              {" "}
+              (max {MAX_CREDITS} credits)
+            </span>
           </p>
 
           {/*<div className="flex items-center justify-between space-y-2">*/}

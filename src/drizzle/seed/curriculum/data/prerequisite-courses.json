@@ -908,7 +908,7 @@
 
   
   {
-    "groupKey": "ENGR113-PHYSICS-1",
+    "groupKey": "ME101-PHYSICS-1",
     "prerequisiteCourseCode": "SC112",
     "description": "Physics I: Mechanics"
   },
@@ -939,8 +939,8 @@
 
   
   {
-    "groupKey": "ENGR221-MECHANICS-1",
-    "prerequisiteCourseCode": "ENGR113",
+    "groupKey": "ME442-MECHANICS-1",
+    "prerequisiteCourseCode": "ME101",
     "description": "Engineering Mechanics"
   },
 
@@ -1003,15 +1003,6 @@
     "prerequisiteCourseCode": "ENGR413",
     "description": "Project Management and Professional Practice"
   },
-
-  
-  {
-    "groupKey": "ENGR401-PROJECT-1",
-    "prerequisiteCourseCode": "ENGR400",
-    "description": "Senior Project 1"
-  },
-
-  
   {
     "groupKey": "ENGR413-ECONOMICS-1",
     "prerequisiteCourseCode": "ECON101",
@@ -1031,7 +1022,7 @@
   
   {
     "groupKey": "ENGR414-THERMO-1",
-    "prerequisiteCourseCode": "ME411",
+    "prerequisiteCourseCode": "ME212",
     "description": "Thermodynamics"
   },
 
@@ -1255,12 +1246,12 @@
 
   
   {
-    "groupKey": "ME411-PHYSICS-1",
+    "groupKey": "ME212-PHYSICS-1",
     "prerequisiteCourseCode": "SC112",
     "description": "Physics I: Mechanics"
   },
   {
-    "groupKey": "ME411-SYSTEMS-2",
+    "groupKey": "ME212-SYSTEMS-2",
     "prerequisiteCourseCode": "ENGR311",
     "description": "Dynamic Systems"
   },
@@ -1268,14 +1259,14 @@
   
   {
     "groupKey": "ME412-THERMO-1",
-    "prerequisiteCourseCode": "ME411",
+    "prerequisiteCourseCode": "ME212",
     "description": "Thermodynamics"
   },
 
   
   {
     "groupKey": "ME413-THERMO-1",
-    "prerequisiteCourseCode": "ME411",
+    "prerequisiteCourseCode": "ME212",
     "description": "Thermodynamics"
   },
   {
@@ -1287,14 +1278,14 @@
   
   {
     "groupKey": "ME421-THERMO-1",
-    "prerequisiteCourseCode": "ME411",
+    "prerequisiteCourseCode": "ME212",
     "description": "Thermodynamics"
   },
 
   
   {
     "groupKey": "ME431-THERMO-1",
-    "prerequisiteCourseCode": "ME411",
+    "prerequisiteCourseCode": "ME212",
     "description": "Thermodynamics"
   },
 

@@ -6,6 +6,8 @@ import {
   academicSemesters,
   academicYears,
   authUsers,
+  courseCodeHistory,
+  courses,
   studentCourses,
   studentProfiles,
   studentSemesterMappings,
@@ -46,7 +48,7 @@ function mapMajorNameToCode(majorName: string): string {
     "Business Administration": "BA",
     "Management Information Systems": "MIS",
     "Computer Engineering": "CE",
-    "Electrical Engineering": "EE",
+    "Electrical and Electronic Engineering": "EE",
     "Mechanical Engineering": "ME",
     // Add more mappings as needed
   };
@@ -321,14 +323,18 @@ export const transcriptImportService = {
       major = programInfo.major;
     }
 
+    // Get major code for credit calculation
+    const majorCode = mapMajorNameToCode(major);
+    console.log(`\n\n\nExtracted major code: ${majorCode}\n\n\n`);
+
     // Get all courses from all semesters for analysis
     const allCourses = transcriptData.semesters.flatMap(
       (semester) => semester.courses
     );
 
     // Determine math track based on courses taken
-    const mathTrackName = determineMathTrack(allCourses);
-    const capstoneOptionName = determineCapstoneOption(allCourses);
+    const mathTrackName = determineMathTrack(allCourses, majorCode);
+    const capstoneOptionName = determineCapstoneOption(allCourses, majorCode);
 
     // Get latest CGPA if available
     let cumulativeGpa = undefined;
@@ -337,10 +343,6 @@ export const transcriptImportService = {
         transcriptData.semesters[transcriptData.semesters.length - 1];
       cumulativeGpa = lastSemester.gpaInfo.cgpa;
     }
-
-    // Get major code for credit calculation
-    const majorCode = mapMajorNameToCode(major);
-    console.log(`\n\n\nExtracted major code: ${majorCode}\n\n\n`);
 
     // Calculate detailed credits and course statistics
     let creditStats = {
@@ -410,8 +412,8 @@ export const transcriptImportService = {
     if (degree.includes("Business Admin")) return "Business Administration";
     if (degree.includes("MIS")) return "Management Information Systems";
     if (degree.includes("Computer Engineering")) return "Computer Engineering";
-    if (degree.includes("Electrical Engineering"))
-      return "Electrical Engineering";
+    if (degree.includes("Electrical and Electronic Engineering"))
+      return "Electrical and Electronic Engineering";
     if (degree.includes("Mechanical Engineering"))
       return "Mechanical Engineering";
 
@@ -787,7 +789,7 @@ export const transcriptImportService = {
       existingCoursesMap.set(key, course);
     });
 
-    // Build a map of semester names to semester IDs for easy lookup
+    // Build a map of semester names to semester IDs
     const semesterIdMap = new Map();
     mappings.forEach((mapping) => {
       if (mapping.academicSemesterId) {
@@ -808,32 +810,78 @@ export const transcriptImportService = {
       for (const course of semester.courses) {
         const cleanCourseCode = formatCourseCode(course.code);
 
+        // Resolve the course code
+        let resolvedCourseCode = cleanCourseCode;
+        let isPlaceholder = false;
+
+        // 1. Check if code exists in courses
+        const courseInCourses = await tx
+          .select({ code: courses.code })
+          .from(courses)
+          .where(eq(courses.code, cleanCourseCode))
+          .limit(1);
+
+        if (courseInCourses.length === 0) {
+          // 2. Check course_code_history
+          const historicalCourse = await tx
+            .select({ currentCode: courseCodeHistory.currentCode })
+            .from(courseCodeHistory)
+            .where(eq(courseCodeHistory.historicalCode, cleanCourseCode))
+            .limit(1);
+
+          if (historicalCourse.length > 0) {
+            resolvedCourseCode = historicalCourse[0].currentCode;
+          } else {
+            // 3. Check by title in courses
+            const courseByTitle = await tx
+              .select({ code: courses.code })
+              .from(courses)
+              .where(eq(courses.title, course.title))
+              .limit(1);
+
+            if (courseByTitle.length > 0) {
+              resolvedCourseCode = courseByTitle[0].code;
+            } else {
+              // No match found; treat as placeholder
+              isPlaceholder = true;
+            }
+          }
+        }
+
         // Determine category
         const category = await determineCategoryForCourse(
-          cleanCourseCode,
+          resolvedCourseCode,
           majorCode,
           tx
         );
 
-        // Build key for lookup
-        const courseKey = `${cleanCourseCode.toUpperCase()}|${semesterId}`;
+        // Build key for lookup (use resolved code)
+        const courseKey = `${resolvedCourseCode.toUpperCase()}|${semesterId}`;
 
         // Check if course already exists
         const existingCourse = existingCoursesMap.get(courseKey);
 
         if (existingCourse) {
-          // Update existing course if needed; if new course or update to existing course or if it was exising as planned course.
+          // Update existing course if needed
           if (
             existingCourse.grade !== course.grade ||
             existingCourse.categoryName !== category ||
-            existingCourse.status !== "planned"
+            existingCourse.status !== "planned" ||
+            existingCourse.courseTitle !== course.title ||
+            existingCourse.originalCourseCode !== cleanCourseCode
           ) {
             await tx
               .update(studentCourses)
               .set({
                 grade: course.grade,
                 categoryName: category,
-                status: "imported",
+                status: isPlaceholder ? "planned" : "imported",
+                courseTitle: course.title,
+                originalCourseCode:
+                  cleanCourseCode !== resolvedCourseCode
+                    ? cleanCourseCode
+                    : null,
+                courseCode: resolvedCourseCode,
               })
               .where(eq(studentCourses.id, existingCourse.id));
 
@@ -844,9 +892,12 @@ export const transcriptImportService = {
           await tx.insert(studentCourses).values({
             authId: authId,
             studentId: studentId,
-            courseCode: cleanCourseCode,
+            courseCode: resolvedCourseCode,
+            originalCourseCode:
+              cleanCourseCode !== resolvedCourseCode ? cleanCourseCode : null,
+            courseTitle: course.title,
             semesterId: semesterId,
-            status: "imported",
+            status: isPlaceholder ? "planned" : "imported",
             grade: course.grade,
             categoryName: category,
           });
@@ -856,12 +907,12 @@ export const transcriptImportService = {
 
         total++;
 
-        // Check if this is a retake of a course from a different semester
+        // Handle retakes
         const otherSemesterCoursesWithSameCode = existingCourses.filter(
           (ec) =>
-            ec.courseCode === cleanCourseCode && ec.semesterId !== semesterId
+            ec.courseCode === resolvedCourseCode && ec.semesterId !== semesterId
         );
-        // TODO: If >1 course with the same code exists for the incoming course then drop all of them and import afresh (perhaps)
+        // TODO: Handle multiple courses with same code (e.g., drop and re-import)
       }
     }
 

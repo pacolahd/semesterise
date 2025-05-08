@@ -36,6 +36,8 @@ export const studentCourses = pgTable(
       { onDelete: "cascade" }
     ),
     courseCode: varchar("course_code", { length: 20 }),
+    originalCourseCode: varchar("original_course_code", { length: 20 }),
+    courseTitle: varchar("course_title", { length: 255 }),
     semesterId: uuid("semester_id")
       .notNull()
       .references(() => academicSemesters.id, { onDelete: "restrict" }),

@@ -24,7 +24,7 @@ const MAJORS = [
   { code: "MIS", name: "Management Information Systems" },
   { code: "BA", name: "Business Administration" },
   { code: "CE", name: "Computer Engineering" },
-  { code: "EE", name: "Electrical Engineering" },
+  { code: "EE", name: "Electrical and Electronic Engineering" },
   { code: "ME", name: "Mechanical Engineering" },
 ];
 

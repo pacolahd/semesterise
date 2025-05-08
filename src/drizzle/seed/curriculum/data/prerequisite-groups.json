@@ -1127,8 +1127,8 @@
   },
 
     {
-    "groupKey": "ENGR113-PHYSICS-1",
-    "courseCode": "ENGR113",
+    "groupKey": "ME101-PHYSICS-1",
+    "courseCode": "ME101",
     "groupName": "Physics Foundation",
     "externalLogicOperator": "AND",
     "internalLogicOperator": "AND",
@@ -1167,8 +1167,8 @@
   },
 
     {
-    "groupKey": "ENGR221-MECHANICS-1",
-    "courseCode": "ENGR221",
+    "groupKey": "ME442-MECHANICS-1",
+    "courseCode": "ME442",
     "groupName": "Mechanics Foundation",
     "externalLogicOperator": "AND",
     "internalLogicOperator": "AND",
@@ -1272,18 +1272,7 @@
     "sortOrder": 2,
     "description": "Concurrent enrollment"
   },
-
-    {
-    "groupKey": "ENGR401-PROJECT-1",
-    "courseCode": "ENGR401",
-    "groupName": "Senior Project",
-    "externalLogicOperator": "AND",
-    "internalLogicOperator": "AND",
-    "sortOrder": 1,
-    "description": "First part of senior project"
-  },
-
-    {
+  {
     "groupKey": "ENGR413-ECONOMICS-1",
     "courseCode": "ENGR413",
     "groupName": "Economics Foundation",
@@ -1654,8 +1643,8 @@
   },
 
     {
-    "groupKey": "ME411-PHYSICS-1",
-    "courseCode": "ME411",
+    "groupKey": "ME212-PHYSICS-1",
+    "courseCode": "ME212",
     "groupName": "Physics Foundation",
     "externalLogicOperator": "AND",
     "internalLogicOperator": "AND",
@@ -1663,8 +1652,8 @@
     "description": "Physics background"
   },
   {
-    "groupKey": "ME411-SYSTEMS-2",
-    "courseCode": "ME411",
+    "groupKey": "ME212-SYSTEMS-2",
+    "courseCode": "ME212",
     "groupName": "Systems Foundation",
     "externalLogicOperator": "AND",
     "internalLogicOperator": "AND",

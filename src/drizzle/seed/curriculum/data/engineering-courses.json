@@ -18,7 +18,7 @@
     "semestersOffered": ["FALL"]
   },
   {
-    "code": "ENGR113",
+    "code": "ME101",
     "title": "Engineering Mechanics",
     "department": "Engineering",
     "credits": 1.0,
@@ -45,7 +45,7 @@
     "semestersOffered": ["SPRING"]
   },
   {
-    "code": "ENGR221",
+    "code": "ME442",
     "title": "CAD/CAM",
     "department": "Engineering",
     "credits": 1.0,
@@ -104,7 +104,7 @@
     "department": "Engineering",
     "credits": 1.0,
     "description": "This is a continuation of Senior Project 1. In Senior Project & Seminar 2, a one hour per week seminar provides a discussion forum for technical writing, ethics and social responsibility, and other topics, and will also serve to guide the project management timeline of the project.",
-    "prerequisites": "Senior Project 1",
+    "prerequisites": "Senior Project 1 (even though it's not a registered course i.e it's not gonna be on their transcript)",
     "semestersOffered": ["SPRING"]
   },
   {
@@ -315,7 +315,7 @@
     "semestersOffered": ["FALL"]
   },
   {
-    "code": "ME411",
+    "code": "ME212",
     "title": "Thermodynamics",
     "department": "Engineering",
     "credits": 1.0,

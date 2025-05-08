@@ -376,7 +376,7 @@
     "offeredInSemester": "fall"
   },
   {
-    "courseCode": "ENGR113",
+    "courseCode": "ME101",
     "offeredInSemester": "spring"
   },
   {
@@ -388,7 +388,7 @@
     "offeredInSemester": "spring"
   },
   {
-    "courseCode": "ENGR221",
+    "courseCode": "ME442",
     "offeredInSemester": "fall"
   },
   {
@@ -516,7 +516,7 @@
     "offeredInSemester": "fall"
   },
   {
-    "courseCode": "ME411",
+    "courseCode": "ME212",
     "offeredInSemester": "fall"
   },
   {

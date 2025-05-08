@@ -9,6 +9,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
+// TODO: Add functionality for mutually exclusive courses (courses that cannot be taken together even across different majors. This will influence the student required courses view regardless of the student's major.) e.g Engineering calculus and calculus 1&2, Software Engineering and System Analysis & Design.
 export const studentRequiredCoursesView = pgView(
   "student_required_courses_view",
   {

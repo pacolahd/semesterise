@@ -4,7 +4,12 @@ import { TranscriptCourse } from "@/lib/onboarding/transcript-import/transcript-
 /**
  * Determine the student's Capstone option based on courses taken. Default is Applied Project
  */
-export function determineCapstoneOption(courses: TranscriptCourse[]): string {
+export function determineCapstoneOption(
+  courses: TranscriptCourse[],
+  majorCode: string
+): string {
+  const isEngineeringStudent = ["CE", "EE", "ME"].includes(majorCode || "");
+
   // Build a list of all course codes in uppercase for case-insensitive matching
   const courseCodes = courses.map((course) => course.code.toUpperCase().trim());
 
@@ -46,7 +51,9 @@ export function determineCapstoneOption(courses: TranscriptCourse[]): string {
   });
 
   // Determine the track based on courses taken
-  if (hasUndergraduateThesisCourse) {
+  if (isEngineeringStudent) {
+    return "Engineering Senior Project";
+  } else if (hasUndergraduateThesisCourse) {
     return "Undergraduate Thesis";
   } else if (hasEntrepreneurshipCourse) {
     return "Entrepreneurship";
@@ -57,6 +64,6 @@ export function determineCapstoneOption(courses: TranscriptCourse[]): string {
   }
   // If no math courses are found, use the user's selection from onboarding
   // or default to Pre-Calculus as safer choice (student can change if needed)
-
+  // console.log("\n\n\n\n\nDefaulting to Applied Project ohhh \n\n\n");
   return "Applied Project";
 }

@@ -106,64 +106,39 @@ prerequisite_courses AS (
   FROM prerequisite_courses
 )
 SELECT
-  -- 1. Identifiers
   sc.id AS student_course_id,
   sp.auth_id,
   sc.student_id,
   sc.semester_id,
-
-  -- 2. Program semester context
-  ssm.program_year as year_taken,
-  ssm.program_semester as semester_taken,
-  ssm.is_summer as was_summer_semester,
-
-  -- 3. Course Info (handle planned courses)
-  sc.course_code,
+  ssm.program_year AS year_taken,
+  ssm.program_semester AS semester_taken,
+  ssm.is_summer AS was_summer_semester,
+  COALESCE(sc.original_course_code, sc.course_code) AS course_code,
   sc.status,
-  COALESCE(
-    sc.category_name,  -- Prioritize manually assigned category for planned courses
-    cc.category_name, 
-    'Non-Major Electives'
-  ) AS category_name,
-  COALESCE(sc.placeholder_credits, c.credits) AS credits,  -- Default to placeholder_credits for planned courses
-
-  -- 4. Course fields (allow NULLs for planned courses)
+  COALESCE(sc.category_name, cc.category_name, 'Non-Major Electives') AS category_name,
+  COALESCE(sc.placeholder_credits, c.credits) AS credits,
   c.department_code,
-  COALESCE(d.name,  'Planned') AS department_name,
-  COALESCE(c.title, sc.placeholder_title, 'Planned Course') AS course_title,
-
-  -- 5. Grade Info (null for planned courses)
+  COALESCE(d.name, 'Planned') AS department_name,
+  COALESCE(c.title, sc.course_title, sc.placeholder_title, 'Planned Course') AS course_title,
   sc.grade,
   gt.numeric_value AS grade_numeric_value,
   CASE
-   
     WHEN sc.grade = 'P' THEN 'P'
     WHEN cgr.minimum_grade IS NOT NULL THEN cgr.minimum_grade
     WHEN EXISTS (SELECT 1 FROM prerequisite_courses pc WHERE pc.course_code = sc.course_code)
-      OR COALESCE(
-        sc.category_name,  -- Check both student course category
-        cc.category_name,  -- and categorized course
-        ''
-      ) = 'Required Major Classes'
+      OR COALESCE(sc.category_name, cc.category_name, '') = 'Required Major Classes'
       THEN 'D+'
     ELSE 'D'
   END AS minimum_grade_required,
   CASE
-   
     WHEN sc.grade = 'P' THEN NULL
     WHEN cgr.minimum_grade IS NOT NULL THEN 
       (SELECT numeric_value FROM grade_types WHERE grade = cgr.minimum_grade)
     WHEN EXISTS (SELECT 1 FROM prerequisite_courses pc WHERE pc.course_code = sc.course_code)
-      OR COALESCE(
-        sc.category_name,
-        cc.category_name, 
-        ''
-      ) = 'Required Major Classes'
+      OR COALESCE(sc.category_name, cc.category_name, '') = 'Required Major Classes'
       THEN (SELECT numeric_value FROM grade_types WHERE grade = 'D+')
     ELSE (SELECT numeric_value FROM grade_types WHERE grade = 'D')
   END AS min_numeric_value_required,
-
-  -- 6. Pass/Retake Logic (always false for planned)
   CASE
     WHEN sc.status = 'planned' THEN NULL
     ELSE NOT (
@@ -174,17 +149,12 @@ SELECT
             SELECT numeric_value FROM grade_types WHERE grade = cgr.minimum_grade
           )
         WHEN EXISTS (SELECT 1 FROM prerequisite_courses pc WHERE pc.course_code = sc.course_code)
-          OR COALESCE(
-            sc.category_name,
-            cc.category_name,
-            ''
-          ) = 'Required Major Classes'
+          OR COALESCE(sc.category_name, cc.category_name, '') = 'Required Major Classes'
           THEN sc.grade IN ('D', 'E', 'I')
         ELSE sc.grade IN ('E', 'I')
       END
     )
   END AS passed,
-
   CASE
     WHEN sc.status = 'planned' THEN false
     WHEN sc.grade = 'P' THEN false
@@ -193,15 +163,10 @@ SELECT
         SELECT numeric_value FROM grade_types WHERE grade = cgr.minimum_grade
       )
     WHEN EXISTS (SELECT 1 FROM prerequisite_courses pc WHERE pc.course_code = sc.course_code)
-      OR COALESCE(
-        sc.category_name,
-        cc.category_name,
-        ''
-      ) = 'Required Major Classes'
+      OR COALESCE(sc.category_name, cc.category_name, '') = 'Required Major Classes'
       THEN sc.grade IN ('D', 'E', 'I')
     ELSE sc.grade IN ('E', 'I')
   END AS retake_needed,
-
   CASE
     WHEN sc.status = 'planned' THEN false
     WHEN COALESCE(ca.total_attempts, 0) >= 3 THEN false
@@ -212,37 +177,30 @@ SELECT
             SELECT numeric_value FROM grade_types WHERE grade = cgr.minimum_grade
           )
         WHEN EXISTS (SELECT 1 FROM prerequisite_courses pc WHERE pc.course_code = sc.course_code)
-          OR COALESCE(
-            sc.category_name,
-            cc.category_name,
-            ''
-          ) = 'Required Major Classes'
+          OR COALESCE(sc.category_name, cc.category_name, '') = 'Required Major Classes'
           THEN sc.grade IN ('D', 'E', 'I')
         ELSE sc.grade IN ('E', 'I')
       END
     ) THEN true
     ELSE false
   END AS voluntary_retake_possible,
-
-  -- 7. Attempt Info
   COALESCE(ca.total_attempts, 1) AS total_attempts,
   CASE
-   WHEN sc.course_code = null THEN true
-   ELSE (ar.row_num = 1) 
+    WHEN sc.course_code IS NULL THEN true
+    ELSE (ar.row_num = 1)
   END AS is_latest_attempt,
   CASE
-    WHEN sc.course_code = null THEN NULL
+    WHEN sc.course_code IS NULL THEN NULL
     ELSE COALESCE(ca.total_attempts, 0) >= 3 OR sc.grade IS NULL
   END AS retake_limit_reached
-
 FROM student_courses sc
+JOIN student_profiles sp ON sc.student_id = sp.student_id
 LEFT JOIN student_semester_mappings ssm 
-  ON sc.semester_id = ssm.academic_semester_id
+  ON sc.semester_id = ssm.academic_semester_id AND ssm.student_id = sp.student_id
 JOIN attempt_ranking ar
   ON sc.id = ar.student_course_id
-LEFT JOIN courses c ON sc.course_code = c.code  -- Changed to LEFT JOIN
-LEFT JOIN departments d ON c.department_code = d.code  -- Changed to LEFT JOIN
-JOIN student_profiles sp ON sc.student_id = sp.student_id
+LEFT JOIN courses c ON sc.course_code = c.code
+LEFT JOIN departments d ON c.department_code = d.code
 LEFT JOIN grade_types gt ON sc.grade = gt.grade
 LEFT JOIN course_grade_requirements cgr 
   ON sc.course_code = cgr.course_code 
@@ -256,7 +214,7 @@ LEFT JOIN course_attempts ca
   AND sc.course_code = ca.course_code
 LEFT JOIN categorized_course cc 
   ON cc.course_code = sc.course_code 
-  AND cc.student_id = sc.student_id;
+  AND cc.student_id = sc.student_id
 `
 );
 
