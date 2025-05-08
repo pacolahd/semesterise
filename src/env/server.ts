@@ -20,6 +20,8 @@ export const env = createEnv({
     RESEND_API_KEY: z.string(),
     EMAIL_FROM: z.string(),
     FLASK_API_URL: z.string().url(),
+    UPLOADTHING_SECRET: z.string().min(1),
+    UPLOADTHING_APP_ID: z.string().min(1),
   },
   onValidationError: (error: ZodError) => {
     console.error(

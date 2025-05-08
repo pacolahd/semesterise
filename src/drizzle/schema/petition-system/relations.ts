@@ -1,6 +1,7 @@
 // src/drizzle/schema/petition-system/relations.ts
 import { relations } from "drizzle-orm";
 
+import { authUsers } from "@/drizzle/schema";
 import { academicSemesters } from "@/drizzle/schema/academic-structure/academic-semesters";
 import { courses } from "@/drizzle/schema/curriculum/courses";
 import { departments } from "@/drizzle/schema/institution/departments";
@@ -108,6 +109,10 @@ export const petitionMessagesRelations = relations(
     petition: one(petitions, {
       fields: [petitionMessages.petitionId],
       references: [petitions.id],
+    }),
+    user: one(authUsers, {
+      fields: [petitionMessages.userId],
+      references: [authUsers.id],
     }),
   })
 );

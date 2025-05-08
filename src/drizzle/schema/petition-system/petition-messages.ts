@@ -4,6 +4,7 @@ import { boolean, pgTable, text, uuid, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+import { authUsers } from "@/drizzle/schema";
 import { createdAt, id, updatedAt } from "@/drizzle/schema/helpers";
 import { petitions } from "@/drizzle/schema/petition-system/petitions";
 
@@ -12,7 +13,10 @@ export const petitionMessages = pgTable("petition_messages", {
   petitionId: uuid("petition_id")
     .notNull()
     .references(() => petitions.id, { onDelete: "cascade" }),
-  userId: varchar("user_id", { length: 255 }).notNull(), // References BetterAuth user.id
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => authUsers.id, { onDelete: "cascade" }),
+
   message: text("message").notNull(),
   isAdminOnly: boolean("is_admin_only").default(false),
   createdAt,
