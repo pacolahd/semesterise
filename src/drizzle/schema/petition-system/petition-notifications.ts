@@ -34,6 +34,9 @@ export const petitionNotificationSchema = createInsertSchema(
   recipientUserId: z.string().min(1).max(255),
   petitionId: z.string().uuid(),
   type: z.enum([
+    "petition_submitted",
+    "new_petition",
+    "invitation",
     "status_change",
     "new_message",
     "petition_approved",

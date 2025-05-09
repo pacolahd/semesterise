@@ -27,7 +27,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Generate auth signature
-    const authResponse = pusher.authorizeChannel(socket_id, channel_name);
+    const authResponse = pusher.authorizeChannel(socket_id, channel_name, {
+      user_id: user.id,
+    });
 
     return NextResponse.json(authResponse);
   } catch (error) {

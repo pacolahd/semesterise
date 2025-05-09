@@ -1,4 +1,4 @@
-// src/lib/petition-system/notification-service.ts
+// notification-service.ts
 import { db } from "@/drizzle";
 import { petitionNotifications } from "@/drizzle/schema/petition-system";
 import {
@@ -7,6 +7,8 @@ import {
 } from "@/drizzle/schema/petition-system/petition-notifications";
 import { pusher } from "@/lib/pusher/pusher-server";
 
+// Assuming drizzle-orm provides a Transaction type
+
 /**
  * Send notification to a user and trigger real-time update
  */
@@ -14,10 +16,13 @@ export async function sendNotification(
   recipientUserId: string,
   petitionId: string,
   type: PetitionNotificationInput["type"],
-  message: string
+  message: string,
+  tx?: any // Optional transaction object for atomic operations
 ) {
   try {
-    const [notification] = await db
+    const dbOrTx = tx || db; // Use transaction if provided, else default db
+
+    const [notification] = await dbOrTx
       .insert(petitionNotifications)
       .values({
         recipientUserId,
@@ -64,7 +69,8 @@ export async function notifyPetitionStatusChange(
   referenceNumber: string,
   recipientId: string,
   newStatus: string,
-  actorRole?: string
+  actorRole?: string,
+  tx?: any // Optional transaction object
 ) {
   let message = "";
   let type = "status_change";
@@ -73,7 +79,7 @@ export async function notifyPetitionStatusChange(
   switch (newStatus) {
     case "submitted":
       message = `Petition ${referenceNumber} has been submitted for review`;
-      type = "new_petition";
+      type = "petition_submitted";
       break;
     case "advisor_approved":
       message = `Petition ${referenceNumber} has been approved by Academic Advisor`;
@@ -111,7 +117,8 @@ export async function notifyPetitionStatusChange(
     recipientId,
     petitionId,
     type as PetitionNotificationInput["type"],
-    message
+    message,
+    tx // Pass transaction if provided
   );
 }
 
@@ -122,7 +129,8 @@ export async function notifyNewMessage(
   petitionId: string,
   referenceNumber: string,
   recipientId: string,
-  isAdminOnly: boolean
+  isAdminOnly: boolean,
+  tx?: any // Optional transaction object
 ) {
   const type = "new_message";
   const message = isAdminOnly
@@ -133,6 +141,7 @@ export async function notifyNewMessage(
     recipientId,
     petitionId,
     type as PetitionNotificationInput["type"],
-    message
+    message,
+    tx // Pass transaction if provided
   );
 }

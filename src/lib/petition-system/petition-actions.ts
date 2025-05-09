@@ -1,6 +1,5 @@
 "use server";
 
-// TODO: Modify the petition actions to use the actual notification service
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -35,6 +34,7 @@ import {
 } from "@/drizzle/schema/petition-system/enums";
 import { PetitionCourseRecord } from "@/drizzle/schema/petition-system/petition-courses";
 import { PetitionMessageInput } from "@/drizzle/schema/petition-system/petition-messages";
+import { PetitionNotificationInput } from "@/drizzle/schema/petition-system/petition-notifications";
 import { PetitionTypeRecord } from "@/drizzle/schema/petition-system/petition-types";
 import { PetitionRecord } from "@/drizzle/schema/petition-system/petitions";
 import { studentProfiles } from "@/drizzle/schema/student-records";
@@ -45,6 +45,11 @@ import {
   ValidationError,
 } from "@/lib/errors/app-error-classes";
 import { formatZodErrors, serializeError } from "@/lib/errors/error-converter";
+import {
+  notifyNewMessage,
+  notifyPetitionStatusChange,
+  sendNotification,
+} from "@/lib/petition-system/notification-service";
 import { ActionResponse } from "@/lib/types/common";
 
 // src/lib/petition-system/petition-actions.ts
@@ -56,7 +61,6 @@ export async function getPetitionById(
   id: string
 ): Promise<ActionResponse<PetitionRecord>> {
   try {
-    // Get current user session
     const sessionResult = await getSession();
     if (!sessionResult.success || !sessionResult.data) {
       return {
@@ -68,7 +72,6 @@ export async function getPetitionById(
 
     const { user } = sessionResult.data;
 
-    // Get the petition with related data
     const petition = await db.query.petitions.findFirst({
       where: eq(petitions.id, id),
       with: {
@@ -113,7 +116,6 @@ export async function getPetitionById(
       };
     }
 
-    // Check if user has access to this petition
     const hasAccess = await checkPetitionAccess(id, user.id);
     if (!hasAccess) {
       return {
@@ -127,7 +129,6 @@ export async function getPetitionById(
       };
     }
 
-    // Update last viewed time for this participant
     await db
       .update(petitionParticipants)
       .set({
@@ -160,7 +161,6 @@ async function checkPetitionAccess(
   petitionId: string,
   userId: string
 ): Promise<boolean> {
-  // Get the petition
   const petition = await db.query.petitions.findFirst({
     where: eq(petitions.id, petitionId),
     with: {
@@ -171,10 +171,7 @@ async function checkPetitionAccess(
 
   if (!petition) return false;
 
-  // Check if user is a participant
   const isParticipant = petition.participants.some((p) => p.userId === userId);
-
-  // Check if user is the petition owner
   const isOwner = petition.student.authId === userId;
 
   return isParticipant || isOwner;
@@ -189,7 +186,6 @@ export async function getPetitionMessages(
   ActionResponse<(typeof petitionMessages.$inferSelect & { user: any })[]>
 > {
   try {
-    // Get current user session
     const sessionResult = await getSession();
     if (!sessionResult.success || !sessionResult.data) {
       return {
@@ -201,7 +197,6 @@ export async function getPetitionMessages(
 
     const { user } = sessionResult.data;
 
-    // Check if user has access to this petition
     const hasAccess = await checkPetitionAccess(petitionId, user.id);
     if (!hasAccess) {
       return {
@@ -215,18 +210,13 @@ export async function getPetitionMessages(
       };
     }
 
-    // Determine if user should see admin-only messages
     const isStudent = user.role === "student";
-
-    // Build query conditions
     let conditions = [eq(petitionMessages.petitionId, petitionId)];
 
-    // Students shouldn't see admin-only messages
     if (isStudent) {
       conditions.push(eq(petitionMessages.isAdminOnly, false));
     }
 
-    // Get messages
     const messages = await db.query.petitionMessages.findMany({
       where: and(...conditions),
       orderBy: [asc(petitionMessages.createdAt)],
@@ -262,7 +252,6 @@ export async function getUserNotifications(): Promise<
   ActionResponse<(typeof petitionNotifications.$inferSelect)[]>
 > {
   try {
-    // Get current user session
     const sessionResult = await getSession();
     if (!sessionResult.success || !sessionResult.data) {
       return {
@@ -274,7 +263,6 @@ export async function getUserNotifications(): Promise<
 
     const { user } = sessionResult.data;
 
-    // Get notifications for this user
     const notifications = await db.query.petitionNotifications.findMany({
       where: eq(petitionNotifications.recipientUserId, user.id),
       orderBy: [desc(petitionNotifications.createdAt)],
@@ -286,7 +274,7 @@ export async function getUserNotifications(): Promise<
           },
         },
       },
-      limit: 50, // Limit to most recent 50 notifications
+      limit: 50,
     });
 
     return {
@@ -310,7 +298,6 @@ export async function generatePetitionReferenceNumber(): Promise<string> {
   const month = (new Date().getMonth() + 1).toString().padStart(2, "0");
   const pattern = `P-${year}-${month}-%`;
 
-  // Get the latest petition for this month to increment the count
   const latestPetition = await db.query.petitions.findFirst({
     where: like(petitions.referenceNumber, pattern),
     orderBy: [desc(petitions.referenceNumber)],
@@ -318,7 +305,6 @@ export async function generatePetitionReferenceNumber(): Promise<string> {
 
   let sequence = 1;
   if (latestPetition) {
-    // Extract the sequence number from the latest petition
     const match = latestPetition.referenceNumber.match(/P-\d{4}-\d{2}-(\d+)/);
     if (match && match[1]) {
       sequence = parseInt(match[1]) + 1;
@@ -335,7 +321,6 @@ export async function createPetitionDraft(
   input: z.infer<typeof petitionSchema>
 ): Promise<ActionResponse<{ id: string; referenceNumber: string }>> {
   try {
-    // Get current user session
     const sessionResult = await getSession();
     if (!sessionResult.success || !sessionResult.data) {
       return {
@@ -347,7 +332,6 @@ export async function createPetitionDraft(
 
     const { user } = sessionResult.data;
 
-    // Validate input data
     const validationResult = petitionSchema.safeParse(input);
     if (!validationResult.success) {
       const validationError = new ValidationError(
@@ -361,7 +345,6 @@ export async function createPetitionDraft(
       };
     }
 
-    // Get student profile for the current user
     const studentProfile = await db.query.studentProfiles.findFirst({
       where: eq(studentProfiles.authId, user.id),
     });
@@ -378,10 +361,8 @@ export async function createPetitionDraft(
       };
     }
 
-    // Generate a unique reference number
     const referenceNumber = await generatePetitionReferenceNumber();
 
-    // Create the petition draft
     const [petition] = await db
       .insert(petitions)
       .values({
@@ -395,15 +376,13 @@ export async function createPetitionDraft(
         referenceNumber: petitions.referenceNumber,
       });
 
-    // Automatically add the student as a participant
     await db.insert(petitionParticipants).values({
       petitionId: petition.id,
       userId: user.id,
       role: "student",
-      isNotified: true, // Student is always notified about their own petition
+      isNotified: true,
     });
 
-    // Revalidate relevant paths
     revalidatePath("/petitions");
 
     return {
@@ -430,7 +409,6 @@ export async function updatePetitionDraft(
   input: Partial<z.infer<typeof petitionSchema>>
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    // Get current user session
     const sessionResult = await getSession();
     if (!sessionResult.success || !sessionResult.data) {
       return {
@@ -442,7 +420,6 @@ export async function updatePetitionDraft(
 
     const { user } = sessionResult.data;
 
-    // Get student profile for the current user
     const studentProfile = await db.query.studentProfiles.findFirst({
       where: eq(studentProfiles.authId, user.id),
     });
@@ -459,7 +436,6 @@ export async function updatePetitionDraft(
       };
     }
 
-    // Check if petition exists and belongs to user
     const petitionRecord = await db.query.petitions.findFirst({
       where: and(
         eq(petitions.id, id),
@@ -480,7 +456,6 @@ export async function updatePetitionDraft(
       };
     }
 
-    // Update petition
     await db
       .update(petitions)
       .set({
@@ -489,7 +464,6 @@ export async function updatePetitionDraft(
       })
       .where(eq(petitions.id, id));
 
-    // Revalidate paths
     revalidatePath("/petitions");
     revalidatePath(`/petitions/${id}`);
 
@@ -513,7 +487,6 @@ export async function addPetitionCourse(
   input: PetitionCourseRecord
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    // Get current user session
     const sessionResult = await getSession();
     if (!sessionResult.success || !sessionResult.data) {
       return {
@@ -525,7 +498,6 @@ export async function addPetitionCourse(
 
     const { user } = sessionResult.data;
 
-    // Validate input
     const validationResult = petitionCourseSchema.safeParse(input);
     if (!validationResult.success) {
       const validationError = new ValidationError(
@@ -539,7 +511,6 @@ export async function addPetitionCourse(
       };
     }
 
-    // Get student profile for the current user
     const studentProfile = await db.query.studentProfiles.findFirst({
       where: eq(studentProfiles.authId, user.id),
     });
@@ -556,7 +527,6 @@ export async function addPetitionCourse(
       };
     }
 
-    // Verify petition exists and belongs to user
     const petitionRecord = await db.query.petitions.findFirst({
       where: and(
         eq(petitions.id, input.petitionId),
@@ -577,7 +547,6 @@ export async function addPetitionCourse(
       };
     }
 
-    // Check if course already exists in petition
     const existingCourse = await db.query.petitionCourses.findFirst({
       where: and(
         eq(petitionCourses.petitionId, input.petitionId),
@@ -597,13 +566,11 @@ export async function addPetitionCourse(
       };
     }
 
-    // Add course to petition
     const [course] = await db
       .insert(petitionCourses)
       .values(validationResult.data)
       .returning({ id: petitionCourses.id });
 
-    // Revalidate paths
     revalidatePath(`/petitions/${input.petitionId}`);
 
     return {
@@ -626,7 +593,6 @@ export async function removePetitionCourse(
   courseId: string
 ): Promise<ActionResponse<boolean>> {
   try {
-    // Get current user session
     const sessionResult = await getSession();
     if (!sessionResult.success || !sessionResult.data) {
       return {
@@ -638,7 +604,6 @@ export async function removePetitionCourse(
 
     const { user } = sessionResult.data;
 
-    // Get student profile for the current user
     const studentProfile = await db.query.studentProfiles.findFirst({
       where: eq(studentProfiles.authId, user.id),
     });
@@ -655,7 +620,6 @@ export async function removePetitionCourse(
       };
     }
 
-    // Get the course and verify ownership
     const course = await db.query.petitionCourses.findFirst({
       where: eq(petitionCourses.id, courseId),
       with: {
@@ -675,7 +639,6 @@ export async function removePetitionCourse(
       };
     }
 
-    // Verify petition ownership and status
     if (
       course.petition.studentId !== studentProfile.studentId ||
       course.petition.status !== "draft"
@@ -691,10 +654,8 @@ export async function removePetitionCourse(
       };
     }
 
-    // Remove the course
     await db.delete(petitionCourses).where(eq(petitionCourses.id, courseId));
 
-    // Revalidate paths
     revalidatePath(`/petitions/${course.petitionId}`);
 
     return {
@@ -717,7 +678,6 @@ export async function addPetitionDocument(
   input: z.infer<typeof petitionDocumentSchema>
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    // Get current user session
     const sessionResult = await getSession();
     if (!sessionResult.success || !sessionResult.data) {
       return {
@@ -729,7 +689,6 @@ export async function addPetitionDocument(
 
     const { user } = sessionResult.data;
 
-    // Validate input
     const validationResult = petitionDocumentSchema.safeParse(input);
     if (!validationResult.success) {
       const validationError = new ValidationError(
@@ -743,7 +702,6 @@ export async function addPetitionDocument(
       };
     }
 
-    // Verify petition exists
     const petitionRecord = await db.query.petitions.findFirst({
       where: eq(petitions.id, input.petitionId),
       with: {
@@ -763,12 +721,10 @@ export async function addPetitionDocument(
       };
     }
 
-    // Get student profile for the current user if they're a student
     const studentProfile = await db.query.studentProfiles.findFirst({
       where: eq(studentProfiles.authId, user.id),
     });
 
-    // Check if user is a participant or the petition owner
     const isParticipant = petitionRecord.participants.some(
       (p) => p.userId === user.id
     );
@@ -788,7 +744,6 @@ export async function addPetitionDocument(
       };
     }
 
-    // Add document
     const [document] = await db
       .insert(petitionDocuments)
       .values({
@@ -797,7 +752,6 @@ export async function addPetitionDocument(
       })
       .returning({ id: petitionDocuments.id });
 
-    // Revalidate paths
     revalidatePath(`/petitions/${input.petitionId}`);
 
     return {
@@ -820,7 +774,6 @@ export async function deletePetitionDocument(
   documentId: string
 ): Promise<ActionResponse<boolean>> {
   try {
-    // Get current user session
     const sessionResult = await getSession();
     if (!sessionResult.success || !sessionResult.data) {
       return {
@@ -832,7 +785,6 @@ export async function deletePetitionDocument(
 
     const { user } = sessionResult.data;
 
-    // Get the document
     const document = await db.query.petitionDocuments.findFirst({
       where: eq(petitionDocuments.id, documentId),
       with: {
@@ -852,12 +804,10 @@ export async function deletePetitionDocument(
       };
     }
 
-    // Get student profile for the current user if they're a student
     const studentProfile = await db.query.studentProfiles.findFirst({
       where: eq(studentProfiles.authId, user.id),
     });
 
-    // Check permissions
     const isUploader = document.uploadedBy === user.id;
     const isOwner = studentProfile?.studentId === document.petition.studentId;
 
@@ -873,7 +823,6 @@ export async function deletePetitionDocument(
       };
     }
 
-    // Only allow deletion if petition is in draft
     if (document.petition.status !== "draft") {
       return {
         success: false,
@@ -886,22 +835,18 @@ export async function deletePetitionDocument(
       };
     }
 
-    // Delete the document from the database record
     await db
       .delete(petitionDocuments)
       .where(eq(petitionDocuments.id, documentId));
 
-    // Also delete the actual file from UploadThing's storage
     try {
       await fetch(`/api/uploadthing?fileKey=${document.fileKey}`, {
         method: "DELETE",
       });
     } catch (deleteError) {
-      // Log but don't fail the operation if file deletion fails
       console.error("Failed to delete file from storage:", deleteError);
     }
 
-    // Revalidate paths
     revalidatePath(`/petitions/${document.petitionId}`);
 
     return {
@@ -924,7 +869,6 @@ export async function initializePetitionWorkflow(
   petitionId: string
 ): Promise<ActionResponse<boolean>> {
   try {
-    // Get current user session
     const sessionResult = await getSession();
     if (!sessionResult.success || !sessionResult.data) {
       return {
@@ -936,7 +880,6 @@ export async function initializePetitionWorkflow(
 
     const { user } = sessionResult.data;
 
-    // Get student profile for the current user
     const studentProfile = await db.query.studentProfiles.findFirst({
       where: eq(studentProfiles.authId, user.id),
     });
@@ -953,7 +896,6 @@ export async function initializePetitionWorkflow(
       };
     }
 
-    // Get the petition
     const petition = await db.query.petitions.findFirst({
       where: and(
         eq(petitions.id, petitionId),
@@ -977,7 +919,6 @@ export async function initializePetitionWorkflow(
       };
     }
 
-    // Standard workflow steps in order
     const workflowSteps = [
       { role: "academic_advisor", isMandatory: true },
       { role: "hod", isMandatory: true },
@@ -985,9 +926,7 @@ export async function initializePetitionWorkflow(
       { role: "registry", isMandatory: true },
     ];
 
-    // Create each workflow step in a transaction
     await db.transaction(async (tx) => {
-      // Insert workflow steps
       for (let i = 0; i < workflowSteps.length; i++) {
         const step = workflowSteps[i];
         await tx.insert(petitionWorkflowSteps).values({
@@ -995,12 +934,11 @@ export async function initializePetitionWorkflow(
           role: step.role as ParticipantRole,
           orderIndex: i,
           isMandatory: step.isMandatory,
-          isCurrent: i === 0, // First step is current
-          status: i === 0 ? "pending" : null, // Set first step as pending
+          isCurrent: i === 0,
+          status: i === 0 ? "pending" : null,
         });
       }
 
-      // Update petition status
       await tx
         .update(petitions)
         .set({
@@ -1010,10 +948,8 @@ export async function initializePetitionWorkflow(
         .where(eq(petitions.id, petitionId));
     });
 
-    // Add default participants based on the department and student info
     await addDefaultParticipants(petitionId);
 
-    // Revalidate paths
     revalidatePath("/petitions");
     revalidatePath(`/petitions/${petitionId}`);
 
@@ -1034,7 +970,6 @@ export async function initializePetitionWorkflow(
  * Helper function to add default participants to a petition
  */
 async function addDefaultParticipants(petitionId: string): Promise<void> {
-  // Get the petition with student info
   const petition = await db.query.petitions.findFirst({
     where: eq(petitions.id, petitionId),
     with: {
@@ -1044,78 +979,68 @@ async function addDefaultParticipants(petitionId: string): Promise<void> {
 
   if (!petition) return;
 
-  // Find the academic advisor for the student
   const academicAdvisor = await db.query.authUsers.findFirst({
     where: eq(authUsers.role, "academic_advisor"),
   });
 
-  // Find the HOD for the primary department
   const hod = await db.query.authUsers.findFirst({
     where: eq(authUsers.role, "hod"),
   });
 
-  // Find a provost
   const provost = await db.query.authUsers.findFirst({
     where: eq(authUsers.role, "provost"),
   });
 
-  // Find registry staff
   const registry = await db.query.authUsers.findFirst({
     where: eq(authUsers.role, "registry"),
   });
 
-  // Add participants in a transaction
   await db.transaction(async (tx) => {
-    // Get the student user
     const studentUser = await tx.query.authUsers.findFirst({
       where: eq(authUsers.id, petition.student.authId),
     });
 
-    // Add academic advisor
     if (academicAdvisor) {
       await tx.insert(petitionParticipants).values({
         petitionId,
         userId: academicAdvisor.id,
         role: "academic_advisor",
-        isNotified: true, // Notify immediately
+        isNotified: true,
       });
 
-      // Create notification
-      await tx.insert(petitionNotifications).values({
+      await sendNotification(
+        academicAdvisor.id,
         petitionId,
-        recipientUserId: academicAdvisor.id,
-        type: "new_petition",
-        message: `New petition ${petition.referenceNumber} requires your review`,
-      });
+        "new_petition",
+        `New petition ${petition.referenceNumber} requires your review`,
+        tx
+      );
     }
 
-    // Add HOD
     if (hod) {
       await tx.insert(petitionParticipants).values({
         petitionId,
         userId: hod.id,
         role: "hod",
-        isNotified: false, // Will be notified after advisor reviews
+        isNotified: false,
       });
     }
 
-    // Add provost
     if (provost) {
       await tx.insert(petitionParticipants).values({
         petitionId,
         userId: provost.id,
         role: "provost",
-        isNotified: false, // Will be notified after HOD reviews
+        isNotified: false,
       });
     }
 
-    // Add registry
     if (registry) {
       await tx.insert(petitionParticipants).values({
         petitionId,
         userId: registry.id,
         role: "registry",
-        isNotified: false, // Will be notified after provost approves
+        isNotified: false,
       });
     }
   });
@@ -1128,7 +1053,6 @@ export async function submitPetition(
   petitionId: string
 ): Promise<ActionResponse<boolean>> {
   try {
-    // Get current user session
     const sessionResult = await getSession();
     if (!sessionResult.success || !sessionResult.data) {
       return {
@@ -1140,7 +1064,6 @@ export async function submitPetition(
 
     const { user } = sessionResult.data;
 
-    // Get student profile for the current user
     const studentProfile = await db.query.studentProfiles.findFirst({
       where: eq(studentProfiles.authId, user.id),
     });
@@ -1157,7 +1080,6 @@ export async function submitPetition(
       };
     }
 
-    // Verify petition is a draft and belongs to user
     const petition = await db.query.petitions.findFirst({
       where: and(
         eq(petitions.id, petitionId),
@@ -1182,7 +1104,6 @@ export async function submitPetition(
       };
     }
 
-    // Validate petition has required elements based on type
     if (petition.courses.length === 0) {
       return {
         success: false,
@@ -1195,7 +1116,6 @@ export async function submitPetition(
       };
     }
 
-    // Check for signed document
     if (!petition.signedDocumentUrl) {
       const hasSignedDoc = petition.documents.some(
         (doc) => doc.documentType === "signed_petition"
@@ -1214,19 +1134,18 @@ export async function submitPetition(
       }
     }
 
-    // Initialize workflow
     const workflowResult = await initializePetitionWorkflow(petitionId);
     if (!workflowResult.success) {
       return workflowResult;
     }
 
-    // Send notification to student
-    await db.insert(petitionNotifications).values({
+    // Use notifyPetitionStatusChange instead of sendNotification
+    await notifyPetitionStatusChange(
       petitionId,
-      recipientUserId: user.id,
-      type: "petition_submitted",
-      message: `Your petition ${petition.referenceNumber} has been submitted for review`,
-    });
+      petition.referenceNumber,
+      user.id,
+      "submitted"
+    );
 
     return {
       success: true,
@@ -1250,7 +1169,6 @@ export async function progressPetitionWorkflow(
   comments?: string
 ): Promise<ActionResponse<boolean>> {
   try {
-    // Get current user session
     const sessionResult = await getSession();
     if (!sessionResult.success || !sessionResult.data) {
       return {
@@ -1262,7 +1180,6 @@ export async function progressPetitionWorkflow(
 
     const { user } = sessionResult.data;
 
-    // Get the petition with current workflow step
     const petition = await db.query.petitions.findFirst({
       where: eq(petitions.id, petitionId),
       with: {
@@ -1286,8 +1203,6 @@ export async function progressPetitionWorkflow(
     }
 
     const currentStep = petition.workflowSteps[0];
-
-    // Verify user has permission for this step
     const userRole = await getUserRoleForPetition(petitionId, user.id);
 
     if (userRole !== currentStep.role && userRole !== "invited_approver") {
@@ -1302,9 +1217,7 @@ export async function progressPetitionWorkflow(
       };
     }
 
-    // Transaction to update current step and set next step
     await db.transaction(async (tx) => {
-      // Update current step
       await tx
         .update(petitionWorkflowSteps)
         .set({
@@ -1315,19 +1228,17 @@ export async function progressPetitionWorkflow(
         })
         .where(eq(petitionWorkflowSteps.id, currentStep.id));
 
-      // Get all workflow steps in order
       const allSteps = await tx.query.petitionWorkflowSteps.findMany({
         where: eq(petitionWorkflowSteps.petitionId, petitionId),
         orderBy: [petitionWorkflowSteps.orderIndex],
       });
 
-      // Find current step index
       const currentIndex = allSteps.findIndex((s) => s.id === currentStep.id);
 
       if (action === "approve") {
-        // If there are more steps, set the next one as current
         if (currentIndex < allSteps.length - 1) {
           const nextStep = allSteps[currentIndex + 1];
+          const newStatus = mapRoleToStatus(nextStep.role, "pending");
 
           await tx
             .update(petitionWorkflowSteps)
@@ -1337,24 +1248,41 @@ export async function progressPetitionWorkflow(
             })
             .where(eq(petitionWorkflowSteps.id, nextStep.id));
 
-          // Update petition status based on next role
           await tx
             .update(petitions)
             .set({
-              status: mapRoleToStatus(nextStep.role, "pending"),
+              status: newStatus,
               updatedAt: new Date(),
             })
             .where(eq(petitions.id, petitionId));
 
-          // Notify the next approver
-          await notifyNextApprover(
-            tx,
-            petitionId,
-            nextStep.role,
-            petition.referenceNumber
+          const nextParticipant = await tx.query.petitionParticipants.findFirst(
+            {
+              where: and(
+                eq(petitionParticipants.petitionId, petitionId),
+                eq(petitionParticipants.role, nextStep.role)
+              ),
+            }
           );
+
+          if (nextParticipant) {
+            await tx
+              .update(petitionParticipants)
+              .set({
+                isNotified: true,
+              })
+              .where(eq(petitionParticipants.id, nextParticipant.id));
+
+            await notifyPetitionStatusChange(
+              petitionId,
+              petition.referenceNumber,
+              nextParticipant.userId,
+              newStatus,
+              undefined,
+              tx
+            );
+          }
         } else {
-          // This was the last step - mark petition as completed
           await tx
             .update(petitions)
             .set({
@@ -1363,47 +1291,49 @@ export async function progressPetitionWorkflow(
             })
             .where(eq(petitions.id, petitionId));
 
-          // Notify student of completion
           const studentUser = await tx.query.authUsers.findFirst({
             where: eq(authUsers.id, petition.student.authId),
           });
 
           if (studentUser) {
-            await tx.insert(petitionNotifications).values({
+            await notifyPetitionStatusChange(
               petitionId,
-              recipientUserId: studentUser.id,
-              type: "petition_approved",
-              message: `Your petition ${petition.referenceNumber} has been approved and completed`,
-            });
+              petition.referenceNumber,
+              studentUser.id,
+              "completed",
+              undefined,
+              tx
+            );
           }
         }
       } else if (action === "reject") {
-        // Update petition status to reflect rejection
+        const newStatus = mapRoleToStatus(currentStep.role, "rejected");
+
         await tx
           .update(petitions)
           .set({
-            status: mapRoleToStatus(currentStep.role, "rejected"),
+            status: newStatus,
             updatedAt: new Date(),
           })
           .where(eq(petitions.id, petitionId));
 
-        // Notify student of rejection
         const studentUser = await tx.query.authUsers.findFirst({
           where: eq(authUsers.id, petition.student.authId),
         });
 
         if (studentUser) {
-          await tx.insert(petitionNotifications).values({
+          await notifyPetitionStatusChange(
             petitionId,
-            recipientUserId: studentUser.id,
-            type: "petition_rejected",
-            message: `Your petition ${petition.referenceNumber} was rejected by ${formatRoleName(currentStep.role)}`,
-          });
+            petition.referenceNumber,
+            studentUser.id,
+            newStatus,
+            currentStep.role,
+            tx
+          );
         }
       }
     });
 
-    // Revalidate paths
     revalidatePath("/petitions");
     revalidatePath(`/petitions/${petitionId}`);
 
@@ -1417,42 +1347,6 @@ export async function progressPetitionWorkflow(
       success: false,
       error: serializeError(error),
     };
-  }
-}
-
-/**
- * Helper function to notify the next approver
- */
-async function notifyNextApprover(
-  tx: any,
-  petitionId: string,
-  role: ParticipantRole,
-  referenceNumber: string
-): Promise<void> {
-  // Find participant with this role
-  const participant = await tx.query.petitionParticipants.findFirst({
-    where: and(
-      eq(petitionParticipants.petitionId, petitionId),
-      eq(petitionParticipants.role, role)
-    ),
-  });
-
-  if (participant) {
-    // Update notification status
-    await tx
-      .update(petitionParticipants)
-      .set({
-        isNotified: true,
-      })
-      .where(eq(petitionParticipants.id, participant.id));
-
-    // Create notification
-    await tx.insert(petitionNotifications).values({
-      petitionId,
-      recipientUserId: participant.userId,
-      type: "petition_ready_for_review",
-      message: `Petition ${referenceNumber} is ready for your review`,
-    });
   }
 }
 
@@ -1472,7 +1366,7 @@ function mapRoleToStatus(
       case "provost":
         return "hod_approved";
       case "registry":
-        return "registry_processing";
+        return "provost_approved";
       default:
         return "submitted";
     }
@@ -1549,7 +1443,6 @@ export async function addPetitionMessage(
   input: PetitionMessageInput
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    // Get current user session
     const sessionResult = await getSession();
     if (!sessionResult.success || !sessionResult.data) {
       return {
@@ -1561,7 +1454,6 @@ export async function addPetitionMessage(
 
     const { user } = sessionResult.data;
 
-    // Validate input
     const validationResult = petitionMessageSchema.safeParse(input);
     if (!validationResult.success) {
       const validationError = new ValidationError(
@@ -1575,7 +1467,6 @@ export async function addPetitionMessage(
       };
     }
 
-    // Verify access to petition
     const petitionRecord = await db.query.petitions.findFirst({
       where: eq(petitions.id, input.petitionId),
       with: {
@@ -1595,12 +1486,10 @@ export async function addPetitionMessage(
       };
     }
 
-    // Get student profile for the current user if they're a student
     const studentProfile = await db.query.studentProfiles.findFirst({
       where: eq(studentProfiles.authId, user.id),
     });
 
-    // Check if user is a participant or the petition owner
     const isParticipant = petitionRecord.participants.some(
       (p) => p.userId === user.id
     );
@@ -1619,7 +1508,6 @@ export async function addPetitionMessage(
       };
     }
 
-    // Admin-only messages can only be sent by staff roles
     if (input.isAdminOnly && user.role === "student") {
       return {
         success: false,
@@ -1632,7 +1520,6 @@ export async function addPetitionMessage(
       };
     }
 
-    // Add message
     const [message] = await db
       .insert(petitionMessages)
       .values({
@@ -1641,7 +1528,6 @@ export async function addPetitionMessage(
       })
       .returning({ id: petitionMessages.id });
 
-    // Notify participants of new message
     await notifyAboutNewMessage(
       input.petitionId,
       user.id,
@@ -1649,7 +1535,6 @@ export async function addPetitionMessage(
       input.isAdminOnly
     );
 
-    // Revalidate paths
     revalidatePath(`/petitions/${input.petitionId}`);
 
     return {
@@ -1674,7 +1559,6 @@ async function notifyAboutNewMessage(
   messageText: string,
   isAdminOnly: boolean
 ): Promise<void> {
-  // Get petition with participants
   const petition = await db.query.petitions.findFirst({
     where: eq(petitions.id, petitionId),
     with: {
@@ -1685,11 +1569,9 @@ async function notifyAboutNewMessage(
 
   if (!petition) return;
 
-  // Determine which participants to notify
   let recipientUserIds: string[] = [];
 
   if (isAdminOnly) {
-    // For admin-only messages, only notify staff participants
     recipientUserIds = petition.participants
       .filter(
         (p) =>
@@ -1699,12 +1581,10 @@ async function notifyAboutNewMessage(
       )
       .map((p) => p.userId);
   } else {
-    // For regular messages, notify all participants except the sender and observers
     recipientUserIds = petition.participants
       .filter((p) => p.userId !== senderUserId && p.role !== "observer")
       .map((p) => p.userId);
 
-    // Always include the petition owner
     const studentUser = await db.query.authUsers.findFirst({
       where: eq(authUsers.id, petition.student.authId),
     });
@@ -1718,14 +1598,13 @@ async function notifyAboutNewMessage(
     }
   }
 
-  // Create notifications for all recipients
   for (const recipientId of recipientUserIds) {
-    await db.insert(petitionNotifications).values({
+    await notifyNewMessage(
       petitionId,
-      recipientUserId: recipientId,
-      type: "new_message",
-      message: `New message in petition ${petition.referenceNumber}`,
-    });
+      petition.referenceNumber,
+      recipientId,
+      isAdminOnly
+    );
   }
 }
 
@@ -1738,7 +1617,6 @@ export async function inviteParticipant(
   role: string
 ): Promise<ActionResponse<boolean>> {
   try {
-    // Get current user session
     const sessionResult = await getSession();
     if (!sessionResult.success || !sessionResult.data) {
       return {
@@ -1750,7 +1628,6 @@ export async function inviteParticipant(
 
     const { user } = sessionResult.data;
 
-    // Validate role
     if (!participantRoleValues.includes(role as any)) {
       return {
         success: false,
@@ -1762,7 +1639,6 @@ export async function inviteParticipant(
       };
     }
 
-    // Get petition and verify access
     const petition = await db.query.petitions.findFirst({
       where: eq(petitions.id, petitionId),
       with: {
@@ -1782,7 +1658,6 @@ export async function inviteParticipant(
       };
     }
 
-    // Check if user has permission to invite others
     const userRole = await getUserRoleForPetition(petitionId, user.id);
 
     if (
@@ -1803,7 +1678,6 @@ export async function inviteParticipant(
       };
     }
 
-    // Find user by email
     const invitedUser = await db.query.authUsers.findFirst({
       where: eq(authUsers.email, email.toLowerCase()),
     });
@@ -1820,7 +1694,6 @@ export async function inviteParticipant(
       };
     }
 
-    // Check if user is already a participant
     const isAlreadyParticipant = petition.participants.some(
       (p) => p.userId === invitedUser.id
     );
@@ -1837,24 +1710,21 @@ export async function inviteParticipant(
       };
     }
 
-    // Add participant
     await db.insert(petitionParticipants).values({
       petitionId,
       userId: invitedUser.id,
       role: role as any,
-      isNotified: true, // Notify immediately
+      isNotified: true,
       addedBy: user.id,
     });
 
-    // Notify the invited user
-    await db.insert(petitionNotifications).values({
+    await sendNotification(
+      invitedUser.id,
       petitionId,
-      recipientUserId: invitedUser.id,
-      type: "invitation",
-      message: `You have been invited to participate in petition ${petition.referenceNumber} as ${formatRoleName(role)}`,
-    });
+      "invitation",
+      `You have been invited to participate in petition ${petition.referenceNumber} as ${formatRoleName(role)}`
+    );
 
-    // Revalidate paths
     revalidatePath(`/petitions/${petitionId}`);
 
     return {
@@ -1877,7 +1747,6 @@ export async function markNotificationsAsRead(
   notificationIds: string[]
 ): Promise<ActionResponse<boolean>> {
   try {
-    // Get current user session
     const sessionResult = await getSession();
     if (!sessionResult.success || !sessionResult.data) {
       return {
@@ -1889,7 +1758,6 @@ export async function markNotificationsAsRead(
 
     const { user } = sessionResult.data;
 
-    // Get notifications
     const notifications = await db.query.petitionNotifications.findMany({
       where: and(
         inArray(petitionNotifications.id, notificationIds),
@@ -1909,7 +1777,6 @@ export async function markNotificationsAsRead(
       };
     }
 
-    // Update notifications
     await db
       .update(petitionNotifications)
       .set({
@@ -1922,7 +1789,6 @@ export async function markNotificationsAsRead(
         )
       );
 
-    // Revalidate paths
     revalidatePath("/notifications");
 
     return {
@@ -1969,7 +1835,6 @@ export async function getUserPetitions(): Promise<
   ActionResponse<(typeof petitions.$inferSelect)[]>
 > {
   try {
-    // Get current user session
     const sessionResult = await getSession();
     if (!sessionResult.success || !sessionResult.data) {
       return {
@@ -1981,11 +1846,9 @@ export async function getUserPetitions(): Promise<
 
     const { user } = sessionResult.data;
 
-    // Query depends on user role
     let userPetitions = [];
 
     if (user.role === "student") {
-      // Get student profile
       const studentProfile = await db.query.studentProfiles.findFirst({
         where: eq(studentProfiles.authId, user.id),
       });
@@ -1997,7 +1860,6 @@ export async function getUserPetitions(): Promise<
         };
       }
 
-      // Students see only their own petitions
       userPetitions = await db.query.petitions.findMany({
         where: eq(petitions.studentId, studentProfile.studentId),
         orderBy: [desc(petitions.updatedAt)],
@@ -2010,7 +1872,6 @@ export async function getUserPetitions(): Promise<
         },
       });
     } else {
-      // Staff see petitions where they are participants
       const participations = await db.query.petitionParticipants.findMany({
         where: eq(petitionParticipants.userId, user.id),
         with: {

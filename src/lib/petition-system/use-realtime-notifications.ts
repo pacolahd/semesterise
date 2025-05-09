@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef } from "react";
 
 import { useQueryClient } from "@tanstack/react-query";
@@ -12,31 +14,32 @@ import { getPusherClient } from "@/lib/pusher/pusher-client";
 export function useRealtimeNotifications() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
-  const lastSequenceRef = useRef(0); // Track last processed sequence
+  const lastSequenceRef = useRef(0);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      console.warn("No user ID found, skipping Pusher subscription");
+      return;
+    }
 
     const pusherClient = getPusherClient();
     const channelName = `private-user-${user.id}`;
     const channel = pusherClient.subscribe(channelName);
 
     channel.bind("petition-notification", (rawData: any) => {
-      // Validate incoming message
       const result = petitionNotificationSchema.safeParse(rawData);
       if (!result.success) {
-        console.error("Invalid notification data:", result.error);
+        console.error("Invalid notification data:", result.error.flatten());
         return;
       }
 
       const data: PetitionNotificationInput = result.data;
 
-      // Ensure message order
-      if (data.sequence! > lastSequenceRef.current) {
-        lastSequenceRef.current = data.sequence || 0;
+      if (data.sequence && data.sequence > lastSequenceRef.current) {
+        lastSequenceRef.current = data.sequence;
 
-        // Process the notification
         toast.info(data.message, {
+          id: data.id, // Prevent duplicate toasts
           action: {
             label: "View",
             onClick: () => {
@@ -51,11 +54,13 @@ export function useRealtimeNotifications() {
       }
     });
 
-    // Cleanup on unmount
     return () => {
       channel.unbind_all();
       pusherClient.unsubscribe(channelName);
-      pusherClient.disconnect(); // Ensure full cleanup
+      // Only disconnect if no other subscriptions are active
+      if (pusherClient.connection.state === "connected") {
+        pusherClient.disconnect();
+      }
     };
   }, [user?.id, queryClient]);
 }

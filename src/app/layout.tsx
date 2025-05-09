@@ -32,8 +32,6 @@ export const metadata: Metadata = {
 };
 
 const RootLayout = ({ children }: Readonly<{ children: ReactNode }>) => {
-  // Setup realtime notifications
-  useRealtimeNotifications();
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${satoshi.variable} antialiased`}>
