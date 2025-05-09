@@ -1,3 +1,5 @@
+import { seedPetitionSystem } from "petition-system";
+
 import seedSystemSettings from "@/drizzle/seed/system-settings";
 
 import seedAcademicStructure from "./academic-structure";
@@ -20,7 +22,10 @@ async function main() {
     // // 4. Then seed curriculum data
     await seedCurriculum();
 
-    // // 5. Finally, seed student-records data
+    // // 5. Then seed petition system data
+    await seedPetitionSystem();
+
+    // // 6. Finally, seed student-records data
     // await seedStudentRecords();
 
     console.log("✅ Database seeding completed successfully!");

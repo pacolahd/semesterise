@@ -1,3 +1,5 @@
+// lib/petition-system/use-realtime-notifications.ts
+
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -10,6 +12,8 @@ import { petitionNotificationSchema } from "@/drizzle/schema";
 import { PetitionNotificationInput } from "@/drizzle/schema/petition-system/petition-notifications";
 import { useAuthStore } from "@/lib/auth/auth-store";
 import { getPusherClient } from "@/lib/pusher/pusher-client";
+
+// lib/petition-system/use-realtime-notifications.ts
 
 export function useRealtimeNotifications() {
   const { user } = useAuthStore();

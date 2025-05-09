@@ -1,4 +1,4 @@
-// notification-service.ts
+// lib/petition-system/notification-service.ts
 import { db } from "@/drizzle";
 import { petitionNotifications } from "@/drizzle/schema/petition-system";
 import {
@@ -6,8 +6,6 @@ import {
   PetitionNotificationRecord,
 } from "@/drizzle/schema/petition-system/petition-notifications";
 import { pusher } from "@/lib/pusher/pusher-server";
-
-// Assuming drizzle-orm provides a Transaction type
 
 /**
  * Send notification to a user and trigger real-time update

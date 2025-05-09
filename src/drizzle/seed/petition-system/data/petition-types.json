@@ -1,0 +1,198 @@
+[
+  {
+    "code": "LATE_DROP",
+    "name": "Late Drop",
+    "description": "Request to drop a course after the normal drop deadline",
+    "requiresParentSignature": true,
+    "requiresLecturerSignature": true,
+    "requiresAcademicPlan": true,
+    "customFields": [
+      {
+        "name": "reason",
+        "label": "Reason for your request",
+        "type": "textarea",
+        "required": true,
+        "placeholder": "Please provide a detailed explanation for your request"
+      },
+      {
+        "name": "extendsBeyondFourYears",
+        "label": "Does this change affect your expected graduation date?",
+        "type": "radio",
+        "required": true,
+        "options": [
+          { "label": "Yes", "value": "yes" },
+          { "label": "No", "value": "no" }
+        ],
+        "helpText": "This information will be automatically determined from your degree audit data"
+      }
+    ]
+  },
+  {
+    "code": "COURSE_AUDIT",
+    "name": "Audit a Course",
+    "description": "Request to take a course without receiving a grade",
+    "requiresParentSignature": true,
+    "requiresLecturerSignature": true,
+    "requiresAcademicPlan": false,
+    "customFields": [
+      {
+        "name": "reason",
+        "label": "Reason for your request",
+        "type": "textarea",
+        "required": true,
+        "placeholder": "Please provide a detailed explanation for your request",
+        "helpText": "Students who wish to audit a course must first seek permission from the instructor and understand that they will not have any grade for an audited course on their transcript."
+      }
+    ]
+  },
+  {
+    "code": "LATE_COURSE_ADDITION",
+    "name": "Late Course Addition",
+    "description": "Request to add a course after the normal add deadline",
+    "requiresParentSignature": true,
+    "requiresLecturerSignature": false,
+    "requiresAcademicPlan": true,
+    "customFields": [
+      {
+        "name": "reason",
+        "label": "Reason for your request",
+        "type": "textarea",
+        "required": true,
+        "placeholder": "Please provide a detailed explanation for your request"
+      }
+    ]
+  },
+  {
+    "code": "EXTRA_COURSE",
+    "name": "Extra Course Addition",
+    "description": "Request to take additional courses beyond normal load",
+    "requiresParentSignature": true,
+    "requiresLecturerSignature": false,
+    "requiresAcademicPlan": true,
+    "customFields": [
+      {
+        "name": "reason",
+        "label": "Reason for your request",
+        "type": "textarea",
+        "required": true,
+        "placeholder": "Please explain why you need to take extra courses"
+      },
+      {
+        "name": "currentCredits",
+        "label": "Current credit load",
+        "type": "text",
+        "required": false,
+        "placeholder": "This will be automatically determined from your degree audit data",
+        "helpText": "This information will be pulled from your academic plan"
+      }
+    ]
+  },
+  {
+    "code": "PREREQUISITE_WAIVER",
+    "name": "Prerequisite Waiver",
+    "description": "Request to waive prerequisites for specific courses",
+    "requiresParentSignature": true,
+    "requiresLecturerSignature": false,
+    "requiresAcademicPlan": true,
+    "customFields": [
+      {
+        "name": "reason",
+        "label": "Reason for requesting waiver, including your chances of success",
+        "type": "textarea",
+        "required": true,
+        "placeholder": "Please provide a detailed explanation"
+      },
+      {
+        "name": "previousCourseStatus",
+        "label": "Status of prerequisite courses",
+        "type": "text",
+        "required": false,
+        "placeholder": "This will be automatically determined from your degree audit data",
+        "helpText": "This information will be pulled from your academic record"
+      }
+    ]
+  },
+  {
+    "code": "CHANGE_MAJOR",
+    "name": "Change of Major",
+    "description": "Request to switch from one degree program to another",
+    "requiresParentSignature": true,
+    "requiresLecturerSignature": false,
+    "requiresAcademicPlan": true,
+    "customFields": [
+      {
+        "name": "newMajor",
+        "label": "New Major",
+        "type": "select",
+        "required": true,
+        "options": [
+          { "label": "Computer Science", "value": "CS" },
+          { "label": "Management Information Systems", "value": "MIS" },
+          { "label": "Business Administration", "value": "BA" },
+          { "label": "Computer Engineering", "value": "CE" },
+          { "label": "Electrical Engineering", "value": "EE" },
+          { "label": "Mechanical Engineering", "value": "ME" }
+        ]
+      },
+      {
+        "name": "effectiveSemester",
+        "label": "Effective",
+        "type": "select",
+        "required": true,
+        "options": [
+          { "label": "Fall", "value": "Fall" },
+          { "label": "Spring", "value": "Spring" }
+        ]
+      },
+      {
+        "name": "effectiveYear",
+        "label": "Year",
+        "type": "number",
+        "required": true,
+        "placeholder": "Enter year (e.g., 2025)"
+      },
+      {
+        "name": "reason",
+        "label": "Reason for changing your major",
+        "type": "textarea",
+        "required": true,
+        "placeholder": "Please provide a detailed explanation"
+      }
+    ]
+  },
+  {
+    "code": "REMARKING",
+    "name": "Request for Remarking",
+    "description": "Request to have a course final exam reassessed",
+    "requiresParentSignature": true,
+    "requiresLecturerSignature": false,
+    "requiresAcademicPlan": false,
+    "customFields": [
+      {
+        "name": "feePaid",
+        "label": "Re-marking fee paid",
+        "type": "radio",
+        "required": true,
+        "options": [
+          { "label": "Yes", "value": "yes" }
+        ],
+        "helpText": "If you selected Yes, attach a valid receipt to this form"
+      },
+      {
+        "name": "reason",
+        "label": "Reason for requesting re-marking",
+        "type": "textarea",
+        "required": true,
+        "placeholder": "Please provide a detailed explanation"
+      },
+      {
+        "name": "currentGrade",
+        "label": "Current grade",
+        "type": "text",
+        "required": false,
+        "placeholder": "This will be automatically determined from your degree audit data",
+        "helpText": "This information will be pulled from your academic record"
+      }
+    ]
+  }
+]
