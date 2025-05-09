@@ -1489,6 +1489,7 @@ export async function removePlannedCourse(
       if (
         !requirement.requirementMet ||
         (requirement.requirementMet &&
+          requirement.subCategory !== "Africana" &&
           requirement.creditsCompleted === requirement.creditsRequired)
       ) {
         // Special handling for required courses vs electives
