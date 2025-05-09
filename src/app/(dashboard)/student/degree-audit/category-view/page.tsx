@@ -35,6 +35,8 @@ export default function CategoryViewPage() {
     });
   };
 
+  //use effect to refetch
+
   // State to track expanded/collapsed sections
   const [expandedSections, setExpandedSections] = useState<{
     [key: string]: boolean;

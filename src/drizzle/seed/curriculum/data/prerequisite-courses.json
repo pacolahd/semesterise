@@ -33,19 +33,26 @@
     "prerequisiteCourseCode": "ENGL112",
     "description": "Written and Oral Communication"
   },
-
   {
-    "groupKey": "SOAN112-LEADERSHIP-1",
-    "prerequisiteCourseCode": "SOAN311",
-    "description": "Leadership Seminar 3"
+    "groupKey": "SOAN211-Leadership-1",
+    "prerequisiteCourseCode": "SOAN111",
+    "description": "Leadership 1 foundation"
   },
-
+  {
+    "groupKey": "SOAN311-Leadership-1",
+    "prerequisiteCourseCode": "SOAN211",
+    "description": "Leadership 2 foundation"
+  },
+  {
+    "groupKey": "SOAN411-Leadership-1",
+    "prerequisiteCourseCode": "SOAN311",
+    "description": "Leadership 3 foundation"
+  },
   {
     "groupKey": "SOAN220-WRITING-1",
     "prerequisiteCourseCode": "ENGL112",
     "description": "Written and Oral Communication"
   },
-
   {
     "groupKey": "SOAN225-WRITING-1",
     "prerequisiteCourseCode": "ENGL112",
@@ -944,10 +951,10 @@
     "description": "Engineering Mechanics"
   },
 
-  
+
   {
     "groupKey": "ENGR300-LEADERSHIP-1",
-    "prerequisiteCourseCode": "ENGR310",
+    "prerequisiteCourseCode": "SOAN411",
     "description": "Leadership 4 for Engineers"
   },
   {
@@ -960,15 +967,6 @@
     "prerequisiteCourseCode": "ENGR312",
     "description": "Control Systems"
   },
-
-  
-  {
-    "groupKey": "ENGR310-LEADERSHIP-1",
-    "prerequisiteCourseCode": "SOAN311",
-    "description": "Leadership Seminar 3"
-  },
-
-  
   {
     "groupKey": "ENGR311-MATH-1",
     "prerequisiteCourseCode": "MATH211",
@@ -1015,7 +1013,7 @@
   },
   {
     "groupKey": "ENGR413-LEADERSHIP-2",
-    "prerequisiteCourseCode": "ENGR310",
+    "prerequisiteCourseCode": "SOAN411",
     "description": "Leadership 4 for Engineers"
   },
 

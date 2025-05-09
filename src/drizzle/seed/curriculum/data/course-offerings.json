@@ -400,10 +400,6 @@
     "offeredInSemester": "spring"
   },
   {
-    "courseCode": "ENGR310",
-    "offeredInSemester": "fall"
-  },
-  {
     "courseCode": "ENGR311",
     "offeredInSemester": "fall"
   },
@@ -554,10 +550,6 @@
   {
     "courseCode": "SOAN111",
     "offeredInSemester": "spring"
-  },
-  {
-    "courseCode": "SOAN112",
-    "offeredInSemester": "fall"
   },
   {
     "courseCode": "SOAN220",

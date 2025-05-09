@@ -792,7 +792,7 @@ async function getSemesterCreditsInTransaction(
   semester: number
 ): Promise<number> {
   // Get regular courses
-  const regularCourses = await tx
+  const coursesIncludingPlaceholders = await tx
     .select({
       credits: studentCourseCategorizedStatusView.credits,
     })
@@ -805,40 +805,14 @@ async function getSemesterCreditsInTransaction(
       )
     );
 
-  // Get placeholders
-  const placeholders = await tx
-    .select({
-      credits: studentCourses.placeholderCredits,
-    })
-    .from(studentCourses)
-    .leftJoin(
-      studentSemesterMappings,
-      eq(studentCourses.semesterId, studentSemesterMappings.academicSemesterId)
-    )
-    .where(
-      and(
-        eq(studentCourses.authId, authId),
-        eq(studentCourses.status, "planned"),
-        isNull(studentCourses.courseCode),
-        eq(studentSemesterMappings.programYear, year),
-        eq(studentSemesterMappings.programSemester, semester)
-      )
-    );
-
   // Calculate total credits
-  const regularCredits = regularCourses.reduce(
+  const credits = coursesIncludingPlaceholders.reduce(
     (sum: number, course: { credits: any }) =>
       sum + parseFloat(course.credits?.toString() || "0"),
     0
   );
 
-  const placeholderCredits = placeholders.reduce(
-    (sum: number, course: { credits: any }) =>
-      sum + parseFloat(course.credits?.toString() || "0"),
-    0
-  );
-
-  return regularCredits + placeholderCredits;
+  return credits;
 }
 
 /**
@@ -1569,7 +1543,7 @@ export async function removePlannedCourse(
             } and you still need ${
               requirement.requirementMet &&
               requirement.creditsCompleted === requirement.creditsRequired
-                ? requirement.creditsRemaining + 1
+                ? parseFloat(requirement.creditsRemaining) + 1
                 : requirement.creditsRemaining
             } more credits in this category.  You will need to schedule another ${
               courseRecord.subCategory

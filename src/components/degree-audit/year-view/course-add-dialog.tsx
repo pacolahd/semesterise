@@ -107,7 +107,7 @@ export function CourseAddDialog({
     if (!open) {
       setSelectedCourses([]);
       setActiveTab("course");
-      setTitle("Elective Course");
+      setTitle("Elective Placeholder");
       setCredits("1");
       setCategory("Non-Major Electives");
       setProcessingStatus(null);
@@ -119,6 +119,20 @@ export function CourseAddDialog({
       console.error("Error loading courses:", coursesError);
     }
   }, [coursesError]);
+
+  useEffect(() => {
+    // Format the title based on the category
+    if (category === "Non-Major Electives") {
+      setTitle("NM Elective Placeholder");
+    } else if (category === "Major Electives") {
+      setTitle("Major Elective Placeholder");
+    } else {
+      // Capitalize first letter and append "Elective" if not already there
+      const formattedCategory =
+        category.charAt(0).toUpperCase() + category.slice(1).toLowerCase();
+      setTitle(`${formattedCategory} Placeholder`);
+    }
+  }, [category]);
 
   // Sync search function for MultipleSelector - KEEPING THIS EXACTLY AS ORIGINAL
   const handleSyncSearch = (search: string) => {
@@ -197,13 +211,21 @@ export function CourseAddDialog({
 
     try {
       setIsAddingCourses(true);
+      // Convert specific categories to Non-Major Electives as mentioned in the comment
+      const normalizedCategory =
+        category.toLowerCase() === "africana" ||
+        category.toLowerCase() === "free elective"
+          ? "Non-Major Electives"
+          : category;
+
       await addPlaceholderMutation.mutateAsync({
         authId: user.id,
         title,
         credits: parseFloat(credits),
         year,
         semester,
-        category,
+        // if category is africana or free elective, let it be changed to non major elective
+        category: normalizedCategory,
       });
 
       toast.success(
@@ -506,9 +528,13 @@ export function CourseAddDialog({
                       <Input
                         id="title"
                         value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        placeholder="e.g., Major Elective, Humanities Course"
+                        readOnly
+                        className="bg-muted/50 cursor-not-allowed"
                       />
+                      <p className="text-xs text-muted-foreground">
+                        Title is automatically generated based on the selected
+                        category
+                      </p>
                     </div>
 
                     <div className="space-y-2">

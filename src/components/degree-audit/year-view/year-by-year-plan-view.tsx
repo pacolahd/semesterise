@@ -6,7 +6,11 @@ import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { useAcademicPlan } from "@/lib/academic-plan/academic-plan-hooks";
+import {
+  useAcademicPlan,
+  useDegreeRequirementProgress,
+  useRemainingRequirements,
+} from "@/lib/academic-plan/academic-plan-hooks";
 import { YearPlan } from "@/lib/academic-plan/types";
 import { useAuthStore } from "@/lib/auth/auth-store";
 
@@ -20,7 +24,27 @@ interface YearByYearPlanViewProps {
 
 export function YearByYearPlanView({ plan }: YearByYearPlanViewProps) {
   const { user } = useAuthStore();
-  const { refetch, isRefetching } = useAcademicPlan(user?.id);
+  const {
+    refetch: refetchAcademicPlan,
+    isRefetching: isRefetchingAcademicPlan,
+  } = useAcademicPlan(user?.id);
+  // Get remaining requirements data
+  const {
+    refetch: refetchRemainingRequirements,
+    isRefetching: isRefetchingRemainingRequirements,
+  } = useRemainingRequirements(user?.id);
+
+  // Combined refetch function
+  const refetch = async () => {
+    await Promise.all([
+      refetchAcademicPlan(),
+      refetchDegreeRequirementsProgress(),
+      refetchRemainingRequirements(),
+    ]);
+  };
+
+  const { refetch: refetchDegreeRequirementsProgress } =
+    useDegreeRequirementProgress(user?.id);
   // Helpers
   function calculateOriginalMaxYear(plan: YearPlan): number {
     const yearsWithCourses = Object.keys(plan.years)
@@ -131,7 +155,10 @@ export function YearByYearPlanView({ plan }: YearByYearPlanViewProps) {
       </DragDropProvider>
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <div>Last updated: {new Date(plan.lastUpdated).toLocaleString()}</div>
-        {isRefetching && <div className="text-primary">Refreshing plan...</div>}
+        {isRefetchingAcademicPlan ||
+          (isRefetchingRemainingRequirements && (
+            <div className="text-primary">Refreshing plan...</div>
+          ))}
       </div>
     </div>
   );

@@ -1,4 +1,3 @@
-//src/app/(dashboard)/student/degree-audit/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -21,6 +20,7 @@ import { Progress } from "@/components/ui/progress";
 import { getStudentRemainingRequirements } from "@/lib/academic-plan/academic-plan-actions";
 import {
   useAcademicPlan,
+  useDegreeRequirementProgress,
   useGenerateAutomaticPlan,
   useRemainingRequirements,
 } from "@/lib/academic-plan/academic-plan-hooks";
@@ -46,12 +46,28 @@ export default function DegreeAuditPage() {
   // Get remaining requirements data
   const {
     data: remainingRequirements,
-    isLoading: isRequirementsLoading,
-    refetch: refetchRequirements,
-    isRefetching: isRefetchingRequirements,
+    isLoading: isRemainingRequirementsLoading,
+    refetch: refetchRemainingRequirements,
+    isRefetching: isRefetchingRemainingRequirements,
   } = useRemainingRequirements(user?.id);
 
-  const isLoading = isPlanLoading || isRequirementsLoading;
+  const { refetch: refetchDegreeRequirementsProgress } =
+    useDegreeRequirementProgress(user?.id);
+
+  // Combined refetch function
+  const refetch = async () => {
+    await Promise.all([
+      refetchDegreeRequirementsProgress(),
+      refetchPlan(),
+      refetchRemainingRequirements(),
+    ]);
+  };
+
+  const handleClick = () => {
+    refetch().finally(() => {});
+  };
+
+  const isLoading = isPlanLoading || isRemainingRequirementsLoading;
   const isError = isPlanError;
 
   if (isLoading) {
@@ -75,14 +91,11 @@ export default function DegreeAuditPage() {
             : "Failed to load your academic plan"}
         </p>
         <Button
-          onClick={() => {
-            refetchPlan();
-            refetchRequirements();
-          }}
+          onClick={handleClick}
           className="mt-4"
-          disabled={isRefetchingPlan || isRefetchingRequirements}
+          disabled={isRefetchingPlan || isRefetchingRemainingRequirements}
         >
-          {isRefetchingPlan || isRefetchingRequirements ? (
+          {isRefetchingPlan || isRefetchingRemainingRequirements ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Retrying...
@@ -107,15 +120,12 @@ export default function DegreeAuditPage() {
         </p>
         {user?.id && (
           <Button
-            onClick={() => {
-              refetchPlan();
-              refetchRequirements();
-            }}
+            onClick={handleClick}
             variant="outline"
             className="mt-4"
-            disabled={isRefetchingPlan || isRefetchingRequirements}
+            disabled={isRefetchingPlan || isRefetchingRemainingRequirements}
           >
-            {isRefetchingPlan || isRefetchingRequirements
+            {isRefetchingPlan || isRefetchingRemainingRequirements
               ? "Checking..."
               : "Check Again"}
           </Button>
@@ -188,14 +198,11 @@ export default function DegreeAuditPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => {
-                refetchPlan();
-                refetchRequirements();
-              }}
-              disabled={isRefetchingPlan || isRefetchingRequirements}
+              onClick={handleClick}
+              disabled={isRefetchingPlan || isRefetchingRemainingRequirements}
               className="h-8"
             >
-              {isRefetchingPlan || isRefetchingRequirements ? (
+              {isRefetchingPlan || isRefetchingRemainingRequirements ? (
                 <>
                   <Loader2 className="mr-2 h-3 w-3 animate-spin" />
                   Refreshing...
@@ -224,7 +231,7 @@ export default function DegreeAuditPage() {
             </DialogTitle>
           </DialogHeader>
 
-          {isRequirementsLoading ? (
+          {isRemainingRequirementsLoading ? (
             <div className="flex justify-center items-center h-32">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
             </div>

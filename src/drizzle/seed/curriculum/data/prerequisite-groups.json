@@ -59,15 +59,31 @@
   },
 
   {
-  "groupKey": "SOAN112-LEADERSHIP-1",
-  "courseCode": "SOAN112",
-  "groupName": "Leadership Foundation",
+  "groupKey": "SOAN211-Leadership-1",
+  "courseCode": "SOAN211",
+  "groupName": "Leadership 1 Foundation",
   "externalLogicOperator": "AND",
   "internalLogicOperator": "AND",
   "sortOrder": 1,
-  "description": "Leadership Seminar foundation"
+  "description": "Leadership 1 foundation"
   },
-
+  {
+  "groupKey": "SOAN311-Leadership-1",
+  "courseCode": "SOAN311",
+  "groupName": "Leadership 2 Foundation",
+  "externalLogicOperator": "AND",
+  "internalLogicOperator": "AND",
+  "sortOrder": 1,
+  "description": "Leadership 2 foundation"
+  },  {
+  "groupKey": "SOAN411-Leadership-1",
+  "courseCode": "SOAN411",
+  "groupName": "Leadership 3 Foundation",
+  "externalLogicOperator": "AND",
+  "internalLogicOperator": "AND",
+  "sortOrder": 1,
+  "description": "Leadership 3 foundation"
+  },
   {
   "groupKey": "SOAN220-WRITING-1",
   "courseCode": "SOAN220",
@@ -1204,18 +1220,7 @@
     "sortOrder": 3,
     "description": "Concurrent enrollment"
   },
-
-    {
-    "groupKey": "ENGR310-LEADERSHIP-1",
-    "courseCode": "ENGR310",
-    "groupName": "Leadership Foundation",
-    "externalLogicOperator": "AND",
-    "internalLogicOperator": "AND",
-    "sortOrder": 1,
-    "description": "Leadership foundation"
-  },
-
-    {
+  {
     "groupKey": "ENGR311-MATH-1",
     "courseCode": "ENGR311",
     "groupName": "Mathematics Foundation",
@@ -1288,7 +1293,7 @@
     "externalLogicOperator": "AND",
     "internalLogicOperator": "AND",
     "sortOrder": 2,
-    "description": "Leadership for engineers"
+    "description": "Leadership 4 for engineers"
   },
   {
     "groupKey": "ENGR413-ENGINEERING-3",

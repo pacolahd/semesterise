@@ -97,21 +97,34 @@ export function useCategoryViewController(authId?: string) {
       coursesByParentCategory[parentCategory].push(course);
     });
 
-    // Then group by specific category within each parent category
-    const coursesByCategory: Record<string, CourseWithStatus[]> = {};
+    // Group by category and subcategory
+    const coursesByCategoryAndSubcategory: Record<
+      string,
+      Record<string, CourseWithStatus[]>
+    > = {};
     allCourses.forEach((course) => {
       const category = course.category.name || "Uncategorized";
-      if (!coursesByCategory[category]) {
-        coursesByCategory[category] = [];
+      const subCategory = course.category.subCategory || "default";
+
+      if (!coursesByCategoryAndSubcategory[category]) {
+        coursesByCategoryAndSubcategory[category] = {};
       }
-      coursesByCategory[category].push(course);
+
+      if (!coursesByCategoryAndSubcategory[category][subCategory]) {
+        coursesByCategoryAndSubcategory[category][subCategory] = [];
+      }
+
+      coursesByCategoryAndSubcategory[category][subCategory].push(course);
     });
 
-    // Create a map for the authoritative requirements data by category
-    const requirementsByCategory = new Map<string, any>();
+    // Create a map for the authoritative requirements data by category and subcategory
+    const requirementsByCategoryAndSubcategory = new Map<string, any>();
     if (degreeRequirements) {
       degreeRequirements.forEach((req) => {
-        requirementsByCategory.set(req.categoryName, req);
+        const key = req.subCategory
+          ? `${req.categoryName}:${req.subCategory}`
+          : req.categoryName;
+        requirementsByCategoryAndSubcategory.set(key, req);
       });
     }
 
@@ -145,70 +158,83 @@ export function useCategoryViewController(authId?: string) {
       "Non-Major Electives",
     ];
 
-    // Process each category
-    for (const [categoryName, courses] of Object.entries(coursesByCategory)) {
-      const filteredCourses = courses.filter(
-        (course) => course.status !== "failed"
-      );
+    // Process each category and subcategory combination
+    for (const [categoryName, subcategories] of Object.entries(
+      coursesByCategoryAndSubcategory
+    )) {
+      for (const [subCategoryName, courses] of Object.entries(subcategories)) {
+        const filteredCourses = courses.filter(
+          (course) => course.status !== "failed"
+        );
 
-      // Get authoritative data from the database view if available
-      const dbRequirement = requirementsByCategory.get(categoryName);
+        // Only use subcategory in key if it's not the default subcategory
+        const lookupKey =
+          subCategoryName !== "default"
+            ? `${categoryName}:${subCategoryName}`
+            : categoryName;
 
-      // Calculate course-based stats
-      const completedCourses = filteredCourses.filter(
-        (c) => c.status === "completed" && !c.retakeNeeded
-      ).length;
-      const totalCourses = filteredCourses.length;
+        // Get authoritative data from the database view if available
+        const dbRequirement =
+          requirementsByCategoryAndSubcategory.get(lookupKey);
 
-      // Create category data object
-      const categoryData: CategoryData = {
-        name: categoryName,
-        courses: filteredCourses,
-        completed: completedCourses,
-        planned: totalCourses - completedCourses,
-        totalCourses,
+        // Calculate course-based stats
+        const completedCourses = filteredCourses.filter(
+          (c) => c.status === "completed" && !c.retakeNeeded
+        ).length;
+        const totalCourses = filteredCourses.length;
 
-        // Use authoritative data if available, otherwise calculate from courses
-        completedCredits: dbRequirement
-          ? dbRequirement.creditsCompleted
-          : courses
-              .filter((c) => c.status === "completed" && !c.retakeNeeded)
-              .reduce((sum, course) => sum + course.credits, 0),
+        // Create category data object
+        const categoryData: CategoryData = {
+          name: categoryName,
+          subCategory:
+            subCategoryName !== "default" ? subCategoryName : undefined,
+          courses: filteredCourses,
+          completed: completedCourses,
+          planned: totalCourses - completedCourses,
+          totalCourses,
 
-        totalCredits: dbRequirement
-          ? dbRequirement.creditsRequired
-          : courses.reduce((sum, course) => sum + course.credits, 0),
+          // Use authoritative data if available, otherwise calculate from courses
+          completedCredits: dbRequirement
+            ? dbRequirement.creditsCompleted
+            : courses
+                .filter((c) => c.status === "completed" && !c.retakeNeeded)
+                .reduce((sum, course) => sum + course.credits, 0),
 
-        remainingCredits: dbRequirement
-          ? dbRequirement.creditsRemaining
-          : courses
-              .filter((c) => c.status !== "completed" || c.retakeNeeded)
-              .reduce((sum, course) => sum + course.credits, 0),
+          totalCredits: dbRequirement
+            ? dbRequirement.creditsRequired
+            : courses.reduce((sum, course) => sum + course.credits, 0),
 
-        percentage: dbRequirement
-          ? dbRequirement.progressPercentage
-          : totalCourses > 0
-            ? Math.round((completedCourses / totalCourses) * 100)
-            : 0,
+          remainingCredits: dbRequirement
+            ? dbRequirement.creditsRemaining
+            : courses
+                .filter((c) => c.status !== "completed" || c.retakeNeeded)
+                .reduce((sum, course) => sum + course.credits, 0),
 
-        requirementMet: dbRequirement
-          ? dbRequirement.requirementMet
-          : completedCourses === totalCourses,
+          percentage: dbRequirement
+            ? dbRequirement.progressPercentage
+            : totalCourses > 0
+              ? Math.round((completedCourses / totalCourses) * 100)
+              : 0,
 
-        hasAuthorativeData: !!dbRequirement,
-      };
+          requirementMet: dbRequirement
+            ? dbRequirement.requirementMet
+            : completedCourses === totalCourses,
 
-      // Add to the appropriate group
-      if (libArtsCategories.includes(categoryName)) {
-        libArtsGroup.categories.push(categoryData);
-        libArtsGroup.completedCredits += categoryData.completedCredits;
-        libArtsGroup.totalCredits += categoryData.totalCredits;
-        libArtsGroup.remainingCredits += categoryData.remainingCredits;
-      } else {
-        majorGroup.categories.push(categoryData);
-        majorGroup.completedCredits += categoryData.completedCredits;
-        majorGroup.totalCredits += categoryData.totalCredits;
-        majorGroup.remainingCredits += categoryData.remainingCredits;
+          hasAuthorativeData: !!dbRequirement,
+        };
+
+        // Add to the appropriate group
+        if (libArtsCategories.includes(categoryName)) {
+          libArtsGroup.categories.push(categoryData);
+          libArtsGroup.completedCredits += categoryData.completedCredits;
+          libArtsGroup.totalCredits += categoryData.totalCredits;
+          libArtsGroup.remainingCredits += categoryData.remainingCredits;
+        } else {
+          majorGroup.categories.push(categoryData);
+          majorGroup.completedCredits += categoryData.completedCredits;
+          majorGroup.totalCredits += categoryData.totalCredits;
+          majorGroup.remainingCredits += categoryData.remainingCredits;
+        }
       }
     }
 
@@ -216,16 +242,20 @@ export function useCategoryViewController(authId?: string) {
     if (degreeRequirements) {
       degreeRequirements.forEach((req) => {
         const categoryName = req.categoryName;
+        const subCategoryName = req.subCategory || "default";
 
-        // Skip if we've already processed this category
-        if (coursesByCategory[categoryName]) {
+        // Skip if we've already processed this category and subcategory combination
+        const categoryExists =
+          coursesByCategoryAndSubcategory[categoryName]?.[subCategoryName];
+        if (categoryExists) {
           return;
         }
 
         // Create a category with zero courses but with the requirement data
         const categoryData: CategoryData = {
           name: categoryName,
-          subCategory: req.subCategory!,
+          subCategory:
+            subCategoryName !== "default" ? subCategoryName : undefined,
           courses: [],
           completed: 0,
           planned: 0,
@@ -238,7 +268,7 @@ export function useCategoryViewController(authId?: string) {
           hasAuthorativeData: true,
         };
 
-        // Add to the appropriate group based on parent category
+        // Add to the appropriate group based on category name or parent category
         if (
           libArtsCategories.includes(categoryName) ||
           req.parentCategory === "Liberal Arts and Science core"
@@ -272,8 +302,28 @@ export function useCategoryViewController(authId?: string) {
         : 0;
 
     // Sort categories by name within each group
-    libArtsGroup.categories.sort((a, b) => a.name.localeCompare(b.name));
-    majorGroup.categories.sort((a, b) => a.name.localeCompare(b.name));
+    libArtsGroup.categories.sort((a, b) => {
+      // First compare by category name
+      const nameCompare = a.name.localeCompare(b.name);
+      if (nameCompare !== 0) return nameCompare;
+
+      // If same category, compare by subcategory
+      if (a.subCategory && b.subCategory) {
+        return a.subCategory.localeCompare(b.subCategory);
+      }
+      // Items with subcategories come after items without
+      return a.subCategory ? 1 : b.subCategory ? -1 : 0;
+    });
+
+    majorGroup.categories.sort((a, b) => {
+      const nameCompare = a.name.localeCompare(b.name);
+      if (nameCompare !== 0) return nameCompare;
+
+      if (a.subCategory && b.subCategory) {
+        return a.subCategory.localeCompare(b.subCategory);
+      }
+      return a.subCategory ? 1 : b.subCategory ? -1 : 0;
+    });
 
     // Add the groups to the result
     const groupsData = [];

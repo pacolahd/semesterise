@@ -62,15 +62,7 @@
     "prerequisites": "Leadership Seminar 4 for Engineers and System Dynamics, concurrent enrollment in Control Systems",
     "semestersOffered": ["FALL", "SPRING"]
   },
-  {
-    "code": "ENGR310",
-    "title": "Leadership 4 for Engineers",
-    "department": "Engineering",
-    "credits": 1.0,
-    "description": "This course combines leadership development with the Third Year Group Project. Students explore ethical dimensions of engineering practice while working on multidisciplinary engineering projects with a service-learning component.",
-    "prerequisites": "Leadership Seminar 3",
-    "semestersOffered": ["FALL"]
-  },
+
   {
     "code": "ENGR311",
     "title": "System Dynamics",

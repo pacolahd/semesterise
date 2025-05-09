@@ -135,15 +135,6 @@
     "semestersOffered": ["SPRING"]
   },
   {
-    "code": "SOAN112",
-    "title": "Leadership Seminar 4 for Engineers",
-    "department": "Humanities and Social Sciences",
-    "credits": 1.0,
-    "description": "This specialized version of Leadership Seminar 4 is tailored for engineering students, integrating leadership principles with the Third Year Group Project component. It emphasizes the ethical and social responsibilities of engineering professionals.",
-    "prerequisites": "Leadership Seminar 3",
-    "semestersOffered": ["FALL"]
-  },
-  {
     "code": "SOAN220",
     "title": "Embodied African Aesthetics Foundations",
     "department": "Humanities and Social Sciences",
