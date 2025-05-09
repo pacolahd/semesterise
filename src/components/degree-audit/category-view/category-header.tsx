@@ -25,8 +25,8 @@ export function CategoryHeader({
       )}
       onClick={onClick}
     >
-      <div className="flex-1">
-        <h3 className="font-medium">{title}</h3>
+      <div className="flex-1 mr-2">
+        <h3 className="font-medium overflow-hidden">{title}</h3>
       </div>
       <div className="flex items-center gap-4">
         <span className="text-sm text-muted-foreground">{credits}</span>

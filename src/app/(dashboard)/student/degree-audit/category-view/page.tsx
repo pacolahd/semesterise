@@ -153,11 +153,19 @@ export default function CategoryViewPage() {
 
               return (
                 <div
-                  key={categoryKey}
+                  key={
+                    category.subCategory
+                      ? `${category.name} (${category.subCategory === "Non-Major Electives" ? "General" : category.subCategory})`
+                      : category.name
+                  }
                   className="border rounded-lg overflow-hidden"
                 >
                   <CategoryHeader
-                    title={category.name}
+                    title={
+                      category.subCategory
+                        ? `${category.name} (${category.subCategory === "Non-Major Electives" ? "General" : category.subCategory})`
+                        : category.name
+                    }
                     credits={`${category.completedCredits}/${category.totalCredits} credits`}
                     percentage={category.percentage}
                     isExpanded={expandedSections[categoryKey] ?? true}

@@ -1,9 +1,12 @@
 import { InferModelFromColumns, sql } from "drizzle-orm";
-import { boolean, decimal, integer, pgView, text, varchar } from "drizzle-orm/pg-core";
-
-
-
-
+import {
+  boolean,
+  decimal,
+  integer,
+  pgView,
+  text,
+  varchar,
+} from "drizzle-orm/pg-core";
 
 export const studentDegreeRequirementProgressView = pgView(
   "student_degree_requirement_progress_view",
@@ -14,11 +17,11 @@ export const studentDegreeRequirementProgressView = pgView(
     categoryName: text("category_name").notNull(),
     subCategory: text("sub_category"),
     coursesRequired: integer("courses_required").notNull(),
-    creditsRequired: integer("credits_required").notNull(),
+    creditsRequired: decimal("credits_required").notNull(),
     coursesCompleted: integer("courses_completed").notNull(),
-    creditsCompleted: integer("credits_completed").notNull(),
+    creditsCompleted: decimal("credits_completed").notNull(),
     coursesRemaining: integer("courses_remaining").notNull(),
-    creditsRemaining: integer("credits_remaining").notNull(),
+    creditsRemaining: decimal("credits_remaining").notNull(),
     progressPercentage: decimal("progress_percentage", {
       precision: 5,
       scale: 2,

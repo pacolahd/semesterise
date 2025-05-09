@@ -216,15 +216,15 @@ export async function getStudentDegreeRequirementProgress(
       categoryName: p.categoryName,
       subCategory: p.subCategory || null,
       coursesRequired: p.coursesRequired,
-      creditsRequired: p.creditsRequired,
+      creditsRequired: parseFloat(p.creditsRequired?.toString() || "0"),
       coursesCompleted: p.coursesCompleted,
-      creditsCompleted: p.creditsCompleted,
+      creditsCompleted: parseFloat(p.creditsCompleted?.toString() || "0"),
       coursesRemaining: p.coursesRemaining,
-      creditsRemaining: p.creditsRemaining,
+      creditsRemaining: parseFloat(p.creditsRemaining?.toString() || "0"),
       progressPercentage: parseFloat(p.progressPercentage?.toString() || "0"),
       requirementMet: p.requirementMet,
     }));
-
+    // console.log("\n\n\n\n\n Progress:\n\n", progress);
     return {
       success: true,
       data: formattedProgress,
@@ -346,6 +346,7 @@ export async function getStudentAcademicPlan(
         category: {
           name: course.categoryName || "General",
           parentName: getCategoryParent(course.categoryName),
+          subCategory: course.subCategory,
           color:
             CATEGORY_COLORS[
               course.categoryName as keyof typeof CATEGORY_COLORS

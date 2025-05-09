@@ -6,6 +6,7 @@ export type CourseStatus = "completed" | "failed" | "planned";
 export type CourseCategory = {
   name: string;
   parentName: string;
+  subCategory?: string;
   color: string;
 };
 

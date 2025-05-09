@@ -10,6 +10,7 @@ import { CourseWithStatus } from "@/lib/academic-plan/types";
 
 export interface CategoryData {
   name: string;
+  subCategory?: string;
   // Courses in this category
   courses: CourseWithStatus[];
   // Course counts
@@ -224,6 +225,7 @@ export function useCategoryViewController(authId?: string) {
         // Create a category with zero courses but with the requirement data
         const categoryData: CategoryData = {
           name: categoryName,
+          subCategory: req.subCategory!,
           courses: [],
           completed: 0,
           planned: 0,
