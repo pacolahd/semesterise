@@ -6,7 +6,6 @@ import { pusher } from "@/lib/pusher/pusher-server";
 
 export async function POST(req: NextRequest) {
   try {
-    // Verify user session
     const sessionResult = await getSession();
     if (!sessionResult.success || !sessionResult.data) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -14,23 +13,28 @@ export async function POST(req: NextRequest) {
 
     const { user } = sessionResult.data;
 
-    // Parse request body
-    const data = await req.json();
-    const { socket_id, channel_name } = data;
+    // Parse the form-encoded body (default for Pusher)
+    const body = await req.text();
+    const params = new URLSearchParams(body);
+    const socket_id = params.get("socket_id");
+    const channel_name = params.get("channel_name");
 
-    // Only allow users to subscribe to their own channel
-    if (!channel_name.includes(`private-user-${user.id}`)) {
+    if (!socket_id || !channel_name) {
+      return NextResponse.json(
+        { error: "Missing socket_id or channel_name" },
+        { status: 400 }
+      );
+    }
+
+    // Optional: verify channel name belongs to user
+    if (!channel_name.startsWith(`private-user-${user.id}`)) {
       return NextResponse.json(
         { error: "Unauthorized channel" },
         { status: 403 }
       );
     }
 
-    // Generate auth signature
-    const authResponse = pusher.authorizeChannel(socket_id, channel_name, {
-      user_id: user.id,
-    });
-
+    const authResponse = pusher.authenticate(socket_id, channel_name);
     return NextResponse.json(authResponse);
   } catch (error) {
     console.error("Pusher auth error:", error);
