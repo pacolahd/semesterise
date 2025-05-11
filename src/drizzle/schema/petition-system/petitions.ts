@@ -69,3 +69,10 @@ export const petitionSchema = createInsertSchema(petitions).extend({
 
 export type PetitionInput = z.infer<typeof petitionSchema>;
 export type PetitionRecord = InferSelectModel<typeof petitions>;
+
+const partialPetitionSchema = petitionSchema.pick({
+  petitionTypeId: true,
+  title: true,
+});
+
+export type PartialPetitionInput = z.infer<typeof partialPetitionSchema>;

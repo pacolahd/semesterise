@@ -36,7 +36,10 @@ import { PetitionCourseRecord } from "@/drizzle/schema/petition-system/petition-
 import { PetitionMessageInput } from "@/drizzle/schema/petition-system/petition-messages";
 import { PetitionNotificationInput } from "@/drizzle/schema/petition-system/petition-notifications";
 import { PetitionTypeRecord } from "@/drizzle/schema/petition-system/petition-types";
-import { PetitionRecord } from "@/drizzle/schema/petition-system/petitions";
+import {
+  PartialPetitionInput,
+  PetitionRecord,
+} from "@/drizzle/schema/petition-system/petitions";
 import { studentProfiles } from "@/drizzle/schema/student-records";
 import { getSession } from "@/lib/auth/auth-actions";
 import {
@@ -318,7 +321,7 @@ export async function generatePetitionReferenceNumber(): Promise<string> {
  * Create a new petition draft
  */
 export async function createPetitionDraft(
-  input: z.infer<typeof petitionSchema>
+  input: PartialPetitionInput
 ): Promise<ActionResponse<{ id: string; referenceNumber: string }>> {
   try {
     const sessionResult = await getSession();
@@ -1832,7 +1835,7 @@ export async function getPetitionTypes(): Promise<
  * Get petitions for the current user
  */
 export async function getUserPetitions(): Promise<
-  ActionResponse<(typeof petitions.$inferSelect)[]>
+  ActionResponse<PetitionRecord[]>
 > {
   try {
     const sessionResult = await getSession();
