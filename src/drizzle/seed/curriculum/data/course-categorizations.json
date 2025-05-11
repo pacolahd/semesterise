@@ -7,7 +7,7 @@
     "isFlexible": false,
     "recommendedYear": 4,
     "recommendedSemester": 1,
-    "capstoneOptionName": "Undergraduate Thesis"
+    "capstoneOptionName": "Undergraduate BA Thesis"
   },
   {
     "courseCode": "BUSA400B",
@@ -17,7 +17,27 @@
     "isFlexible": false,
     "recommendedYear": 4,
     "recommendedSemester": 2,
-    "capstoneOptionName": "Undergraduate Thesis"
+    "capstoneOptionName": "Undergraduate BA Thesis"
+  },
+  {
+    "courseCode": "CS491",
+    "categoryName": "Capstone",
+    "majorGroup": "NON-ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 4,
+    "recommendedSemester": 1,
+    "capstoneOptionName": "Undergraduate CS Thesis"
+  },
+  {
+    "courseCode": "CS492",
+    "categoryName": "Capstone",
+    "majorGroup": "NON-ENG",
+    "isRequired": true,
+    "isFlexible": false,
+    "recommendedYear": 4,
+    "recommendedSemester": 2,
+    "capstoneOptionName": "Undergraduate CS Thesis"
   },
   {
     "courseCode": "BUSA401A",
@@ -158,8 +178,8 @@
     "majorGroup": "CS",
     "isRequired": true,
     "isFlexible": false,
-    "recommendedYear": 2,
-    "recommendedSemester": 2
+    "recommendedYear": 4,
+    "recommendedSemester": 1
   },
   {
     "courseCode": "MATH121",
@@ -330,7 +350,7 @@
     "isRequired": true,
     "isFlexible": false,
     "recommendedYear": 3,
-    "recommendedSemester": 1
+    "recommendedSemester": 2
   },
   {
     "courseCode": "CS456",
@@ -339,7 +359,7 @@
     "isRequired": true,
     "isFlexible": false,
     "recommendedYear": 3,
-    "recommendedSemester": 2
+    "recommendedSemester": 1
   },
   {
     "courseCode": "CS341",
@@ -579,7 +599,7 @@
     "recommendedSemester": 1
   },
   {
-    "courseCode": "IS335",
+    "courseCode": "IS351",
     "categoryName": "Required Major Classes",
     "majorGroup": "MIS",
     "isRequired": true,
@@ -606,7 +626,7 @@
     "recommendedSemester": 1
   },
   {
-    "courseCode": "IS331",
+    "courseCode": "IS333",
     "categoryName": "Required Major Classes",
     "majorGroup": "MIS",
     "isRequired": true,
@@ -932,13 +952,13 @@
     "courseCode": "MATH161",
     "categoryName": "Mathematics & Quantitative",
     "majorGroup": "ENG",
+    "mathTrackName": "Engineering-Calculus",
     "isRequired": true,
     "isFlexible": false,
     "recommendedYear": 1,
     "recommendedSemester": 1,
-    "notes": "Engineering Calculus - primary calculus track for engineering students"
+    "notes": "Engineering-Calculus - primary calculus track for engineering students"
   },
-
   {
     "courseCode": "MATH211",
     "categoryName": "Mathematics & Quantitative",

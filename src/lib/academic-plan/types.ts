@@ -1,4 +1,5 @@
 // src/lib/academic-plan/types.ts
+import { MajorGroup } from "@/drizzle/schema/curriculum/enums";
 import { StudentSemesterMappingRecord } from "@/drizzle/schema/student-records/student-semester-mappings";
 
 export type CourseStatus = "completed" | "failed" | "planned";
@@ -216,7 +217,7 @@ export interface PrerequisiteGroup {
   internalLogicOperator: "AND" | "OR";
   isConcurrent: boolean;
   isRecommended: boolean;
-  applicableMajorCode: string | null; // Add this field for major-specific prerequisites
+  applicableMajorGroup: MajorGroup | null; // Add  this field for major-specific prerequisites
 }
 
 export interface MissingPrerequisite {
@@ -226,7 +227,7 @@ export interface MissingPrerequisite {
   internalLogicOperator: "AND" | "OR";
   requiredCount: number;
   satisfiedCount: number;
-  applicableMajorCode?: string | null; // Add this field to show which major this prerequisite applies to
+  applicableMajorGroup: MajorGroup | null; // Add this field to show which major this prerequisite applies to
 }
 
 export interface PrerequisiteCourse {

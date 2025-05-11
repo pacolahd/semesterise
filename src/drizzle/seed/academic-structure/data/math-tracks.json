@@ -8,5 +8,10 @@
     "name": "Pre-Calculus",
     "description": "Track for students starting with Pre-Calculus courses",
     "requiredCoursesCount": 5
+  },
+  {
+    "name": "Engineering-Calculus",
+    "description": "",
+    "requiredCoursesCount": 4
   }
 ]

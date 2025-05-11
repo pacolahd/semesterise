@@ -20,8 +20,8 @@
   },
 
   {
-  "groupKey": "POLS231-WRITING-1",
-  "courseCode": "POLS231",
+  "groupKey": "SOAN251-WRITING-1",
+  "courseCode": "SOAN251",
   "groupName": "Writing Foundation",
   "externalLogicOperator": "AND",
   "internalLogicOperator": "AND",
@@ -227,8 +227,6 @@
     "sortOrder": 2,
     "description": "Systems or theory background"
   },
-
-  
   {
     "groupKey": "CS331-PROGRAMMING-1",
     "courseCode": "CS331",
@@ -246,7 +244,9 @@
     "internalLogicOperator": "AND",
     "isConcurrent": true,
     "sortOrder": 2,
-    "description": "Concurrent theory course"
+    "description": "Concurrent theory course",
+    "applicableMajorGroup": "CS"
+
   },
   {
     "groupKey": "CS331-HARDWARE-1",
@@ -257,10 +257,9 @@
     "isConcurrent": false,
     "sortOrder": 3,
     "description": "Hardware and Systems Fundamentals",
-    "applicableMajorCode": "CS"
+    "applicableMajorGroup": "CS"
   },
 
-  
   {
     "groupKey": "CS341-PROGRAMMING-1",
     "courseCode": "CS341",
@@ -292,7 +291,25 @@
     "description": "Algorithms background"
   },
 
-  
+  {
+    "groupKey": "CS413-PROGRAMMING-1",
+    "courseCode": "CS413",
+    "groupName": "Programming Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Programming background"
+  },
+  {
+    "groupKey": "CS413-STRUCTURES-2",
+    "courseCode": "CS413",
+    "groupName": "Programming Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "OR",
+    "sortOrder": 1,
+    "description": "Structures background"
+  },
+
   {
     "groupKey": "CS415-PROGRAMMING-1",
     "courseCode": "CS415",
@@ -466,8 +483,8 @@
 
   
   {
-    "groupKey": "IS331-PROGRAMMING-1",
-    "courseCode": "IS331",
+    "groupKey": "IS333-PROGRAMMING-1",
+    "courseCode": "IS333",
     "groupName": "Programming Foundation",
     "externalLogicOperator": "AND",
     "internalLogicOperator": "OR",
@@ -499,8 +516,8 @@
 
   
   {
-    "groupKey": "IS335-COMPUTING-1",
-    "courseCode": "IS335",
+    "groupKey": "IS351-COMPUTING-1",
+    "courseCode": "IS351",
     "groupName": "Computing Foundation",
     "externalLogicOperator": "AND",
     "internalLogicOperator": "AND",
@@ -579,7 +596,7 @@
     "courseCode": "MATH211",
     "groupName": "Mathematics Foundation",
     "externalLogicOperator": "AND",
-    "internalLogicOperator": "OR",
+    "internalLogicOperator": "AND",
     "sortOrder": 1,
     "description": "Calculus background"
   },
@@ -645,23 +662,14 @@
     "sortOrder": 1,
     "description": "Programming background"
   },
-  
+
   {
-    "groupKey": "CS254-ALGORITHMS-1",
-    "courseCode": "CS254",
-    "groupName": "Algorithms Foundation",
-    "externalLogicOperator": "AND",
-    "internalLogicOperator": "AND",
-    "sortOrder": 1,
-    "description": "Algorithms background"
-  },
-  {
-    "groupKey": "CS254-STATS-2",
+    "groupKey": "CS254-STATS-1",
     "courseCode": "CS254",
     "groupName": "Statistics Foundation",
     "externalLogicOperator": "AND",
     "internalLogicOperator": "AND",
-    "sortOrder": 2,
+    "sortOrder": 1,
     "description": "Statistics background"
   },
 
@@ -693,6 +701,7 @@
     "externalLogicOperator": "AND",
     "internalLogicOperator": "OR",
     "sortOrder": 1,
+    "applicableMajorGroup": "NON-ENG",
     "description": "Mathematics background"
   },
 
@@ -741,9 +750,10 @@
     "groupKey": "BUSA224-ECON-3",
     "courseCode": "BUSA224",
     "groupName": "Economics Requirement",
-    "externalLogicOperator": "OR",
+    "externalLogicOperator": "AND",
     "internalLogicOperator": "AND",
     "isConcurrent": true,
+    "applicableMajorGroup": "MIS",
     "sortOrder": 3,
     "description": "Concurrent economics"
   },
@@ -851,6 +861,15 @@
     "internalLogicOperator": "AND",
     "sortOrder": 1,
     "description": "Thesis 1 requirement"
+  },
+  {
+    "groupKey": "CS492-THESIS-1",
+    "courseCode": "CS492",
+    "groupName": "Undergraduate Thesis Foundation",
+    "externalLogicOperator": "AND",
+    "internalLogicOperator": "AND",
+    "sortOrder": 1,
+    "description": "Undergraduate Thesis 1 requirement"
   },
 
   
@@ -1171,8 +1190,7 @@
     "sortOrder": 2,
     "description": "Physics background"
   },
-
-    {
+  {
     "groupKey": "ENGR213-PHYSICS-1",
     "courseCode": "ENGR213",
     "groupName": "Physics Foundation",
@@ -1181,8 +1199,7 @@
     "sortOrder": 1,
     "description": "Physics foundation"
   },
-
-    {
+  {
     "groupKey": "ME442-MECHANICS-1",
     "courseCode": "ME442",
     "groupName": "Mechanics Foundation",
@@ -1191,34 +1208,14 @@
     "sortOrder": 1,
     "description": "Mechanics background"
   },
-
-    {
+  {
     "groupKey": "ENGR300-LEADERSHIP-1",
     "courseCode": "ENGR300",
     "groupName": "Leadership Foundation",
     "externalLogicOperator": "AND",
     "internalLogicOperator": "AND",
     "sortOrder": 1,
-    "description": "Leadership foundation"
-  },
-  {
-    "groupKey": "ENGR300-SYSTEMS-2",
-    "courseCode": "ENGR300",
-    "groupName": "Systems Foundation",
-    "externalLogicOperator": "AND",
-    "internalLogicOperator": "AND",
-    "sortOrder": 2,
-    "description": "Systems dynamics"
-  },
-  {
-    "groupKey": "ENGR300-CONTROL-3",
-    "courseCode": "ENGR300",
-    "groupName": "Control Systems",
-    "externalLogicOperator": "AND",
-    "internalLogicOperator": "AND",
-    "isConcurrent": true,
-    "sortOrder": 3,
-    "description": "Concurrent enrollment"
+    "description": "Leadership 3 foundation"
   },
   {
     "groupKey": "ENGR311-MATH-1",
@@ -1346,7 +1343,9 @@
     "externalLogicOperator": "AND",
     "internalLogicOperator": "AND",
     "sortOrder": 1,
-    "description": "Calculus background"
+    "description": "Calculus background",
+      "applicableMajorGroup": "CE"
+
   },
   {
     "groupKey": "CE122-PROGRAMMING-2",
@@ -1396,17 +1395,6 @@
     "sortOrder": 2,
     "description": "Digital systems background"
   },
-
-    {
-    "groupKey": "CHEM211-PHYSICS-1",
-    "courseCode": "CHEM211",
-    "groupName": "Physics Foundation",
-    "externalLogicOperator": "AND",
-    "internalLogicOperator": "AND",
-    "sortOrder": 1,
-    "description": "Physics background"
-  },
-
     {
     "groupKey": "EE222-PHYSICS-1",
     "courseCode": "EE222",
@@ -1714,18 +1702,17 @@
     "sortOrder": 1,
     "description": "Thermodynamics background"
   },
-
-    {
+   {
     "groupKey": "SC112-MATH-1",
     "courseCode": "SC112",
     "groupName": "Mathematics Foundation",
     "externalLogicOperator": "AND",
     "internalLogicOperator": "OR",
     "sortOrder": 1,
+      "applicableMajorGroup": "NON-ENG",
     "description": "Calculus background"
   },
-
-    {
+  {
     "groupKey": "SC113-PHYSICS-1",
     "courseCode": "SC113",
     "groupName": "Physics Foundation",
@@ -1734,6 +1721,4 @@
     "sortOrder": 1,
     "description": "Physics background"
   }
-
-
 ]

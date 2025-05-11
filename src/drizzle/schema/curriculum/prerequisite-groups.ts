@@ -3,6 +3,10 @@ import { boolean, integer, pgTable, text, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+import {
+  majorGroupEnum,
+  majorGroupValues,
+} from "@/drizzle/schema/curriculum/enums";
 import { createdAt, updatedAt } from "@/drizzle/schema/helpers";
 
 import { courses } from "./courses";
@@ -42,7 +46,7 @@ export const prerequisiteGroups = pgTable("prerequisite_groups", {
   nonCourseRequirement: text("non_course_requirement"),
 
   // major to which this requirement applies
-  applicableMajorCode: varchar("applicable_major_code", { length: 10 }),
+  applicableMajorGroup: majorGroupEnum("applicable_major_group"),
 
   // For cohort-specific requirements
   cohortYearStart: integer("cohort_year_start"),
@@ -66,6 +70,7 @@ export const prerequisiteGroupSchema = createInsertSchema(
   sortOrder: z.number().int().default(0),
   description: z.string().optional().nullable(),
   nonCourseRequirement: z.string().optional().nullable(),
+  applicableMajorGroup: z.enum(majorGroupValues).nullable(),
   cohortYearStart: z.number().int().optional().nullable(),
   cohortYearEnd: z.number().int().optional().nullable(),
 });

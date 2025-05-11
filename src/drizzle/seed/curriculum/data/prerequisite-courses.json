@@ -12,7 +12,7 @@
   },
 
   {
-    "groupKey": "POLS231-WRITING-1",
+    "groupKey": "SOAN251-WRITING-1",
     "prerequisiteCourseCode": "ENGL112",
     "description": "Written and Oral Communication"
   },
@@ -223,8 +223,26 @@
     "prerequisiteCourseCode": "CS222",
     "description": "Data Structures & Algorithms"
   },
-
-  
+  {
+    "groupKey": "CS413-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS212",
+    "description": "Computer Programming for CS"
+  },
+  {
+    "groupKey": "CS413-PROGRAMMING-1",
+    "prerequisiteCourseCode": "CS112",
+    "description": "Computer Programming for Engineering"
+  },
+  {
+    "groupKey": "CS413-STRUCTURES-2",
+    "prerequisiteCourseCode": "CS222",
+    "description": "Data Structures & Algorithms"
+  },
+  {
+    "groupKey": "CS413-STRUCTURES-2",
+    "prerequisiteCourseCode": "CS221",
+    "description": "Discrete Structures and Theory"
+  },
   {
     "groupKey": "CS415-PROGRAMMING-1",
     "prerequisiteCourseCode": "CS212",
@@ -390,12 +408,12 @@
 
   
   {
-    "groupKey": "IS331-PROGRAMMING-1",
+    "groupKey": "IS333-PROGRAMMING-1",
     "prerequisiteCourseCode": "CS212",
     "description": "Computer Programming for CS"
   },
   {
-    "groupKey": "IS331-PROGRAMMING-1",
+    "groupKey": "IS333-PROGRAMMING-1",
     "prerequisiteCourseCode": "CS112",
     "description": "Computer Programming for Engineering"
   },
@@ -413,7 +431,7 @@
   },
   {
     "groupKey": "IS332-SYSTEMS-2",
-    "prerequisiteCourseCode": "IS331",
+    "prerequisiteCourseCode": "IS333",
     "description": "IT Infrastructure"
   },
   {
@@ -429,7 +447,7 @@
 
   
   {
-    "groupKey": "IS335-COMPUTING-1",
+    "groupKey": "IS351-COMPUTING-1",
     "prerequisiteCourseCode": "CS111",
     "description": "Introduction to Computing and Information Systems"
   },
@@ -474,13 +492,8 @@
 
   {
     "groupKey": "MATH211-MATH-1",
-    "prerequisiteCourseCode": "MATH142",
-    "description": "Calculus 2"
-  },
-  {
-    "groupKey": "MATH211-MATH-1",
-    "prerequisiteCourseCode": "MATH151",
-    "description": "Applied Calculus"
+    "prerequisiteCourseCode": "MATH161",
+    "description": "Calculus for Engineering"
   },
 
   
@@ -540,18 +553,12 @@
     "prerequisiteCourseCode": "CS212",
     "description": "Computer Programming for CS"
   },
-  
+
   {
-    "groupKey": "CS254-ALGORITHMS-1",
-    "prerequisiteCourseCode": "CS222",
-    "description": "Data Structures & Algorithms"
-  },
-  {
-    "groupKey": "CS254-STATS-2",
+    "groupKey": "CS254-STATS-1",
     "prerequisiteCourseCode": "MATH221",
     "description": "Statistics with Probability"
   },
-
 
   {
     "groupKey": "CS361-STATS-1",
@@ -681,6 +688,11 @@
     "groupKey": "BUSA400B-THESIS-1",
     "prerequisiteCourseCode": "BUSA400A",
     "description": "Thesis 1"
+  },
+  {
+    "groupKey": "CS492-THESIS-1",
+    "prerequisiteCourseCode": "CS491",
+    "description": "Undergraduate Thesis 1"
   },
 
   
@@ -954,18 +966,8 @@
 
   {
     "groupKey": "ENGR300-LEADERSHIP-1",
-    "prerequisiteCourseCode": "SOAN411",
-    "description": "Leadership 4 for Engineers"
-  },
-  {
-    "groupKey": "ENGR300-SYSTEMS-2",
-    "prerequisiteCourseCode": "ENGR311",
-    "description": "System Dynamics"
-  },
-  {
-    "groupKey": "ENGR300-CONTROL-3",
-    "prerequisiteCourseCode": "ENGR312",
-    "description": "Control Systems"
+    "prerequisiteCourseCode": "SOAN311",
+    "description": "Leadership 3"
   },
   {
     "groupKey": "ENGR311-MATH-1",
@@ -1077,14 +1079,6 @@
     "description": "Computer Organization"
   },
 
-  
-  {
-    "groupKey": "CHEM211-PHYSICS-1",
-    "prerequisiteCourseCode": "SC112",
-    "description": "Physics I: Mechanics"
-  },
-
-  
   {
     "groupKey": "EE222-PHYSICS-1",
     "prerequisiteCourseCode": "SC113",

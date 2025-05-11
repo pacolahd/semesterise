@@ -15,6 +15,18 @@ import { getPusherClient } from "@/lib/pusher/pusher-client";
 
 // lib/petition-system/use-realtime-notifications.ts
 
+// lib/petition-system/use-realtime-notifications.ts
+
+// lib/petition-system/use-realtime-notifications.ts
+
+// lib/petition-system/use-realtime-notifications.ts
+
+// lib/petition-system/use-realtime-notifications.ts
+
+// lib/petition-system/use-realtime-notifications.ts
+
+// lib/petition-system/use-realtime-notifications.ts
+
 export function useRealtimeNotifications() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
@@ -26,9 +38,19 @@ export function useRealtimeNotifications() {
       return;
     }
 
+    console.log("Setting up Pusher subscription for user:", user.id);
     const pusherClient = getPusherClient();
     const channelName = `private-user-${user.id}`;
+
+    // Try to subscribe to the channel
     const channel = pusherClient.subscribe(channelName);
+
+    // Bind to subscription error for graceful handling
+    channel.bind("subscription_error", (error: any) => {
+      console.error("Pusher subscription error:", error);
+      // Optionally, show a toast or notification to the user
+      toast.error("Failed to subscribe to notifications. Please try again.");
+    });
 
     channel.bind("petition-notification", (rawData: any) => {
       const result = petitionNotificationSchema.safeParse(rawData);

@@ -76,12 +76,12 @@ export function determineMathTrack(
   });
 
   // Determine the track based on courses taken
-  if (isEngineeringStudent) {
-    return undefined;
-  } else if (hasCalculusCourse) {
+  if (hasCalculusCourse) {
     return "Calculus";
   } else if (hasPreCalculusCourse) {
     return "Pre-Calculus";
+  } else if (isEngineeringStudent) {
+    return "Engineering-Calculus";
   }
 
   // If no math courses are found, use the user's selection from onboarding

@@ -79,7 +79,7 @@
     "credits": 1.0,
     "description": "This course presents the fundamental concepts of computer organization and instruction set architectures. Assembly language programming is used to present and illustrate the concepts of instruction set design. The basics of Central Processor Unit (CPU) design and implementation are covered, including some performance enhancing methods like pipelining and memory caches.",
     "prerequisites": "EITHER Computer Programming for CS OR Computer Programming for Engineering. Completion or concurrent enrollment in Discrete Structures and Theory.",
-    "semestersOffered": ["FALL"]
+    "semestersOffered": ["SPRING"]
   },
   {
     "code": "CS341",
@@ -97,7 +97,7 @@
     "credits": 1.0,
     "description": "This course covers the design and analysis of computer algorithms. Topics include asymptotic analysis, divide-and-conquer algorithms, greedy algorithms, dynamic programming, and NP-completeness.",
     "prerequisites": "Data Structures & Algorithms",
-    "semestersOffered": ["SPRING"]
+    "semestersOffered": ["FALL"]
   },
   {
     "code": "CS462",
@@ -108,12 +108,39 @@
     "semestersOffered": ["SPRING", "FALL"]
   },
   {
+    "code": "CS491",
+    "title": "Undergraduate Thesis 1",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "First part of a two-semester thesis sequence. Students develop a research proposal, conduct literature review, and begin data collection for an independent research project.",
+    "semestersOffered": ["FALL"],
+    "prerequisites": "8 Credits in Major Area of Study"
+  },
+  {
+    "code": "CS492",
+    "title": "Undergraduate Thesis 2",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description": "Second part of a two-semester thesis sequence. Students complete data collection, analyze findings, and prepare a final thesis document.",
+    "semestersOffered": ["SPRING"],
+    "prerequisites": "Undergraduate Thesis 1"
+},
+  {
     "code": "CS415",
     "title": "Software Engineering",
     "department": "CSIS",
     "credits": 1.0,
     "description": "This course covers the fundamentals of software engineering with a focus on the software lifecycle and developing quality software as a team. Topics covered include requirements, specification, design, quality assurance and testing, process, as well as tools and environments.",
     "prerequisites": "EITHER Computer Programming for CS OR Computer Programming for Engineering, EITHER Web Technologies OR Intermediate Computer Programming OR Data Structures",
+    "semestersOffered": ["SPRING"]
+  },
+  {
+    "code": "CS413",
+    "title": "Concepts of Programming Languages",
+    "department": "CSIS",
+    "credits": 1.0,
+    "description":"This course examines fundamentals concepts in programming languages and major tools and techniques to \nimplement them. The key characteristics of major programming paradigms, including the imperative programming \nparadigm and the functioning programming paradigm, will be studied and compared.  Topics covered include \nspecification and informal semantic models; binding and scoping; types and type systems; control structures; data \nabstraction; procedural abstraction and parameter passing; higher-order functions; and memory management.  \nProgramming assignments will give students the opportunity to master the course concepts. ",
+    "prerequisites":"EITHER Computer Programming for CS OR Computer Programming for Engineering, EITHER Data Structures and Algorithms OR Discrete Structures and Theory",
     "semestersOffered": ["SPRING"]
   },
   {
@@ -207,7 +234,7 @@
     "semestersOffered": ["FALL"]
   },
   {
-    "code": "IS331",
+    "code": "IS333",
     "title": "IT Infrastructure",
     "department": "CSIS",
     "credits": 1.0,
@@ -225,7 +252,7 @@
     "semestersOffered": ["SPRING"]
   },
   {
-    "code": "IS335",
+    "code": "IS351",
     "title": "Systems Analysis & Design",
     "department": "CSIS",
     "credits": 1.0,
@@ -328,7 +355,7 @@
     "department": "CSIS",
     "credits": 1.0,
     "description": "Physical problems require problem solving approaches which combine mathematical thinking and technology to develop modern solutions. Linear algebra and multivariable calculus is a course which provides the essential and foundational toolkit needed to approach such real-life problems. In this course, you will build on your existing differentiation and integration of single variable studied in prerequisite courses and expand into multivariable calculus and linear algebra.",
-    "prerequisites": "Calculus 2 or Applied Calculus",
+    "prerequisites": "Calculus for Engineering",
     "semestersOffered": ["FALL", "SPRING"]
   },
   {
@@ -383,7 +410,7 @@
     "credits": 1.0,
     "description": "This course introduces the fundamental concepts and techniques of artificial intelligence, including problem solving, knowledge representation, reasoning, planning, and machine learning.",
     "prerequisites": "Data Structures & Algorithms, Statistics with Probability",
-    "semestersOffered": ["FALL", "SPRING"]
+    "semestersOffered": ["SPRING"]
   },
   {
     "code": "CS361",

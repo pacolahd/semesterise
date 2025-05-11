@@ -1,9 +1,16 @@
 [
   {
-    "name": "Undergraduate Thesis",
+    "name": "Undergraduate BA Thesis",
     "description": "Two-course sequence (Thesis 1 and 2) to be respectively taken in the 2 semesters of final year, focused on research",
     "firstSemesterCode": "BUSA400A",
     "secondSemesterCode": "BUSA400B",
+    "requiresExtraElective": false
+  },
+  {
+    "name": "Undergraduate CS Thesis",
+    "description": "Two-course sequence (Thesis 1 and 2) to be respectively taken in the 2 semesters of final year, focused on research",
+    "firstSemesterCode": "CS491",
+    "secondSemesterCode": "CS492",
     "requiresExtraElective": false
   },
   {

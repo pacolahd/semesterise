@@ -60,7 +60,7 @@
     "credits": 1.0,
     "description": "This course is designed to equip students with the necessary tools, skills and competencies required of contemporary managers of top-notch organizations to properly handle financial management and planning issues.",
     "prerequisites": "Pre-calculus 1 & 2 or Calculus 1; Prior or concurrent enrollment in Microeconomics",
-    "semestersOffered": ["SPRING", "SUMMER"]
+    "semestersOffered": ["FALL", "SUMMER"]
   },
   {
     "code": "BUSA304",

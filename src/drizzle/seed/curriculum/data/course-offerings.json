@@ -332,7 +332,7 @@
     "offeredInSemester": "fall"
   },
   {
-    "courseCode": "IS331",
+    "courseCode": "IS333",
     "offeredInSemester": "spring"
   },
   {
@@ -340,7 +340,7 @@
     "offeredInSemester": "spring"
   },
   {
-    "courseCode": "IS335",
+    "courseCode": "IS351",
     "offeredInSemester": "fall"
   },
   {
@@ -450,10 +450,6 @@
   {
     "courseCode": "CE451",
     "offeredInSemester": "fall"
-  },
-  {
-    "courseCode": "CHEM211",
-    "offeredInSemester": "spring"
   },
   {
     "courseCode": "EE222",
@@ -604,11 +600,11 @@
     "offeredInSemester": "fall"
   },
   {
-    "courseCode": "POLS231",
+    "courseCode": "SOAN251",
     "offeredInSemester": "fall"
   },
   {
-    "courseCode": "POLS231",
+    "courseCode": "SOAN251",
     "offeredInSemester": "spring"
   },
   {

@@ -14,20 +14,22 @@ export function determineCapstoneOption(
   const courseCodes = courses.map((course) => course.code.toUpperCase().trim());
 
   // CORRECTED: Define course patterns for Undergraduate Thesis
-  const undergraduateThesisCodePatterns = ["BUSA400A", "BUSA400B"];
+  const undergraduateBAThesisCodePatterns = ["BUSA400A", "BUSA400B"];
+  const undergraduateCSThesisCodePatterns = ["CS491", "CS492"];
 
   const entrepreneurshipCodePatterns = ["BUSA401A", "BUSA401B"];
 
   const appliedProjectCodePatterns = ["BUSA410"];
 
-  const engineeringSeniorProjectCodePatterns = ["BUSA410"];
+  const engineeringSeniorProjectCodePatterns = ["ENGR401"];
 
-  // Check if the student has taken any calculus courses
-  const hasUndergraduateThesisCourse = courseCodes.some((code) =>
-    undergraduateThesisCodePatterns.some((pattern) => code.includes(pattern))
+  const hasUndergraduateBAThesisCourse = courseCodes.some((code) =>
+    undergraduateBAThesisCodePatterns.some((pattern) => code.includes(pattern))
+  );
+  const hasUndergraduateCSThesisCourse = courseCodes.some((code) =>
+    undergraduateCSThesisCodePatterns.some((pattern) => code.includes(pattern))
   );
 
-  // Check if the student has taken any pre-calculus courses
   const hasEntrepreneurshipCourse = courseCodes.some((code) =>
     entrepreneurshipCodePatterns.some((pattern) => code.includes(pattern))
   );
@@ -44,7 +46,8 @@ export function determineCapstoneOption(
   // Log what we found for debugging
   console.log("Math course detection:", {
     courseCodes,
-    hasUndergraduateThesisCourse,
+    hasUndergraduateBAThesisCourse,
+    hasUndergraduateCSThesisCourse,
     hasEntrepreneurshipCourse,
     hasAppliedProjectCodeCourse,
     hasEngineeringSeniorProjectCourse,
@@ -53,8 +56,10 @@ export function determineCapstoneOption(
   // Determine the track based on courses taken
   if (isEngineeringStudent) {
     return "Engineering Senior Project";
-  } else if (hasUndergraduateThesisCourse) {
-    return "Undergraduate Thesis";
+  } else if (hasUndergraduateBAThesisCourse) {
+    return "Undergraduate BA Thesis";
+  } else if (hasUndergraduateCSThesisCourse) {
+    return "Undergraduate CS Thesis";
   } else if (hasEntrepreneurshipCourse) {
     return "Entrepreneurship";
   } else if (hasEngineeringSeniorProjectCourse) {

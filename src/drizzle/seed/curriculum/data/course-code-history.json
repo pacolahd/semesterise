@@ -2,5 +2,13 @@
   {
     "historicalCode": "ME411",
     "currentCode": "ME212"
+  },
+  {
+    "historicalCode":"IS331",
+    "currentCode": "IS333"
+  },
+  {
+    "historicalCode":"POLS231",
+    "currentCode": "SOAN251"
   }
 ]

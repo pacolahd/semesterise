@@ -2,16 +2,19 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 
 import { Loader2 } from "lucide-react";
 
 import { Navbar } from "@/components/navigation/navbar";
 import { StaffTabBar } from "@/components/navigation/staff-tab-bar";
+import { RealtimeNotificationsProvider } from "@/components/providers/realtime-notifications-provider";
 import Routes from "@/constants/routes";
 import { userRoles } from "@/drizzle/schema/auth/enums";
 import { useAuthStore } from "@/lib/auth/auth-store";
 import { useRequireAuth } from "@/lib/auth/client-permission-hooks";
+
+// app/staff/layout.tsx
 
 // app/staff/layout.tsx
 
@@ -50,6 +53,8 @@ export default function DashboardLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
+      {/* Add the RealtimeNotificationsProvider to enable notifications app-wide */}
+      <RealtimeNotificationsProvider />
       <Navbar />
       <StaffTabBar />
       <main className="flex-1 p-4 md:p-6">{children}</main>

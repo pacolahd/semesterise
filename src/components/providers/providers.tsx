@@ -17,8 +17,6 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
         disableTransitionOnChange
       >
         <SessionProvider>
-          {/* Add the RealtimeNotificationsProvider to enable notifications app-wide */}
-          <RealtimeNotificationsProvider />
           {children}
           <Toaster position="top-right" richColors closeButton />
         </SessionProvider>

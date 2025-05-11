@@ -37,7 +37,7 @@
   },
   {
     "code": "ENGR213",
-    "title": "Materials Science & Chemistry",
+    "title": "Material Science & Chemistry",
     "department": "Engineering",
     "credits": 1.0,
     "description": "This course introduces the fundamental concepts of materials science and chemistry relevant to engineering. Topics include atomic structure, bonding, crystal structure, mechanical properties, phase diagrams, and material selection for engineering applications.",
@@ -59,7 +59,7 @@
     "department": "Engineering",
     "credits": 0.5,
     "description": "In their third year, engineering students will participate in a one-year group project that ideally cuts across multiple engineering fields (electrical and electronic, mechanical and computer), to revisit the design process at a higher level, to deepen teamwork skills, and to reinforce system level thinking.",
-    "prerequisites": "Leadership Seminar 4 for Engineers and System Dynamics, concurrent enrollment in Control Systems",
+    "prerequisites":"Leadership Seminar 3",
     "semestersOffered": ["FALL", "SPRING"]
   },
 
@@ -171,15 +171,7 @@
     "prerequisites": "Computer Programming (for Engineering or Computer Science) and Digital Systems Design (or Computer Organization for non-Engineering students)",
     "semestersOffered": ["FALL"]
   },
-  {
-    "code": "CHEM211",
-    "title": "Material Science & Chemistry",
-    "department": "Engineering",
-    "credits": 1.0,
-    "description": "This course covers the fundamental principles of materials science and chemistry relevant to engineering applications. Topics include atomic structure, bonding, crystal structures, defects, phase diagrams, mechanical properties, and material selection for engineering design.",
-    "prerequisites": "Physics I: Mechanics",
-    "semestersOffered": ["SPRING"]
-  },
+
   {
     "code": "EE222",
     "title": "Circuits and Electronics",

@@ -6,7 +6,11 @@ let pusherClient: Pusher;
 // Ensure we only create one instance of Pusher
 export function getPusherClient() {
   if (!pusherClient) {
-    Pusher.logToConsole = true; // Enable Pusher debug logs
+    // Enable Pusher debug logs in dev mode
+    if (process.env.NODE_ENV !== "production") {
+      Pusher.logToConsole = true;
+    }
+
     pusherClient = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
       cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
       authEndpoint: "/api/pusher/auth",

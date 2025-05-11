@@ -5,6 +5,7 @@ import {
   prerequisiteCourses,
   prerequisiteGroups,
 } from "@/drizzle/schema";
+import { MajorGroup } from "@/drizzle/schema/curriculum/enums";
 
 import { CACHE_TTL } from "./constants";
 import {
@@ -23,6 +24,26 @@ const prerequisiteCache = new Map<
     timestamp: number;
   }
 >();
+
+/*
+ * This method is used to check if a major belongs to a specific group
+ * */
+export function doesMajorBelongToGroup(
+  majorCode: string,
+  group: MajorGroup
+): boolean {
+  switch (group) {
+    case "ALL":
+      return true; // Applies to all majors
+    case "ENG":
+      return ["CE", "EE", "ME"].includes(majorCode); // Engineering majors
+    case "NON-ENG":
+      return ["CS", "MIS", "BA"].includes(majorCode); // Non-engineering majors
+    default:
+      // For specific majors (e.g., "CS", "CE"), check exact match
+      return majorCode === group;
+  }
+}
 
 /**
  * Load and cache ALL prerequisite data for the entire system
@@ -85,7 +106,7 @@ export async function loadAllPrerequisiteData(): Promise<PrerequisiteData> {
         | "OR",
       isConcurrent: group.isConcurrent || false,
       isRecommended: group.isRecommended || false,
-      applicableMajorCode: group.applicableMajorCode,
+      applicableMajorGroup: group.applicableMajorGroup,
     };
 
     // Add to groups map
@@ -137,12 +158,15 @@ export function checkPrerequisites(
   const allGroups = prereqData.courseToGroups.get(courseCode) || [];
 
   // Filter groups to only include those applicable to this student's major
-  const groups = allGroups.filter(
-    (group) =>
-      !group.applicableMajorCode ||
-      !studentMajorCode ||
-      group.applicableMajorCode === studentMajorCode
-  );
+  const groups = allGroups.filter((group) => {
+    if (!group.applicableMajorGroup) {
+      return true; // Applies to all if null
+    }
+    if (!studentMajorCode) {
+      return false; // No major specified, and group is specific
+    }
+    return doesMajorBelongToGroup(studentMajorCode, group.applicableMajorGroup);
+  });
 
   // If no prerequisites, return true immediately
   if (groups.length === 0) {
@@ -199,7 +223,7 @@ export function checkPrerequisites(
         satisfiedCount: prereqCourses.filter((course) =>
           availableCourses.has(course.courseCode)
         ).length,
-        applicableMajorCode: group.applicableMajorCode,
+        applicableMajorGroup: group.applicableMajorGroup, // Updated field
       });
     }
   }
@@ -246,7 +270,7 @@ export function checkPrerequisites(
         satisfiedCount: prereqCourses.filter((course) =>
           availableCourses.has(course.courseCode)
         ).length,
-        applicableMajorCode: group.applicableMajorCode,
+        applicableMajorGroup: group.applicableMajorGroup, // Updated field
       });
     }
 
@@ -293,15 +317,15 @@ function generatePrerequisiteMessage(
         return `"${c.courseCode} - ${title}"`;
       });
 
-      const majorInfo = group.applicableMajorCode
-        ? ` [For ${group.applicableMajorCode} majors]`
+      const majorInfo = group.applicableMajorGroup
+        ? ` [For ${group.applicableMajorGroup} group]`
         : "";
       if (group.requiredCount) {
-        return `Prerequisite issue: You must complete ${coursesWithTitles}`;
+        return `Prerequisite issue: You must complete ${coursesWithTitles}${majorInfo}`;
       } else if (group.internalLogicOperator === "AND") {
-        return `Prerequisite issue: You need all of these courses: ${coursesWithTitles.join(", ")}`;
+        return `Prerequisite issue: You need all of these courses: ${coursesWithTitles.join(", ")}${majorInfo}`;
       } else {
-        return `Prerequisite issue: You need at least one of these courses: ${coursesWithTitles.join(", ")}`;
+        return `Prerequisite issue: You need at least one of these courses: ${coursesWithTitles.join(", ")}${majorInfo}`;
       }
     })
     .join("; ");

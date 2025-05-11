@@ -226,6 +226,6 @@ const isAdminRoute = (pathname: string) =>
 
 export const config = {
   matcher: [
-    "/((?!api/auth|api/transcript|api/student|_next/static|_next/image|static|images|favicon.ico|.*\\.(?:png|css|js)$).*)",
+    "/((?!api/auth|api/transcript|api/student|api/pusher|_next/static|_next/image|static|images|favicon.ico|.*\\.(?:png|css|js)$).*)",
   ],
 };

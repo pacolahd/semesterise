@@ -26,6 +26,7 @@ import { ActionResponse } from "@/lib/types/common";
 
 import {
   checkPrerequisites,
+  doesMajorBelongToGroup,
   getAvailableCourses,
   loadAllPrerequisiteData,
 } from "./prerequisite-utility";
@@ -1329,21 +1330,21 @@ async function validatePrerequisiteMove(
     potentialDependentCourse,
     groups,
   ] of prereqData.courseToGroups.entries()) {
-    // Skip if it's the same course
     if (potentialDependentCourse === courseCode) continue;
 
-    // Check if this course is a prerequisite for any group
     for (const group of groups) {
-      // Skip concurrent or recommended groups
       if (group.isConcurrent || group.isRecommended) continue;
 
-      // Skip groups that don't apply to this student's major
-      if (group.applicableMajorCode && majorCode !== group.applicableMajorCode)
+      // Skip groups that don’t apply to this student’s major
+      if (
+        group.applicableMajorGroup &&
+        majorCode &&
+        !doesMajorBelongToGroup(majorCode, group.applicableMajorGroup)
+      ) {
         continue;
+      }
 
       const prereqCourses = prereqData.groupToCourses.get(group.groupKey) || [];
-
-      // If this course is a prerequisite for this group
       if (prereqCourses.some((pc) => pc.courseCode === courseCode)) {
         dependentCourses.add(potentialDependentCourse);
         break;
@@ -2549,7 +2550,7 @@ async function placeRequiredCourse(
       reason:
         maxAttempts <= 0
           ? "Maximum placement attempts reached"
-          : "Could not find a suitable semester within 8 years",
+          : "Could not find a suitable semester",
     });
   }
 

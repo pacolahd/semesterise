@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Use the updated semester mapping function from the transcript import service that takes admission date into account
+    // Use the updated semester mapping function from the transcript import service
     const mappings = await transcriptImportService.generateSemesterMappings(
       importRequest.transcriptData.semesters,
       importRequest.academicInfo,

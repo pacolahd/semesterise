@@ -221,7 +221,7 @@ CREATE TABLE "prerequisite_groups" (
 	"group_minimum_grade" varchar(2),
 	"sort_order" integer DEFAULT 0 NOT NULL,
 	"non_course_requirement" text,
-	"applicable_major_code" varchar(10),
+	"applicable_major_group" "major_group",
 	"cohort_year_start" integer,
 	"cohort_year_end" integer,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
@@ -598,174 +598,6 @@ ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("
 CREATE INDEX "idx_student_courses_student_semester" ON "student_courses" USING btree ("student_id","semester_id" DESC NULLS LAST) WITH (fillfactor=90);--> statement-breakpoint
 CREATE INDEX "idx_student_courses_category" ON "student_courses" USING btree ("category_name") WHERE "student_courses"."category_name" IS NOT NULL;--> statement-breakpoint
 CREATE INDEX "idx_student_courses_status" ON "student_courses" USING btree ("status") WHERE "student_courses"."status" <> 'dropped';--> statement-breakpoint
-CREATE VIEW "public"."student_course_status_view" AS (
-WITH attempt_ranking AS (
-  SELECT
-    sc.id AS student_course_id,
-    sc.student_id,
-    sc.course_code,
-    ROW_NUMBER() OVER (
-      PARTITION BY sc.student_id, sc.course_code
-      ORDER BY ac.start_date DESC
-    ) AS row_num
-  FROM student_courses sc
-  JOIN academic_semesters ac ON sc.semester_id = ac.id
-),
-course_attempts AS (
-  SELECT
-    sc.student_id,
-    sc.course_code,
-    COUNT(*) AS total_attempts
-  FROM student_courses sc
-  GROUP BY sc.student_id, sc.course_code
-),
-course_category AS (
-  SELECT
-    cc.course_code,
-    sp.student_id,
-    sp.auth_id,
-    COALESCE(cc.category_name, 'Non-Major Electives') AS category_name,
-    ROW_NUMBER() OVER (
-      PARTITION BY cc.course_code, sp.student_id
-      ORDER BY
-        CASE
-          WHEN cc.major_group = sp.major_code THEN 1
-          WHEN cc.major_group = 'ALL' THEN 2
-          ELSE 3
-        END
-    ) AS row_priority
-  FROM student_profiles sp
-  JOIN course_categorization cc
-    ON cc.major_group IN (
-      CASE
-        WHEN sp.major_code IN ('CE','EE','ME') THEN 'ENG'
-        ELSE 'NON-ENG'
-      END,
-      sp.major_code,
-      'ALL'
-    )
-  WHERE cc.course_code IS NOT NULL
-),
-categorized_course AS (
-  SELECT course_code, student_id, category_name
-  FROM course_category
-  WHERE row_priority = 1
-),
-prerequisite_courses AS (
-  SELECT DISTINCT prerequisite_course_code AS course_code
-  FROM prerequisite_courses
-)
-SELECT
-  sc.id AS student_course_id,
-  sp.auth_id,
-  sc.student_id,
-  sc.semester_id,
-  ssm.program_year AS year_taken,
-  ssm.program_semester AS semester_taken,
-  ssm.is_summer AS was_summer_semester,
-  COALESCE(sc.original_course_code, sc.course_code) AS course_code,
-  sc.status,
-  COALESCE(sc.category_name, cc.category_name, 'Non-Major Electives') AS category_name,
-  COALESCE(sc.placeholder_credits, c.credits) AS credits,
-  c.department_code,
-  COALESCE(d.name, 'Planned') AS department_name,
-  COALESCE(c.title, sc.course_title, sc.placeholder_title, 'Planned Course') AS course_title,
-  sc.grade,
-  gt.numeric_value AS grade_numeric_value,
-  CASE
-    WHEN sc.grade = 'P' THEN 'P'
-    WHEN cgr.minimum_grade IS NOT NULL THEN cgr.minimum_grade
-    WHEN EXISTS (SELECT 1 FROM prerequisite_courses pc WHERE pc.course_code = sc.course_code)
-      OR COALESCE(sc.category_name, cc.category_name, '') = 'Required Major Classes'
-      THEN 'D+'
-    ELSE 'D'
-  END AS minimum_grade_required,
-  CASE
-    WHEN sc.grade = 'P' THEN NULL
-    WHEN cgr.minimum_grade IS NOT NULL THEN
-      (SELECT numeric_value FROM grade_types WHERE grade = cgr.minimum_grade)
-    WHEN EXISTS (SELECT 1 FROM prerequisite_courses pc WHERE pc.course_code = sc.course_code)
-      OR COALESCE(sc.category_name, cc.category_name, '') = 'Required Major Classes'
-      THEN (SELECT numeric_value FROM grade_types WHERE grade = 'D+')
-    ELSE (SELECT numeric_value FROM grade_types WHERE grade = 'D')
-  END AS min_numeric_value_required,
-  CASE
-    WHEN sc.status = 'planned' THEN NULL
-    ELSE NOT (
-      CASE
-        WHEN sc.grade = 'P' THEN false
-        WHEN cgr.minimum_grade IS NOT NULL THEN
-          COALESCE(gt.numeric_value, 0) < (
-            SELECT numeric_value FROM grade_types WHERE grade = cgr.minimum_grade
-          )
-        WHEN EXISTS (SELECT 1 FROM prerequisite_courses pc WHERE pc.course_code = sc.course_code)
-          OR COALESCE(sc.category_name, cc.category_name, '') = 'Required Major Classes'
-          THEN sc.grade IN ('D', 'E', 'I')
-        ELSE sc.grade IN ('E', 'I')
-      END
-    )
-  END AS passed,
-  CASE
-    WHEN sc.status = 'planned' THEN false
-    WHEN sc.grade = 'P' THEN false
-    WHEN cgr.minimum_grade IS NOT NULL THEN
-      COALESCE(gt.numeric_value, 0) < (
-        SELECT numeric_value FROM grade_types WHERE grade = cgr.minimum_grade
-      )
-    WHEN EXISTS (SELECT 1 FROM prerequisite_courses pc WHERE pc.course_code = sc.course_code)
-      OR COALESCE(sc.category_name, cc.category_name, '') = 'Required Major Classes'
-      THEN sc.grade IN ('D', 'E', 'I')
-    ELSE sc.grade IN ('E', 'I')
-  END AS retake_needed,
-  CASE
-    WHEN sc.status = 'planned' THEN false
-    WHEN COALESCE(ca.total_attempts, 0) >= 3 THEN false
-    WHEN sc.grade IN ('D+', 'D') AND NOT (
-      CASE
-        WHEN cgr.minimum_grade IS NOT NULL THEN
-          COALESCE(gt.numeric_value, 0) < (
-            SELECT numeric_value FROM grade_types WHERE grade = cgr.minimum_grade
-          )
-        WHEN EXISTS (SELECT 1 FROM prerequisite_courses pc WHERE pc.course_code = sc.course_code)
-          OR COALESCE(sc.category_name, cc.category_name, '') = 'Required Major Classes'
-          THEN sc.grade IN ('D', 'E', 'I')
-        ELSE sc.grade IN ('E', 'I')
-      END
-    ) THEN true
-    ELSE false
-  END AS voluntary_retake_possible,
-  COALESCE(ca.total_attempts, 1) AS total_attempts,
-  CASE
-    WHEN sc.course_code IS NULL THEN true
-    ELSE (ar.row_num = 1)
-  END AS is_latest_attempt,
-  CASE
-    WHEN sc.course_code IS NULL THEN NULL
-    ELSE COALESCE(ca.total_attempts, 0) >= 3 OR sc.grade IS NULL
-  END AS retake_limit_reached
-FROM student_courses sc
-JOIN student_profiles sp ON sc.student_id = sp.student_id
-LEFT JOIN student_semester_mappings ssm
-  ON sc.semester_id = ssm.academic_semester_id AND ssm.student_id = sp.student_id
-JOIN attempt_ranking ar
-  ON sc.id = ar.student_course_id
-LEFT JOIN courses c ON sc.course_code = c.code
-LEFT JOIN departments d ON c.department_code = d.code
-LEFT JOIN grade_types gt ON sc.grade = gt.grade
-LEFT JOIN course_grade_requirements cgr
-  ON sc.course_code = cgr.course_code
-  AND sp.major_code = cgr.major_code
-  AND (
-    sp.cohort_year BETWEEN cgr.applicable_from_cohort_year AND cgr.applicable_until_cohort_year
-    OR (cgr.applicable_from_cohort_year IS NULL AND cgr.applicable_until_cohort_year IS NULL)
-  )
-LEFT JOIN course_attempts ca
-  ON sc.student_id = ca.student_id
-  AND sc.course_code = ca.course_code
-LEFT JOIN categorized_course cc
-  ON cc.course_code = sc.course_code
-  AND cc.student_id = sc.student_id
-);--> statement-breakpoint
 CREATE VIEW "public"."student_required_courses_view" AS (
 WITH student_info AS (
   SELECT
@@ -949,19 +781,219 @@ SELECT
   cr.recommended_semester,  -- Included in final select
   cr.is_required
 FROM combined_required cr
+);--> statement-breakpoint
+CREATE VIEW "public"."student_course_status_view" AS (
+WITH attempt_ranking AS (
+  SELECT
+    sc.id AS student_course_id,
+    sc.student_id,
+    sc.course_code,
+    ROW_NUMBER() OVER (
+      PARTITION BY sc.student_id, sc.course_code
+      ORDER BY ac.start_date DESC
+    ) AS row_num
+  FROM student_courses sc
+  JOIN academic_semesters ac ON sc.semester_id = ac.id
+),
+course_attempts AS (
+  SELECT
+    sc.student_id,
+    sc.course_code,
+    COUNT(*) AS total_attempts
+  FROM student_courses sc
+  GROUP BY sc.student_id, sc.course_code
+),
+course_category AS (
+  SELECT
+    cc.course_code,
+    sp.student_id,
+    sp.auth_id,
+    COALESCE(cc.category_name, 'Non-Major Electives') AS category_name,
+    ROW_NUMBER() OVER (
+      PARTITION BY cc.course_code, sp.student_id
+      ORDER BY
+        CASE
+          WHEN cc.major_group = sp.major_code THEN 1
+          WHEN cc.major_group = 'ALL' THEN 2
+          ELSE 3
+        END
+    ) AS row_priority
+  FROM student_profiles sp
+  JOIN course_categorization cc
+    ON cc.major_group IN (
+      CASE
+        WHEN sp.major_code IN ('CE','EE','ME') THEN 'ENG'
+        ELSE 'NON-ENG'
+      END,
+      sp.major_code,
+      'ALL'
+    )
+  WHERE cc.course_code IS NOT NULL
+),
+categorized_course AS (
+  SELECT course_code, student_id, category_name
+  FROM course_category
+  WHERE row_priority = 1
+),
+prerequisite_courses AS (
+  SELECT DISTINCT prerequisite_course_code AS course_code
+  FROM prerequisite_courses
+)
+SELECT
+  sc.id AS student_course_id,
+  sp.auth_id,
+  sc.student_id,
+  sc.semester_id,
+  ssm.program_year AS year_taken,
+  ssm.program_semester AS semester_taken,
+  ssm.is_summer AS was_summer_semester,
+  COALESCE(sc.original_course_code, sc.course_code) AS course_code,
+  sc.status,
+  COALESCE(sc.category_name, cc.category_name, 'Non-Major Electives') AS category_name,
+  COALESCE(sc.placeholder_credits, c.credits) AS credits,
+  c.department_code,
+  COALESCE(d.name, 'Planned') AS department_name,
+  COALESCE(c.title, sc.course_title, sc.placeholder_title, 'Planned Course') AS course_title,
+  sc.grade,
+  gt.numeric_value AS grade_numeric_value,
+  CASE
+    WHEN sc.grade = 'P' THEN 'P'
+    WHEN cgr.minimum_grade IS NOT NULL THEN cgr.minimum_grade
+    WHEN EXISTS (SELECT 1 FROM prerequisite_courses pc WHERE pc.course_code = sc.course_code)
+      OR COALESCE(sc.category_name, cc.category_name, '') = 'Required Major Classes'
+      THEN 'D+'
+    ELSE 'D'
+  END AS minimum_grade_required,
+  CASE
+    WHEN sc.grade = 'P' THEN NULL
+    WHEN cgr.minimum_grade IS NOT NULL THEN
+      (SELECT numeric_value FROM grade_types WHERE grade = cgr.minimum_grade)
+    WHEN EXISTS (SELECT 1 FROM prerequisite_courses pc WHERE pc.course_code = sc.course_code)
+      OR COALESCE(sc.category_name, cc.category_name, '') = 'Required Major Classes'
+      THEN (SELECT numeric_value FROM grade_types WHERE grade = 'D+')
+    ELSE (SELECT numeric_value FROM grade_types WHERE grade = 'D')
+  END AS min_numeric_value_required,
+  CASE
+    WHEN sc.status = 'planned' THEN NULL
+    ELSE NOT (
+      CASE
+        WHEN sc.grade = 'P' THEN false
+        WHEN cgr.minimum_grade IS NOT NULL THEN
+          COALESCE(gt.numeric_value, 0) < (
+            SELECT numeric_value FROM grade_types WHERE grade = cgr.minimum_grade
+          )
+        WHEN EXISTS (SELECT 1 FROM prerequisite_courses pc WHERE pc.course_code = sc.course_code)
+          OR COALESCE(sc.category_name, cc.category_name, '') = 'Required Major Classes'
+          THEN sc.grade IN ('D', 'E', 'I')
+        ELSE sc.grade IN ('E', 'I')
+      END
+    )
+  END AS passed,
+  CASE
+    WHEN sc.status = 'planned' THEN false
+    WHEN sc.grade = 'P' THEN false
+    WHEN cgr.minimum_grade IS NOT NULL THEN
+      COALESCE(gt.numeric_value, 0) < (
+        SELECT numeric_value FROM grade_types WHERE grade = cgr.minimum_grade
+      )
+    WHEN EXISTS (SELECT 1 FROM prerequisite_courses pc WHERE pc.course_code = sc.course_code)
+      OR COALESCE(sc.category_name, cc.category_name, '') = 'Required Major Classes'
+      THEN sc.grade IN ('D', 'E', 'I')
+    ELSE sc.grade IN ('E', 'I')
+  END AS retake_needed,
+  CASE
+    WHEN sc.status = 'planned' THEN false
+    WHEN COALESCE(ca.total_attempts, 0) >= 3 THEN false
+    WHEN sc.grade IN ('D+', 'D') AND NOT (
+      CASE
+        WHEN cgr.minimum_grade IS NOT NULL THEN
+          COALESCE(gt.numeric_value, 0) < (
+            SELECT numeric_value FROM grade_types WHERE grade = cgr.minimum_grade
+          )
+        WHEN EXISTS (SELECT 1 FROM prerequisite_courses pc WHERE pc.course_code = sc.course_code)
+          OR COALESCE(sc.category_name, cc.category_name, '') = 'Required Major Classes'
+          THEN sc.grade IN ('D', 'E', 'I')
+        ELSE sc.grade IN ('E', 'I')
+      END
+    ) THEN true
+    ELSE false
+  END AS voluntary_retake_possible,
+  COALESCE(ca.total_attempts, 1) AS total_attempts,
+  CASE
+    WHEN sc.course_code IS NULL THEN true
+    ELSE (ar.row_num = 1)
+  END AS is_latest_attempt,
+  CASE
+    WHEN sc.course_code IS NULL THEN NULL
+    ELSE COALESCE(ca.total_attempts, 0) >= 3 OR sc.grade IS NULL
+  END AS retake_limit_reached
+FROM student_courses sc
+JOIN student_profiles sp ON sc.student_id = sp.student_id
+LEFT JOIN student_semester_mappings ssm
+  ON sc.semester_id = ssm.academic_semester_id AND ssm.student_id = sp.student_id
+JOIN attempt_ranking ar
+  ON sc.id = ar.student_course_id
+LEFT JOIN courses c ON sc.course_code = c.code
+LEFT JOIN departments d ON c.department_code = d.code
+LEFT JOIN grade_types gt ON sc.grade = gt.grade
+LEFT JOIN course_grade_requirements cgr
+  ON sc.course_code = cgr.course_code
+  AND sp.major_code = cgr.major_code
+  AND (
+    sp.cohort_year BETWEEN cgr.applicable_from_cohort_year AND cgr.applicable_until_cohort_year
+    OR (cgr.applicable_from_cohort_year IS NULL AND cgr.applicable_until_cohort_year IS NULL)
+  )
+LEFT JOIN course_attempts ca
+  ON sc.student_id = ca.student_id
+  AND sc.course_code = ca.course_code
+LEFT JOIN categorized_course cc
+  ON cc.course_code = sc.course_code
+  AND cc.student_id = sc.student_id
+);--> statement-breakpoint
 
-);
---> statement-breakpoint
 CREATE VIEW "public"."student_course_categorized_status_view" AS (
 WITH all_courses AS (
   SELECT 
     scsv.*,
     CASE
-      When(scsv.course_title ILIKE '%africa%' OR scsv.course_title ILIKE '%ghana%'  OR scsv.course_title ILIKE '%politics%')
-        THEN 'Africana'
-      ELSE scsv.category_name
-    END AS detailed_category
+      WHEN scsv.course_title ILIKE '%africa%' 
+        OR scsv.course_title ILIKE '%ghana%'  
+        OR scsv.course_title ILIKE '%politics%'
+      THEN TRUE
+      ELSE FALSE
+    END AS is_africana_candidate,
+    ROW_NUMBER() OVER (
+      PARTITION BY scsv.student_id 
+      ORDER BY scsv.year_taken, scsv.semester_taken
+    ) AS course_order
   FROM student_course_status_view scsv
+ ),
+
+africana_assignment AS (
+  SELECT
+    ac.*,
+    SUM(CASE WHEN ac.is_africana_candidate THEN 1 ELSE 0 END) 
+      OVER (
+        PARTITION BY ac.student_id 
+        ORDER BY ac.course_order 
+        ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING
+      ) AS prior_africana_count
+  FROM all_courses ac
+),
+
+detailed_category_assignment AS (
+  SELECT
+    aa.*,
+    CASE
+      WHEN aa.is_africana_candidate 
+        AND (aa.prior_africana_count IS NULL OR aa.prior_africana_count < 1)
+      THEN 'Africana'
+      WHEN aa.is_africana_candidate 
+        AND aa.prior_africana_count >= 1
+      THEN 'Non-Major Electives'
+      ELSE aa.category_name
+    END AS detailed_sub_category
+  FROM africana_assignment aa
 ),
 
 category_requirements AS (
@@ -971,7 +1003,7 @@ category_requirements AS (
     src.category_name,
     CASE
       WHEN src.category_name = 'Non-Major Electives' 
-      THEN src.sub_category  -- Preserve sub-category hierarchy
+      THEN src.sub_category
       ELSE src.category_name
     END AS requirement_category
   FROM student_required_courses_view src
@@ -979,24 +1011,21 @@ category_requirements AS (
 
 prioritized_courses AS (
   SELECT
-    ac.*,
+    dca.*,
     COALESCE(cr.requirement_category, 'General Elective') AS requirement_category,
     cr.parent_category,
     CASE
-      -- Highest priority: Africana sub-category
-      WHEN ac.detailed_category = 'Africana' THEN 1
-      -- Second priority: Free Elective sub-category
+      WHEN dca.detailed_sub_category = 'Africana' THEN 1
       WHEN cr.requirement_category = 'Free Elective' THEN 2
-      -- Third priority: Major-related categories
       WHEN cr.parent_category = 'MAJOR' THEN 3
       ELSE 4
     END AS assignment_priority
-  FROM all_courses ac
+  FROM detailed_category_assignment dca
   LEFT JOIN category_requirements cr
-    ON ac.student_id = cr.student_id
+    ON dca.student_id = cr.student_id
     AND (
-      ac.detailed_category = cr.requirement_category
-      OR (ac.detailed_category IS NULL AND cr.requirement_category = 'Non-Major Electives')
+      dca.detailed_sub_category = cr.requirement_category
+      OR (dca.detailed_sub_category IS NULL AND cr.requirement_category = 'Non-Major Electives')
     )
 ),
 
@@ -1006,7 +1035,7 @@ assigned_courses AS (
     FIRST_VALUE(requirement_category) OVER (
       PARTITION BY student_id, course_title
       ORDER BY assignment_priority
-    ) AS final_sub_category  -- This is the critical rename
+    ) AS final_sub_category
   FROM prioritized_courses
 ),
 
@@ -1014,13 +1043,13 @@ elective_fulfillment AS (
   SELECT
     student_id,
     COUNT(*) FILTER (
-      WHERE passed AND final_sub_category = 'Major Electives'  -- Fixed here
+      WHERE passed AND final_sub_category = 'Major Electives'
     ) AS major_electives_fulfilled,
     COUNT(*) FILTER (
-      WHERE passed AND final_sub_category = 'Non-Major Electives'  -- Fixed here
-    ) AS non_major_electives_fulfilled,
+      WHERE passed AND final_sub_category IN ('Non-Major Electives', 'Africana')
+    ) AS total_non_major_electives_fulfilled,
     COUNT(*) FILTER (
-      WHERE passed AND final_sub_category = 'Africana'  -- Fixed here
+      WHERE passed AND final_sub_category = 'Africana'
     ) AS africana_fulfilled
   FROM assigned_courses
   GROUP BY student_id
@@ -1032,7 +1061,7 @@ free_elective_assignments AS (
     CASE
       WHEN sp.major_code = 'MIS'
         AND ef.major_electives_fulfilled >= 2
-        AND ef.non_major_electives_fulfilled >= 2
+        AND ef.total_non_major_electives_fulfilled >= 2
         AND ef.africana_fulfilled >= 1
         AND ROW_NUMBER() OVER (
           PARTITION BY ac.student_id
@@ -1044,11 +1073,9 @@ free_elective_assignments AS (
   JOIN student_profiles sp ON ac.student_id = sp.student_id
   JOIN elective_fulfillment ef ON ac.student_id = ef.student_id
   WHERE ac.passed
-    AND ac.final_sub_category IN ('General Elective', 'Non-Major Electives')  -- Fixed here
 )
 
 SELECT
-  -- Original fields
   ac.student_course_id,
   ac.auth_id,
   ac.student_id,
@@ -1073,23 +1100,27 @@ SELECT
   ac.department_name,
   ac.course_title,
   
-  -- Corrected categorization hierarchy
+  -- Correct parent_category
   CASE
     WHEN ac.parent_category = 'MAJOR' THEN 'MAJOR'
     ELSE 'LIBERAL ARTS & SCIENCES CORE'
   END AS parent_category,
   
+  -- Always set category_name to 'Non-Major Electives' for africana and non-major courses
   CASE
-    WHEN ac.final_sub_category IN ('Africana', 'Free Elective') 
+    WHEN ac.detailed_sub_category IN ('Africana', 'Non-Major Electives') 
     THEN 'Non-Major Electives'
     ELSE ac.final_sub_category
   END AS category_name,
   
+  -- Set sub_category correctly
+CAST(
   CASE
-    WHEN ac.final_sub_category IN ('Africana', 'Free Elective', 'Non-Major Electives')
-    THEN ac.final_sub_category
+    WHEN ac.detailed_sub_category = 'Africana' THEN 'Africana'
+    WHEN ac.detailed_sub_category = 'Non-Major Electives' THEN 'Non-Major Electives'
     ELSE NULL
-  END AS sub_category
+  END AS VARCHAR
+) AS sub_category
 
 FROM assigned_courses ac
 LEFT JOIN free_elective_assignments fea
