@@ -185,12 +185,30 @@ const options = {
   },
   plugins: [
     openAPI(),
+    // jwt({
+    //   jwt: {
+    //     definePayload: ({ user }) => ({
+    //       sub: user.id, // User ID
+    //       role: "authenticated", // Supabase-compatible role
+    //     }),
+    //   },
+    // }),
+
     jwt({
+      jwks: {
+        keyPairConfig: {
+          alg: "EdDSA",
+          crv: "Ed25519",
+          // Tell BetterAuth to use a fixed key pair
+          // Optional: Specify a specific key ID to always use
+        },
+      },
       jwt: {
         definePayload: ({ user }) => ({
-          sub: user.id, // User ID
-          role: "authenticated", // Supabase-compatible role
+          sub: user.id,
+          role: "authenticated",
         }),
+        audience: "authenticated",
       },
     }),
     // Add this line to enable the JWKS endpoint
