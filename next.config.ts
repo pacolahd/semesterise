@@ -9,6 +9,8 @@ const jiti = createJiti(fileURLToPath(import.meta.url));
 jiti("./src/env/server.ts");
 
 const nextConfig: NextConfig = {
+  transpilePackages: ["better-auth"],
+
   /* config options here */
   eslint: {
     ignoreDuringBuilds: true,
