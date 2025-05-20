@@ -282,7 +282,7 @@ const options = {
         </div>
 
         <div style="margin-top: 20px;">
-            <p>Sent by Semesterise • <a href="http://localhost:3000/" style="background-color: #004eb4; color: white; padding: 5px 10px; text-decoration: none; border-radius: 10px;">Visit Website</a></p>
+            <p>Sent by Semesterise • <a href=${env.BETTER_AUTH_URL} style="background-color: #004eb4; color: white; padding: 5px 10px; text-decoration: none; border-radius: 10px;">Visit Website</a></p>
             <p>This is <span style="color: darkblue"> Ryan Tangu Mbun Tangwe's </span> Applied Capstone Project. An integrated platform for degree auditing and petition processing at Ashesi University.</p>
      
             <p >
@@ -315,7 +315,7 @@ const options = {
             </div>
             <p style="color: #666; font-size: 14px;">This link will expire in 1 hour. If you didn't create an account, please ignore this email.</p>
             <div style="margin-top: 20px;">
-              <p>Sent by Semesterise • <a href="http://localhost:3000/" style="background-color: #004eb4; color: white; padding: 5px 10px; text-decoration: none; border-radius: 10px;">Visit Website</a></p>
+              <p>Sent by Semesterise • <a href=${env.BETTER_AUTH_URL} style="background-color: #004eb4; color: white; padding: 5px 10px; text-decoration: none; border-radius: 10px;">Visit Website</a></p>
               <p>This is <span style="color: darkblue"> Ryan Tangu Mbun Tangwe's </span> Applied Capstone Project. An integrated platform for degree auditing and petition processing at Ashesi University.</p>
        
               <p >
