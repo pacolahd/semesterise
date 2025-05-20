@@ -31,7 +31,7 @@ const nextConfig: NextConfig = {
   experimental: {
     authInterrupts: true,
     serverActions: {
-      allowedOrigins: ["localhost:3000", "semesterisee.pacolahd.com"],
+      allowedOrigins: ["localhost:3000", "capstone.pacolahd.com"],
       bodySizeLimit: "2mb",
     },
   },
