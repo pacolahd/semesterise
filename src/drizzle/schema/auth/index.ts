@@ -14,6 +14,8 @@ export {
   authVerificationSchema,
 } from "./auth-verifications";
 
+export { authJWKS, authJWKSSchema } from "./auth-jwks";
+
 export { userTypeEnum, userRoleEnum } from "./enums";
 
 // Relations

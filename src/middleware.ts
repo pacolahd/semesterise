@@ -70,7 +70,7 @@ async function getRawSession(
         headers: { cookie: request.headers.get("cookie") || "" },
         cache: "no-store",
       },
-      query: { disableCookieCache: true },
+      // query: { disableCookieCache: true },
     });
 
     // @ts-ignore

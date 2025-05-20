@@ -1,7 +1,7 @@
 import { BetterAuthOptions, betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
-import { customSession, openAPI } from "better-auth/plugins";
+import { customSession, jwt, openAPI } from "better-auth/plugins";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
@@ -30,6 +30,7 @@ const options = {
       session: authSchema.authSessions,
       account: authSchema.authAccounts,
       verification: authSchema.authVerifications,
+      jwks: authSchema.authJWKS,
     },
   }),
   user: {
@@ -184,7 +185,15 @@ const options = {
   },
   plugins: [
     openAPI(),
-
+    jwt({
+      jwt: {
+        definePayload: ({ user }) => ({
+          sub: user.id, // User ID
+          role: "authenticated", // Supabase-compatible role
+        }),
+      },
+    }),
+    // Add this line to enable the JWKS endpoint
     customSession(async ({ session, user }) => {
       // Get full user data with role - ADD AWAIT HERE
       const userWithRole = await db.query.authUsers.findFirst({
