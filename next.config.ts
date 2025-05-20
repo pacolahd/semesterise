@@ -10,6 +10,8 @@ const jiti = createJiti(fileURLToPath(import.meta.url));
 jiti("./src/env/server.ts");
 
 const nextConfig: NextConfig = {
+  output: "standalone",
+
   transpilePackages: ["better-auth"],
   webpack: (config) => {
     config.resolve.alias = {
