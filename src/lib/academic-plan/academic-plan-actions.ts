@@ -744,7 +744,7 @@ async function validateCoursePlacement(
 
   if (totalCredits > maxCredits) {
     warnings.push(
-      `This will exceed the recommended credit limit of ${maxCredits} credits per  ${isSummer ? "summer" : ""} semester. Total would be ${totalCredits - 1}`
+      `This will exceed the recommended credit limit of ${maxCredits} credits per  ${isSummer ? "summer" : ""} semester. Total would be ${totalCredits}`
     );
     // warnings.push(
     //   `This will exceed the recommended credit limit of ${maxCredits} credits per semester. Current: ${result.existingCredits - 1}, New: ${newCredits}, Total would be: ${totalCredits - 1}`
@@ -953,7 +953,7 @@ async function validatePlaceholderPlacement(
 
   if (totalCredits > maxCredits) {
     warnings.push(
-      `This will exceed the recommended credit limit of ${maxCredits} credits per  ${isSummer ? "summer" : ""} semester. Total would be ${totalCredits - 1}`
+      `This will exceed the recommended credit limit of ${maxCredits} credits per  ${isSummer ? "summer" : ""} semester. Total would be ${totalCredits}`
     );
     // warnings.push(
     //   `This will exceed the recommended credit limit of ${maxCredits} credits per semester. Current: ${result.existingCredits - 1}, New: ${credits}, Total would be: ${totalCredits - 1}`

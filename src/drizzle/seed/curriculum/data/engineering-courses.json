@@ -36,12 +36,12 @@
     "semestersOffered": ["FALL"]
   },
   {
-    "code": "ENGR213",
+    "code": "SC221",
     "title": "Material Science & Chemistry",
     "department": "Engineering",
     "credits": 1.0,
     "description": "This course introduces the fundamental concepts of materials science and chemistry relevant to engineering. Topics include atomic structure, bonding, crystal structure, mechanical properties, phase diagrams, and material selection for engineering applications.",
-    "prerequisites": "Physics I: Mechanics",
+    "prerequisites": "None",
     "semestersOffered": ["SPRING"]
   },
   {
@@ -307,15 +307,7 @@
     "prerequisites": "Physics I: Mechanics, Dynamic Systems",
     "semestersOffered": ["FALL"]
   },
-  {
-    "code": "ME412",
-    "title": "Fluid Dynamics & Applications",
-    "department": "Engineering",
-    "credits": 1.0,
-    "description": "This course covers the fundamentals of fluid dynamics and their applications in engineering systems. Topics include conservation laws, Navier-Stokes equations, potential flow, boundary layer theory, dimensional analysis, and applications to aerodynamics and hydrodynamics.",
-    "prerequisites": "Thermodynamics",
-    "semestersOffered": ["SPRING"]
-  },
+
   {
     "code": "ME413",
     "title": "Thermal Systems & Applications",

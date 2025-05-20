@@ -43,8 +43,11 @@ export default function AuthLayout({
             Student petition and degree auditing center
           </h2>
           <p className="body2-regular text-center ">
-            Submit and track your petitions with ease. Get real-time updates on
-            your requests and take action when needed.
+            {/*Submit and track your petitions with ease. Get real-time updates on*/}
+            {/*your requests and take action when needed.*/}
+            Track completed courses, view remaining requirements, and plan your
+            path to graduation with our comprehensive degree auditing and
+            petition processing system.
           </p>
         </div>
       </div>
