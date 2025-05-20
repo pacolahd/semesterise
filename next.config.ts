@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 import createJiti from "jiti";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const jiti = createJiti(fileURLToPath(import.meta.url));
@@ -10,7 +11,14 @@ jiti("./src/env/server.ts");
 
 const nextConfig: NextConfig = {
   transpilePackages: ["better-auth"],
-
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      react: path.resolve("./node_modules/react"),
+      "react-dom": path.resolve("./node_modules/react-dom"),
+    };
+    return config;
+  },
   /* config options here */
   eslint: {
     ignoreDuringBuilds: true,
